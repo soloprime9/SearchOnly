@@ -20,7 +20,7 @@ function App() {
     const fetchData = async () => {
       if (search) {
         try {
-          const response = await axios.get(`https://sdf-plum.vercel.app/search?q=${search}`);
+          const response = await axios.get(`https://sokara.vercel.app/search?q=${search}`);
           const data = await response.data;
           setData(data);
         } catch (error) {
