@@ -38,7 +38,7 @@ function App() {
     </div>
     <div className="m-10 p-5 border-2 rounded-md">
       <input type="text" value={query} onChange={handleChange} className="border-2 rounded-md w-full p-2 text-lg"/>
-      <button onClick={handleSearch} className="w-full text-xl font-bold border-2 rounded-md mt-6 bg-blue-400 text-white">Search</button>
+      <button onClick={handleSearch} className="w-full text-xl font-bold border-2 rounded-md mt-6 bg-blue-400 text-white cursor-pointer">Search</button>
       </div>
       <ul >
         {data.map((item, index) => (
