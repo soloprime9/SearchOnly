@@ -20,7 +20,7 @@ function App() {
     const fetchData = async () => {
       if (search) {
         try {
-          const response = await axios.get(`https://seach-onback.vercel.app/search?q=${search}`);
+          const response = await axios.get(`http://127.0.0.1:5000/search?q=${search}`);
           const data = await response.data;
           setData(data);
         } catch (error) {
