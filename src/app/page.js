@@ -32,20 +32,47 @@ function App() {
   }, [search]);
 
   return (
-    <div className="m-1 mb-10"> 
-    <div className="m-4">
-      <h2 className="text-2xl font-bold text-center">Search Only Not Open</h2>
-    </div>
-    <div className="m-10 p-5 border-2 rounded-md">
-      <input type="text" value={query} onChange={handleChange} className="border-2 rounded-md w-full p-2 text-lg"/>
-      <button onClick={handleSearch} className="w-full text-xl font-bold border-2 rounded-md mt-6 bg-blue-400 text-white cursor-pointer">Search</button>
+    <div className="m-4 mb-10 max-w-2xl mx-auto">
+      {/* Heading */}
+      <div className="text-center">
+        <h2 className="text-3xl font-bold text-gray-800">Search Results</h2>
       </div>
-      <ul >
+
+      {/* Search Box */}
+      <div className="mt-6 p-5 border border-gray-300 rounded-lg shadow-md">
+        <input 
+          type="text" 
+          value={query} 
+          onChange={handleChange} 
+          className="border w-full p-3 text-lg rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          placeholder="Enter your search term..."
+        />
+        <button 
+          onClick={handleSearch} 
+          className="w-full text-lg font-semibold border rounded-md mt-4 py-3 bg-blue-500 text-white hover:bg-blue-600 transition-all"
+        >
+          Search
+        </button>
+      </div>
+
+      {/* Search Results */}
+      <ul className="mt-6 space-y-4">
         {data.map((item, index) => (
-          <li key={index} className="mt-4 border-2 rounded-md p-1">
-            <h2 className="text-lg text-blue-600 "><a href={item.url}>{item.title}</a></h2>
-            <p>{item.snippet}</p>
-            <a href={item.url} className="text-blue-500 font-bold">Read more</a>
+          <li key={index} className="border p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white">
+            <h2 className="text-xl font-semibold text-blue-600">
+              <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                {item.title}
+              </a>
+            </h2>
+            <p className="text-gray-600 mt-2">{item.snippet}</p>
+            <a 
+              href={item.url} 
+              className="inline-block mt-3 text-blue-500 font-medium hover:text-blue-700 transition-colors"
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              Read more →
+            </a>
           </li>
         ))}
       </ul>
