@@ -1,8 +1,7 @@
 'use client';
- 
+
 import axios from "axios";
 import React, { useState, useEffect } from 'react';
-import { FaSearch } from "react-icons/fa";
 
 function App() {
   const [data, setData] = useState([]);
@@ -22,8 +21,7 @@ function App() {
       if (search) {
         try {
           const response = await axios.get(`https://sokara.vercel.app/search?q=${search}`);
-          const data = await response.data;
-          setData(data);
+          setData(response.data);
         } catch (error) {
           console.error(error);
         }
@@ -33,46 +31,38 @@ function App() {
   }, [search]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 p-6">
-      {/* Glassmorphic Card */}
-      <div className="max-w-3xl w-full p-6 bg-white bg-opacity-10 backdrop-blur-lg rounded-xl shadow-lg">
-        {/* Heading */}
-        <h2 className="text-4xl font-bold text-white text-center mb-6">
-          Explore The Web 🌍
-        </h2>
-
-        {/* Search Box */}
-        <div className="flex items-center bg-white bg-opacity-20 p-3 rounded-lg shadow-md backdrop-blur-md">
-          <FaSearch className="text-white text-xl mx-3" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
+      <div className="max-w-2xl w-full p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">Explore The Web</h2>
+        <div className="flex items-center border border-gray-300 rounded-lg p-2">
           <input
             type="text"
             value={query}
             onChange={handleChange}
-            className="w-full bg-transparent text-white placeholder-gray-300 outline-none text-lg"
+            className="w-full p-2 outline-none"
             placeholder="Search anything..."
           />
         </div>
         <button
           onClick={handleSearch}
-          className="w-full mt-5 py-3 bg-gradient-to-r from-blue-400 to-purple-500 text-white font-semibold text-xl rounded-lg shadow-md hover:scale-105 transition-all duration-300"
+          className="w-full mt-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600"
         >
           Search Now
         </button>
       </div>
 
-      {/* Search Results */}
-      <ul className="mt-8 w-full max-w-3xl space-y-6">
+      <ul className="mt-6 w-full max-w-2xl">
         {data.map((item, index) => (
-          <li key={index} className="p-6 bg-white bg-opacity-20 backdrop-blur-lg rounded-lg shadow-lg transition-all hover:scale-105">
-            <h2 className="text-2xl font-semibold text-blue-300">
+          <li key={index} className="p-4 bg-white rounded-lg shadow-md mb-4">
+            <h2 className="text-xl font-semibold text-blue-600">
               <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
                 {item.title}
               </a>
             </h2>
-            <p className="text-white mt-3">{item.snippet}</p>
+            <p className="text-gray-700 mt-2">{item.snippet}</p>
             <a 
               href={item.url} 
-              className="inline-block mt-4 text-white font-semibold hover:text-blue-200 transition-all"
+              className="inline-block mt-2 text-blue-500 hover:text-blue-700"
               target="_blank" 
               rel="noopener noreferrer"
             >
