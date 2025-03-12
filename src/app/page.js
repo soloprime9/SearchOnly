@@ -7,6 +7,8 @@ function App() {
   const [data, setData] = useState([]);
   const [query, setQuery] = useState('');
   const [search, setSearch] = useState('');
+  const [explain, setexplain] = useState('');
+
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -21,7 +23,12 @@ function App() {
       if (search) {
         try {
           const response = await axios.get(`https://sokara.vercel.app/search?q=${search}`);
-          setData(response.data);
+          const result = await response.data[0];
+          const sumarize = await response.data[1];
+          
+          setexplain(sumarize);
+          setData(result);
+          console.log( result,sumarize)
         } catch (error) {
           console.error(error);
         }
@@ -50,6 +57,13 @@ function App() {
           Search Now
         </button>
       </div>
+
+            {explain ? (
+      <div className="m-1 p-2 rounded-lg font-bold border-2 text-blue-800 ">
+            <p >{explain}</p>
+      </div>) : ( <div></div>)
+      
+      }
 
       <ul className="mt-6 w-full max-w-2xl">
         {data.map((item, index) => (
