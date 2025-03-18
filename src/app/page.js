@@ -1,13 +1,14 @@
 'use client';
 
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 function App() {
   const [data, setData] = useState([]);
-  const [query, setQuery] = useState("");
-  const [search, setSearch] = useState("");
-  const [explain, setExplain] = useState("");
+  const [query, setQuery] = useState('');
+  const [search, setSearch] = useState('');
+  const [explain, setexplain] = useState('');
+  const [image, setimage]  = useState([]);
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -21,63 +22,136 @@ function App() {
     const fetchData = async () => {
       if (search) {
         try {
-          const response = await axios.get(`https://sokara.vercel.app/search?q=${search}`);
-          const result = response.data[0];
-          const summarize = response.data[1];
-          setExplain(summarize);
+          const response = await axios.get(`http://localhost:5000/search?q=${search}`);
+          const result = await response.data[0];
+          const sumarize = await response.data[1];
+          const images = await response.data[2];
+          // setimage(images);
+          console.log("Images",images);
+          setimage(images)
+          console.log(response)
+          setexplain(sumarize);
           setData(result);
+          console.log( result,sumarize)
         } catch (error) {
-          console.error(error);
+          console.error(error);``
         }
       }
     };
     fetchData();
   }, [search]);
 
+
+
+  //  Function to formate text with headings,lists,paragraph and code blocks
+
+  const FormateText = (text) => {
+    if (!text) return null;
+  
+    // Replace Markdown-style headings
+    text = text.replace(/^###\s(.+)/gm, "<h3 class='text-lg'>$1</h3>");
+    text = text.replace(/^####\s(.+)/gm, "<h4 class='text-md'>$1</h4>");
+    text = text.replace(/^##\s(.+)/gm, "<h2 class='text-lg'>$1</h2>");
+    text = text.replace(/^#\s(.+)/gm, "<h1 class='text-xl font-bold'>$1</h1>");
+  
+    // Replace Markdown-style bullet points (- item or * item)
+    text = text.replace(/^- (.+)$/gm, "<li class='ml-4 list-disc'>$1</li>");
+    text = text.replace(/^\* (.+)$/gm, "<li class='ml-4 list-disc'>$1</li>");
+    text = text.replace(/(<li.+<\/li>)/g, "<ul>$1</ul>"); // Wrap list items in <ul>
+  
+    // Replace triple backticks for code blocks
+    text = text.replace(
+      /```([\s\S]+?)```/g,
+      "<pre class='bg-gray-200 text-black text-md mb-2 p-2 rounded-md overflow-x-auto'><code>$1</code></pre>"
+    );
+  
+    // Replace inline code using backticks (`code`)
+    text = text.replace(/`([^`]+)`/g, "<code class='bg-gray-200 px-1 py-0.5 rounded'>$1</code>");
+  
+    // Bold and Italic
+    text = text.replace(/\*\*(.+?)\*\*/g, "<strong class='font-bold'>$1</strong>"); // **bold**
+    text = text.replace(/\*(.+?)\*/g, "<em class='italic'>$1</em>"); // *italic*
+  
+    // Convert Markdown tables to HTML tables
+    text = text.replace(
+      /\|(.+?)\|\n\|[-:\s|]+\|\n((?:\|.+?\|\n?)+)/g,
+      (match, headers, rows) => {
+        const headerCells = headers
+          .split("|")
+          .map((h) => h.trim())
+          .filter((h) => h.length > 0)
+          .map((h) => `<th class='border p-2 bg-gray-200'>${h}</th>`)
+          .join("");
+  
+        const rowCells = rows
+          .trim()
+          .split("\n")
+          .filter((row) => row.trim().length > 0)
+          .map((row) => {
+            const columns = row
+              .split("|")
+              .map((col) => col.trim())
+              .filter((col) => col.length > 0)
+              .map((col) => `<td class='border p-2'>${col}</td>`)
+              .join("");
+            return `<tr>${columns}</tr>`;
+          })
+          .join("");
+  
+        return `<table class='border-collapse border border-gray-300 w-full my-4'>
+                  <thead><tr>${headerCells}</tr></thead>
+                  <tbody>${rowCells}</tbody>
+                </table>`;
+      }
+    );
+  
+    // Convert double newlines to paragraphs
+    text = text.replace(/\n{2,}/g, "</p><p class='mb-4'>");
+  
+    // Wrap everything in <p> tags
+    return `<p class='mb-4'>${text}</p>`;
+  };
+  
+  const ExplainText = ({ text }) => {
+    return text ? (
+      <div
+        className="border-blue-500 bg-white font-normal text-black w-full"
+        dangerouslySetInnerHTML={{ __html: FormateText(text) }}
+      />
+    ) : null;
+  };
+
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
-      <div className="w-full max-w-3xl p-6 bg-white rounded-xl shadow-lg text-center">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Explore The Web</h2>
-        <div className="flex items-center border border-gray-300 rounded-lg p-2 shadow-sm bg-gray-100">
-          <input
-            type="text"
-            value={query}
-            onChange={handleChange}
-            className="w-full p-3 outline-none bg-transparent text-gray-700"
-            placeholder="Search anything..."
-          />
-        </div>
-        <button
-          onClick={handleSearch}
-          className="w-full mt-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
-        >
-          Search Now
-        </button>
+    <div className="m-1 mb-10"> 
+    <div className="m-4">
+      <h2 className="text-2xl font-bold text-center">Search Only Not Open</h2>
+    </div>
+    <div className="m-10 p-5 border-2 rounded-md">
+      <input type="text" value={query} onChange={handleChange} className="border-2 rounded-md w-full p-2 text-lg"/>
+      <button onClick={handleSearch} className="cursor-pointer w-full text-xl font-bold border-2 rounded-md mt-4 p-2 bg-blue-400 text-white">Search</button>
+      </div>
+      {explain ? (
+      <div className=" border-2 rounded-md border-black md:p-6 p-2  ">
+            <ExplainText text={explain}/>
+      </div>) : ( <div></div>)
+      
+      }
+
+      <div className="">
+        {image.map((photo,index) =>(
+          <div key={index} className="border-2 rounded-md w-full mt-2 p-8">
+            <img src={photo} alt={photo + 1} className="w-full py-2" />
+          </div>
+        ))}
       </div>
 
-      {explain && (
-        <div className="mt-4 p-4 rounded-lg bg-blue-100 border-l-4 border-blue-500 text-blue-800 w-full max-w-3xl">
-          <p>{explain}</p>
-        </div>
-      )}
-
-      <ul className="mt-6 w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-4">
+      <ul >
         {data.map((item, index) => (
-          <li key={index} className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300">
-            <h2 className="text-lg font-semibold text-blue-600">
-              <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                {item.title}
-              </a>
-            </h2>
-            <p className="text-gray-700 mt-2 text-sm">{item.snippet}</p>
-            <a
-              href={item.url}
-              className="inline-block mt-2 text-blue-500 hover:text-blue-700 text-sm font-semibold"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read More →
-            </a>
+          <li key={index} className="mt-4 border-2 rounded-md p-1">
+            <h2 className="text-lg text-blue-600 ">{item.title}</h2>
+            <p>{item.snippet}</p>
+            <a href={item.url} className="text-blue-500 font-bold">Read more</a>
           </li>
         ))}
       </ul>
