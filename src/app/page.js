@@ -149,7 +149,7 @@ function App() {
       <ul >
         {data.map((item, index) => (
           <li key={index} className="mt-4 border-2 rounded-md p-1">
-            <h2 className="text-lg text-blue-600 ">{item.title}</h2>
+            <h2 className="text-lg text-blue-600 "><a href={item.url}>{item.title}</a></h2>
             <p>{item.snippet}</p>
             <a href={item.url} className="text-blue-500 font-bold">Read more</a>
           </li>
