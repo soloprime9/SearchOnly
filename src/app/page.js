@@ -140,7 +140,7 @@ function App() {
 
       <div className="">
         {image.map((photo,index) =>(
-          <div key={index} className="border-2 rounded-md w-full mt-2 p-2">
+          <div key={index} className="border-2 rounded-md w-full mt-2 p-2 flex">
             <img src={photo} alt="" className="w-full py-2" />
           </div>
         ))}
