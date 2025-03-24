@@ -51,6 +51,7 @@ function App() {
     // Replace Markdown-style headings
     text = text.replace(/^###\s(.+)/gm, "<h3 class='text-lg'>$1</h3>");
     text = text.replace(/^####\s(.+)/gm, "<h4 class='text-md'>$1</h4>");
+    text = text.replace(/^#####\s(.+)/gm, "<h5 class='text-md'>$1</h5>");
     text = text.replace(/^##\s(.+)/gm, "<h2 class='text-lg'>$1</h2>");
     text = text.replace(/^#\s(.+)/gm, "<h1 class='text-xl font-bold'>$1</h1>");
   
