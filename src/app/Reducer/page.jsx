@@ -168,9 +168,10 @@ const ImageResizer = () => {
   <meta name="twitter:description" content="Reduce image file sizes for web and social media. No registration required!" />
   <meta name="twitter:image" content="https://reduceimages-sigma.vercel.app/twitter-image.jpg" />
 
-  {/* Schema Markup for SEO */}
-  <script type="application/ld+json">
-    {
+  <script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "Free Image Resizer",
@@ -192,8 +193,9 @@ const ImageResizer = () => {
         "Instant download",
         "Mobile-friendly interface"
       ]
-    }
-  </script>
+    })
+  }}
+/>
 
   {/* Canonical URL */}
   <link rel="canonical" href="https://reduceimages-sigma.vercel.app/" />
