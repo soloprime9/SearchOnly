@@ -24,7 +24,7 @@ function App() {
     const fetchData = async () => {
       if (search) {
         try {
-          const response = await axios.get(`http://localhost:5000/search?q=${search}`);
+          const response = await axios.get(`https://sokara.vercel.app/search?q=${search}`);
           const result = await response.data[0];
           const sumarize = await response.data[1];
           const images = await response.data[2];
