@@ -414,7 +414,7 @@ const ImageResizer = () => {
 
            
    
-          </>
+          </html>
   );
 };
 
