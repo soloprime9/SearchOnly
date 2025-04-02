@@ -413,7 +413,7 @@ const ImageResizer = () => {
 </body>
 
            
-    </div>
+   
           </>
   );
 };
