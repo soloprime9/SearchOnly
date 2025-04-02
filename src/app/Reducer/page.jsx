@@ -410,7 +410,7 @@ const ImageResizer = () => {
           })
         }} />
       </section>
-
+</body>
 
            
     </div>
