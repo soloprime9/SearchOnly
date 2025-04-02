@@ -15,43 +15,43 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Free Image Resizer - Reduce & Optimize Photos Online | ImageSizeReducer",
-  description: "🖼️ Instantly resize and compress JPG, PNG, GIF, BMP images online. Reduce file size for websites, social media, and emails without quality loss. 100% free browser-based tool!",
-  keywords: [
-    "resize images online free",
-    "compress photo size",
-    "image optimizer tool",
-    "reduce jpg file size",
-    "online picture resizer",
-    "web image compressor",
-    "photo size reducer",
-    "social media image optimizer",
-    "reduceimages.com",
-    "resize images online - resize jpg, bmp, gif, png images"
-  ].join(", "),
-  openGraph: {
-    title: "Free Image Resizer - Optimize Photos in Seconds",
-    description: "Browser-based tool to resize and compress images without quality loss. Supports JPG, PNG, GIF, BMP formats.",
-    url: "https://reduceimages-sigma.vercel.app/",
-    siteName: "ImageSizeReducer",
-    images: [
-      {
-        url: "https://reduceimages-sigma.vercel.app/og-image.jpg",
-        width: 1200,
-        height: 630,
-      }
-    ],
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: "Free Online Image Resizer & Compressor",
-    description: "Reduce image file sizes for web and social media. No registration required!",
-    images: ['https://reduceimages-sigma.vercel.app/twitter-image.jpg'],
-  },
-};
+// export const metadata = {
+//   title: "Free Image Resizer - Reduce & Optimize Photos Online | ImageSizeReducer",
+//   description: "🖼️ Instantly resize and compress JPG, PNG, GIF, BMP images online. Reduce file size for websites, social media, and emails without quality loss. 100% free browser-based tool!",
+//   keywords: [
+//     "resize images online free",
+//     "compress photo size",
+//     "image optimizer tool",
+//     "reduce jpg file size",
+//     "online picture resizer",
+//     "web image compressor",
+//     "photo size reducer",
+//     "social media image optimizer",
+//     "reduceimages.com",
+//     "resize images online - resize jpg, bmp, gif, png images"
+//   ].join(", "),
+//   openGraph: {
+//     title: "Free Image Resizer - Optimize Photos in Seconds",
+//     description: "Browser-based tool to resize and compress images without quality loss. Supports JPG, PNG, GIF, BMP formats.",
+//     url: "https://reduceimages-sigma.vercel.app/",
+//     siteName: "ImageSizeReducer",
+//     images: [
+//       {
+//         url: "https://reduceimages-sigma.vercel.app/og-image.jpg",
+//         width: 1200,
+//         height: 630,
+//       }
+//     ],
+//     locale: 'en_US',
+//     type: 'website',
+//   },
+//   twitter: {
+//     card: 'summary_large_image',
+//     title: "Free Online Image Resizer & Compressor",
+//     description: "Reduce image file sizes for web and social media. No registration required!",
+//     images: ['https://reduceimages-sigma.vercel.app/twitter-image.jpg'],
+//   },
+// };
 
 const ImageResizer = () => {
   const [originalImage, setOriginalImage] = useState(null);
@@ -178,6 +178,44 @@ const ImageResizer = () => {
       answer: "No limits! Process images of any size directly in your browser." 
     }
   ];
+
+  const metadata = {
+  title: "Free Image Resizer - Reduce & Optimize Photos Online | ImageSizeReducer",
+  description: "🖼️ Instantly resize and compress JPG, PNG, GIF, BMP images online. Reduce file size for websites, social media, and emails without quality loss. 100% free browser-based tool!",
+  keywords: [
+    "resize images online free",
+    "compress photo size",
+    "image optimizer tool",
+    "reduce jpg file size",
+    "online picture resizer",
+    "web image compressor",
+    "photo size reducer",
+    "social media image optimizer",
+    "reduceimages.com",
+    "resize images online - resize jpg, bmp, gif, png images"
+  ].join(", "),
+  openGraph: {
+    title: "Free Image Resizer - Optimize Photos in Seconds",
+    description: "Browser-based tool to resize and compress images without quality loss. Supports JPG, PNG, GIF, BMP formats.",
+    url: "https://reduceimages-sigma.vercel.app/",
+    siteName: "ImageSizeReducer",
+    images: [
+      {
+        url: "https://reduceimages-sigma.vercel.app/og-image.jpg",
+        width: 1200,
+        height: 630,
+      }
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Free Online Image Resizer & Compressor",
+    description: "Reduce image file sizes for web and social media. No registration required!",
+    images: ['https://reduceimages-sigma.vercel.app/twitter-image.jpg'],
+  },
+};
 
   return (
     <html lang="en">
