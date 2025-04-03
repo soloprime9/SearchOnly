@@ -2,7 +2,7 @@ import Head from 'next/head';
 
 function TestThumbnail() {
   return (
-    <>
+    <div>
       <Head>
         {/* Meta tags */}
         <title>YouTube Thumbnail Tester - Preview & Analyze Thumbnails Online</title>
@@ -88,7 +88,7 @@ function TestThumbnail() {
                 <img src={preview} alt="preview" className='border-2 rounded-lg mr-4 w-60 h-40' />
               ) : (
                 <div className='relative'>
-                                    <div title="hellow" className="w-60 h-40 bg-white border-2 mr-4 rounded-lg" />
+                  <div title="hellow" className="w-60 h-40 bg-white border-2 mr-4 rounded-lg" />
                   <p className='text-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>select image </p>
                 </div>
               )}
@@ -145,7 +145,9 @@ function TestThumbnail() {
             </div>
           </section>
         </div>
-      </>);
+      </div>
+    </div>
+  );
 }
 
 export default TestThumbnail;
