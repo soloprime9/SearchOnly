@@ -24,7 +24,7 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       if (search) {
-        setloading(True);
+        setloading(true);
         try {
           const response = await axios.get(`https://sokara.vercel.app/search?q=${search}`);
           const result = await response.data[0];
@@ -131,7 +131,7 @@ function App() {
   };
 
 if(loading){
-  return <div className ="text-4xl font-bold inline-block align-middle">Loading Data...</div>
+  return ( <div className ="text-4xl font-bold inline-block align-middle">Loading Data...</div> );
 }
   return (
     <div className="m-1 mb-10"> 
