@@ -100,43 +100,21 @@ For python, want to download via python official website, and we want to install
 
 
 
- ```sh 
-
- pip install Flask 
-
- pip install DuckDuckGo
-
- pip install requests
-
- pip install BeautifulSoup4
-
- pip install Selenium
-
- pip install re
-
- pip install urllibs
-
- ```
-
- 
-
- For the frontend, we want to install some library and React JSX using commands:-
-
- ```sh
-
-npx create-next-app project
-
-npm install
-
-npm init -y
-
+<pre><code class="has-line-data" data-line-start="49" data-line-end="57" class="language-sh">pip install Flask
+pip install DuckDuckGoSearch
+pip install requests
+pip install beautifulsoup4
+pip install selenium
+pip install re
+pip install urllib3
+</code></pre>
+<p class="has-line-data" data-line-start="58" data-line-end="59">For the frontend, to set up a Next.js project with React JSX and install necessary libraries, use the following commands:</p>
+<pre><code class="has-line-data" data-line-start="61" data-line-end="67" class="language-sh">npx create-next-app project-frontend
+<span class="hljs-built_in">cd</span> project-frontend
 npm install axios
-
-npm install
-
-```
-
-
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+</code></pre>
 
 Now for both the frontend and backend code we have downloaded all things
 
