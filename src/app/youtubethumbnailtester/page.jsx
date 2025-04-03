@@ -14,7 +14,7 @@ function TestThumbnail() {
   };
 
   return (
-    <>
+    <html>
     <Head>
   <title>YouTube Thumbnail Tester - Preview & Analyze Thumbnails Online</title>
   <meta name="description" content="Test and optimize YouTube thumbnails for maximum CTR. Preview on multiple devices, analyze readability, and compare versions instantly. Free online tool for creators." />
@@ -88,9 +88,6 @@ function TestThumbnail() {
   </*Viewport Meta Tag*/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </Head>
-
-
-    
     <div className='m-5'>
       <form className='p-2 border-2 rounded-2 w-auto h-auto text-xl'>
         <div className='flex justify-center'>
@@ -174,7 +171,7 @@ function TestThumbnail() {
 </section>
     </div>
   
-  </>   
+  </html>   
   )
 
 
