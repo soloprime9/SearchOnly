@@ -18,7 +18,7 @@ const MarkdownRenderer = ({ content }) => {
           h6: ({ node, ...props }) => <h6 className="text-sm sm:text-base md:text-lg font-medium mt-1 mb-1" {...props} />, 
           
           // Paragraph
-          p: ({ node, ...props }) => <p className="text-base sm:text-lg md:text-xl leading-relaxed mb-4" {...props} />, 
+          p: ({ node, ...props }) => <p className="text-base sm:text-lg md:text-lg leading-relaxed mb-4" {...props} />, 
 
           // Lists
           ul: ({ node, ...props }) => <ul className="list-disc pl-5 sm:pl-6 md:pl-8 mb-4" {...props} />, 
