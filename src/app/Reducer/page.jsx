@@ -154,7 +154,7 @@ const ImageResizer = () => {
   {/* Open Graph Meta Tags */}
   <meta property="og:title" content="Free Image Resizer - Optimize Photos in Seconds" />
   <meta property="og:description" content="Browser-based tool to resize and compress images without quality loss. Supports JPG, PNG, GIF, BMP formats." />
-  <meta property="og:url" content="https://reduceimages-sigma.vercel.app/" />
+  <meta property="og:url" content="https://www.fondpeace.com/Reducer" />
   <meta property="og:site_name" content="ImageSizeReducer" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="en_US" />
@@ -198,7 +198,7 @@ const ImageResizer = () => {
 />
 
   {/* Canonical URL */}
-  <link rel="canonical" href="https://reduceimages-sigma.vercel.app/" />
+  <link rel="canonical" href="https://www.fondpeace.com/Reducer" />
 </head>
       
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
@@ -207,15 +207,15 @@ const ImageResizer = () => {
     <nav className="max-w-6xl mx-auto px-4 sm:px-6 border-dashed mt-5 lg:px-8">
       <div className="flex justify-between h-16">
         <div className="flex-shrink-0 flex items-center">
-          <span className="text-2xl font-bold text-green-600 pointer"><a href="https://reduceimages-sigma.vercel.app/">ImageReducer</a></span>
+          <span className="text-2xl font-bold text-green-600 pointer"><a href="https://www.fondpeace.com/Reducer">ImageReducer</a></span>
         </div>
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-8">
-          <a href="https://reduceimages-sigma.vercel.app/" className="text-gray-700 hover:text-green-600 transition-colors">Home</a>
-          <a href="https://reduceimages-sigma.vercel.app/about" className="text-gray-700 hover:text-green-600 transition-colors">About Us</a>
-          <a href="https://reduceimages-sigma.vercel.app/privacy-policy" className="text-gray-700 hover:text-green-600 transition-colors">Privacy Policy</a>
-          <a href="https://reduceimages-sigma.vercel.app/terms-and-conditions" className="text-gray-700 hover:text-green-600 transition-colors">Terms and Conditions</a>
+          <a href="https://www.fondpeace.com/Reducer" className="text-gray-700 hover:text-green-600 transition-colors">Home</a>
+          <a href="https://www.fondpeace.com/Reducer/about-us" className="text-gray-700 hover:text-green-600 transition-colors">About Us</a>
+          <a href="https://www.fondpeace.com/Reducerprivacy-policy" className="text-gray-700 hover:text-green-600 transition-colors">Privacy Policy</a>
+          <a href="https://www.fondpeace.com/Reducer/contact-us" className="text-gray-700 hover:text-green-600 transition-colors">Terms and Conditions</a>
         </div>
 
         {/* Mobile Menu Button */}
