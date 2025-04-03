@@ -164,7 +164,7 @@ function App() {
 
 
       
-        {/* <div className="videos">
+        { <div className="videos">
         {Youtube.map((video) => (
           <div key={video.id} className="video-card">
             <a href={video.url} target="_blank" rel="noopener noreferrer">
@@ -176,15 +176,15 @@ function App() {
             <p>Likes: {video.likes}</p>
           </div>
         ))}
-        </div> */}
+        </div> }
 
 
       <ul >
         {data.map((item, index) => (
           <li key={index} className="mt-4 border-2 rounded-md p-1">
-            <h2 className="text-lg text-blue-600 ">{item.title}</h2>
+            <h2 className="text-lg text-blue-600 "><a href={item.url} target="_blank">{item.title}</a></h2>
             <p>{item.snippet}</p>
-            <a href={item.url} className="text-blue-500 font-bold">Read more</a>
+            <a href={item.url} target="_blank" className="text-blue-500 font-bold">Read more</a>
           </li>
         ))}
       </ul>
