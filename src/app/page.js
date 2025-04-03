@@ -131,7 +131,7 @@ function App() {
   };
 
 if(loading){
-  return <div className ="text-4xl font-bold inline-block align-middle"></div>
+  return <div className ="text-4xl font-bold inline-block align-middle">Loading Data...</div>
 }
   return (
     <div className="m-1 mb-10"> 
