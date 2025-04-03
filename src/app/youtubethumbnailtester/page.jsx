@@ -20,7 +20,7 @@ function TestThumbnail() {
   <meta name="description" content="Test and optimize YouTube thumbnails for maximum CTR. Preview on multiple devices, analyze readability, and compare versions instantly. Free online tool for creators." />
   <meta name="keywords" content="youtube thumbnail tester, thumbnail preview, ctr analyzer, youtube SEO, thumbnail optimizer, video marketing tool, youtube thumbnail, Free YouTube Thumbnails Tester, thumbnail tester, thumbnail preview, youtube seo, preview thumbnail youtube, youtube video thumbnail preview, youtube thumbnail test and compare, thumbnail checker ai, youtube thumbnail tester free, youtube thumbnail size, thumbnail preview, youtube thumbnail preview online, tubebuddy thumbnail analyzer, youtube thumbnail download, thumbnail checker, youtube analytics, youtube thumbnail tester online, youtube thumbnail tester online free" />
 
-  <!-- Open Graph Protocol -->
+  {/* Open Graph Protocol */}
   <meta property="og:title" content="Free YouTube Thumbnail Tester Tool" />
   <meta property="og:description" content="Get real-time previews of your YouTube thumbnails on desktop, mobile and TV screens. Improve click-through rates with professional analysis." />
   <meta property="og:image" content="https://fondpeace.com/youtubethumbnailtester/og-image.jpg" />
@@ -29,14 +29,14 @@ function TestThumbnail() {
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://fondpeace.com/youtubethumbnailtester" />
 
-  <!-- Twitter Card -->
+    </* Twitter Card */>
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Optimize YouTube Thumbnails Online" />
   <meta name="twitter:description" content="Get real-time previews of your YouTube thumbnails on desktop, mobile and TV screens. Improve click-through rates with professional analysis." />
   <meta name="twitter:image" content="https://fondpeace.com/youtubethumbnailtester/twitter-image.jpg" />
   <meta name="twitter:site" content="@your_twitter_handle" />
 
-  <!-- Structured Data (Schema.org) -->
+    </* Structured Data (Schema.org) */>
   <script type="application/ld+json">
     {JSON.stringify({
       "@context": "https://schema.org",
@@ -79,13 +79,13 @@ function TestThumbnail() {
     })}
   </script>
 
-  <!-- Canonical URL -->
+  </* Canonical URL */>
   <link rel="canonical" href="https://fondpeace.com/youtubethumbnailtester" />
 
-  <!-- Robots Meta Tag -->
+  </* Robots Meta Tag */>
   <meta name="robots" content="index, follow" />
 
-  <!--Viewport Meta Tag-->
+  </*Viewport Meta Tag*/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
     
