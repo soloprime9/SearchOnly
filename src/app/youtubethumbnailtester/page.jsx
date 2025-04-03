@@ -132,6 +132,31 @@ function TestThumbnail() {
       </Head>
 
       <div className="m-5">
+        <header className="bg-white shadow-sm">
+    <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex justify-between h-16 items-center">
+        <div className="flex items-center">
+          <h1><a href="/" className="text-2xl font-bold text-red-600">
+            YouTube Thumbnail Tester & Previewer
+          </a></h1>
+        </div>
+        <div className="hidden md:flex space-x-8">
+          <a href="/features" className="text-gray-700 hover:text-red-600">
+            Features
+          </a>
+          <a href="/blog" className="text-gray-700 hover:text-red-600">
+            Blog
+          </a>
+          <a href="/tools" className="text-gray-700 hover:text-red-600">
+            Tools
+          </a>
+          <a href="/contact" className="text-gray-700 hover:text-red-600">
+            Contact
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
         <form
           onSubmit={handleSubmit}
           className="p-2 border-2 rounded-2 w-auto h-auto text-xl"
