@@ -15,7 +15,7 @@ function TestThumbnail() {
 
   return (
     <>
-    <head>
+    <Head>
   <title>YouTube Thumbnail Tester - Preview & Analyze Thumbnails Online</title>
   <meta name="description" content="Test and optimize YouTube thumbnails for maximum CTR. Preview on multiple devices, analyze readability, and compare versions instantly. Free online tool for creators." />
   <meta name="keywords" content="youtube thumbnail tester, thumbnail preview, ctr analyzer, youtube SEO, thumbnail optimizer, video marketing tool, youtube thumbnail, Free YouTube Thumbnails Tester, thumbnail tester, thumbnail preview, youtube seo, preview thumbnail youtube, youtube video thumbnail preview, youtube thumbnail test and compare, thumbnail checker ai, youtube thumbnail tester free, youtube thumbnail size, thumbnail preview, youtube thumbnail preview online, tubebuddy thumbnail analyzer, youtube thumbnail download, thumbnail checker, youtube analytics, youtube thumbnail tester online, youtube thumbnail tester online free" />
@@ -87,7 +87,7 @@ function TestThumbnail() {
 
   </*Viewport Meta Tag*/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
+</Head>
 
     <body>
     
