@@ -10,6 +10,7 @@ function App() {
   const [explain, setexplain] = useState('');
   const [image, setimage]  = useState([]);
   const [Youtube, setYoutube] = useState([]);
+  const [loading, setloading] = useState(false);
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -23,6 +24,7 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       if (search) {
+        setloading(True);
         try {
           const response = await axios.get(`https://sokara.vercel.app/search?q=${search}`);
           const result = await response.data[0];
@@ -39,6 +41,9 @@ function App() {
           console.log( result,sumarize)
         } catch (error) {
           console.error(error);``
+        }
+        finally{
+          setloading(false);
         }
       }
     };
@@ -125,7 +130,9 @@ function App() {
     ) : null;
   };
 
-
+if(loading){
+  return <div className ="text-4xl font-bold inline-block align-middle"></div>
+}
   return (
     <div className="m-1 mb-10"> 
     <div className="m-4">
@@ -164,19 +171,19 @@ function App() {
 
 
       
-        { <div className="videos">
-        {Youtube.map((video) => (
-          <div key={video.id} className="video-card">
-            <a href={video.url} target="_blank" rel="noopener noreferrer">
-              <img src={video.thumbnail} alt={video.title} className="thumbnail" />
-            </a>
-            <h3>{video.title}</h3>
-            <p>Channel: {video.channel}</p>
-            <p>Views: {video.views}</p>
-            <p>Likes: {video.likes}</p>
-          </div>
-        ))}
-        </div> }
+        // { <div className="videos">
+        // {Youtube.map((video) => (
+        //   <div key={video.id} className="video-card">
+        //     <a href={video.url} target="_blank" rel="noopener noreferrer">
+        //       <img src={video.thumbnail} alt={video.title} className="thumbnail" />
+        //     </a>
+        //     <h3>{video.title}</h3>
+        //     <p>Channel: {video.channel}</p>
+        //     <p>Views: {video.views}</p>
+        //     <p>Likes: {video.likes}</p>
+        //   </div>
+        // ))}
+        // </div> }
 
 
       <ul >
