@@ -105,46 +105,8 @@ function TestThumbnail() {
             </div>
 
             <a href="https://reduceimages-sigma.vercel.app/">Reduce Image</a>
-          </form>
-
-          <section className="py-16 bg-gray-50 mt-5">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">Why Choose ThumbnailTester?</h2>
-
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-xl font-semibold mb-3">Real Device Previews</h3>
-                  <p>Test thumbnails on 15+ device mockups including smartphones, tablets, and desktop views</p>
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-xl font-semibold mb-3">Analytics Integration</h3>
-                  <p>Get CTR predictions based on historical YouTube performance data</p>
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-xl font-semibold mb-3">A/B Testing</h3>
-                  <p>Compare multiple thumbnail versions side-by-side</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">How It Works</h2>
-              <div className="prose max-w-none">
-                <ol className="list-decimal pl-6">
-                  <li className="mb-4">Upload your thumbnail image (JPG/PNG)</li>
-                  <li className="mb-4">Choose device mockups for preview</li>
-                  <li className="mb-4">Analyze visibility at different screen sizes</li>
-                  <li className="mb-4">Download optimized versions</li>
-                </ol>
-                <p><a href="https://www.fondpeace.com/" target="_blank" rel="noopener noreferrer">For More Search Results You can Visit Here</a></p>
-              </div>
-            </div>
-          </section>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );
