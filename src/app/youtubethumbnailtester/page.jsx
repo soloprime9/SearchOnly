@@ -160,6 +160,7 @@ function TestThumbnail() {
   </div>
 </section>
     </div>
+      </div>
       
   );
 }
