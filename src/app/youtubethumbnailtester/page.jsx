@@ -88,6 +88,8 @@ function TestThumbnail() {
   </*Viewport Meta Tag*/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
+
+    <body>
     
     <div className='m-5'>
       <form className='p-2 border-2 rounded-2 w-auto h-auto text-xl'>
@@ -171,6 +173,7 @@ function TestThumbnail() {
   </div>
 </section>
     </div>
+    </body>
   </>   
   )
 
