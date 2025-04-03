@@ -1,6 +1,17 @@
 import Head from 'next/head';
 
 function TestThumbnail() {
+
+
+  const [image, setImage] = useState("");
+  const [preview, setPreview] = useState(null);
+  const [title, setTitle] = useState("");
+  const [channel, setChannel] = useState("");
+
+  const ImageUploadPreview = (event) => {
+    setImage(event.target.files[0]);
+    setPreview(URL.createObjectURL(event.target.files[0]));
+  };
   return (
     <div>
       <Head>
