@@ -106,6 +106,7 @@ function TestThumbnail() {
 
             <a href="https://reduceimages-sigma.vercel.app/">Reduce Image</a>
           </form>
+          </div>
 
           <section className="py-16 bg-gray-50 mt-5">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
