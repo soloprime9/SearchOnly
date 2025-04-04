@@ -5,7 +5,7 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
-
+ 
 export const metadata = {
   title: "Fond Peace AI - Free AI-Powered Search & Do Anything for Free",
   description:
