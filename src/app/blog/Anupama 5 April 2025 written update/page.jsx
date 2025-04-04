@@ -62,7 +62,7 @@ This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a
   <meta name="twitter:image" content="https://fondpeace.com/images/anupama-5-april-twitter.jpg" />
   <meta name="twitter:site" content="@your_twitter_handle" />
 
-  <!-- Schema.org Structured Data -->
+  
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
