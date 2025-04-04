@@ -34,7 +34,7 @@ This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a
 `);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-5">
+    <div>
 
       <Head>
   
@@ -45,16 +45,10 @@ This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a
 
   
   <meta name="keywords" content="Anupama 5 April 2025 written update, Anupama today episode, Anupama update, Mohit Prem plan Anupama, Anupama spoilers, Star Plus serial updates, Anupama latest twist, Anupamaa written episode, Ghum Hai Kisikey Pyaar Mein 5 April 2025 written update, GHKPM today update, Virat Sai Savi latest news, Yeh Rishta Kya Kehlata Hai 5 April 2025 written update, YRKKH today episode, Abhira Armaan Ruhi love triangle, Anupama serial episode 5 April 2025, Anupamaa full story today, Anupamaa written update full, Anupama serial update 2025, Anupama today full episode, Anupama drama 5 April, Anupama Prem Mohit twist, Anupama episode spoilers 2025, GHKPM written update, YRKKH written update 5 April, Yeh Rishta episode summary, Ghum Hai serial update, Anupama serial highlights, Anupama Star Plus written update, Anupama episode recap, Mohit ka plan Anupama, Anupama update April 2025, Anupama serial twist today, Anupama latest news, Mohit Anupama spoilers, Anupama 5 April recap, Anupamaa full update, Anupama hindi serial update, Star Plus written updates, Anupamaa April 5th written episode">
-
-
-   
-  <link rel="canonical" href="https://www.fondpeace.com/blog/Anupama%205%20April%202025%20written%20update" />
-
-  
-  <meta name="robots" content="index, follow" />
+    
 
 </Head>
-    <div>
+    <div  className="min-h-screen bg-gray-100 p-5">
       
       <MarkdownRenderer content={markdown} />
     </div>
