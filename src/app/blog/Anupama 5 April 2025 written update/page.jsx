@@ -6,7 +6,7 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 export default function Home() {
   const [markdown, setMarkdown] = useState(`# Anupama 5 April 2025 Written Update: Mohit Planning against Prem
 
-Hello,, friends welcome to the new written update of Anupama (Rupali Ganguli). where we are going to see in today's episode in Anupama. Anupama and Raghav going to behind an unknown person, anupama says to Raghav that this person will be related to the prem case. here we know that Prem is going to jail and that Anupama and Raghav want to save him.
+Hello, friends welcome to the new written update of Anupama (Rupali Ganguli). where we are going to see in today's episode in Anupama. Anupama and Raghav going to behind an unknown person, anupama says to Raghav that this person will be related to the prem case. here we know that Prem is going to jail and that Anupama and Raghav want to save him.
 
 ## Anupama and Raghav
 
