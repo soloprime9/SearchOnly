@@ -100,9 +100,10 @@ This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a
  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </Head>
-
+    <div>
       
       <MarkdownRenderer content={markdown} />
+    </div>
     </div>
   );
 }
