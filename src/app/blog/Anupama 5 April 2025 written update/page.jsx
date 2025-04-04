@@ -1,4 +1,5 @@
 "use client";
+import Head from 'next/head';
   
 import React, { useState } from "react";
 import MarkdownRenderer from "@/components/MarkdownRenderer"; 
@@ -34,6 +35,70 @@ This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a
 
   return (
     <div className="min-h-screen bg-gray-100 p-5">
+
+      <Head>
+  
+  <title>Anupama 5 April 2025 Written Update: Mohit Planning Against Prem</title>
+
+
+  <meta name="description" content="Read the full written update of Anupama 5th April 2025 episode. Mohit plans against Prem! Catch the latest drama, twists, and emotional moments from today's Anupama episode.">
+
+  
+  <meta name="keywords" content="Anupama 5 April 2025 written update, Anupama today episode, Anupama update, Mohit Prem plan Anupama, Anupama spoilers, Star Plus serial updates, Anupama latest twist, Anupamaa written episode, Ghum Hai Kisikey Pyaar Mein 5 April 2025 written update, GHKPM today update, Virat Sai Savi latest news, Yeh Rishta Kya Kehlata Hai 5 April 2025 written update, YRKKH today episode, Abhira Armaan Ruhi love triangle, Anupama serial episode 5 April 2025, Anupamaa full story today, Anupamaa written update full, Anupama serial update 2025, Anupama today full episode, Anupama drama 5 April, Anupama Prem Mohit twist, Anupama episode spoilers 2025, GHKPM written update, YRKKH written update 5 April, Yeh Rishta episode summary, Ghum Hai serial update, Anupama serial highlights, Anupama Star Plus written update, Anupama episode recap, Mohit ka plan Anupama, Anupama update April 2025, Anupama serial twist today, Anupama latest news, Mohit Anupama spoilers, Anupama 5 April recap, Anupamaa full update, Anupama hindi serial update, Star Plus written updates, Anupamaa April 5th written episode">
+
+
+  <meta property="og:title" content="Anupama 5 April 2025 Written Update: Mohit’s Evil Plan Exposed" />
+  <meta property="og:description" content="Complete story of 5th April 2025 episode of Anupama – Mohit’s game against Prem revealed! Stay updated with Star Plus serials." />
+  <meta property="og:image" content="https://fondpeace.com/images/anupama-5-april-2025.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://www.fondpeace.com/blog/Anupama%205%20April%202025%20written%20update" />
+
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Anupama 5 April 2025 Episode Update" />
+  <meta name="twitter:description" content="Read the latest written update of Anupama 5 April 2025 – Mohit’s shocking plan against Prem!" />
+  <meta name="twitter:image" content="https://fondpeace.com/images/anupama-5-april-twitter.jpg" />
+  <meta name="twitter:site" content="@your_twitter_handle" />
+
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TVEpisode",
+    "name": "Anupama 5 April 2025 Written Update",
+    "episodeNumber": "1234",
+    "partOfSeries": {
+      "@type": "TVSeries",
+      "name": "Anupama"
+    },
+    "datePublished": "2025-04-05",
+    "description": "In today's episode of Anupama (5 April 2025), Mohit executes a plan against Prem, creating suspense in the Shah family. Full episode summary and written update.",
+    "url": "https://www.fondpeace.com/blog/Anupama%205%20April%202025%20written%20update",
+    "image": "https://fondpeace.com/images/anupama-5-april-2025.jpg",
+    "publisher": {
+      "@type": "Organization",
+      "name": "YourWebsiteName",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://fondpeace.com/logo.png"
+      }
+    }
+  }
+  </script>
+
+  
+  <link rel="canonical" href="https://www.fondpeace.com/blog/Anupama%205%20April%202025%20written%20update" />
+
+  
+  <meta name="robots" content="index, follow" />
+
+ 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</Head>
+
+      
       <MarkdownRenderer content={markdown} />
     </div>
   );
