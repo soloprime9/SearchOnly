@@ -36,61 +36,9 @@ This blog source from <a href="https://www.macrumors.com/2025/04/04/2300-dollar-
   <meta name="description" content="Read the full where you know that trump announced tarrif plan how impact on Apple products including iPhone, all iPhone price will be increaese." />
 
   
-  <meta name="keywords" content="" /> 
+  <meta name="keywords" content="iphone 16 price, iphone 16 release date, iphone 17 launch, iphone 17 features, apple iphone price hike, trump tariffs iphone, apple import tariffs 2025, iphone 2025 cost, iphone made in china issues, apple trade war china, iphone 16 specs, iphone 17 leaks, iphone 16 camera upgrade, apple 2025 roadmap, iphone 16 pro max price, iphone 17 pro features, iphone price increase usa, apple news 2025, iphone 16 battery life, iphone 17 display, iphone made in india, apple product tariff impact, iphone 17 ultra rumors, apple macbook tariffs, apple watch 10 updates, apple ipad price hike, iphone 16 color options, iphone 17 release delay, apple chip shortage, iphone 16 vs iphone 15, iphone 17 vs galaxy s25, iphone 16 pro rumors, iphone 17 design, apple store usa news, trump china trade policy, iphone 16 usb c, iphone price bump 2025, iphone 16 india launch, iphone 16 preorder usa, iphone 17 preorder date, iphone 2025 usa launch, apple tariff plan, iphone 16 manufacturing country, iphone 16 china factory, iphone 16 made in india, iphone import duties 2025, iphone taxes 2025, iphone 17 oled screen, iphone 16 pro max launch date, iphone 16 pro launch event, iphone 17 top features, iphone 16 vs samsung s24, iphone 17 launch event 2025, iphone 16 model numbers, iphone 17 price hike, iphone 16 usa tariff impact, iphone 17 expected price, iphone 16 durability, iphone 17 titanium body, apple event 2025 date, apple september event, apple october event, apple iphone future, iphone made in usa, iphone 16 performance test, iphone 16 overheating issues, iphone 16 benchmarks, iphone 17 benchmarks, macrumors iphone 16, 9to5mac iphone 17, the verge apple news, appleinsider iphone 16, gsmarena iphone 16 specs, techcrunch apple update, cnet iphone tariff, tomsguide iphone 17, bloomberg iphone report, reuters apple tariff, forbes apple stock, iphone 17 apple silicon, iphone 16 ios version, iphone 17 ios 19, iphone 16 ai features, iphone 17 generative ai, iphone 16 camera zoom, iphone 17 space video, apple iphone supply chain, apple production news, iphone 17 preorder leaks, iphone 16 preorder date usa, iphone 17 retail price, iphone 16 vs 17 comparison, iphone 16 price in usa, iphone 17 price in india, apple iphone export news, iphone 16 india price, iphone 17 tariffs update, iphone 16 manufacturing update" /> 
 
 
-  <meta property="og:title" content="Anupama 5 April 2025 Written Update: Mohit’s Evil Plan Exposed" />
-  <meta property="og:description" content="Complete story of 5th April 2025 episode of Anupama – Mohit’s game against Prem revealed! Stay updated with Star Plus serials." />
-  <meta property="og:image" content="https://fondpeace.com/images/anupama-5-april-2025.jpg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:type" content="article" />
-  <meta property="og:url" content="https://www.fondpeace.com/blog/Anupama%205%20April%202025%20written%20update" />
-
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Anupama 5 April 2025 Episode Update" />
-  <meta name="twitter:description" content="Read the latest written update of Anupama 5 April 2025 – Mohit’s shocking plan against Prem!" />
-  <meta name="twitter:image" content="https://fondpeace.com/images/anupama-5-april-twitter.jpg" />
-  <meta name="twitter:site" content="@your_twitter_handle" />
-
-  
-  <script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{
-    __html: JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "TVEpisode",
-      name: "Anupama 5 April 2025 Written Update",
-      episodeNumber: "1234",
-      datePublished: "2025-04-05",
-      description:
-        "In today's episode, Mohit secretly plans against Prem while Anupama tries to balance her family responsibilities. Emotions run high as unexpected events unfold.",
-      mainEntityOfPage: {
-        "@type": "WebPage",
-        "@id": "https://www.fondpeace.com/blog/Anupama%205%20April%202025%20written%20update",
-      },
-      publisher: {
-        "@type": "Organization",
-        name: "Fondpeace",
-        logo: {
-          "@type": "ImageObject",
-          url: "https://fondpeace.com/logo.jpg",
-        },
-      },
-    }),
-  }}
-></script>
-
-
-   
-  <link rel="canonical" href="https://www.fondpeace.com/blog/Anupama%205%20April%202025%20written%20update" />
-
-  
-  <meta name="robots" content="index, follow" />
-
- 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </Head>
     <div>
       
