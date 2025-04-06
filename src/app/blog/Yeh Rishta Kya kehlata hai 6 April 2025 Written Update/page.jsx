@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import MarkdownRenderer from "@/components/MarkdownRenderer"; 
 
 export default function Home() {
-  const [markdown, setMarkdown] = useState(`# Yeh Rishta Kya Kehlata Hai 6 April 2025 Written Update: Arman and Vidya in trauma
+  const [markdown, setMarkdown] = useState(`# Yeh Rishta Kya Kehlata Hai 7 April 2025 Written Update: Arman and Vidya in trauma
 
 This show is famous in India for its twist, romance, and interesting story of all the characters, this show is played daily on Jiohostar where you can see all of the episodes of Yeh Rishta Kya Kehlata Hai. 
 
