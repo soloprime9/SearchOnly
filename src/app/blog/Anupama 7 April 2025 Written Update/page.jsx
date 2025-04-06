@@ -40,7 +40,7 @@ For the latest update, you can join us on FondPeace.com dear friends.
 
 This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a href="https://www.iwmbuzz.com/television/written-updates/anupamaa-written-update-5-april-2025-rahi-suspects-mohits-intentions-doubts-if-he-is-framing-prem/2025/04/04"> iwmbuzz</a>
 
-** <a href="https://www.fondpeace.com/blog/Yeh Rishta Kya kehlata hai 6 April 2025 Written Update">Yeh Rishta Kya Kehlata Hai 7 April 2025 Written Update</a>**
+**<a href="https://www.fondpeace.com/blog/Yeh Rishta Kya kehlata hai 6 April 2025 Written Update">Yeh Rishta Kya Kehlata Hai 7 April 2025 Written Update</a>**
 
 **<a href="https://www.fondpeace.com/blog/Anupama 5 April 2025 written update"> Anupama 5 April 2025 Written Update</a>**
 
