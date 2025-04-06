@@ -5,7 +5,16 @@ import React, { useState } from "react";
 import MarkdownRenderer from "@/components/MarkdownRenderer"; 
 
 export default function Home() {
-  const [markdown, setMarkdown] = useState(`# A $2300 Apple iPhone? Trump tariffs could make that happen.
+  const [markdown, setMarkdown] = useState(`# Apple iPad Mini 7 gets $100 Off on Amazon, Available From $399
+
+  This weekend Amazon is providing a record-breaking low price for the Apple iPad Mini 7, which was previously priced at $499.00, but at the current time its price starts at $399.00 for a 128GB Wi-Fi tablet.
+  You can find the iPad Mini 7 with 128GB Wi-Fi on Amazon in three colors at the same price. if you planning to buy an iPad Mini 7, So it will be the best time to purchase it from Amazon at a low price.
+
+  Let us talk about more models like 256GB Wi-Fi iPad Mini 7 starting at $499.00 and 512GB Wi-Fi iPad mini 7 discounted price starting at $699.99. All of these products will be available to purchase with $100 off and available in multiple colors.
+
+For more details you can chek here, <a href="https://www.amazon.com/s?k=ipad+mini+7&crid=20V683IG49QL&sprefix=ipad+mini+7%2Caps%2C860&ref=nb_sb_noss_1" target="_blank">Amazon</a>
+  
+## A $2300 Apple iPhone? Trump tariffs could make that happen.
 
 Now the tariff will be applied starting April 9 to imports from many countries. Now this tariff could impact Apple, and for all of this, the Apple company products will be going to be very costly around 43% of their current price. China will be subject to around 54% tariff, because Apple company assembles many products and their parts from China, including iPhones, and imports to the U.S.
 
