@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import MarkdownRenderer from "@/components/MarkdownRenderer"; 
 
 export default function Home() {
-  const [markdown, setMarkdown] = useState(`# Anupama 7 April 2025 Written Update: Anupama Celebrate Victory
+  const [markdown, setMarkdown] = useState(`# Anupama 8 April 2025 Written Update: Anupama Celebrate Victory
 
 In today's episode, we are seeing where all of them are thinking about prem. Because everyone is sad for the prem. All of them know that the prem is not guilty. So Anupama and Raghav here struggling to find the important updates to save prem. 
 
