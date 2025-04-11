@@ -199,6 +199,16 @@ if(loading){
             }),
           }}
         />
+
+         <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8WL1Z0DS60"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8WL1Z0DS60');
+</script>
       </head>
    
     <div className="m-4">
