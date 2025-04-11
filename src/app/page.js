@@ -148,7 +148,7 @@ if(loading){
         <meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_CODE" />
 
         
-        // <!-- Google tag (gtag.js) -->
+       
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-8WL1Z0DS60"></script>
         <script>
           window.dataLayer = window.dataLayer || [];
