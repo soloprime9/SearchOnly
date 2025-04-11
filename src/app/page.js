@@ -147,6 +147,19 @@ if(loading){
         <link rel="canonical" href="https://www.fondpeace.com/" />
         <meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_CODE" />
 
+        
+        // <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-8WL1Z0DS60"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+        
+          gtag('config', 'G-8WL1Z0DS60');
+        </script>
+
+
+
         {/* Open Graph Meta Tags */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Fond Peace AI - Your Ultimate Free AI Assistant for Everything" />
@@ -200,15 +213,7 @@ if(loading){
           }}
         />
 
-         <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-8WL1Z0DS60"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-8WL1Z0DS60');
-</script>
+        
       </head>
    
     <div className="m-4">
