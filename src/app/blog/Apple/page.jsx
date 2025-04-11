@@ -6,7 +6,16 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 export default function Home() {
   const [markdown, setMarkdown] = useState(`# Select Faster With This Two-Finger Trick on iPhone
+
+  Now we are going to know faster selecting feature in iPhone. You can say it Trick or new feature in the iPhone for users to select fast. 
+  What's the need for fa ast selecting feature for you? If you are very habitually tapping on apps like Contacts, Mail, Messages, Voice Memos, Notes, and more in any Apple app, here are methods given in points you can use.
+  1. Open your favorite app where you want to select multiple items.
+  2. With two fingers, touch and select the items.
+  3. After selecting and touching via both fingers, then you can drag them up-down and also show that items seelcted.
+  4. Inthe  last step, you can take actions like moving, deleting, and more when selecting items.
   
+  This feature in iPhone gives you the best way to do some actions like deleting, moving, or organizing. This type of feature is likely already available on Android devices.  
+
   
   **Apple iPad Mini 7 gets $100 Off on Amazon, Available From $399**
 
