@@ -6,7 +6,8 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 export default function Home() {
   const [markdown, setMarkdown] = useState(`# Select Faster With This Two-Finger Trick on iPhone
-        ![Illustration representing Google Core Update March 2025](/apple/resized-image.webp)
+        ![Illustration representing Google Core Update March 2025](/apple/image.webp)
+
         
   Now we are going to know faster selecting feature in iPhone. You can say it Trick or new feature in the iPhone for users to select fast. 
   What's the need for fa ast selecting feature for you? If you are very habitually tapping on apps like Contacts, Mail, Messages, Voice Memos, Notes, and more in any Apple app, here are methods given in points you can use.
