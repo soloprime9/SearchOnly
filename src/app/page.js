@@ -151,14 +151,17 @@ if(loading){
 
         
        
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-8WL1Z0DS60"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-        
-          gtag('config', 'G-8WL1Z0DS60');
-        </script>
+       <script async src="https://www.googletagmanager.com/gtag/js?id=G-8WL1Z0DS60"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-8WL1Z0DS60');
+            `,
+          }}
+        />
 
 
 
