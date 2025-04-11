@@ -1,7 +1,9 @@
 'use client';
+
  
 import axios from "axios";
 import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
 
 function App() {
   const [data, setData] = useState([]);
@@ -136,7 +138,7 @@ if(loading){
   return (
     <div className="m-1 mb-10"> 
 
-   <head>
+   <Head>
         <title>Fond Peace AI - Free AI-Powered Search & Do Anything for Free</title>
         <meta name="description" content="Unlock the limitless potential of AI with Fond Peace AI. Experience cutting-edge AI-powered search, automation, content generation, and assistance tools—all for free. This is a platform where you can search anything like Google, Bing, and the web." />
         <meta name="keywords" content="Fond Peace AI, free AI tools, AI search engine, AI assistant, AI automation, AI content generator, AI-powered search, AI chatbot, AI-driven solutions, AI-powered research, AI discovery, AI-powered learning, AI innovation, AI productivity, AI-powered applications, AI-powered insights, AI-powered recommendations, AI for everyone, next-gen AI, best free AI tools, AI-powered knowledge base, AI-driven search engine, AI-powered decision-making, AI-powered problem-solving, AI assistant for work and study, AI-powered writing tools, AI-powered creative solutions, chatgpt, openai, Claude AI, Grok AI, Elon Musk AI, search engine alternatives, written updates, Telly updates, Anupama, YRKKH, Bhagya Lakshmi, Dhruv Rathee, MacRumors, 9to5Mac, Apple Insider, Apple rumors, iPhone news, AI SEO optimization, 2025 Google SEO, AI-powered blogging, real-time AI answers, best AI tools 2025, AI automation for business, SEO AI tools, AI-driven marketing, Google core update 2025, AI-enhanced productivity, AI-generated content, machine learning trends 2025, AI-powered analytics, AI for digital marketing, AI SEO ranking strategies, how to rank on Google with AI, best AI-powered research tools" />
@@ -214,7 +216,7 @@ if(loading){
         />
 
         
-      </head>
+      </Head>
    
     <div className="m-4">
       <h2 className="text-2xl font-bold text-center">Search Only Not Open</h2>
