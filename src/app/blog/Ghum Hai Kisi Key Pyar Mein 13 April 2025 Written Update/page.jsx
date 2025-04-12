@@ -88,7 +88,7 @@ This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </Head>
     <div>
-      <img src="/apple/resized-image.webp" width="" alt="hellonot" /> 
+      <img src="/apple/resized-image.webp" width="1200" height="630" style="max-width:100%; height:auto" loading="lazy" alt="Fondpeace AI Search Engine do Everything" /> 
       <MarkdownRenderer content={markdown} />
     </div>
     </div>
