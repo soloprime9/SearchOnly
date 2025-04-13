@@ -54,7 +54,7 @@ function App() {
 
 
 
-  //  Function to formate text with headings,lists,paragraph and code blocks
+  //  Function to formate text with headings,lists,paragraph and code blocks 
 
   const FormateText = (text) => {
     if (!text) return null;
