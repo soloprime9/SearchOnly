@@ -1,5 +1,6 @@
 "use client";
 import Head from 'next/head';
+import Image from 'next/Image';
   
 import React, { useState } from "react";
 import MarkdownRenderer from "@/components/MarkdownRenderer"; 
@@ -88,7 +89,14 @@ This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </Head>
     <div>
-      <img src="/apple/resized-image.webp" width="1200" height="630" style="max-width:100%; height:auto" loading="lazy" alt="Fondpeace AI Search Engine do Everything" /> 
+      <Image
+          src="/apple/resized-image.webp"
+          width={1200}
+          height={630}
+          alt="Ghum hai kisikey pyar mein written update daily on fondpeace.com"
+          className="w-full h-auto"
+          loading="lazy"
+        />
       <MarkdownRenderer content={markdown} />
     </div>
     </div>
