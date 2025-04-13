@@ -1,6 +1,6 @@
 "use client";
 import Head from 'next/head';
-import Image from 'next/Image';
+import Image from 'next/image';
   
 import React, { useState } from "react";
 import MarkdownRenderer from "@/components/MarkdownRenderer"; 
