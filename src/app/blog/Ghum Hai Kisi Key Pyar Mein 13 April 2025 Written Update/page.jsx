@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import MarkdownRenderer from "@/components/MarkdownRenderer"; 
 
 export default function Home() {
-  const [markdown, setMarkdown] = useState(`# Ghum Hai Kisi key Pyar Mein 13 April 2025 Written Update: Lina Angry on Tejswini
+  const [markdown, setMarkdown] = useState(`# Ghum Hai Kisi key Pyar Mein 14 April 2025 Written Update
 
 In today's episode of GHKKPM, we see that Neil and Tejswini are getting ready to do after-marriage rituals. Now here we see that the neel and tejswini come close, and their hands touch each other. They are feeling about each other. But another side we are seeing to Riturag is so angry and jealous. Rituara doesn't want to see Neel and Tejswini together. Now here we are using that the neel and tejaswini mary to reach other.
 
@@ -26,7 +26,7 @@ This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a
 
       <Head>
   
-  <title>Ghum Hai Kisi key Pyar Mein 13 April 2025 Written Update: Lina Angry on Tejswini</title>
+  <title>Ghum Hai Kisi key Pyar Mein 14 April 2025 Written Update</title>
 
 
   <meta name="description" content="Read the full written update, Tellyupdates, colours tv written update, zee tv written update, star plus written update, mannat written update, yrkkh written update, anupama, written update, telly express written update, sony tv written update, written up meaning, written update, telly updates, written update today on Fondpeace.com" />
