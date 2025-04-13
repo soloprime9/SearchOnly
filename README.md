@@ -76,7 +76,7 @@ We’re on a mission to empower every internet user with intelligent tools, fast
 ## 🧑‍💻 How to Run Locally
 
 ```bash
-git clone https://github.com/yourusername/fondpeace.git
+git clone https://github.com/soloprime9/SearchOnly.git
 cd fondpeace
 npm install
 npm run dev
