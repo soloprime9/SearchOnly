@@ -149,21 +149,6 @@ if(loading){
         <link rel="canonical" href="https://www.fondpeace.com/" />
         <meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_CODE" />
 
-        
-       
-       <script async src="https://www.googletagmanager.com/gtag/js?id=G-8WL1Z0DS60"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-8WL1Z0DS60');
-            `,
-          }}
-        />
-
-
 
         {/* Open Graph Meta Tags */}
         <meta property="og:type" content="website" />
