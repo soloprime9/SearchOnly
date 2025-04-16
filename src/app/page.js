@@ -147,8 +147,10 @@ if(loading){
         <meta name="theme-color" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href="https://www.fondpeace.com/" />
-        <meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_CODE" />
+        
 
+
+        <meta name="google-site-verification" content="1QstIvIfjCY4zQX3tWYTzssntJTt_zHSlWWT_Rf1flM" />
 
         {/* Open Graph Meta Tags */}
         <meta property="og:type" content="website" />
