@@ -150,7 +150,6 @@ if(loading){
         
 
 
-        <meta name="google-site-verification" content="1QstIvIfjCY4zQX3tWYTzssntJTt_zHSlWWT_Rf1flM" />
 
         {/* Open Graph Meta Tags */}
         <meta property="og:type" content="website" />
