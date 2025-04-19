@@ -1,6 +1,5 @@
 'use client';
 
- 
 import axios from "axios";
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
