@@ -19,7 +19,7 @@ Anupama Today episode we see that Anupama and Raghav catch that person and find 
 ## Rahi thinking about Mohit
 
 next, we see that Anupama and Raghav want to understand the person who is behind the game, all of them using their mind, whereas washundhra says that you all fools, so you can not act like lawyers. Anupama said to Raghav that they want to collect some updates about the prem's case. On where other side we see that Parag is so serious about Prem, that he wants to meet Prem. Parag and Anil go together to meet Prem in jail. where Parag is so nervous about meeting Prem, and he tells Anil to leave him with Prem to talk together. Anil lists and goes. Parag is talking to Prem and saying that Prem will come out of jail, he gives some belief to Prem.
-
+   
 ## Anil and Parag going to jail
 
 In the Anupama serial today we see, where Parag is sleeping and he has a dream of Prem, where he is not safe and he is finally going to jail, After seeing this parag is going to wake up quickly and thinking about Prem. 
