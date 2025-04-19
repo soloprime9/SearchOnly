@@ -2,7 +2,7 @@
   
 import React, { useState } from "react";
 import MarkdownRenderer from "@/components/MarkdownRenderer"; 
-
+  
 export default function Home() {
   const [markdown, setMarkdown] = useState(`# Will Google Search Die? The Rise of AI Search Engines in 2025
 
