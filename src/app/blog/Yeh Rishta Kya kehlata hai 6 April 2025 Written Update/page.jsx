@@ -10,7 +10,7 @@ export default function Home() {
 This show is famous in India for its twist, romance, and interesting story of all the characters, this show is played daily on Jiohostar where you can see all of the episodes of Yeh Rishta Kya Kehlata Hai. 
 
 In Today's episode, we see Arman (Rohit Purohit) and Abhira (samadhi Shukla) talking to Ruhi to keep their child in her womb. here Arman thinks about Rohit and feels sad. Here Arman and his family are so sad to know about the death of Rohit, and now Ruhi's life is ruined. Ruhi is so sad at this time. Arman thinks about Rohit and he takes Arman's beliefs to take care of Ruhi and Daksh. now here is some distance in Arman and Abhira's relationship. 
-
+ 
 ## Arman feels guilty
 
 Now we are seeing the next episode where Ruhi and Daksha are with their family. Ruhi said that Rohit wasn't going to leave them. where all of the shock to listen to Ruhi. Abhira calls Ruhi to go with her together. Now we see that Arman going to fight with doctors to see Rohit but the doctor stops Arman to see Rohit. Arman going to the mortuary.  Abhira goes to Arman and she sees Rohit's dead body to Arman. 
