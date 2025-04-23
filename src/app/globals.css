@@ -29,3 +29,18 @@ body {
   font-size: medium;
   color: red;
 }
+
+/* For Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* For Firefox */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* For IE and Edge */
+.no-scrollbar {
+  -ms-overflow-style: none;
+}
