@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-import { formatPostTime } from './DateFormate';
+import { formatPostTime } from './components/formatPostTime';
 
 function Posts () {
     const [data, setData] = useState([]);
