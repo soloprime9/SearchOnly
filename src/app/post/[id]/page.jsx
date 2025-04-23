@@ -13,7 +13,7 @@ function Single () {
             console.log(id);
 
             try{
-            const response = await axios.get(`http://localhost:4000/content/post/${id}`);
+            const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
 
             setdata(response.data);
             console.log(response.data);
