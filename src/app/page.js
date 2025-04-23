@@ -8,7 +8,6 @@ function Posts () {
     const [data, setData] = useState([]);
     const [loading, setloading] = useState(false);
 
-
     
         useEffect(() => {
 
