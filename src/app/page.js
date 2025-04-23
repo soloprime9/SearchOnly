@@ -67,7 +67,7 @@ function Posts () {
                             <div className=''>
                             <strong className='pt-2 '>Human Cant</strong>
                             
-                            <p className='text-sm  text-gray-400'>{formatPostTime(post.timestamp)}</p>
+                            // <p className='text-sm  text-gray-400'>{formatPostTime(post.timestamp)}</p>
                             </div>
                             
                             <div className='font-bold text-2xl ml-70 '>...</div>
