@@ -1,273 +1,187 @@
 'use client';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Link from 'next/link';
+import { formatPostTime } from '../components/DateFormate';
 
-import axios from "axios";
-import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
+function Posts () {
+    const [data, setData] = useState([]);
+    const [loading, setloading] = useState(false);
 
-function App() {
-  const [data, setData] = useState([]);
-  const [query, setQuery] = useState('');
-  const [search, setSearch] = useState('');
-  const [explain, setexplain] = useState('');
-  const [image, setimage]  = useState([]);
-  const [Youtube, setYoutube] = useState([]);
-  const [loading, setloading] = useState(false);
 
-  const handleChange = (e) => {
-    setQuery(e.target.value);
-  };
-
-  const handleSearch = () => {
     
-    setSearch(query);
-  };
+        useEffect(() => {
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (search) {
-        setloading(true);
-        try {
-          const response = await axios.get(`https://sokara.vercel.app/search?q=${search}`);
-          const result = await response.data[0];
-          const sumarize = await response.data[1];
-          const images = await response.data[2];
-          const youtube_detail = await response.data[3]
-          // setimage(images);
-          console.log("Images",images);
-          setimage(images)
-          console.log(response)
-          setexplain(sumarize);
-          setData(result);
-          setYoutube(youtube_detail);
-          console.log( result,sumarize)
-        } catch (error) {
-          console.error(error);``
-        }
-        finally{
-          setloading(false);
-        }
-      }
-    };
-    fetchData();
-  }, [search]);
+            const Content = async () => {
+            try{
+                const response =  await axios.get('http://localhost:4000/content/get');
+                
+                setData(response.data);
+                console.log("Data",response.data);
+        
+                }
+                catch(error){
+                    // console.log(error);
+                }
 
+            };
+            Content();
+        },[]);
 
-
-  //  Function to formate text with headings,lists,paragraph and code blocks 
-
-  const FormateText = (text) => {
-    if (!text) return null;
-  
-    // Replace Markdown-style headings
-    text = text.replace(/^###\s(.+)/gm, "<h3 class='text-lg'>$1</h3>");
-    text = text.replace(/^####\s(.+)/gm, "<h4 class='text-md'>$1</h4>");
-    text = text.replace(/^##\s(.+)/gm, "<h2 class='text-lg'>$1</h2>");
-    text = text.replace(/^#\s(.+)/gm, "<h1 class='text-xl font-bold'>$1</h1>");
-  
-    // Replace Markdown-style bullet points (- item or * item)
-    text = text.replace(/^- (.+)$/gm, "<li class='ml-4 list-disc'>$1</li>");
-    text = text.replace(/^\* (.+)$/gm, "<li class='ml-4 list-disc'>$1</li>");
-    text = text.replace(/(<li.+<\/li>)/g, "<ul>$1</ul>"); // Wrap list items in <ul>
-  
-    // Replace triple backticks for code blocks
-    text = text.replace(
-      /```([\s\S]+?)```/g,
-      "<pre class='bg-gray-200 text-black text-md mb-2 p-2 rounded-md overflow-x-auto'><code>$1</code></pre>"
-    );
-  
-    // Replace inline code using backticks (`code`)
-    text = text.replace(/`([^`]+)`/g, "<code class='bg-gray-200 px-1 py-0.5 rounded'>$1</code>");
-  
-    // Bold and Italic
-    text = text.replace(/\*\*(.+?)\*\*/g, "<strong class='font-bold'>$1</strong>"); // **bold**
-    text = text.replace(/\*(.+?)\*/g, "<em class='italic'>$1</em>"); // *italic*
-  
-    // Convert Markdown tables to HTML tables
-    text = text.replace(
-      /\|(.+?)\|\n\|[-:\s|]+\|\n((?:\|.+?\|\n?)+)/g,
-      (match, headers, rows) => {
-        const headerCells = headers
-          .split("|")
-          .map((h) => h.trim())
-          .filter((h) => h.length > 0)
-          .map((h) => `<th class='border p-2 bg-gray-200'>${h}</th>`)
-          .join("");
-  
-        const rowCells = rows
-          .trim()
-          .split("\n")
-          .filter((row) => row.trim().length > 0)
-          .map((row) => {
-            const columns = row
-              .split("|")
-              .map((col) => col.trim())
-              .filter((col) => col.length > 0)
-              .map((col) => `<td class='border p-2'>${col}</td>`)
-              .join("");
-            return `<tr>${columns}</tr>`;
-          })
-          .join("");
-  
-        return `<table class='border-collapse border border-gray-300 w-full my-4'>
-                  <thead><tr>${headerCells}</tr></thead>
-                  <tbody>${rowCells}</tbody>
-                </table>`;
-      }
-    );
-  
-    // Convert double newlines to paragraphs
-    text = text.replace(/\n{2,}/g, "</p><p class='mb-4'>");
-  
-    // Wrap everything in <p> tags
-    return `<p class='mb-4'>${text}</p>`;
-  };
-  
-  const ExplainText = ({ text }) => {
-    return text ? (
-      <div
-        className="border-blue-500 bg-white font-normal text-black w-full"
-        dangerouslySetInnerHTML={{ __html: FormateText(text) }}
-      />
-    ) : null;
-  };
-
-if(loading){
-  return ( <div className ="text-4xl font-bold inline-block align-middle">Loading Data...</div> );
-}
-  return (
-    <div className="m-1 mb-10"> 
-
-   <Head>
-        <title>Fond Peace AI - Free AI-Powered Search & Do Anything for Free</title>
-        <meta name="description" content="Unlock the limitless potential of AI with Fond Peace AI. Experience cutting-edge AI-powered search, automation, content generation, and assistance tools—all for free. This is a platform where you can search anything like Google, Bing, and the web." />
-        <meta name="keywords" content="Fond Peace AI, free AI tools, AI search engine, AI assistant, AI automation, AI content generator, AI-powered search, AI chatbot, AI-driven solutions, AI-powered research, AI discovery, AI-powered learning, AI innovation, AI productivity, AI-powered applications, AI-powered insights, AI-powered recommendations, AI for everyone, next-gen AI, best free AI tools, AI-powered knowledge base, AI-driven search engine, AI-powered decision-making, AI-powered problem-solving, AI assistant for work and study, AI-powered writing tools, AI-powered creative solutions, chatgpt, openai, Claude AI, Grok AI, Elon Musk AI, search engine alternatives, written updates, Telly updates, Anupama, YRKKH, Bhagya Lakshmi, Dhruv Rathee, MacRumors, 9to5Mac, Apple Insider, Apple rumors, iPhone news, AI SEO optimization, 2025 Google SEO, AI-powered blogging, real-time AI answers, best AI tools 2025, AI automation for business, SEO AI tools, AI-driven marketing, Google core update 2025, AI-enhanced productivity, AI-generated content, machine learning trends 2025, AI-powered analytics, AI for digital marketing, AI SEO ranking strategies, how to rank on Google with AI, best AI-powered research tools" />
-        <meta name="robots" content="index, follow" />
-        <meta name="author" content="Fond Peace AI Team" />
-        <meta name="theme-color" content="#000000" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="canonical" href="https://www.fondpeace.com/" />
         
 
+    return (
+        <div>
+            <div className=' mt-10  '>
+    
+                
+            <div  className='grid grid-cols-[150px_1fr_300px] relative'>
+    
+    
+            {/* Starting of Left Sidebzr */}
+            <div className='sticky top-10 h-screen overflow-y-auto w-full font-bold text-2xl my-0 border-1 border-gray-300 rounded-md'>
 
+                        <h4 className='mx-2 my-4'>Worlds</h4>
+                        <h4 className='mx-2 my-4'>Search</h4>
+                        <h4 className='mx-2 my-4'>Account</h4>
+                        <h4 className='mx-2 my-4'>Setting</h4>
+                        <h4 className='mx-2 my-4'>Privacy</h4>
+                        
+    
+                </div>
+    
+            {/* Starting of Main Content Area*/}
 
-        {/* Open Graph Meta Tags */}
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Fond Peace AI - Your Ultimate Free AI Assistant for Everything" />
-        <meta property="og:description" content="Experience the future of AI today! Search, create, and automate effortlessly with Fond Peace AI. Free AI-powered solutions for search, writing, automation, and more!" />
-        <meta property="og:url" content="https://www.fondpeace.com/" />
-        <meta property="og:image" content="https://www.fondpeace.com/og-image.jpg" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:site_name" content="Fond Peace AI" />
-        <meta property="og:locale" content="en_US" />
+                <div className="  py- px-4 space-y-6  ">
+            {data.length > 0 ? 
+                (
+                    data.slice().sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).map((post,index) => 
+                    (
 
-        {/* Twitter Meta Tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Fond Peace AI - Explore Advanced AI Tools for Free" />
-        <meta name="twitter:description" content="Experience the future of AI today! Search, create, and automate effortlessly with Fond Peace AI. Free AI-powered solutions for search, writing, automation, and more!" />
-        <meta name="twitter:image" content="https://www.fondpeace.com/twitter-image.jpg" />
-        <meta name="twitter:site" content="@FondPeaceAI" />
-        <meta name="twitter:creator" content="@FondPeaceAI" />
+                        <div key={index} className='  border-1 border-gray-300 rounded-md h-auto'>
+                    <div className=' rounded-xl p-2 h-auto '>
+                     
+                    <Link href={`/p/${post._id}`}>
 
-        {/* Schema.org JSON-LD */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              name: "Fond Peace AI",
-              operatingSystem: "Web",
-              applicationCategory: "Artificial Intelligence",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.9",
-                ratingCount: "2500",
-              },
-              publisher: {
-                "@type": "Organization",
-                name: "Fond Peace AI",
-                url: "https://www.fondpeace.com/",
-                logo: {
-                  "@type": "ImageObject",
-                  url: "https://www.fondpeace.com/logo.png",
-                  width: 300,
-                  height: 300,
-                },
-              },
-            }),
-          }}
-        />
-
-        
-      </Head>
-   
-    <div className="m-4">
-      <h2 className="text-2xl font-bold text-center">Search Only Not Open</h2>
+                        <div className=' flex gap-3 mb-6'>
+                            <img src="https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy" alt="" className='w-10 h-10 rounded-full border-2' />
+    
+                            <div className=''>
+                            <strong className='pt-2 '>Human Cant</strong>
+                            
+                            <p className='text-sm  text-gray-400'>{formatPostTime(post.timestamp)}</p>
+                            </div>
+                            
+                            <div className='font-bold text-2xl ml-70 '>...</div>
+                        </div>
+                        
+                    <p className='cursor-pointer mb-4'>{post.content}</p>
+                    
+                    <div className='flex justify-center'>
+                    <img src="https://indianexpress.com/wp-content/uploads/2025/04/Pope-death-4.jpg?resize=1536,864" alt="hello" className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
+                    </div>
+                    </Link>
+                    
+                    </div>
+                    
+                    
+                    
+                    <div className='flex gap-2 justify-around p-2 border-1 border-gray-300 '>
+                    
+                    
+                    
+                    <p className='cursor-pointer border-2 p-2  px-4 rounded-xl'> like</p>
+                    <p className='cursor-pointer border-2 p-2 rounded-xl px-4'>comment</p>
+                    <p className='cursor-pointer border-2 rounded-xl p-2 px-4'>share</p>
+                    <p className='cursor-pointer border-2 rounded-xl p-2 px-4'>Save</p>
+                    
+                    </div>
+                
+                </div>
+                    ))): (
+                        <div>hello dear </div>
+                    )
+                }
+    
     </div>
-    <div className="m-10 p-5 border-2 rounded-md">
-      <input type="text" value={query} onChange={handleChange} className="border-2 rounded-md w-full p-2 text-lg"/>
-      <button onClick={handleSearch} className="cursor-pointer w-full text-xl font-bold border-2 rounded-md mt-4 p-2 bg-blue-400 text-white">Search</button>
-      </div>
-      {explain ? (
-      <div className=" border-2 rounded-md border-black md:p-6 p-2  ">
-            <ExplainText text={explain}/>
-      </div>) : ( <div></div>)
-      
-      }
+            {/* Starting of RightSide bar */}
+            
+            <div className='sticky top-10 h-screen overflow-y-auto justify-center text-center border-1 border-gray-300 p-4 mx-4 rounded-md'>
 
-      {/* <div className="">
-        {Youtube.map((index) =>(
-          <div key={index.id} className="border-2 rounded-md w-full mt-2 p-2">
-            <img src={index.thumbnail} alt="" className="w-full py-2" />
-          </div>
-        ))}
-      </div> */}
-
-      <div className="grid grid-cols-4 gap-4 items-center">
-        {image?.length > 0 ? (
-          image.map((photo, index) => (
-            <div key={index} className="border-2 rounded-md w-60 h-40 flex justify-center items-center mt-2 p-2">
-              <img src={photo} alt="img" className="w-full h-full object-cover rounded-md " />
+                
+                <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+    
+                            <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+    
+    
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+    
+                            
+                        </div> 
+    
+                        <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+    
+                            <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+    
+    
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+    
+                            
+                        </div> 
+    
+                        <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+    
+                            <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+    
+    
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+    
+                            
+                        </div> 
+    
+                        <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+    
+                            <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+    
+    
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+    
+                            
+                        </div> 
+    
+                        <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+    
+                            <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+    
+    
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+    
+                            
+                        </div> 
+                </div>
+    
+                </div>
+            
+    
             </div>
-          ))
-        ) : (
-          <p className="col-span-4 text-center">No images found</p>
-        )}
-      </div>
-
-
-      
-        {/* <div className="videos">
-        {Youtube.map((video) => (
-          <div key={video.id} className="video-card">
-            <a href={video.url} target="_blank" rel="noopener noreferrer">
-              <img src={video.thumbnail} alt={video.title} className="thumbnail" />
-            </a>
-            <h3>{video.title}</h3>
-            <p>Channel: {video.channel}</p>
-            <p>Views: {video.views}</p>
-            <p>Likes: {video.likes}</p>
-          </div>
-        ))}
-        </div> */}
-
-
-      <ul >
-        {data.map((item, index) => (
-          <li key={index} className="mt-4 border-2 rounded-md p-1">
-            <h2 className="text-lg text-blue-600 "><a href={item.url} target="_blank">{item.title}</a></h2>
-            <p>{item.snippet}</p>
-            <a href={item.url} target="_blank" className="text-blue-500 font-bold">Read more</a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+        </div>
+    )
+    
 }
 
-export default App;
+export default Posts;
