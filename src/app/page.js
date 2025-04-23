@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import Image from 'next/image';
 
 function Posts () {
     const [data, setData] = useState([]);
@@ -62,7 +63,7 @@ function Posts () {
                     <Link href={`/p/${post._id}`}>
 
                         <div className=' flex gap-3 mb-6'>
-                            <Img src="https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy" alt="" className='w-10 h-10 rounded-full border-2' />
+                            <Image src="https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy" alt="" className='w-10 h-10 rounded-full border-2' />
     
                             <div className=''>
                             <strong className='pt-2 '>Human Cant</strong>
@@ -76,7 +77,7 @@ function Posts () {
                     <p className='cursor-pointer mb-4'>{post.content}</p>
                     
                     <div className='flex justify-center'>
-                    <Img src="https://indianexpress.com/wp-content/uploads/2025/04/Pope-death-4.jpg?resize=1536,864" alt="hello" className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
+                    <Image src="https://indianexpress.com/wp-content/uploads/2025/04/Pope-death-4.jpg?resize=1536,864" alt="hello" className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
                     </div>
                     </Link>
                     
@@ -109,7 +110,7 @@ function Posts () {
                 
                 <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                            <Img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+                            <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
     
                             <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
@@ -122,7 +123,7 @@ function Posts () {
     
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                            <Img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+                            <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
     
                             <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
@@ -135,7 +136,7 @@ function Posts () {
     
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                            <Img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+                            <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
     
                             <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
@@ -148,7 +149,7 @@ function Posts () {
     
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                            <Img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+                            <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
     
                             <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
@@ -161,7 +162,7 @@ function Posts () {
     
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                            <Img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+                            <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
     
                             <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
