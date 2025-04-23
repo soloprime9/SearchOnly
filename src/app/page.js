@@ -13,7 +13,7 @@ function Posts () {
 
             const Content = async () => {
             try{
-                const response =  await axios.get('http://localhost:4000/content/get');
+                const response =  await axios.get('https://backend-k.vercel.app/content/get');
                 
                 setData(response.data);
                 console.log("Data",response.data);
