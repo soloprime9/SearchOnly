@@ -180,5 +180,6 @@ function Posts () {
             </div>
         </div>
     );
-}  
+  
 export default Posts;
+}
