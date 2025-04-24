@@ -179,8 +179,6 @@ function Posts () {
     
             </div>
         </div>
-    )
-
-} // The closing curly brace for the Posts function
- 
+    );
+}  
 export default Posts;
