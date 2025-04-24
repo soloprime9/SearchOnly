@@ -175,10 +175,8 @@ function Posts () {
                 </div>
     
                 </div>
-            
-    
             </div>
-       
+        </div>
     );
 } 
 export default Posts;
