@@ -53,7 +53,8 @@ function Posts() {
                                                 <Link href={`/post/${post._id}`}>
 
                                                     <div className=' flex gap-3 mb-6'>
-                                                        <Image src="https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy" alt="" className='w-10 h-10 rounded-full border-2' width={40} height={40} />
+                                                                                    <img src="https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy" alt="" className='w-10 h-10 rounded-full border-2' />
+
 
                                                         <div className=''>
                                                             <strong className='pt-2 '>Human Cant</strong>
