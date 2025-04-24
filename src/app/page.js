@@ -68,7 +68,8 @@ function Posts() {
                                                     <p className='cursor-pointer mb-4'>{post.content}</p>
 
                                                     <div className='flex justify-center'>
-                                                        <Image src="https://indianexpress.com/wp-content/uploads/2025/04/Pope-death-4.jpg?resize=1536,864" alt="hello" className='w-auto  h-auto border-1 border-gray-300 rounded-2xl' width={400} height={225} />
+                                                                                    <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+
                                                     </div>
                                                 </Link>
 
@@ -100,7 +101,8 @@ function Posts() {
 
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                                <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' width={40} height={40} />
+                                                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+
 
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
@@ -112,7 +114,8 @@ function Posts() {
 
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                                <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' width={40} height={40} />
+                                                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+
 
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
@@ -124,7 +127,8 @@ function Posts() {
 
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                                <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' width={40} height={40} />
+                                                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+
 
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
@@ -136,7 +140,8 @@ function Posts() {
 
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                                <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' width={40} height={40} />
+                                                           <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+
 
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
@@ -148,7 +153,8 @@ function Posts() {
 
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
-                                <Image src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' width={40} height={40} />
+                                                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+
 
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
