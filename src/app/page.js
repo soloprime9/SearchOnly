@@ -68,7 +68,7 @@ function Posts() {
                                                     <p className='cursor-pointer mb-4'>{post.content}</p>
 
                                                     <div className='flex justify-center'>
-                                                                                                        <img src="https://indianexpress.com/wp-content/uploads/2025/04/Pope-death-4.jpg?resize=1536,864" alt="hello" className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
+                                                                                                        <img src={post.imageURL} alt="hello" className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
 
 
                                                     </div>
