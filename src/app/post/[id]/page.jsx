@@ -77,11 +77,11 @@ function Single () {
                         <div className='flex gap-3 mb-6'>
                             <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
 
-                            <strong className='pt-2'>Human Cant</strong>
-                            <div className='font-bold text-2xl ml-80'>...</div>
+                            <p className='pt-2 font-bold'>Human Cant</p>
+                            <div className=''><p className='font-bold text-2xl ml-80'>...</p></div>
                         </div>
                         
-                    <p className='cursor-pointer mb-4'>  {data.content}</p>
+                    <h1 className='cursor-pointer mb-4'>  {data.content}</h1>
                     
                     <div className='flex justify-center'>
                     <img src={data.imageURL} className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
