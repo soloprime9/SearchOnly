@@ -6,15 +6,17 @@ import Head from 'next/head';
 function Single () {
 
     const [data, setdata] = useState([]);
+ const [postId, setPostId] = useState('');
     
     useEffect(() => {
         const SinglePost = async() => {
             const path = window.location.pathname;
             const id = path.split("/").pop();
+            setPostId(id);
             console.log(id);
 
             try{
-            const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
+            const response = await axios.get(`https://backend-k.vercel.app/content/post/${postId}`);
 
             setdata(response.data);
             console.log(response.data);
@@ -35,13 +37,13 @@ function Single () {
                 <title>{data.title ? `${data.title} | Fondpeace` : "Fondpeace"}</title>
                 <meta name="description" content={data.content ? data.content.slice(0, 150) : "Fondpeace latest post."} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <link rel="canonical" href={`https://www.fondpeace.com/post/${id}`} />
+                <link rel="canonical" href={`https://www.fondpeace.com/post/${postId}`} />
                 
                 {/* OpenGraph Meta for Social Media Sharing */}
                 <meta property="og:title" content={data.title ? data.title : "Fondpeace Post"} />
                 <meta property="og:description" content={data.content ? data.content.slice(0, 150) : "Fondpeace post content"} />
                 <meta property="og:image" content={data.imageURL ? data.imageURL : "https://www.fondpeace.com/default-og-image.jpg"} />
-                <meta property="og:url" content={`https://www.fondpeace.com/post/${id}`} />
+                <meta property="og:url" content={`https://www.fondpeace.com/post/${postId}`} />
                 <meta property="og:type" content="article" />
 
                 {/* Twitter Card Meta */}
