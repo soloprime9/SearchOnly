@@ -34,13 +34,13 @@ function Single () {
             
             {/* SEO Head Section */}
             <Head>
-                <title>{data.title ? `${data.title} | Fondpeace` : "Fondpeace"}</title>
+                <title>{data.content ? `${data.content} | Fondpeace` : "Fondpeace"}</title>
                 <meta name="description" content={data.content ? data.content.slice(0, 150) : "Fondpeace latest post."} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="canonical" href={`https://www.fondpeace.com/post/${postId}`} />
                 
                 {/* OpenGraph Meta for Social Media Sharing */}
-                <meta property="og:title" content={data.title ? data.title : "Fondpeace Post"} />
+                <meta property="og:title" content={data.content ? data.content : "Fondpeace Post"} />
                 <meta property="og:description" content={data.content ? data.content.slice(0, 150) : "Fondpeace post content"} />
                 <meta property="og:image" content={data.imageURL ? data.imageURL : "https://www.fondpeace.com/default-og-image.jpg"} />
                 <meta property="og:url" content={`https://www.fondpeace.com/post/${postId}`} />
@@ -48,7 +48,7 @@ function Single () {
 
                 {/* Twitter Card Meta */}
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content={data.title ? data.title : "Fondpeace Post"} />
+                <meta name="twitter:title" content={data.content ? data.content : "Fondpeace Post"} />
                 <meta name="twitter:description" content={data.content ? data.content.slice(0, 150) : "Fondpeace post content"} />
                 <meta name="twitter:image" content={data.imageURL ? data.imageURL : "https://www.fondpeace.com/default-og-image.jpg"} />
             </Head>
@@ -61,11 +61,11 @@ function Single () {
 
             {/* Starting of Left Sidebzr */}
                 <div className=' w-full font=bold text-2xl my-30 text-between'>
-                        <h4 className='mx-2 my-4'>Worlds</h4>
-                        <h4 className='mx-2 my-4'>Search</h4>
-                        <h4 className='mx-2 my-4'>Account</h4>
-                        <h4 className='mx-2 my-4'>Setting</h4>
-                        <h4 className='mx-2 my-4'>Privacy</h4>
+                        <p className='mx-2 my-4'>Worlds</p>
+                        <p className='mx-2 my-4'>Search</p>
+                        <p className='mx-2 my-4'>Account</p>
+                        <p className='mx-2 my-4'>Setting</p>
+                        <p className='mx-2 my-4'>Privacy</p>
                         
 
                 </div>
