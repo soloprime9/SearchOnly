@@ -27,7 +27,29 @@ function Single () {
     },[])
 
     return (
-        <div>
+        <>
+            
+            {/* SEO Head Section */}
+            <Head>
+                <title>{data.title ? `${data.title} | Fondpeace` : "Fondpeace"}</title>
+                <meta name="description" content={data.content ? data.content.slice(0, 150) : "Fondpeace latest post."} />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="canonical" href={`https://www.fondpeace.com/post/${id}`} />
+                
+                {/* OpenGraph Meta for Social Media Sharing */}
+                <meta property="og:title" content={data.title ? data.title : "Fondpeace Post"} />
+                <meta property="og:description" content={data.content ? data.content.slice(0, 150) : "Fondpeace post content"} />
+                <meta property="og:image" content={data.imageURL ? data.imageURL : "https://www.fondpeace.com/default-og-image.jpg"} />
+                <meta property="og:url" content={`https://www.fondpeace.com/post/${id}`} />
+                <meta property="og:type" content="article" />
+
+                {/* Twitter Card Meta */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={data.title ? data.title : "Fondpeace Post"} />
+                <meta name="twitter:description" content={data.content ? data.content.slice(0, 150) : "Fondpeace post content"} />
+                <meta name="twitter:image" content={data.imageURL ? data.imageURL : "https://www.fondpeace.com/default-og-image.jpg"} />
+            </Head>
+
             <div className=' mt-10  '>
 
                 
@@ -151,7 +173,7 @@ function Single () {
             
 
             </div>
-        </div>
+        </>
     )
 
 }
