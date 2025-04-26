@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
-
+ 
 function Single () {
 
     const [data, setdata] = useState([]);
