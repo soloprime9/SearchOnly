@@ -24,8 +24,8 @@ function Posts() {
     }, []);
 
     return (
-        <div>
-            <div className=' mt-10  '>
+        <>
+            
 
             <Head>
         <title>Fond Peace AI - Free AI-Powered Search & Do Anything for Free</title>
@@ -95,6 +95,8 @@ function Posts() {
 
         
       </Head>
+            
+            <div className=' mt-10  '>
 
                 <div className='grid grid-cols-[150px_1fr_300px] relative'>
 
