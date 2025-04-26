@@ -59,7 +59,7 @@ function Single () {
                     <p className='cursor-pointer mb-4'>  {data.content}</p>
                     
                     <div className='flex justify-center'>
-                    <img src="https://dictionary.cambridge.org/images/thumb/smartp_noun_002_34391.jpg?version=6.0.48" alt="hello" className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
+                    <img src={data.imageURL} className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
                     </div>
                     
                     
