@@ -53,38 +53,38 @@ function Single () {
                 <meta name="twitter:image" content={data.imageURL ? data.imageURL : "https://www.fondpeace.com/default-og-image.jpg"} />
             </Head>
 
-            <div className=' mt-10  '>
+            <div className=' md:mt-10  '>
 
                 
-            <div  className='grid grid-cols-[150px_1fr_300px] h-screen '>
+            <div  className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] h-screen '>
 
 
             {/* Starting of Left Sidebzr */}
-                <div className=' w-full font=bold text-2xl my-30 text-between'>
-                        <p className='mx-2 my-4'>Worlds</p>
-                        <p className='mx-2 my-4'>Search</p>
-                        <p className='mx-2 my-4'>Account</p>
-                        <p className='mx-2 my-4'>Setting</p>
-                        <p className='mx-2 my-4'>Privacy</p>
+                <div className=' w-full font=bold text-2xl my-30 text-between hidden md:block'>
+                        <h4 className='mx-2 my-4'>Worlds</h4>
+                        <h4 className='mx-2 my-4'>Search</h4>
+                        <h4 className='mx-2 my-4'>Account</h4>
+                        <h4 className='mx-2 my-4'>Setting</h4>
+                        <h4 className='mx-2 my-4'>Privacy</h4>
                         
 
                 </div>
 
             {/* Starting of Main Content Area         */}
                 <div className=' border-1 border-gray-300 rounded-md h-screen'>
-                    <div className=' rounded-xl p-2 h-auto '>
+                    <div className=' rounded-xl  h-auto w-full p-2'>
 
-                        <div className='flex gap-3 mb-6'>
+                        <div className='flex gap-2 mb-6'>
                             <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
 
-                            <p className='pt-2 font-bold'>Human Cant</p>
-                            <div className=''><p className='font-bold text-2xl ml-80'>...</p></div>
+                            <strong className='pt-2'>Human Cant</strong>
+                            <div className='font-bold text-2xl md:ml-80 sm:ml-110 ml-50'>...</div>
                         </div>
                         
-                    <h1 className='cursor-pointer mb-4'>  {data.content}</h1>
+                    <p className='cursor-pointer mb-4'>  {data.content}</p>
                     
                     <div className='flex justify-center'>
-                    <img src={data.imageURL} className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
+                    <img src={data.imageURL} alt="hello" className='w-auto  h-auto border-1 border-gray-900 rounded-2xl'/>
                     </div>
                     
                     
@@ -104,7 +104,7 @@ function Single () {
 
             {/* Starting of RightSide bar */}
             
-                <div className=' justify-center text-center border-1 border-gray-300 p-4 mx-4 rounded-md'>
+                <div className=' justify-center text-center border-1 border-gray-300 p-4 mx-4 rounded-md hidden md:block'>
                 
                 <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
