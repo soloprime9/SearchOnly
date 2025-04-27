@@ -124,7 +124,7 @@ function Posts() {
                         <div key={index} className='  border-1 border-gray-300 rounded-md h-auto'>
                     <div className=' rounded-xl p-2 h-auto '>
                      
-                    <Link href={`/p/${post._id}`}>
+                    <Link href={`/post/${post._id}`}>
 
                         <div className=' flex gap-3 mb-6'>
                             <img src="https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy" alt="" className='w-10 h-10 rounded-full border-2' />
