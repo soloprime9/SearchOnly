@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
     <header className=" m-2 flex justify-evenly">
       <div>
-      <h1 className="font-bold"><strong>Fondpeace</strong></h1>
+      <h1 className="font-bold"><strong><a href="https://www.fondpeace.com/">Fondpeace</a></strong></h1>
       </div>
     </header>
       <body className={inter.variable}>{children}</body>
