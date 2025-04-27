@@ -130,7 +130,7 @@ function Posts() {
                             <img src="https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy" alt="" className='w-10 h-10 rounded-full border-2' />
     
                             <div className=''>
-                            <strong className='pt-2 '>Human Cant</strong>
+                            <p className='pt-2 font-bold'>Human Cant</p>
                             
                             
                             </div>
