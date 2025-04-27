@@ -14,7 +14,6 @@ function Posts() {
             try {
                 const response = await axios.get('https://backend-k.vercel.app/content/get');
                 setData(response.data);
-                console.log("Data", response.data);
             }
             catch (error) {
                 // console.log(error);
@@ -155,7 +154,7 @@ function Posts() {
                     
                     
                     <p className='cursor-pointer border-1 p-2  rounded-xl px-2'> like</p>
-                    <p className='cursor-pointer border-2 p-2 rounded-xl px-2'>comment</p>
+                    <p className='cursor-pointer border-1 p-2 rounded-xl px-2'>comment</p>
                     <p className='cursor-pointer border-1 rounded-xl p-2 px-2'>share</p>
                     <p className='cursor-pointer border-1 rounded-xl p-2 px-2'>Save</p>
                     
