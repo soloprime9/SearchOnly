@@ -12,7 +12,7 @@ function Posts() {
     useEffect(() => {
         const Content = async () => {
             try {
-                const response = await axios.get('https://backend-k.vercel.app/content/get');
+                const response = await axios.get('https://backendk-z915.onrender.com/content/get');
                 setData(response.data);
             }
             catch (error) {
