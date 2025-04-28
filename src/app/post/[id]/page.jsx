@@ -1,14 +1,8 @@
 import React from 'react';
 import Head from 'next/head';
-import { GetServerSideProps } from 'next';
+import { getServerSideProps } from 'next'; // Correct import
 
-interface SingleProps {
-    postData: { content?: string; imageURL?: string } | null;
-    postId: string;
-}
-
-
-const Single: React.FC<SingleProps> = ({ postData, postId }) => {
+const Single = ({ postData, postId }) => {
     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
     if (!postData) {
@@ -149,7 +143,7 @@ const Single: React.FC<SingleProps> = ({ postData, postId }) => {
     );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps = async (context) => { // Correct function name
     const { id } = context.params;
 
     try {
@@ -172,6 +166,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default Single;
+
 
 
 
