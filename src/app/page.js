@@ -4,7 +4,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import Image from 'next/image';
 import Head from 'next/head';
- 
+  
 function Posts() {
     const [data, setData] = useState([]);
     const [loading, setloading] = useState(false);
