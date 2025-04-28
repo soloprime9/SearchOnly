@@ -5,7 +5,7 @@ import axios from 'axios';
 // Use fetch within the component for server-side data fetching in Next.js 13+
 
 const Single = async ({ params }: { params: { id: string } }) => {
-    const { id } = params;
+    const  id  = params.id;
     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
     let postData = null;
