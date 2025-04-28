@@ -1,177 +1,208 @@
 import React from 'react';
-import Head from 'next/head';
 import axios from 'axios';
+import Head from 'next/head';
+import { GetServerSideProps } from 'next';
 
-function Single({ data, postId }) {
-  return (
-    <>
-      <Head>
-        <title>{data.content ? `${data.content} | Fondpeace` : "Fondpeace"}</title>
-        <meta name="description" content={data.content ? data.content.slice(0, 150) : "Fondpeace latest post."} />
-        <link rel="canonical" href={`https://www.fondpeace.com/post/${postId}`} />
-        
-        {/* Open Graph and Twitter meta */}
-        <meta property="og:title" content={data.content || "Fondpeace Post"} />
-        <meta property="og:description" content={data.content?.slice(0, 150) || "Fondpeace post content"} />
-        <meta property="og:image" content={data.imageURL || "https://www.fondpeace.com/default-og-image.jpg"} />
-        <meta property="og:url" content={`https://www.fondpeace.com/post/${postId}`} />
-        <meta property="og:type" content="article" />
+const Single = ({ postData, postId }: { postData: { content?: string; imageURL?: string } | null, postId: string }) => {
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={data.content || "Fondpeace Post"} />
-        <meta name="twitter:description" content={data.content?.slice(0, 150) || "Fondpeace post content"} />
-        <meta name="twitter:image" content={data.imageURL || "https://www.fondpeace.com/default-og-image.jpg"} />
-      </Head>
+    const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
-      <div className=' md:mt-10  '>
+    if (!postData) {
+        return <div>Post not found or error.</div>;
+    }
 
-                
-            <div  className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] h-screen '>
+    return (
+        <>
+            {/* SEO Head Section */}
+            <Head>
+                <title>{postData.content ? `${postData.content} | Fondpeace` : "Fondpeace"}</title>
+                <meta name="description" content={postData.content ? postData.content.slice(0, 150) : "Fondpeace latest post."} />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="canonical" href={`https://www.fondpeace.com/post/${postId}`} />
+
+                {/* OpenGraph Meta for Social Media Sharing */}
+                <meta property="og:title" content={postData.content ? postData.content : "Fondpeace Post"} />
+                <meta property="og:description" content={postData.content ? postData.content.slice(0, 150) : "Fondpeace post content"} />
+                <meta property="og:image" content={postData.imageURL ? postData.imageURL : defaultOGImage} />
+                <meta property="og:url" content={`https://www.fondpeace.com/post/${postId}`} />
+                <meta property="og:type" content="article" />
+
+                {/* Twitter Card Meta */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={postData.content ? postData.content : "Fondpeace Post"} />
+                <meta name="twitter:description" content={postData.content ? postData.content.slice(0, 150) : "Fondpeace post content"} />
+                <meta name="twitter:image" content={postData.imageURL ? postData.imageURL : defaultOGImage} />
+            </Head>
+
+            <div className=' md:mt-10  '>
+
+                <div className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] h-screen '>
 
 
-            {/* Starting of Left Sidebzr */}
-                <div className=' w-full font=bold text-2xl my-30 text-between hidden md:block'>
+                    {/* Starting of Left Sidebzr */}
+                    <div className=' w-full font=bold text-2xl my-30 text-between hidden md:block'>
                         <h4 className='mx-2 my-4'>Worlds</h4>
                         <h4 className='mx-2 my-4'>Search</h4>
                         <h4 className='mx-2 my-4'>Account</h4>
                         <h4 className='mx-2 my-4'>Setting</h4>
                         <h4 className='mx-2 my-4'>Privacy</h4>
-                        
 
-                </div>
+                    </div>
 
-            {/* Starting of Main Content Area         */}
-                <div className=' border-1 border-gray-300 rounded-md h-screen'>
-                    <div className=' rounded-xl  h-auto w-full p-2'>
+                    {/* Starting of Main Content Area          */}
+                    <div className=' border-1 border-gray-300 rounded-md h-screen'>
+                        <div className=' rounded-xl  h-auto w-full p-2'>
 
-                        <div className='flex gap-2 mb-6'>
-                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
+                            <div className='flex gap-2 mb-6'>
+                                <img
+                                    src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360"
+                                    alt=""
+                                    className='w-10 h-10 rounded-full border-2'
+                                />
 
-                            <strong className='pt-2'>Human Cant</strong>
-                            <div className='font-bold text-2xl md:ml-80 sm:ml-110 ml-50'>...</div>
+                                <strong className='pt-2'>Human Cant</strong>
+                                <div className='font-bold text-2xl md:ml-80 sm:ml-110 ml-50'>...</div>
+                            </div>
+
+                            <p className='cursor-pointer mb-4'>  {postData.content}</p>
+
+                            <div className='flex justify-center'>
+                                <img
+                                    src={postData.imageURL}
+                                    alt="Post"
+                                    className='w-auto  h-auto border-1 border-gray-900 rounded-2xl'
+                                />
+                            </div>
+
+
                         </div>
-                        
-                    <p className='cursor-pointer mb-4'>  {data.content}</p>
-                    
-                    <div className='flex justify-center'>
-                    <img src={data.imageURL} alt="hello" className='w-auto  h-auto border-1 border-gray-900 rounded-2xl'/>
+
+                        <div className='flex gap-2 justify-around p-2 border-1 border-gray-300 '>
+
+                            <p className='cursor-pointer border-2 p-2  px-4 rounded-xl'> like</p>
+                            <p className='cursor-pointer border-2 p-2 rounded-xl px-4'>comment</p>
+                            <p className='cursor-pointer border-2 rounded-xl p-2 px-4'>share</p>
+                            <p className='cursor-pointer border-2 rounded-xl p-2 px-4'>Save</p>
+
+                        </div>
+
                     </div>
-                    
-                    
+
+
+                    {/* Starting of RightSide bar */}
+
+                    <div className=' justify-center text-center border-1 border-gray-300 p-4 mx-4 rounded-md hidden md:block'>
+
+                        <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                                <img
+                                    src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360"
+                                    alt=""
+                                    className='w-10 h-10 rounded-full border-2'
+                                />
+
+                                <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+
+
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+
+                        </div>
+
+                        <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                                <img
+                                    src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360"
+                                    alt=""
+                                    className='w-10 h-10 rounded-full border-2'
+                                />
+
+                                <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+
+
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+
+                        </div>
+
+                        <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                                <img
+                                    src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360"
+                                    alt=""
+                                    className='w-10 h-10 rounded-full border-2'
+                                />
+
+                                <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+
+
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+
+                        </div>
+
+                        <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                                <img
+                                    src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360"
+                                    alt=""
+                                    className='w-10 h-10 rounded-full border-2'
+                                />
+
+                                <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+
+
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+
+                        </div>
+
+                        <div className='flex  gap-10 mb-6  '>
+                            <div className='flex gap-2'>
+                                <img
+                                    src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360"
+                                    alt=""
+                                    className='w-10 h-10 rounded-full border-2'
+                                />
+
+                                <strong className='pt-2 truncate  '>Human Cant</strong>
+                            </div>
+
+
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+
+                        </div>
                     </div>
-                    
-                    <div className='flex gap-2 justify-around p-2 border-1 border-gray-300 '>
-                    
-                    <p className='cursor-pointer border-2 p-2  px-4 rounded-xl'> like</p>
-                    <p className='cursor-pointer border-2 p-2 rounded-xl px-4'>comment</p>
-                    <p className='cursor-pointer border-2 rounded-xl p-2 px-4'>share</p>
-                    <p className='cursor-pointer border-2 rounded-xl p-2 px-4'>Save</p>
-                    
-                    </div>
-                
-                </div>
-
-
-            {/* Starting of RightSide bar */}
-            
-                <div className=' justify-center text-center border-1 border-gray-300 p-4 mx-4 rounded-md hidden md:block'>
-                
-                <div className='flex  gap-10 mb-6  '>
-                            <div className='flex gap-2'>
-                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
-
-                            <strong className='pt-2 truncate  '>Human Cant</strong>
-                            </div>
-
-
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
-                            
-                        </div> 
-
-                        <div className='flex  gap-10 mb-6  '>
-                            <div className='flex gap-2'>
-                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
-
-                            <strong className='pt-2 truncate  '>Human Cant</strong>
-                            </div>
-
-
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
-                            
-                        </div> 
-
-                        <div className='flex  gap-10 mb-6  '>
-                            <div className='flex gap-2'>
-                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
-
-                            <strong className='pt-2 truncate  '>Human Cant</strong>
-                            </div>
-
-
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
-                            
-                        </div> 
-
-                        <div className='flex  gap-10 mb-6  '>
-                            <div className='flex gap-2'>
-                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
-
-                            <strong className='pt-2 truncate  '>Human Cant</strong>
-                            </div>
-
-
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
-                            
-                        </div> 
-
-                        <div className='flex  gap-10 mb-6  '>
-                            <div className='flex gap-2'>
-                            <img src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360" alt="" className='w-10 h-10 rounded-full border-2' />
-
-                            <strong className='pt-2 truncate  '>Human Cant</strong>
-                            </div>
-
-
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
-                            
-                        </div> 
-                </div>
 
                 </div>
-            
-
             </div>
         </>
-    )
+    );
+};
 
-}
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { id } = context.params;
 
-export async function getServerSideProps(context) {
-  const { id } = context.params;
-
-  try {
-    const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
-    const data = response.data;
-
-    return {
-      props: { data, postId: id },
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      props: { data: {}, postId: id }, // Send empty data to prevent crash
-    };
-  }
-}
+    try {
+        const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
+        return {
+            props: {
+                postData: response.data,
+                postId: id,
+            },
+        };
+    } catch (error) {
+        console.error("Error fetching post data in getServerSideProps:", error);
+        return {
+            props: {
+                postData: null,
+                postId: id,
+            },
+        };
+    }
+};
 
 export default Single;
-
-
 
 
 
