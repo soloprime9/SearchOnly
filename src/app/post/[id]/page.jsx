@@ -1,27 +1,34 @@
 import React from 'react';
 import Head from 'next/head';
 
-const Single = async ({ params }) => {
+export async function getServerSideProps({ params }) {
     const id = params.id;
     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
     let postData = null;
     try {
         const response = await fetch(`https://backend-k.vercel.app/content/post/${id}`, {
-            cache: 'no-store', // Important for dynamic fetching
+            cache: 'no-store',
         });
 
         if (response.ok) {
             postData = await response.json();
         } else {
             console.error("Failed to fetch post data:", response.status);
-            postData = { content: "Error loading content", imageURL: defaultOGImage, author: "Unknown" }; // set a fallback for author
+            postData = { content: "Error loading content", imageURL: defaultOGImage, author: "Unknown" };
         }
-
     } catch (error) {
         console.error("Error fetching post data:", error);
-        postData = { content: "Error loading content", imageURL: defaultOGImage, author: "Unknown" }; // fallback
+        postData = { content: "Error loading content", imageURL: defaultOGImage, author: "Unknown" };
     }
+
+    return {
+        props: { postData }, // This will be passed as a prop to your component
+    };
+}
+
+const Single = ({ postData }) => {
+    const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
     if (!postData) {
         return <div>Post not found or error.</div>;
@@ -33,12 +40,12 @@ const Single = async ({ params }) => {
                 <title>{postData.content ? `${postData.content} | Fondpeace` : "Fondpeace"}</title>
                 <meta name="description" content={postData.content ? postData.content.slice(0, 150) : "Fondpeace latest post."} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <link rel="canonical" href={`https://www.fondpeace.com/post/${id}`} />
+                <link rel="canonical" href={`https://www.fondpeace.com/post/${postData.id}`} />
 
                 <meta property="og:title" content={postData.content || "Fondpeace Post"} />
                 <meta property="og:description" content={postData.content.slice(0, 150) || "Fondpeace post content"} />
                 <meta property="og:image" content={postData.imageURL || defaultOGImage} />
-                <meta property="og:url" content={`https://www.fondpeace.com/post/${id}`} />
+                <meta property="og:url" content={`https://www.fondpeace.com/post/${postData.id}`} />
                 <meta property="og:type" content="article" />
 
                 <meta name="twitter:card" content="summary_large_image" />
@@ -47,8 +54,8 @@ const Single = async ({ params }) => {
                 <meta name="twitter:image" content={postData.imageURL || defaultOGImage} />
             </Head>
 
-            <div className=' md:mt-10  '>
-                <div className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] h-screen '>
+            <div className=' md:mt-10'>
+                <div className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] h-screen'>
                     {/* Left Sidebar */}
                     <div className='w-full font-bold text-2xl my-30 text-between hidden md:block'>
                         <h4 className='mx-2 my-4'>Worlds</h4>
@@ -103,7 +110,6 @@ const Single = async ({ params }) => {
                             </div>
                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
                         </div>
-                        {/* Additional Right Sidebar Items */}
                     </div>
                 </div>
             </div>
@@ -112,6 +118,131 @@ const Single = async ({ params }) => {
 };
 
 export default Single;
+
+
+
+
+
+
+
+
+
+
+
+// import React from 'react';
+// import Head from 'next/head';
+
+// const Single = async ({ params }) => {
+//     const id = params.id;
+//     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
+
+//     let postData = null;
+//     try {
+//         const response = await fetch(`https://backend-k.vercel.app/content/post/${id}`, {
+//             cache: 'no-store', // Important for dynamic fetching
+//         });
+
+//         if (response.ok) {
+//             postData = await response.json();
+//         } else {
+//             console.error("Failed to fetch post data:", response.status);
+//             postData = { content: "Error loading content", imageURL: defaultOGImage, author: "Unknown" }; // set a fallback for author
+//         }
+
+//     } catch (error) {
+//         console.error("Error fetching post data:", error);
+//         postData = { content: "Error loading content", imageURL: defaultOGImage, author: "Unknown" }; // fallback
+//     }
+
+//     if (!postData) {
+//         return <div>Post not found or error.</div>;
+//     }
+
+//     return (
+//         <>
+//             <Head>
+//                 <title>{postData.content ? `${postData.content} | Fondpeace` : "Fondpeace"}</title>
+//                 <meta name="description" content={postData.content ? postData.content.slice(0, 150) : "Fondpeace latest post."} />
+//                 <meta name="viewport" content="width=device-width, initial-scale=1" />
+//                 <link rel="canonical" href={`https://www.fondpeace.com/post/${id}`} />
+
+//                 <meta property="og:title" content={postData.content || "Fondpeace Post"} />
+//                 <meta property="og:description" content={postData.content.slice(0, 150) || "Fondpeace post content"} />
+//                 <meta property="og:image" content={postData.imageURL || defaultOGImage} />
+//                 <meta property="og:url" content={`https://www.fondpeace.com/post/${id}`} />
+//                 <meta property="og:type" content="article" />
+
+//                 <meta name="twitter:card" content="summary_large_image" />
+//                 <meta name="twitter:title" content={postData.content || "Fondpeace Post"} />
+//                 <meta name="twitter:description" content={postData.content.slice(0, 150) || "Fondpeace post content"} />
+//                 <meta name="twitter:image" content={postData.imageURL || defaultOGImage} />
+//             </Head>
+
+//             <div className=' md:mt-10  '>
+//                 <div className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] h-screen '>
+//                     {/* Left Sidebar */}
+//                     <div className='w-full font-bold text-2xl my-30 text-between hidden md:block'>
+//                         <h4 className='mx-2 my-4'>Worlds</h4>
+//                         <h4 className='mx-2 my-4'>Search</h4>
+//                         <h4 className='mx-2 my-4'>Account</h4>
+//                         <h4 className='mx-2 my-4'>Setting</h4>
+//                         <h4 className='mx-2 my-4'>Privacy</h4>
+//                     </div>
+
+//                     {/* Main Content */}
+//                     <div className='border-1 border-gray-300 rounded-md h-screen'>
+//                         <div className='rounded-xl h-auto w-full p-2'>
+//                             <div className='flex gap-2 mb-6'>
+//                                 <img
+//                                     src={postData.imageURL || "https://default.com/default-image.jpg"}
+//                                     alt="Post"
+//                                     className='w-10 h-10 rounded-full border-2'
+//                                 />
+//                                 <strong className='pt-2'>{postData.author || "Unknown Author"}</strong>
+//                                 <div className='font-bold text-2xl md:ml-80 sm:ml-110 ml-50'>...</div>
+//                             </div>
+
+//                             <p className='cursor-pointer mb-4'>{postData.content}</p>
+
+//                             <div className='flex justify-center'>
+//                                 <img
+//                                     src={postData.imageURL || defaultOGImage}
+//                                     alt="Post"
+//                                     className='w-auto h-auto border-1 border-gray-900 rounded-2xl'
+//                                 />
+//                             </div>
+//                         </div>
+
+//                         <div className='flex justify-center p-2'>
+//                             <button className='cursor-pointer border-2 p-2 rounded-xl px-4'>Like</button>
+//                             <button className='cursor-pointer border-2 p-2 rounded-xl px-4'>Comment</button>
+//                             <button className='cursor-pointer border-2 p-2 rounded-xl px-4'>Share</button>
+//                             <button className='cursor-pointer border-2 p-2 rounded-xl px-4'>Save</button>
+//                         </div>
+//                     </div>
+
+//                     {/* Right Sidebar */}
+//                     <div className='hidden md:block justify-center text-center border-1 border-gray-300 p-4 mx-4 rounded-md'>
+//                         <div className='flex gap-10 mb-6'>
+//                             <div className='flex gap-2'>
+//                                 <img
+//                                     src={postData.imageURL || "https://default.com/default-image.jpg"}
+//                                     alt="Post"
+//                                     className='w-10 h-10 rounded-full border-2'
+//                                 />
+//                                 <strong className='pt-2 truncate'>{postData.author || "Unknown Author"}</strong>
+//                             </div>
+//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+//                         </div>
+//                         {/* Additional Right Sidebar Items */}
+//                     </div>
+//                 </div>
+//             </div>
+//         </>
+//     );
+// };
+
+// export default Single;
 
 
 
