@@ -1,4 +1,5 @@
 // src/app/post/[id]/page.jsx
+'use client';
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 
