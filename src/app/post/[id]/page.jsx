@@ -7,6 +7,7 @@ interface SingleProps {
     postId: string;
 }
 
+
 const Single: React.FC<SingleProps> = ({ postData, postId }) => {
     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
