@@ -1,10 +1,13 @@
 import React from 'react';
-import axios from 'axios';
 import Head from 'next/head';
 import { GetServerSideProps } from 'next';
 
-const Single = ({ postData, postId }: { postData: { content?: string; imageURL?: string } | null, postId: string }) => {
+interface SingleProps { // Define a proper interface for props
+    postData: { content?: string; imageURL?: string } | null;
+    postId: string;
+}
 
+const Single = ({ postData, postId }: SingleProps) => { // Use the interface
     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
     if (!postData) {
@@ -203,8 +206,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default Single;
-
-
 
 
 
