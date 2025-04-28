@@ -1,9 +1,29 @@
 import React from 'react';
 import Head from 'next/head';
-import { getServerSideProps } from 'next'; // Correct import
+import axios from 'axios';
 
-const Single = ({ postData, postId }) => {
+// Use fetch within the component for server-side data fetching in Next.js 13+
+
+const Single = async ({ params }: { params: { id: string } }) => {
+    const { id } = params;
     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
+
+    let postData = null;
+    try {
+        const response = await fetch(`https://backend-k.vercel.app/content/post/${id}`, {
+            cache: 'no-store', // Important for server-side data fetching to be dynamic
+        });
+        if (response.ok) {
+            postData = await response.json();
+        } else {
+             console.error("Failed to fetch post data:", response.status);
+             postData = {content: "Error loading content", imageURL: defaultOGImage}
+        }
+
+    } catch (error) {
+        console.error("Error fetching post data:", error);
+        postData = {content: "Error loading content", imageURL: defaultOGImage}; //set default values
+    }
 
     if (!postData) {
         return <div>Post not found or error.</div>;
@@ -16,13 +36,13 @@ const Single = ({ postData, postId }) => {
                 <title>{postData.content ? `${postData.content} | Fondpeace` : "Fondpeace"}</title>
                 <meta name="description" content={postData.content ? postData.content.slice(0, 150) : "Fondpeace latest post."} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <link rel="canonical" href={`https://www.fondpeace.com/post/${postId}`} />
+                <link rel="canonical" href={`https://www.fondpeace.com/post/${id}`} />
 
                 {/* OpenGraph Meta for Social Media Sharing */}
                 <meta property="og:title" content={postData.content ? postData.content : "Fondpeace Post"} />
                 <meta property="og:description" content={postData.content ? postData.content.slice(0, 150) : "Fondpeace post content"} />
                 <meta property="og:image" content={postData.imageURL ? postData.imageURL : defaultOGImage} />
-                <meta property="og:url" content={`https://www.fondpeace.com/post/${postId}`} />
+                <meta property="og:url" content={`https://www.fondpeace.com/post/${id}`} />
                 <meta property="og:type" content="article" />
 
                 {/* Twitter Card Meta */}
@@ -143,30 +163,7 @@ const Single = ({ postData, postId }) => {
     );
 };
 
-export const getServerSideProps = async (context) => { // Correct function name
-    const { id } = context.params;
-
-    try {
-        const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
-        return {
-            props: {
-                postData: response.data,
-                postId: id,
-            },
-        };
-    } catch (error) {
-        console.error("Error fetching post data in getServerSideProps:", error);
-        return {
-            props: {
-                postData: null,
-                postId: id,
-            },
-        };
-    }
-};
-
 export default Single;
-
 
 
 
