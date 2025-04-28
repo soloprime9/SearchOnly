@@ -1,7 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 
-const Single = async ({ params }: { params: { id: string } }) => {
+const Single = async ({ params }) => {
     const id = params.id;
     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
