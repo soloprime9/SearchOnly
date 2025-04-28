@@ -2,12 +2,12 @@ import React from 'react';
 import Head from 'next/head';
 import { GetServerSideProps } from 'next';
 
-interface SingleProps { // Define a proper interface for props
+interface SingleProps {
     postData: { content?: string; imageURL?: string } | null;
     postId: string;
 }
 
-const Single = ({ postData, postId }: SingleProps) => { // Use the interface
+const Single: React.FC<SingleProps> = ({ postData, postId }) => {
     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
     if (!postData) {
@@ -38,10 +38,7 @@ const Single = ({ postData, postId }: SingleProps) => { // Use the interface
             </Head>
 
             <div className=' md:mt-10  '>
-
                 <div className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] h-screen '>
-
-
                     {/* Starting of Left Sidebzr */}
                     <div className=' w-full font=bold text-2xl my-30 text-between hidden md:block'>
                         <h4 className='mx-2 my-4'>Worlds</h4>
@@ -49,20 +46,17 @@ const Single = ({ postData, postId }: SingleProps) => { // Use the interface
                         <h4 className='mx-2 my-4'>Account</h4>
                         <h4 className='mx-2 my-4'>Setting</h4>
                         <h4 className='mx-2 my-4'>Privacy</h4>
-
                     </div>
 
                     {/* Starting of Main Content Area          */}
                     <div className=' border-1 border-gray-300 rounded-md h-screen'>
                         <div className=' rounded-xl  h-auto w-full p-2'>
-
                             <div className='flex gap-2 mb-6'>
                                 <img
                                     src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360"
                                     alt=""
                                     className='w-10 h-10 rounded-full border-2'
                                 />
-
                                 <strong className='pt-2'>Human Cant</strong>
                                 <div className='font-bold text-2xl md:ml-80 sm:ml-110 ml-50'>...</div>
                             </div>
@@ -76,26 +70,18 @@ const Single = ({ postData, postId }: SingleProps) => { // Use the interface
                                     className='w-auto  h-auto border-1 border-gray-900 rounded-2xl'
                                 />
                             </div>
-
-
                         </div>
 
                         <div className='flex gap-2 justify-around p-2 border-1 border-gray-300 '>
-
                             <p className='cursor-pointer border-2 p-2  px-4 rounded-xl'> like</p>
                             <p className='cursor-pointer border-2 p-2 rounded-xl px-4'>comment</p>
                             <p className='cursor-pointer border-2 rounded-xl p-2 px-4'>share</p>
                             <p className='cursor-pointer border-2 rounded-xl p-2 px-4'>Save</p>
-
                         </div>
-
                     </div>
-
 
                     {/* Starting of RightSide bar */}
-
                     <div className=' justify-center text-center border-1 border-gray-300 p-4 mx-4 rounded-md hidden md:block'>
-
                         <div className='flex  gap-10 mb-6  '>
                             <div className='flex gap-2'>
                                 <img
@@ -103,13 +89,9 @@ const Single = ({ postData, postId }: SingleProps) => { // Use the interface
                                     alt=""
                                     className='w-10 h-10 rounded-full border-2'
                                 />
-
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
-
-
                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
                         </div>
 
                         <div className='flex  gap-10 mb-6  '>
@@ -119,13 +101,9 @@ const Single = ({ postData, postId }: SingleProps) => { // Use the interface
                                     alt=""
                                     className='w-10 h-10 rounded-full border-2'
                                 />
-
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
-
-
                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
                         </div>
 
                         <div className='flex  gap-10 mb-6  '>
@@ -135,13 +113,9 @@ const Single = ({ postData, postId }: SingleProps) => { // Use the interface
                                     alt=""
                                     className='w-10 h-10 rounded-full border-2'
                                 />
-
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
-
-
                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
                         </div>
 
                         <div className='flex  gap-10 mb-6  '>
@@ -151,13 +125,9 @@ const Single = ({ postData, postId }: SingleProps) => { // Use the interface
                                     alt=""
                                     className='w-10 h-10 rounded-full border-2'
                                 />
-
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
-
-
                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
                         </div>
 
                         <div className='flex  gap-10 mb-6  '>
@@ -167,16 +137,11 @@ const Single = ({ postData, postId }: SingleProps) => { // Use the interface
                                     alt=""
                                     className='w-10 h-10 rounded-full border-2'
                                 />
-
                                 <strong className='pt-2 truncate  '>Human Cant</strong>
                             </div>
-
-
                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
-
                         </div>
                     </div>
-
                 </div>
             </div>
         </>
@@ -206,7 +171,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default Single;
-
 
 
 
