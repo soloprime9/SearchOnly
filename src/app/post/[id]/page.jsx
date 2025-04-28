@@ -5,7 +5,7 @@ import axios from 'axios';
 // Use fetch within the component for server-side data fetching in Next.js 13+
 
 const Single = async ({ params }: { params: { id: string } }) => {
-    const  id  = params.id;
+    const id = params.id; // Correct way to access the id
     const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
 
     let postData = null;
@@ -16,13 +16,13 @@ const Single = async ({ params }: { params: { id: string } }) => {
         if (response.ok) {
             postData = await response.json();
         } else {
-             console.error("Failed to fetch post data:", response.status);
-             postData = {content: "Error loading content", imageURL: defaultOGImage}
+            console.error("Failed to fetch post data:", response.status);
+            postData = { content: "Error loading content", imageURL: defaultOGImage }
         }
 
     } catch (error) {
         console.error("Error fetching post data:", error);
-        postData = {content: "Error loading content", imageURL: defaultOGImage}; //set default values
+        postData = { content: "Error loading content", imageURL: defaultOGImage }; //set default values
     }
 
     if (!postData) {
