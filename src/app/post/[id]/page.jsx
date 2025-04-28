@@ -2,17 +2,20 @@ import React from 'react';
 import Head from 'next/head';
 
 export async function getServerSideProps({ params }) {
-    const id = params.id;
-    const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg";
+    const { id } = params; // Fetch the ID from the URL params
+
+    const defaultOGImage = "https://www.fondpeace.com/default-og-image.jpg"; // Default image if none is provided
 
     let postData = null;
+
     try {
+        // Fetch the post data from your API or backend
         const response = await fetch(`https://backend-k.vercel.app/content/post/${id}`, {
             cache: 'no-store',
         });
 
         if (response.ok) {
-            postData = await response.json();
+            postData = await response.json(); // If response is OK, extract the JSON data
         } else {
             console.error("Failed to fetch post data:", response.status);
             postData = { content: "Error loading content", imageURL: defaultOGImage, author: "Unknown" };
@@ -22,8 +25,11 @@ export async function getServerSideProps({ params }) {
         postData = { content: "Error loading content", imageURL: defaultOGImage, author: "Unknown" };
     }
 
+    // Return the fetched post data as props for the page
     return {
-        props: { postData }, // This will be passed as a prop to your component
+        props: {
+            postData, // Pass postData to the page component as a prop
+        },
     };
 }
 
@@ -118,7 +124,6 @@ const Single = ({ postData }) => {
 };
 
 export default Single;
-
 
 
 
