@@ -3,18 +3,12 @@ import axios from 'axios';
 import Head from 'next/head';
 import { notFound } from 'next/navigation';
 
-interface PostData {
-    content: string;
-    imageURL?: string;
-    // Add other properties as needed
-}
-
-const Single = async ({ params }: { params: { id: string } }) => {
+const Single = async ({ params }) => { // Remove TypeScript type annotation
     const { id } = params;
-    let data: PostData;
+    let data; // Remove PostData type
 
     try {
-        const response = await axios.get<PostData>(`https://backend-k.vercel.app/content/post/${id}`);
+        const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
         if (response.status !== 200) {
             notFound();
         }
@@ -29,19 +23,19 @@ const Single = async ({ params }: { params: { id: string } }) => {
     return (
         <>
             <Head>
-                <title>{data.content ? `${data.content} | Fondpeace` : "Fondpeace"}</title>
-                <meta name="description" content={data.content ? data.content.slice(0, 150) : "Fondpeace latest post."} />
+                <title>{data?.content ? `${data.content} | Fondpeace` : "Fondpeace"}</title>
+                <meta name="description" content={data?.content ? data.content.slice(0, 150) : "Fondpeace latest post."} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="canonical" href={`https://www.fondpeace.com/post/${id}`} />
-                <meta property="og:title" content={data.content ? data.content : "Fondpeace Post"} />
-                <meta property="og:description" content={data.content ? data.content.slice(0, 150) : "Fondpeace post content"} />
-                <meta property="og:image" content={data.imageURL ? data.imageURL : defaultOGImage} />
+                <meta property="og:title" content={data?.content ? data.content : "Fondpeace Post"} />
+                <meta property="og:description" content={data?.content ? data.content.slice(0, 150) : "Fondpeace post content"} />
+                <meta property="og:image" content={data?.imageURL ? data.imageURL : defaultOGImage} />
                 <meta property="og:url" content={`https://www.fondpeace.com/post/${id}`} />
                 <meta property="og:type" content="article" />
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content={data.content ? data.content : "Fondpeace Post"} />
-                <meta name="twitter:description" content={data.content ? data.content.slice(0, 150) : "Fondpeace post content"} />
-                <meta name="twitter:image" content={data.imageURL ? data.imageURL : defaultOGImage} />
+                <meta name="twitter:title" content={data?.content ? data.content : "Fondpeace Post"} />
+                <meta name="twitter:description" content={data?.content ? data.content.slice(0, 150) : "Fondpeace post content"} />
+                <meta name="twitter:image" content={data?.imageURL ? data.imageURL : defaultOGImage} />
             </Head>
             <div className=' md:mt-10  '>
                 <div className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] h-screen '>
@@ -61,9 +55,9 @@ const Single = async ({ params }: { params: { id: string } }) => {
                                 <strong className='pt-2'>Human Cant</strong>
                                 <div className='font-bold text-2xl md:ml-80 sm:ml-110 ml-50'>...</div>
                             </div>
-                            <p className='cursor-pointer mb-4'>  {data.content}</p>
+                            <p className='cursor-pointer mb-4'>  {data?.content}</p>
                             <div className='flex justify-center'>
-                                <img src={data.imageURL} alt="hello" className='w-auto  h-auto border-1 border-gray-900 rounded-2xl' />
+                                <img src={data?.imageURL} alt="hello" className='w-auto  h-auto border-1 border-gray-900 rounded-2xl' />
                             </div>
                         </div>
                         <div className='flex gap-2 justify-around p-2 border-1 border-gray-300 '>
@@ -118,8 +112,6 @@ const Single = async ({ params }: { params: { id: string } }) => {
 };
 
 export default Single;
-
-
 
 
 
