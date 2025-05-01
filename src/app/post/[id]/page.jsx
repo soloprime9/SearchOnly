@@ -2,11 +2,8 @@
 import { Metadata } from 'next';
 import axios from 'axios';
 
-type Props = {
-  params: { id: string };
-};
-
-export async function generateMetadata({ params: { id } }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }) {
+  const { id } = params;
   try {
     const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
     const post = response.data;
@@ -62,7 +59,8 @@ export async function generateMetadata({ params: { id } }: Props): Promise<Metad
   }
 }
 
-export default async function PostPage({ params: { id } }: Props) {
+export default async function PostPage({ params }) {
+  const { id } = params;
   try {
     const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
     const post = response.data;
@@ -131,6 +129,7 @@ export default async function PostPage({ params: { id } }: Props) {
     return <div>Error loading post.</div>;
   }
 }
+
 
 
 
