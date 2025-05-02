@@ -28,42 +28,41 @@ function Posts() {
             
 
 
-        {/* Schema.org JSON-LD */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              name: "Fond Peace AI",
-              operatingSystem: "Web",
-              applicationCategory: "Artificial Intelligence",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.9",
-                ratingCount: "2500",
-              },
-              publisher: {
-                "@type": "Organization",
-                name: "Fond Peace AI",
-                url: "https://www.fondpeace.com/",
-                logo: {
-                  "@type": "ImageObject",
-                  url: "https://www.fondpeace.com/logo.png",
-                  width: 300,
-                  height: 300,
-                },
-              },
-            }),
-          }}
-        />
+        <Head>
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                  __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "SoftwareApplication",
+                    name: "Fond Peace AI",
+                    operatingSystem: "Web",
+                    applicationCategory: "Artificial Intelligence",
+                    offers: {
+                      "@type": "Offer",
+                      price: "0",
+                    },
+                    aggregateRating: {
+                      "@type": "AggregateRating",
+                      ratingValue: "4.9",
+                      ratingCount: "2500",
+                    },
+                    publisher: {
+                      "@type": "Organization",
+                      name: "Fond Peace AI",
+                      url: "https://www.fondpeace.com/",
+                      logo: {
+                        "@type": "ImageObject",
+                        url: "https://www.fondpeace.com/logo.png",
+                        width: 300,
+                        height: 300,
+                      },
+                    },
+                  }),
+                }}
+              />
+            </Head>
 
-        
-      </Head>
             
             <div >
     
