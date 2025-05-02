@@ -35,5 +35,5 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <TestThumbnail />;
+  return <YoutubeThumbnailTester />;
 }
