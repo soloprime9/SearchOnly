@@ -32,7 +32,7 @@ export async function generateMetadata({ params }) {
       },
     };
   } catch (error) {
-    console.error('Error fetching post data:', error);
+    // console.error('Error fetching post data:', error);
     return {
       title: 'Fondpeace',
       description: 'Fondpeace latest post.',
@@ -125,7 +125,7 @@ export default async function PostPage({ params }) {
       </div>
     );
   } catch (error) {
-    console.error('Error fetching post data:', error);
+    // console.error('Error fetching post data:', error);
     return <div>Error loading post.</div>;
   }
 }
