@@ -1,6 +1,6 @@
 // No 'use client' here!
 import YoutubeThumbnailTester from '@/components/YoutubeThumbnailTester';
-
+ 
 export const metadata = {
   title: "YouTube Thumbnail Tester - Preview & Analyze Thumbnails Online",
   description:
