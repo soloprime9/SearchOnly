@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import HomeLatestPosts from '@/components/HomeLatestPosts';
- 
+  
 export const metadata = {
   title: "Fond Peace AI - Free AI-Powered Search & Do Anything for Free",
   description:
