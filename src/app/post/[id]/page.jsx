@@ -62,7 +62,7 @@ export async function generateMetadata({ params }) {
 export default async function PostPage({ params }) {
   const { id } = params;
   try {
-    const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
+    const response = await axios.get(`https://backend-k.vercel.app/contentc/post/${id}`);
     const post = response.data;
 
     return (
