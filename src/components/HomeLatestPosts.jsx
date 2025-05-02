@@ -65,7 +65,7 @@ function Posts() {
         
       </Head>
             
-            <div className='   '>
+            <div >
     
                 
             <div  className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] '>
