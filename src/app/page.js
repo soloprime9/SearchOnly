@@ -14,7 +14,7 @@ function Posts() {
             try {
                 const response = await axios.get('https://backendk-z915.onrender.com/content/get');
                 setData(response.data);
-                console.log(response.data);
+                
             }
             catch (error) {
                 // console.log(error);
