@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-
+ 
 export default function TestThumbnail() {
   const [image, setImage] = useState('');
   const [preview, setPreview] = useState(null);
