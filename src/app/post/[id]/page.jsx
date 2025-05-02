@@ -23,6 +23,9 @@ export async function generateMetadata({ params }) {
         ],
         url: `https://www.fondpeace.com/post/${id}`,
         type: 'article',
+        article: {
+      publishedTime: post.timestamp, // 👈 important for SEO
+    },
       },
       twitter: {
         card: 'summary_large_image',
