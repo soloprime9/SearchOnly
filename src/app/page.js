@@ -1,4 +1,4 @@
-import {Metadata} from 'next';
+import { Metadata } from 'next';
 import HomeLatestPosts from '@/components/HomeLatestPosts';
  
 export const metadata = {
