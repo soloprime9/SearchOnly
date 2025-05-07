@@ -30,7 +30,7 @@ function Posts () {
         const fetchPosts = async () => {
                 
             try {
-                const { data } = await axios.get("https://backend-k.vercel.app/post/mango/getall");
+                const { data } = await axios.get("https://backendk-z915.onrender.com/post/mango/getall");
                 setPosts(data);
                 console.log(data);
                 } catch (err) {
