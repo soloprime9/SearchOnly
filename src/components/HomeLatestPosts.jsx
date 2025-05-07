@@ -215,20 +215,21 @@ function Posts () {
                     
                     
                     
-                    <div className='flex gap-1 justify-evenly md:p-2 border-1 border-gray-300  '>
+                     <div className='flex justify-between text-md text-gray-500 mt-3 px-4'>
+
                     
                     
                     
-                    <p className='cursor-pointer border-1 p-2  rounded-xl px-2'> like</p>
-                    <p className='cursor-pointer border-2 p-2 rounded-xl px-2'>comment</p>
-                    <p className='cursor-pointer border-1 rounded-xl p-2 px-2'>share</p>
-                    <p className='cursor-pointer border-1 rounded-xl p-2 px-2'>Save</p>
+                    <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'> like</p>
+                    <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'>comment</p>
+                    <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'>share</p>
+                    <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'>Save</p>
                     
                     </div>
                 
                 </div>
                     ))): (
-                        <div>hello dear </div>
+                        <div></div>
                     )
                 }
     
