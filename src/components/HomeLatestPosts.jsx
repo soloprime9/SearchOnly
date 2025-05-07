@@ -129,7 +129,7 @@ function Posts () {
                             <div className='flex flex-col'>
                             <span className='font-semibold text-sm'>{post?.userId?.username}</span>
                             
-                            <p className='text-sx  text-gray-500'>{formatPostTime(post.createdAt)}</p>
+{/*                             <p className='text-sx  text-gray-500'>{formatPostTime(post.createdAt)}</p> */}
                             </div>
 
                             <div className='font-bold ml-auto text-2xl text-gray-600 cursor-pointer '>...</div>
