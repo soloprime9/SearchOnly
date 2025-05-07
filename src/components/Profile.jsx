@@ -191,7 +191,7 @@ const Profile = () => {
                   autoPlay
                   controls={false}
                   muted
-                  className="w-40  h-44 object-cover border-2 rounded-sm"
+                  className="w-60  h-44 object-cover border-2 rounded-sm"
                 />
               
               ) : (
