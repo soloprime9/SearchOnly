@@ -129,7 +129,7 @@ function Posts () {
                             <div className='flex flex-col'>
                             <span className='font-semibold text-sm'>{post?.userId?.username}</span>
                             
-{/*                             <p className='text-sx  text-gray-500'>{formatPostTime(post.createdAt)}</p> */}
+                            <p className='text-sx  text-gray-500'>{formatPostTime(post.createdAt)}</p>
                             </div>
 
                             <div className='font-bold ml-auto text-2xl text-gray-600 cursor-pointer '>...</div>
@@ -207,7 +207,7 @@ function Posts () {
                     <p className='cursor-pointer mb-4'>{post.content}</p>
                     
                     <div className='flex justify-center'>
-                    {/* <img src={post.imageURL || ""}  className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/> */}
+                    <img src={post.imageURL || ""}  className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
                     </div>
                     </Link>
                     
