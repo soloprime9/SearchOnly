@@ -191,14 +191,14 @@ const Profile = () => {
                   autoPlay
                   controls={false}
                   muted
-                  className="w-full  h-44 object-cover border-2 rounded-sm"
+                  className="w-full  h-44 object-cover border-2 border-white rounded-sm"
                 />
               
               ) : (
                 <img
                   src={ post.media}
                   alt="Post"
-                  className="w-40 h-44 object-cover border-2 rounded-sm"
+                  className="w-40 h-44 object-cover border-2 border-white rounded-sm"
                 />
 
               )} 
