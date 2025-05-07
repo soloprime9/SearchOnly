@@ -180,7 +180,7 @@ const Profile = () => {
 
       <div className="flex justify-center font-bold md:p-2">{user.bio || "Add about you"}</div>
 
-      <div className="grid grid-cols-4  border-2 rounded ">
+      <div className="grid md:grid-cols-4 grid-cols-3  border-2 rounded ">
         {posts && posts.length > 0 ? (
           posts.map((post, index) => (
             <div key={index} className="rounded shadow-md">
@@ -191,14 +191,14 @@ const Profile = () => {
                   autoPlay
                   controls={false}
                   muted
-                  className="w-full sm:h-64 h-100 object-cover border-2 rounded-sm"
+                  className="w-40  h-44 object-cover border-2 rounded-sm"
                 />
               
               ) : (
                 <img
                   src={ post.media}
                   alt="Post"
-                  className="w-full sm:64 h-100 object-cover border-2 rounded"
+                  className="w-40 h-44 object-cover border-2 rounded"
                 />
 
               )} 
