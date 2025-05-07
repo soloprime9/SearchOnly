@@ -198,7 +198,7 @@ const Profile = () => {
                 <img
                   src={ post.media}
                   alt="Post"
-                  className="w-40 h-44 object-cover border-2 border-white rounded-sm"
+                  className="md:w-full w-40 h-44 object-cover border-2 border-white rounded-sm"
                 />
 
               )} 
