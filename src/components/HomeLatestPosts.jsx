@@ -67,7 +67,7 @@ function Posts() {
             <div >
     
                 
-            <div  className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px] '>
+            <div  className='grid grid-cols-1 md:grid-cols-[150px_1fr_300px]   '>
     
     
             {/* Starting of Left Sidebzr */}
@@ -84,7 +84,77 @@ function Posts() {
     
             {/* Starting of Main Content Area*/}
 
-                <div className="   px-4 space-y-6  w-full">
+                <div className=" mt-10 px-4 space-y-6  w-full">
+
+            { posts.length > 0 ?
+                (
+                    posts.map((post, index) => 
+                
+                    (
+                        <div key={index} className='border-1 rounded-lg border-gray-300 p-2'>
+
+
+                            
+                            <div className=' flex items-start gap-3 mb-4 '>
+
+                            <img src={post?.UserId?.profilePic || "https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy"} alt="" className='w-10 h-10 rounded-full border-2' />
+
+                            <div className='flex flex-col'>
+                            <span className='font-semibold text-sm'>{post?.userId?.username}</span>
+                            
+                            <p className='text-sx  text-gray-500'>{formatPostTime(post.createdAt)}</p>
+                            </div>
+
+                            <div className='font-bold ml-auto text-2xl text-gray-600 cursor-pointer '>...</div>
+                        </div>
+                        
+
+                        <div className='rounded-xl overflow-hidden border border-gray-200 mt-2'>
+
+                        
+                        {post.media  ? (
+                            post.media.endsWith(".mp4") ? (
+                                
+                                <Link href={`/video/${post._id}` }>
+                                <video src={post.media || ""} className="w-full h-72 border- border-gray-300 rounded-xl object-cover "  muted
+                                
+                                playsInline controls autoPlay />
+                                </Link>
+
+                                
+                                
+                            ) : (
+                                <img src={post.media || ""} alt="Post" className=" w-full  h-auto border- border-gray-300 rounded-md object-cover " />
+                            )
+                            ) : (
+                            <div ></div> // Fallback if media is missing
+                            )}
+                            
+                        </div>
+
+                        <div className='flex justify-between text-md text-gray-500 mt-3 px-4'>
+
+                    
+                    
+                    
+                    <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'> like</p>
+                    <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'>comment</p>
+                    <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'>share</p>
+                    <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'>Save</p>
+                    
+                    </div>
+
+                    </div>
+
+                        
+
+                    )
+                )
+                ) : ( <div></div>
+
+                )
+
+            }
             {data.length > 0 ? 
                 (
                     data.slice().sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).map((post,index) => 
@@ -93,24 +163,24 @@ function Posts() {
                         <div key={index} className='  border-1 border-gray-300 rounded-md h-auto'>
                     <div className=' rounded-xl p-2 h-auto '>
                      
-                    <Link href={`/post/${post._id}`} target="_blank">
+                    <Link href={`/p/${post._id}`}>
 
                         <div className=' flex gap-3 mb-6'>
                             <img src="https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy" alt="" className='w-10 h-10 rounded-full border-2' />
     
                             <div className=''>
-                            <p className='pt-2 font-bold'>Human Cant</p>
+                            <strong className='pt-2 '>Human Cant</strong>
                             
-                            
+                            <p className='text-sm  text-gray-400'>{formatPostTime(post.timestamp)}</p>
                             </div>
                             
-                            <div className='font-bold text-2xl md:ml-55 sm:ml-25 xs:ml-10 ml-30 lg:ml-60'>...</div>
+                            <div className='font-bold text-2xl ml-auto'>...</div>
                         </div>
                         
                     <p className='cursor-pointer mb-4'>{post.content}</p>
                     
                     <div className='flex justify-center'>
-                    <img src={post.imageURL || ""}  className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
+                    {/* <img src={post.imageURL || ""}  className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/> */}
                     </div>
                     </Link>
                     
@@ -123,7 +193,7 @@ function Posts() {
                     
                     
                     <p className='cursor-pointer border-1 p-2  rounded-xl px-2'> like</p>
-                    <p className='cursor-pointer border-1 p-2 rounded-xl px-2'>comment</p>
+                    <p className='cursor-pointer border-2 p-2 rounded-xl px-2'>comment</p>
                     <p className='cursor-pointer border-1 rounded-xl p-2 px-2'>share</p>
                     <p className='cursor-pointer border-1 rounded-xl p-2 px-2'>Save</p>
                     
@@ -208,9 +278,6 @@ function Posts() {
                 </div>
     
                 </div>
-            
-    
-            </div>
         </>
     );
 }
