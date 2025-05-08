@@ -124,11 +124,11 @@ function Posts () {
                             
                             <div className=' flex items-start gap-3 mb-4 '>
                             <Link href={`/profile/${post?.userId?.username}`}>
-                            <img src={post?.UserId?.profilePic || "https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy"} alt="" className='w-10 h-10 rounded-full border-2' />
+                            <img src={post?.UserId?.profilePic || "https://images.macrumors.com/t/5K1xePYg0aiVFhfzTAd8181ROw8=/800x0/article-new/2024/07/Apple-TV-Plus-Feature-2-Magenta-and-Blue.jpg?lossy"} alt="" className='w-10 h-10 rounded-full border-2 cursor-pointer' />
                             </Link>
                             <div className='flex flex-col'>
                             <Link href={`/profile/${post?.userId?.username}`}>
-                            <span className='font-semibold text-md'>{post?.userId?.username}</span>
+                            <span className='font-semibold text-md cursor-pointer'>{post?.userId?.username}</span>
                             </Link>
                             <p className='text-sx  text-gray-500'>{formatPostTime(post.createdAt)}</p>
                             </div>
@@ -223,7 +223,7 @@ function Posts () {
                     <p className='cursor-pointer mb-4'>{post.content}</p>
                     
                     <div className='flex justify-center'>
-                    <img src={post.imageURL || ""}  className='w-auto  h-auto border-1 border-gray-300 rounded-2xl'/>
+                    <img src={post.imageURL || ""}  className='w-auto  h-auto border-1 border-gray-300 rounded-2xl cursor-pointer'/>
                     </div>
                     </Link>
                     
