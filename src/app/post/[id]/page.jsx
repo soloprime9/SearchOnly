@@ -7,10 +7,14 @@ export async function generateMetadata({ params }) {
   try {
     const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
     const post = response.data;
+    const content = typeof post.content === 'string' && post.content.trim().length > 0
+    ? post.content.trim()
+    : null;
 
+  
     return {
-      title: post.content ? `${post.content} | Fondpeace` : 'Fondpeace',
-      description: post.content ? post.content.slice(0, 150) : 'Fondpeace latest post.',
+      title: content ? `${content.slice(0, 60)} | Fondpeace` : 'Fondpeace',
+      description: content ? content.slice(0, 150) : 'Fondpeace latest post.',
       openGraph: {
         title: post.content ? post.content : 'Fondpeace Post',
         description: post.content ? post.content.slice(0, 150) : 'Fondpeace post content',
