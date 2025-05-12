@@ -26,7 +26,7 @@ export default function RootLayout({ children }) {
         </Script>
       </head>
       <body className={inter.variable}>
-        <header className="m-2 flex justify-evenly">
+        <header className="md:m-2 flex justify-evenly">
           <div>
             <h1 className="font-bold md:block hidden">
               <strong>
