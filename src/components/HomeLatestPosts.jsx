@@ -143,7 +143,7 @@ function Posts () {
                         {post.media  ? (
                             post.media.endsWith(".mp4") ? (
                                 
-                                <Link href={`/video/${post._id}` }>
+                                <Link href={`/short/${post._id}` }>
                                 <video src={post.media || ""} className="w-full h-72 border- border-gray-300 rounded-xl object-cover "  muted
                                 
                                 playsInline controls autoPlay />
