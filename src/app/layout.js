@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
       <body className={inter.variable}>
         <header className="m-2 flex justify-evenly">
           <div>
-            <h1 className="font-bold">
+            <h1 className="font-bold md:block hidden">
               <strong>
                 <a href="https://www.fondpeace.com/">Fondpeace</a>
               </strong>
