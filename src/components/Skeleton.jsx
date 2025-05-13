@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Skeleton = () => {
-  const cards = Array(3).fill(null); // You can change the number here to show more/less skeletons
+  const cards = Array(10).fill(null); // You can change the number here to show more/less skeletons
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
