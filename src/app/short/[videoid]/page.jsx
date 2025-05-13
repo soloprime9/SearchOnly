@@ -109,6 +109,7 @@ const ReelsFeed = () => {
             src={video.media}
             data-id={video._id}
             controls
+            autoPlay
             loop
             playsInline
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
