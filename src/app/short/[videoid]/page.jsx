@@ -84,21 +84,29 @@ const ReelsFeed = () => {
   }, [videos]);
 
   return (
-    <div
-      className="reels-feed"
-      style={{
-        height: '100vh',
-        overflowY: 'scroll',
-        scrollSnapType: 'y mandatory',
-      }}
-    >
-      {videos.map((video, index) => (
+  <div
+    className="reels-feed w-full overflow-y-scroll"
+    style={{
+      height: '100vh',
+      scrollSnapType: 'y mandatory',
+    }}
+  >
+    {videos.map((video, index) => (
+      <div
+        key={video._id}
+        ref={index === videos.length - 1 ? lastVideoRef : null}
+        className="w-full flex justify-center items-center"
+        style={{
+          scrollSnapAlign: 'start',
+          height: '100vh',
+        }}
+      >
         <div
-          key={video._id}
-          ref={index === videos.length - 1 ? lastVideoRef : null}
+          className="w-full rounded-xl overflow-hidden relative"
           style={{
-            height: '100vh',
-            scrollSnapAlign: 'start',
+            height: '100%',
+            maxHeight: '100vh',
+            width: '100%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -108,16 +116,19 @@ const ReelsFeed = () => {
             ref={el => (videoRefs.current[index] = el)}
             src={video.media}
             data-id={video._id}
-            controls
-            autoPlay
+            muted
             loop
             playsInline
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            controls={false}
+            autoPlay
+            className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] rounded-xl"
           />
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    ))}
+  </div>
+);
+
 };
 
 export default ReelsFeed;
