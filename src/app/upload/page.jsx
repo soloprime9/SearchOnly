@@ -131,7 +131,7 @@ const UploadPost = () => {
           {/* 🔹 Title Input */}
           <input
             type="text"
-            className="w-full text-white p-2 text-xl mt-3 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+            className="w-full text-white p-2 text-xl mt-3 focus:outline-none focus:ring-2 focus:ring-white rounded"
             id="title"
             value={title}
             onChange={handleTitleChange}
