@@ -143,10 +143,24 @@ function Posts () {
                         {post.media  ? (
                             post.media.endsWith(".mp4") ? (
                                 
-                                <Link href={`/short/${post._id}` }>
-                                <video src={post.media || ""} className="w-full h-72 border- border-gray-300 rounded-xl object-cover "  muted
+                                // <Link href={`/short/${post._id}` }>
+                                // <video src={post.media || ""} className="w-full h-72 border- border-gray-300 rounded-xl object-cover "  muted
                                 
-                                playsInline controls autoPlay />
+                                // playsInline controls autoPlay />
+                                // </Link>
+
+                                <Link href={`/short/${post._id}`} passHref>
+                                  <div className="w-full h-72 border border-gray-300 rounded-xl overflow-hidden cursor-pointer">
+                                    <video
+                                      src={post.media || ""}
+                                      className="w-full h-full object-cover"
+                                      muted
+                                      loop
+                                      playsInline
+                                      preload="metadata"
+                                      // 🚫 REMOVE controls and autoPlay to prevent conflict
+                                    />
+                                  </div>
                                 </Link>
 
                                 
