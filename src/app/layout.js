@@ -2,6 +2,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import StatusBar from '@/components/StatusBar';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -36,6 +37,8 @@ export default function RootLayout({ children }) {
           </div>
         </header>
         {children}
+
+      <StatusBar />
       </body>
     </html>
   );
