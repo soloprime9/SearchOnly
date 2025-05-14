@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import StatusBar from '@/Components/StatusBar'
+import StatusBar from '@/components/StatusBar'
 
 
 const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
