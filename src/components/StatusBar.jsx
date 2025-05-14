@@ -2,6 +2,13 @@ import Link from 'next/link';
 import React from 'react';
 
 const MobileTopNavBar = () => {
+
+  const ListId = ["6822f740837865db851a8fd9","6822f65b837865db851a8fd6", "6822f5e2837865db851a8fd3", "6822e769a506ae6cbbc9bf52", "6822e715a506ae6cbbc9bf4f", "6822e672a506ae6cbbc9bf4c", "6822e645a506ae6cbbc9bf49", "6810749cb98938fd31f6d35b", "68107476b98938fd31f6d358", "68107451b98938fd31f6d355", "6810742ab98938fd31f6d351", "67b28584f090c59509bdaf10", "67b1875a94bde7d066dfcd05", "67b1849f6a9b31f132629d81", "67b184166a9b31f132629d7e", "67aeddfb00c49d67169a054f", "67ab201887be7041220810d4" ]
+
+  const single = ListId[Math.floor(Math.random() * ListId.length)];
+
+  console.log(single);
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-b border-gray-200 shadow-sm">
       <div className="flex justify-around items-center py-2">
