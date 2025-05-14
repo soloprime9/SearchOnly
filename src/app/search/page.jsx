@@ -17,7 +17,7 @@ function App() {
       const response = await axios.get(`https://backend-k.vercel.app/autoai/result?q=${query}`);
       const SearchResults = response.data.ScrapedData[0];
       setResults(SearchResults.results || []);
-      setImages(SearchResults.images || []);
+      setImages(SearchResults.images[3] || []);
       console.log("Results:", SearchResults.results);
       console.log("Images:", SearchResults.images);
     } catch (err) {
@@ -28,9 +28,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-      <div className="max-w-2xl w-full px-6 py-8 bg-white shadow-lg rounded-lg">
-        <h1 className="text-3xl font-bold text-center text-indigo-600 mb-6">Google Search Results</h1>
+    <div className="min-h-screen bg-gray-100 flex  items-center justify-center">
+      <div className=" w-full px-2 py-8 bg-white shadow-lg rounded-lg">
+        <h1 className="text-3xl font-bold text-center text-indigo-600 mb-6">Search Engine</h1>
 
         <form onSubmit={handleSearch} className="flex mb-6">
           <input
@@ -69,13 +69,13 @@ function App() {
         )}
 
         {/* Results Section */}
-        <div className="space-y-6">
+        <div className="space-y-2">
           {results.length > 0 ? (
             results.map((result, index) => (
-              <div key={index} className="border-b pb-6">
+              <div key={index} className="border-b pb-2">
                 <h2 className="text-xl font-semibold text-indigo-700">
                 <a
-                  href={result.url}
+                  href={result.link}
                   className="text-blue-600 hover:text-blue-800 mt-2 block"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -83,9 +83,9 @@ function App() {
                   {result.title}
                 </a>
                   </h2>
-                <div className="flex">
-                <p className="text-gray-700 mt-2 w-72">{result.snippet}</p>
-                  <img src={result.thumbnail} className="w-h-auto w-auto object-cover rounded-md" />
+                <div className="flex gap-2">
+                <p className="text-gray-700 mt-2 ">{result.snippet}</p>
+                  <img src={result.thumbnail} className="h-28 w-auto object-cover rounded-md ml-auto md:block hidden" />
                 </div>
                 {result.images && result.images.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
