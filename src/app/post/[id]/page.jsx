@@ -94,7 +94,7 @@ export default async function PostPage({ params }) {
                   className="w-10 h-10 rounded-full border-2"
                 />
                 <strong className="pt-2">Human Cant</strong>
-                <div className="font-bold text-2xl md:ml-80 sm:ml-110 ml-50">...</div>
+                <div className="font-bold text-2xl ml-auto">...</div>
               </div>
               <p className="cursor-pointer mb-4">{post.content}</p>
               <div className="flex justify-center">
