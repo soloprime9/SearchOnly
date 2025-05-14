@@ -36,7 +36,7 @@ function App() {
           console.log("Images",images);
           setimage(images)
           console.log(response)
-          setexplain(sumarize);
+          // setexplain(sumarize);
           setData(result);
           setYoutube(youtube_detail);
           console.log( result,sumarize)
@@ -138,7 +138,7 @@ if(loading){
     <div className="m-1 mb-10"> 
 
    <Head>
-        <title>Fond Peace AI - Free AI-Powered Search & Do Anything for Free</title>
+        <title>Fond Peace AI Social Media Platform</title>
         <meta name="description" content="Unlock the limitless potential of AI with Fond Peace AI. Experience cutting-edge AI-powered search, automation, content generation, and assistance tools—all for free. This is a platform where you can search anything like Google, Bing, and the web." />
         <meta name="keywords" content="Fond Peace AI, free AI tools, AI search engine, AI assistant, AI automation, AI content generator, AI-powered search, AI chatbot, AI-driven solutions, AI-powered research, AI discovery, AI-powered learning, AI innovation, AI productivity, AI-powered applications, AI-powered insights, AI-powered recommendations, AI for everyone, next-gen AI, best free AI tools, AI-powered knowledge base, AI-driven search engine, AI-powered decision-making, AI-powered problem-solving, AI assistant for work and study, AI-powered writing tools, AI-powered creative solutions, chatgpt, openai, Claude AI, Grok AI, Elon Musk AI, search engine alternatives, written updates, Telly updates, Anupama, YRKKH, Bhagya Lakshmi, Dhruv Rathee, MacRumors, 9to5Mac, Apple Insider, Apple rumors, iPhone news, AI SEO optimization, 2025 Google SEO, AI-powered blogging, real-time AI answers, best AI tools 2025, AI automation for business, SEO AI tools, AI-driven marketing, Google core update 2025, AI-enhanced productivity, AI-generated content, machine learning trends 2025, AI-powered analytics, AI for digital marketing, AI SEO ranking strategies, how to rank on Google with AI, best AI-powered research tools" />
         <meta name="robots" content="index, follow" />
@@ -213,20 +213,20 @@ if(loading){
       <input type="text" value={query} onChange={handleChange} className="border-2 rounded-md w-full p-2 text-lg"/>
       <button onClick={handleSearch} className="cursor-pointer w-full text-xl font-bold border-2 rounded-md mt-4 p-2 bg-blue-400 text-white">Search</button>
       </div>
-      {explain ? (
+{/*       {explain ? (
       <div className=" border-2 rounded-md border-black md:p-6 p-2  ">
-            <ExplainText text={explain}/>
+{/*             <ExplainText text={explain}/> */}
       </div>) : ( <div></div>)
       
-      }
+      } */}
 
-      {/* <div className="">
+       <div className="">
         {Youtube.map((index) =>(
           <div key={index.id} className="border-2 rounded-md w-full mt-2 p-2">
             <img src={index.thumbnail} alt="" className="w-full py-2" />
           </div>
         ))}
-      </div> */}
+      </div> 
 
       <div className="grid grid-cols-4 gap-4 items-center">
         {image?.length > 0 ? (
