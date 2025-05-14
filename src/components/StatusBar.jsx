@@ -20,12 +20,14 @@ const MobileTopNavBar = () => {
           Home
         </button>
         </Link>
+        <Link href={`/short/${single}`}>
         <button className="flex flex-col items-center text-sm text-gray-700 hover:text-blue-600">
           <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M15 10l4.553 2.276a1 1 0 010 1.448L15 16m-6 0V8m0 0l6 4-6 4z" />
           </svg>
           Video
         </button>
+          </Link>
 
         <Link href="/search"> 
         <button className="flex flex-col items-center text-sm text-gray-700 hover:text-blue-600">
