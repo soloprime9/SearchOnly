@@ -17,7 +17,7 @@ function App() {
       const response = await axios.get(`https://backend-k.vercel.app/autoai/result?q=${query}`);
       const SearchResults = response.data.ScrapedData[0];
       setResults(SearchResults.results);// Assuming response is an array of search results
-      console.log(SearchResults);
+      console.log("hello", SearchResults);
       setLoading(false);
     } catch (err) {
       setLoading(false);
