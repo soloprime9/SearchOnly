@@ -2,15 +2,17 @@ import { Metadata } from 'next';
 import HomeLatestPosts from '@/components/HomeLatestPosts';
   
 export const metadata = {
-  title: "Fond Peace AI - Free AI-Powered Search & Do Anything for Free",
+  title: "Fond Peace",
   description:
-    "Unlock the limitless potential of AI with Fond Peace AI. Experience cutting-edge AI-powered search, automation, content generation, and assistance tools—all for free. This is a platform where you can search anything like Google, Bing, and the web.",
+    "Fondpeace.com is a free and modern all-in-one social platform that combines powerful web search and community features in one place. Whether you're looking to connect with friends, explore trending news, or search the internet like you would with Google or Bing, Fondpeace offers a seamless experience.
+
+Stay updated with what's happening around you, watch and share videos, chat with others, create posts, join communities, and explore the web—all from one easy-to-use platform. Built for speed, simplicity, and social engagement, Fondpeace.com is designed to be your go-to digital hub for information and interaction.",
   keywords:
-    "Online Chatting, Xhamster, blacked.com, jav.guru, jav guru, perplexity ai, macrumors, today written update, instagram, youtube, brazzer, angela white, alyx star, how to, Fond Peace AI, free AI tools, AI search engine, AI assistant, AI automation, AI content generator, AI-powered search, AI chatbot, AI-driven solutions, AI-powered research, AI discovery, AI-powered learning, AI innovation, AI productivity, AI-powered applications, AI-powered insights, AI-powered recommendations, AI for everyone, next-gen AI, best free AI tools, AI-powered knowledge base, AI-driven search engine, AI-powered decision-making, AI-powered problem-solving, AI assistant for work and study, AI-powered writing tools, AI-powered creative solutions, chatgpt, openai, Claude AI, Grok AI, Elon Musk AI, search engine alternatives, written updates, Telly updates, Anupama, YRKKH, Bhagya Lakshmi, Dhruv Rathee, MacRumors, 9to5Mac, Apple Insider, Apple rumors, iPhone news, AI SEO optimization, 2025 Google SEO, AI-powered blogging, real-time AI answers, best AI tools 2025, AI automation for business, SEO AI tools, AI-driven marketing, Google core update 2025, AI-enhanced productivity, AI-generated content, machine learning trends 2025, AI-powered analytics, AI for digital marketing, AI SEO ranking strategies, how to rank on Google with AI, best AI-powered research tools,youtube thumbnail tester, thumbnail preview, youtube seo, preview thumbnail youtube",
+    "free social media platform, trending news and videos, all-in-one search and social platform, Online Chatting, Xhamster, blacked.com, jav.guru, jav guru, perplexity ai, macrumors, today written update, instagram, youtube, brazzer, angela white, alyx star, how to, Fond Peace AI, free AI tools, AI search engine, AI assistant, AI automation, AI content generator, AI-powered search, AI chatbot, AI-driven solutions, AI-powered research, AI discovery, AI-powered learning, AI innovation, AI productivity, AI-powered applications, AI-powered insights, AI-powered recommendations, AI for everyone, next-gen AI, best free AI tools, AI-powered knowledge base, AI-driven search engine, AI-powered decision-making, AI-powered problem-solving, AI assistant for work and study, AI-powered writing tools, AI-powered creative solutions, chatgpt, openai, Claude AI, Grok AI, Elon Musk AI, search engine alternatives, written updates, Telly updates, Anupama, YRKKH, Bhagya Lakshmi, Dhruv Rathee, MacRumors, 9to5Mac, Apple Insider, Apple rumors, iPhone news, AI SEO optimization, 2025 Google SEO, AI-powered blogging, real-time AI answers, best AI tools 2025, AI automation for business, SEO AI tools, AI-driven marketing, Google core update 2025, AI-enhanced productivity, AI-generated content, machine learning trends 2025, AI-powered analytics, AI for digital marketing, AI SEO ranking strategies, how to rank on Google with AI, best AI-powered research tools,youtube thumbnail tester, thumbnail preview, youtube seo, preview thumbnail youtube,Google-like search engine,chat and connect online,post, share, explore content,modern social network,discover local and global news,video sharing platform,free community platform",
   openGraph: {
-    title: "FondPeace AI - Social and News Fast",
+    title: "Fond Peace",
     description:
-      "Get real-time News, Updates in seconds by AI Automation and Social Plateforms to engage with your Friends. Fondpeace AI Alternative of Instagram, Twitter, Google, Youtube. So If you are searching for other best plateform for your requirements then Fondpeace AI will be better for you.",
+      "Fondpeace.com is a free social platform where you can search the web, share posts and videos, discover trending news, chat, and stay connected—all in one place.",
     url: "https://fondpeace.com",
     images: [
       {
@@ -23,9 +25,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FondPeace AI - Everything will be happen with AI",
+    title: "Fond Peace",
     description:
-      "Get real-time News,Updates,Rumors, Payments, Jobs and more things for you here. So you can also enjoy everything and make your life easy with us on FondPeace AI and compatible on desktop, mobile and TV screens.",
+      "Fondpeace.com is a free social platform where you can search the web, share posts and videos, discover trending news, chat, and stay connected—all in one place.",
     images: ["https://www.fondpeace.com/og-image.jpg"],
     site: "@Gayatrisingho",
   },
