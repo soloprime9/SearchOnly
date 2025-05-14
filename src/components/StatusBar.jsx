@@ -1,0 +1,42 @@
+import Link from 'next/link';
+import React from 'react';
+
+const MobileTopNavBar = () => {
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-b border-gray-200 shadow-sm">
+      <div className="flex justify-around items-center py-2">
+        <Link href="/">
+        <button className="flex flex-col items-center text-sm text-gray-700 hover:text-blue-600">
+          <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M3 12l2-2m0 0l7-7 7 7m-9 2v6m4 0v-6m0 0l2 2" />
+          </svg>
+          Home
+        </button>
+        </Link>
+        <button className="flex flex-col items-center text-sm text-gray-700 hover:text-blue-600">
+          <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M15 10l4.553 2.276a1 1 0 010 1.448L15 16m-6 0V8m0 0l6 4-6 4z" />
+          </svg>
+          Video
+        </button>
+
+        <Link href="/search"> 
+        <button className="flex flex-col items-center text-sm text-gray-700 hover:text-blue-600">
+          <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M19 21H5a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z" />
+          </svg>
+          Search
+        </button>
+        </Link>
+        <button className="flex flex-col items-center text-sm text-gray-700 hover:text-blue-600">
+          <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M5.121 17.804A11.954 11.954 0 0112 15c2.236 0 4.312.656 6.121 1.804M15 11a3 3 0 10-6 0 3 3 0 006 0z" />
+          </svg>
+          Profile
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default MobileTopNavBar;
