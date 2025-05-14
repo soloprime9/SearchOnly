@@ -215,7 +215,7 @@ if(loading){
       </div>
 {/*       {explain ? (
       <div className=" border-2 rounded-md border-black md:p-6 p-2  ">
-{/*             <ExplainText text={explain}/> */}
+            <ExplainText text={explain}/> 
       </div>) : ( <div></div>)
       
       } */}
