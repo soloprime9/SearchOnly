@@ -27,7 +27,7 @@ function App() {
       if (search) {
         setloading(true);
         try {
-          const response = await axios.get(`https://sokara.vercel.app/search?q=${search}`);
+          const response = await axios.get(`https://backendk-z915.onrender.com/autoai/search?q=${search}`);
           const result = await response.data[0];
           const sumarize = await response.data[1];
           const images = await response.data[2];
