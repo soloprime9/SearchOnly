@@ -1,6 +1,9 @@
 'use client';
- 
+
+import Link from 'next/link';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import StatusBar from '@/Components/StatusBar'
+
 
 const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
 
@@ -10,11 +13,41 @@ const ReelsFeed = () => {
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef(null);
   const videoRefs = useRef([]);
+  const SinglePostsFetched = useRef(false);
+  const [singlevid, setSinglevid] = useState([]);
+
+  
+
+  useEffect(() => {
+
+    if(SinglePostsFetched.current) return;
+    SinglePostsFetched.current = true;
+
+    const SingleVideo = async () => {
+
+    const pathname = window.location.pathname;
+    const id = pathname.split("/").pop();
+    console.log("This is Id: ", id);
+
+    try{
+    const response = await fetch(`${API_URL}/single/${id}`);
+    const Data = await response.json();
+    console.log("Single Post" , Data);
+    setSinglevid(Data);
+
+    }
+    catch(error){
+      console.log(error);
+    }
+  };
+    SingleVideo();
+  }, [])
 
   const fetchVideos = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}?page=${page}&limit=5`);
       const data = await res.json();
+      console.log(data);
 
       setVideos(prev => {
         const existingIds = new Set(prev.map(v => v._id));
@@ -24,11 +57,15 @@ const ReelsFeed = () => {
 
       setHasMore(page < data.totalPages);
     } catch (err) {
-      console.error('Fetch error:', err);
+      // console.log('Fetch error:', err);
     }
   }, [page]);
 
+
+  
+
   useEffect(() => {
+    
     fetchVideos();
   }, [fetchVideos]);
 
@@ -83,56 +120,126 @@ const ReelsFeed = () => {
     };
   }, [videos]);
 
-  return (
-  <div
-    className="reels-feed w-full overflow-y-scroll"
-    style={{
-      height: '100vh',
-      scrollSnapType: 'y mandatory',
-    }}
-  >
-    {videos.map((video, index) => (
-      <div
-        key={video._id}
-        ref={index === videos.length - 1 ? lastVideoRef : null}
-        className="w-full flex justify-center items-center"
-        style={{
-          scrollSnapAlign: 'start',
-          height: '100vh',
-        }}
-      >
+ return (
+  <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-white md:mt-2">
+
+    {/* Main Container */}
+    <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] ">
+    
+      {/* Left Sidebar (hidden on mobile) */}
+      <aside className="hidden md:flex flex-col sticky top-0 h-screen overflow-y-auto border border-gray-300 rounded-md p-4 text-lg font-semibold space-y-4">
+        <h4>Worlds</h4>
+        <h4>Search</h4>
+        <h4>Account</h4>
+        <h4>Setting</h4>
+        <h4>Privacy</h4>
+      </aside>
+
+      {/* Main Video Feed */}
+      <main className=" grid ">
+
+          <div
+      className="w-full h-screen overflow-y-scroll snap-y snap-mandatory"
+      style={{
+        scrollBehavior: 'smooth',
+      }}
+    >
+      {singlevid && (
         <div
-          className="w-full rounded-xl overflow-hidden relative"
-          style={{
-            height: '100%',
-            maxHeight: '100vh',
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
+          className="w-full flex justify-center items-center snap-start"
+          style={{ height: '100vh' }}
         >
-          <video
-            ref={el => (videoRefs.current[index] = el)}
-            src={video.media}
-            data-id={video._id}
-            muted
-            loop
-            playsInline
-            controls={false}
-            autoPlay
-            className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] rounded-xl"
-          />
+          <div
+            className="w-full rounded-xl overflow-hidden relative"
+            style={{
+              height: '100%',
+              maxHeight: '100vh',
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <video
+              src={singlevid.media}
+              loop
+              playsInline
+              controls={false}
+              autoPlay
+              className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] rounded-xl"
+            ></video>
+          </div>
         </div>
-      </div>
-    ))}
+      )}
+
+      {videos.map((video, index) => (
+        <div
+          key={video._id}
+          ref={index === videos.length - 1 ? lastVideoRef : null}
+          className="w-full flex justify-center items-center snap-start"
+          style={{ height: '100vh' }}
+        >
+          <div
+            className="w-full rounded-xl overflow-hidden relative"
+            style={{
+              height: '100%',
+              maxHeight: '100vh',
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <video
+              ref={(el) => (videoRefs.current[index] = el)}
+              src={video.media}
+              data-id={video._id}
+              loop
+              playsInline
+              controls={false}
+              autoPlay
+              className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] rounded-xl"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+
+      </main>
+
+      {/* Right Sidebar (hidden on mobile) */}
+      <aside className="hidden md:block sticky top-0 h-screen overflow-y-auto border border-gray-300 rounded-md p-4 mx-2 space-y-6">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <img
+                src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg"
+                alt="profile"
+                className="w-10 h-10 rounded-full border"
+              />
+              <span className="truncate font-medium text-sm">Human Cant</span>
+            </div>
+            <button className="px-3 py-1 text-sm font-semibold border rounded-xl">
+              Follow
+            </button>
+          </div>
+        ))}
+      </aside>
+    </div>
+
+    
+
+        <StatusBar />
+
+
   </div>
 );
+
+
 
 };
 
 export default ReelsFeed;
-
 
 
 
