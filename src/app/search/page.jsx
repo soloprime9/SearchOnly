@@ -7,19 +7,16 @@ function App() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [images, setImages] = useState([]);
 
-  // Function to handle form submission and search
   const handleSearch = async (e) => {
     e.preventDefault();
+    if (!query.trim()) return; // prevent empty queries
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get(`https://backend-k.vercel.app/autoai/result?q=${query}`);
       const SearchResults = response.data.ScrapedData[0];
-      setResults(SearchResults.results);// Assuming response is an array of search results
-      console.log("hello", SearchResults.results);
-      setImage(SearchResults.images);
+      setResults(SearchResults.results || []);
       setLoading(false);
     } catch (err) {
       setLoading(false);
@@ -65,20 +62,22 @@ function App() {
                   {result.url}
                 </a>
                 <p className="text-gray-700 mt-2">{result.content}</p>
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {result.images.map((image, idx) => (
-                    <img
-                      key={idx}
-                      src={image}
-                      alt={`Image ${idx + 1}`}
-                      className="w-full h-32 object-cover rounded-md"
-                    />
-                  ))}
-                </div>
+                {result.images?.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {result.images.map((image, idx) => (
+                      <img
+                        key={idx}
+                        src={image}
+                        alt={`Image ${idx + 1}`}
+                        className="w-full h-32 object-cover rounded-md"
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           ) : (
-            <p className="text-center text-gray-500">No results found.</p>
+            !loading && <p className="text-center text-gray-500">No results found.</p>
           )}
         </div>
       </div>
