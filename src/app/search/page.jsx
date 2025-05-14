@@ -7,6 +7,7 @@ function App() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [images, setImages] = useState([]);
 
   // Function to handle form submission and search
   const handleSearch = async (e) => {
@@ -17,7 +18,8 @@ function App() {
       const response = await axios.get(`https://backend-k.vercel.app/autoai/result?q=${query}`);
       const SearchResults = response.data.ScrapedData[0];
       setResults(SearchResults.results);// Assuming response is an array of search results
-      console.log("hello", SearchResults);
+      console.log("hello", SearchResults.results);
+      setImage(SearchResults.images);
       setLoading(false);
     } catch (err) {
       setLoading(false);
