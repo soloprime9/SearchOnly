@@ -7,20 +7,23 @@ function App() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [images, setImages] = useState([]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!query.trim()) return; // prevent empty queries
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get(`https://backend-k.vercel.app/autoai/result?q=${query}`);
       const SearchResults = response.data.ScrapedData[0];
       setResults(SearchResults.results || []);
-      setLoading(false);
+      setImages(SearchResults.images || []);
+      console.log("Results:", SearchResults.results);
+      console.log("Images:", SearchResults.images);
     } catch (err) {
-      setLoading(false);
       setError("Error fetching results. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,6 +51,24 @@ function App() {
         {loading && <p className="text-center text-gray-500">Loading...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
 
+        {/* General Images Section */}
+        {images.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-indigo-700 mb-4">Top Images</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {images.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt={`Image ${idx + 1}`}
+                  className="w-full h-32 object-cover rounded-md"
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Results Section */}
         <div className="space-y-6">
           {results.length > 0 ? (
             results.map((result, index) => (
@@ -62,13 +83,13 @@ function App() {
                   {result.url}
                 </a>
                 <p className="text-gray-700 mt-2">{result.content}</p>
-                {result.images?.length > 0 && (
+                {result.images && result.images.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {result.images.map((image, idx) => (
                       <img
                         key={idx}
                         src={image}
-                        alt={`Image ${idx + 1}`}
+                        alt={`Result Image ${idx + 1}`}
                         className="w-full h-32 object-cover rounded-md"
                       />
                     ))}
@@ -86,7 +107,6 @@ function App() {
 }
 
 export default App;
-
 
 
 
