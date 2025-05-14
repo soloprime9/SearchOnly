@@ -73,16 +73,20 @@ function App() {
           {results.length > 0 ? (
             results.map((result, index) => (
               <div key={index} className="border-b pb-6">
-                <h2 className="text-xl font-semibold text-indigo-700">{result.title}</h2>
+                <h2 className="text-xl font-semibold text-indigo-700">
                 <a
                   href={result.url}
                   className="text-blue-600 hover:text-blue-800 mt-2 block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {result.url}
+                  {result.title}
                 </a>
-                <p className="text-gray-700 mt-2">{result.content}</p>
+                  </h2>
+                <div className="flex">
+                <p className="text-gray-700 mt-2 w-72">{result.snippet}</p>
+                  <img src={result.thumbnail} className="w-h-auto w-auto object-cover rounded-md" />
+                </div>
                 {result.images && result.images.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {result.images.map((image, idx) => (
