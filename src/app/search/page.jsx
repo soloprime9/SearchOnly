@@ -14,7 +14,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`https://backendk-z915.onrender.com/autoai/search?q=${query}`);
+      const response = await axios.get(`https://backendk-z915.onrender.com/autoai/result?q=${query}`);
       setResults(response.data);// Assuming response is an array of search results
       console.log(response.data);
       setLoading(false);
