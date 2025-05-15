@@ -124,7 +124,7 @@ const ReelsFeed = () => {
         if (video) videoObserver.unobserve(video);
       });
     };
-  }, [videos]);
+  }, [videos, singlevid]);
 
  return (
   <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-white md:mt-2">
@@ -149,6 +149,7 @@ const ReelsFeed = () => {
           <div className="snap-start w-full h-screen flex justify-center items-center mb-1">
             <div className="relative w-full h-full max-h-screen flex justify-center items-center">
               <video
+                ref={(el) => (videoRefs.current[videos.length] = el)}
                 src={singlevid.media}
                 loop
                 playsInline
@@ -156,6 +157,7 @@ const ReelsFeed = () => {
                 controls={false}
                 autoPlay
                 className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] "
+                data-id={singlevid._id}
               ></video>
               <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
