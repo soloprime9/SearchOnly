@@ -36,7 +36,7 @@ const ReelsFeed = () => {
     console.log("This is Id: ", id);
 
     try{
-    const response = await fetch(`${Second_API_URL}/single/${videoId}`);
+    const response = await fetch(`${Second_API_URL}/single/${id}`);
     const Data = await response.json();
     console.log("Single Post" , Data);
     setSinglevid(Data);
