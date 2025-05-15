@@ -152,7 +152,7 @@ const ReelsFeed = () => {
                 src={singlevid.media}
                 loop
                 playsInline
-                muted
+                
                 controls={false}
                 autoPlay
                 className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] "
@@ -206,7 +206,7 @@ const ReelsFeed = () => {
                 src={video.media}
                 data-id={video._id}
                 loop
-                muted
+                
                 playsInline
                 controls={false}
                 autoPlay
