@@ -6,6 +6,7 @@ import StatusBar from '@/components/StatusBar'
 
 
 const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
+const Second_API_URL = "https://backendk-z915.onrender.com/post"
 
 const ReelsFeed = () => {
   const [videos, setVideos] = useState([]);
