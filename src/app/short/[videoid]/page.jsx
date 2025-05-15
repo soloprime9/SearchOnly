@@ -161,7 +161,7 @@ const ReelsFeed = () => {
               ></video>
               <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
-                    @{singlevid.userId?.username}
+                    <a href={`/profile/${singlevid.userId?.username}`}>@{singlevid.userId?.username}</a>
                   </p>
                   <p
                     className={`text-sm leading-tight cursor-pointer ${expandedId === singlevid._id ? '' : 'line-clamp-1'}`}
@@ -216,7 +216,7 @@ const ReelsFeed = () => {
               />
               <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
-                    @{video.userId?.username}
+                    <a href={`/profile/${video.userId?.username}`}>@{video.userId?.username}</a>
                   </p>
                   <p
                     className={`text-sm leading-tight cursor-pointer ${expandedId === video._id ? '' : 'line-clamp-1'}`}
