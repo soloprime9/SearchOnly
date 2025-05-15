@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import StatusBar from '@/components/StatusBar'
+import StatusBar from '@/Components/StatusBar'
+import { useParams } from 'next/navigation';
 
 
 const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
-const Second_API_URL = "https://backendk-z915.onrender.com/post"
+const Second_API_URL = "https://backendk-z915.onrender.com/post";
 
 const ReelsFeed = () => {
   const [videos, setVideos] = useState([]);
@@ -16,10 +17,14 @@ const ReelsFeed = () => {
   const videoRefs = useRef([]);
   const SinglePostsFetched = useRef(false);
   const [singlevid, setSinglevid] = useState([]);
+  const {videoId} = useParams();
+  const [expandedId, setExpandedId] = useState(null);
 
-  
+
+
 
   useEffect(() => {
+
 
     if(SinglePostsFetched.current) return;
     SinglePostsFetched.current = true;
@@ -31,7 +36,7 @@ const ReelsFeed = () => {
     console.log("This is Id: ", id);
 
     try{
-    const response = await fetch(`${Second_API_URL}/single/${id}`);
+    const response = await fetch(`${Second_API_URL}/single/${videoId}`);
     const Data = await response.json();
     console.log("Single Post" , Data);
     setSinglevid(Data);
@@ -125,7 +130,7 @@ const ReelsFeed = () => {
   <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-white md:mt-2">
 
     {/* Main Container */}
-    <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] ">
+    <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] mb-2">
     
       {/* Left Sidebar (hidden on mobile) */}
       <aside className="hidden md:flex flex-col sticky top-0 h-screen overflow-y-auto border border-gray-300 rounded-md p-4 text-lg font-semibold space-y-4">
@@ -137,76 +142,114 @@ const ReelsFeed = () => {
       </aside>
 
       {/* Main Video Feed */}
-      <main className=" grid ">
+      <main className="grid">
+      <div className="w-full h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+        {/* Main Single Video */}
+        {singlevid && (
+          <div className="snap-start w-full h-screen flex justify-center items-center mb-1">
+            <div className="relative w-full h-full max-h-screen flex justify-center items-center">
+              <video
+                src={singlevid.media}
+                loop
+                playsInline
+                muted
+                controls={false}
+                autoPlay
+                className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] "
+              ></video>
+              <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
+                  <p className="font-semibold text-lg mb-1">
+                    @{singlevid.userId?.username}
+                  </p>
+                  <p
+                    className={`text-sm leading-tight cursor-pointer ${expandedId === singlevid._id ? '' : 'line-clamp-1'}`}
+                    onClick={() => setExpandedId(expandedId === singlevid._id ? null : singlevid._id)}
+                  >
+                    {singlevid.title}
+                  </p>
+                </div>
 
-          <div
-      className="w-full h-screen overflow-y-scroll snap-y snap-mandatory"
-      style={{
-        scrollBehavior: 'smooth',
-      }}
-    >
-      {singlevid && (
-        <div
-          className="w-full flex justify-center items-center snap-start"
-          style={{ height: '100vh' }}
-        >
-          <div
-            className="w-full rounded-xl overflow-hidden relative"
-            style={{
-              height: '100%',
-              maxHeight: '100vh',
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <video
-              src={singlevid.media}
-              loop
-              playsInline
-              controls={false}
-              autoPlay
-              className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] rounded-xl"
-            ></video>
+                <div className="absolute bottom-20 md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
+                  <div className="flex flex-col items-center">
+                    {/* Replace this with your actual like icon */}
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+                              2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 
+                              4.5 2.09C13.09 3.81 14.76 3 16.5 3 
+                              19.58 3 22 5.42 22 8.5c0 3.78-3.4 
+                              6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span className="text-xs">{singlevid.likes?.length || 0}</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    {/* Replace this with your actual comment icon */}
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" />
+                    </svg>
+                    <span className="text-xs">{singlevid.comments?.length || 0}</span>
+                  </div>
+                </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {videos.map((video, index) => (
-        <div
-          key={video._id}
-          ref={index === videos.length - 1 ? lastVideoRef : null}
-          className="w-full flex justify-center items-center snap-start"
-          style={{ height: '100vh' }}
-        >
+        {/* Other videos */}
+        {videos.map((video, index) => (
           <div
-            className="w-full rounded-xl overflow-hidden relative"
-            style={{
-              height: '100%',
-              maxHeight: '100vh',
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
+            key={video._id}
+            ref={index === videos.length - 1 ? lastVideoRef : null}
+            className="snap-start w-full h-screen flex justify-center items-center mb-1"
           >
-            <video
-              ref={(el) => (videoRefs.current[index] = el)}
-              src={video.media}
-              data-id={video._id}
-              loop
-              playsInline
-              controls={false}
-              autoPlay
-              className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] rounded-xl"
-            />
-          </div>
-        </div>
-      ))}
-    </div>
+            <div className="relative w-full h-full max-h-screen flex justify-center items-center ">
+              <video
+                ref={(el) => (videoRefs.current[index] = el)}
+                src={video.media}
+                data-id={video._id}
+                loop
+                muted
+                playsInline
+                controls={false}
+                autoPlay
+                className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] "
+              />
+              <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
+                  <p className="font-semibold text-lg mb-1">
+                    @{video.userId?.username}
+                  </p>
+                  <p
+                    className={`text-sm leading-tight cursor-pointer ${expandedId === video._id ? '' : 'line-clamp-1'}`}
+                    onClick={() => setExpandedId(expandedId === video._id ? null : video._id)}
+                  >
+                    {video.title}
+                  </p>
+                </div>
 
-      </main>
+                <div className="absolute bottom-20 md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
+                  <div className="flex flex-col items-center">
+                    {/* Replace this with your actual like icon */}
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+                              2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 
+                              4.5 2.09C13.09 3.81 14.76 3 16.5 3 
+                              19.58 3 22 5.42 22 8.5c0 3.78-3.4 
+                              6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span className="text-xs">{video.likes?.length || 0}</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    {/* Replace this with your actual comment icon */}
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" />
+                    </svg>
+                    <span className="text-xs">{video.comments?.length || 0}</span>
+                  </div>
+                </div>
+
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
 
       {/* Right Sidebar (hidden on mobile) */}
       <aside className="hidden md:block sticky top-0 h-screen overflow-y-auto border border-gray-300 rounded-md p-4 mx-2 space-y-6">
@@ -241,6 +284,10 @@ const ReelsFeed = () => {
 };
 
 export default ReelsFeed;
+
+
+
+
 
 
 
