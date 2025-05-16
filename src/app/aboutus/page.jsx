@@ -3,6 +3,7 @@ import React from "react";
 const AboutUs = () => {
   return (
     <div className="p-4 max-w-3xl mx-auto text-gray-800">
+      <h1 className="text-2xl">About Us - Fond Peace</h1>
       <p>Hello, Dear friends, Welcome to Fond Peace. We are happy you want to know more about our site.</p>
       <p>
         Nowadays, people are more dependent on online products and services. That's why we’ve taken a step forward to help.
