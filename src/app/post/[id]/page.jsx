@@ -94,6 +94,8 @@ export default async function PostPage({ params }) {
                   className="w-10 h-10 rounded-full border-2"
                 />
                 <strong className="pt-2">Human Cant</strong>
+                <p className='text-sm  text-gray-400'>{formatPostTime(post.timestamp)}</p>
+
                 <div className="font-bold text-2xl ml-auto">...</div>
               </div>
               <p className="cursor-pointer mb-4">{post.content}</p>
