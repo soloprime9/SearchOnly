@@ -1,6 +1,8 @@
 // app/post/[id]/page.jsx
 import { Metadata } from 'next';
 import axios from 'axios';
+import { formatPostTime } from '@/components/DateFormate';
+
 
 export async function generateMetadata({ params }) {
   const { id } = params;
