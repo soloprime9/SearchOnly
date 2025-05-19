@@ -38,7 +38,7 @@ const ReelsFeed = () => {
     try{
     const response = await fetch(`${Second_API_URL}/single/${id}`);
     const Data = await response.json();
-    console.log("Single Post" , Data);
+    // console.log("Single Post" , Data);
     setSinglevid(Data);
 
     }
@@ -53,7 +53,7 @@ const ReelsFeed = () => {
     try {
       const res = await fetch(`${API_URL}?page=${page}&limit=5`);
       const data = await res.json();
-      console.log(data);
+      // console.log(data);
 
       setVideos(prev => {
         const existingIds = new Set(prev.map(v => v._id));
