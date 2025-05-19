@@ -4,7 +4,7 @@ import LatestVideo from '@/components/LatestVideo';
 
 
 export async function generateMetadata({ params }) {
-  const { id } = params;
+  const { videoid: id } = params;
 
   const fallbackImage = 'https://www.fondpeace.com/default-og-image.jpg';
   const siteUrl = `https://www.fondpeace.com/short/${id}`;
