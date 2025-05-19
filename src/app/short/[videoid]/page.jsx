@@ -12,13 +12,13 @@ export async function generateMetadata({ params }) {
 
   try {
   console.log("Trying shorts API");
-  let response = await axios.get(`https://backend-k.vercel.app/post/shorts/?page=${page}&limit=5`);
+  let response = await fetch(`https://backend-k.vercel.app/post/shorts/?page=${page}&limit=5`);
   let post = response.data;
   console.log("Shorts response:", post);
 
   if (!post || !post._id) {
     console.log("Trying posts API");
-    response = await axios.get(`https://backend-k.vercel.app/post/single/${id}`);
+    response = await fetch(`https://backend-k.vercel.app/post/single/${id}`);
     post = response.data;
     console.log("Posts response:", post);
   }
