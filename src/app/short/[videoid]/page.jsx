@@ -14,15 +14,17 @@ export async function generateMetadata({ params }) {
     // 1️⃣ Try Shorts First
     let response = await axios.get(`https://backendk-z915.onrender.com/post/shorts/${id}`);
     let post = response.data;
+    console.log(post);
 
     // 2️⃣ If not found in Shorts, try Posts
     if (!post || !post._id) {
       response = await axios.get(`https://backendk-z915.onrender.com/post/${id}`);
       post = response.data;
+      console.log(post);
     }
 
     // 3️⃣ Extract dynamic content and prepare SEO meta
-    const content = post?.title?.trim();
+    const content = post.title.trim();
     const title = content ? `${content.slice(0, 60)} | ${siteName}` : siteName;
     const description = content ? content.slice(0, 150) : 'Fondpeace latest post.';
     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
