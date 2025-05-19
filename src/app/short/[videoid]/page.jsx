@@ -22,105 +22,104 @@ export async function generateMetadata({ params }) {
     post = response.data;
     console.log("Posts response:", post);
   }
-} catch (error) {
-  console.error("Error fetching data:", error);
-}
 
 
-//     // 3️⃣ Extract dynamic content and prepare SEO meta
-//     const content = post.title.trim();
-//     // const title = content ? `${content.slice(0, 60)} | ${siteName}` : siteName;
-//     const title = content;
+
+    // 3️⃣ Extract dynamic content and prepare SEO meta
+    const content = post.title.trim();
+    // const title = content ? `${content.slice(0, 60)} | ${siteName}` : siteName;
+    const title = content;
     
-//     const description = content ? content.slice(0, 150) : 'Fondpeace latest post.';
-//     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
-//     const keywords = tagsArray.join(', ') || 'fondpeace, post, shorts, videos';
-//     const ogImage = post?.media || post?.medias?.url || fallbackImage;
-//     const author = post?.userId?.username || 'Fondpeace';
-//     const publishedAt = post?.createdAt || new Date().toISOString();
+    const description = content ? content.slice(0, 150) : 'Fondpeace latest post.';
+    const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
+    const keywords = tagsArray.join(', ') || 'fondpeace, post, shorts, videos';
+    const ogImage = post?.media || post?.medias?.url || fallbackImage;
+    const author = post?.userId?.username || 'Fondpeace';
+    const publishedAt = post?.createdAt || new Date().toISOString();
 
-//     return {
-//       title,
-//       description,
-//       keywords,
-//       authors: [{ name: author }],
-//       alternates: {
-//         canonical: siteUrl,
-//       },
-//       openGraph: {
-//         title: content || 'Fondpeace Post',
-//         description: content || 'Fondpeace post content',
-//         type: 'video.other',
-//         url: siteUrl,
-//         siteName,
-//         images: [
-//           {
-//             url: ogImage,
-//             width: 1280,
-//             height: 720,
-//             alt: content || 'Post Image',
-//           },
-//         ],
-//         videos: [
-//           {
-//             url: ogImage,
-//             width: 1280,
-//             height: 720,
-//             type: 'video/mp4',
-//           },
-//         ],
-//         locale: 'en_US',
-//         article: {
-//           authors: [author],
-//           publishedTime: publishedAt,
-//           tags: tagsArray,
-//         },
-//       },
-//       twitter: {
-//         card: 'player',
-//         title: content || 'Fondpeace Post',
-//         description: content || 'Fondpeace post content',
-//         site: '@fondpeace',
-//         creator: '@fondpeace',
-//         images: [ogImage],
-//       },
-//       metadataBase: new URL('https://www.fondpeace.com'),
-//     };
-//   } catch (error) {
-//     // 4️⃣ Fallback Metadata
-//     // return {
-//     //   title: 'Fondpeace',
-//     //   description: 'Fondpeace latest post.',
-//     //   keywords: 'fondpeace, shorts, videos, entertainment',
-//     //   alternates: {
-//     //     canonical: siteUrl,
-//     //   },
-//     //   openGraph: {
-//     //     title: 'Fondpeace Post',
-//     //     description: 'Discover trending short videos and stories on Fondpeace.',
-//     //     url: siteUrl,
-//     //     siteName,
-//     //     type: 'article',
-//     //     images: [
-//     //       {
-//     //         url: fallbackImage,
-//     //         width: 1200,
-//     //         height: 630,
-//     //         alt: 'Fondpeace default image',
-//     //       },
-//     //     ],
-//     //   },
-//     //   twitter: {
-//     //     card: 'summary_large_image',
-//     //     title: 'Fondpeace Post',
-//     //     description: 'Discover trending short videos and stories on Fondpeace.',
-//     //     images: [fallbackImage],
-//     //   },
-//     //   metadataBase: new URL('https://www.fondpeace.com'),
-//     // };
+    return {
+      title,
+      description,
+      keywords,
+      authors: [{ name: author }],
+      alternates: {
+        canonical: siteUrl,
+      },
+      openGraph: {
+        title: content || 'Fondpeace Post',
+        description: content || 'Fondpeace post content',
+        type: 'video.other',
+        url: siteUrl,
+        siteName,
+        images: [
+          {
+            url: ogImage,
+            width: 1280,
+            height: 720,
+            alt: content || 'Post Image',
+          },
+        ],
+        videos: [
+          {
+            url: ogImage,
+            width: 1280,
+            height: 720,
+            type: 'video/mp4',
+          },
+        ],
+        locale: 'en_US',
+        article: {
+          authors: [author],
+          publishedTime: publishedAt,
+          tags: tagsArray,
+        },
+      },
+      twitter: {
+        card: 'player',
+        title: content || 'Fondpeace Post',
+        description: content || 'Fondpeace post content',
+        site: '@fondpeace',
+        creator: '@fondpeace',
+        images: [ogImage],
+      },
+      metadataBase: new URL('https://www.fondpeace.com'),
+    };
+    
+  } catch (error) {
+     4️⃣ Fallback Metadata
+     return {
+       title: 'Fondpeace',
+       description: 'Fondpeace latest post.',
+       keywords: 'fondpeace, shorts, videos, entertainment',
+       alternates: {
+         canonical: siteUrl,
+       },
+       openGraph: {
+         title: 'Fondpeace Post',
+         description: 'Discover trending short videos and stories on Fondpeace.',
+         url: siteUrl,
+          siteName,
+         type: 'article',
+         images: [
+           {
+             url: fallbackImage,
+             width: 1200,
+             height: 630,
+             alt: 'Fondpeace default image',
+           },
+         ],
+       },
+       twitter: {
+         card: 'summary_large_image',
+         title: 'Fondpeace Post',
+         description: 'Discover trending short videos and stories on Fondpeace.',
+         images: [fallbackImage],
+       },
+       metadataBase: new URL('https://www.fondpeace.com'),
+      };
 
-//     console.log(error);
-//   }
+     console.log(error);
+   }
 }
 
 
