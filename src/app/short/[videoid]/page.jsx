@@ -84,36 +84,38 @@ export async function generateMetadata({ params }) {
     };
   } catch (error) {
     // 4️⃣ Fallback Metadata
-    return {
-      title: 'Fondpeace',
-      description: 'Fondpeace latest post.',
-      keywords: 'fondpeace, shorts, videos, entertainment',
-      alternates: {
-        canonical: siteUrl,
-      },
-      openGraph: {
-        title: 'Fondpeace Post',
-        description: 'Discover trending short videos and stories on Fondpeace.',
-        url: siteUrl,
-        siteName,
-        type: 'article',
-        images: [
-          {
-            url: fallbackImage,
-            width: 1200,
-            height: 630,
-            alt: 'Fondpeace default image',
-          },
-        ],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: 'Fondpeace Post',
-        description: 'Discover trending short videos and stories on Fondpeace.',
-        images: [fallbackImage],
-      },
-      metadataBase: new URL('https://www.fondpeace.com'),
-    };
+    // return {
+    //   title: 'Fondpeace',
+    //   description: 'Fondpeace latest post.',
+    //   keywords: 'fondpeace, shorts, videos, entertainment',
+    //   alternates: {
+    //     canonical: siteUrl,
+    //   },
+    //   openGraph: {
+    //     title: 'Fondpeace Post',
+    //     description: 'Discover trending short videos and stories on Fondpeace.',
+    //     url: siteUrl,
+    //     siteName,
+    //     type: 'article',
+    //     images: [
+    //       {
+    //         url: fallbackImage,
+    //         width: 1200,
+    //         height: 630,
+    //         alt: 'Fondpeace default image',
+    //       },
+    //     ],
+    //   },
+    //   twitter: {
+    //     card: 'summary_large_image',
+    //     title: 'Fondpeace Post',
+    //     description: 'Discover trending short videos and stories on Fondpeace.',
+    //     images: [fallbackImage],
+    //   },
+    //   metadataBase: new URL('https://www.fondpeace.com'),
+    // };
+
+    console.log(error);
   }
 }
 
