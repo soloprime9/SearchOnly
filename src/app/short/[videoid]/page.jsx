@@ -1,6 +1,8 @@
 import axios from 'axios';
 import LatestVideo from '@/components/LatestVideo';
 
+
+
 export async function generateMetadata({ params }) {
   const { id } = params;
 
@@ -9,16 +11,22 @@ export async function generateMetadata({ params }) {
   const siteName = 'Fondpeace';
 
   try {
-    // 1️⃣ Try to fetch the short data
-    const response = await axios.get(`https://backendk-z915.onrender.com/post/shorts/${id}`);
-    const post = response.data;
+    // 1️⃣ Try Shorts First
+    let response = await axios.get(`https://backendk-z915.onrender.com/post/shorts/${id}`);
+    let post = response.data;
 
-    // 2️⃣ Extract content from post
-    const content = post?.title?.trim() || post?.content?.trim() || '';
+    // 2️⃣ If not found in Shorts, try Posts
+    if (!post || !post._id) {
+      response = await axios.get(`https://backendk-z915.onrender.com/post/${id}`);
+      post = response.data;
+    }
+
+    // 3️⃣ Extract dynamic content and prepare SEO meta
+    const content = post?.title?.trim();
     const title = content ? `${content.slice(0, 60)} | ${siteName}` : siteName;
     const description = content ? content.slice(0, 150) : 'Fondpeace latest post.';
     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
-    const keywords = tagsArray.join(', ') || 'fondpeace, short, video, entertainment';
+    const keywords = tagsArray.join(', ') || 'fondpeace, post, shorts, videos';
     const ogImage = post?.media || post?.medias?.url || fallbackImage;
     const author = post?.userId?.username || 'Fondpeace';
     const publishedAt = post?.createdAt || new Date().toISOString();
@@ -32,8 +40,8 @@ export async function generateMetadata({ params }) {
         canonical: siteUrl,
       },
       openGraph: {
-        title: content || 'Fondpeace Short',
-        description: content || 'Watch the latest short on Fondpeace.',
+        title: content || 'Fondpeace Post',
+        description: content || 'Fondpeace post content',
         type: 'video.other',
         url: siteUrl,
         siteName,
@@ -42,7 +50,7 @@ export async function generateMetadata({ params }) {
             url: ogImage,
             width: 1280,
             height: 720,
-            alt: content || 'Fondpeace short',
+            alt: content || 'Post Image',
           },
         ],
         videos: [
@@ -62,8 +70,8 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: 'player',
-        title: content || 'Fondpeace Short',
-        description: content || 'Watch the latest short on Fondpeace.',
+        title: content || 'Fondpeace Post',
+        description: content || 'Fondpeace post content',
         site: '@fondpeace',
         creator: '@fondpeace',
         images: [ogImage],
@@ -71,17 +79,17 @@ export async function generateMetadata({ params }) {
       metadataBase: new URL('https://www.fondpeace.com'),
     };
   } catch (error) {
-    // 3️⃣ Fallback metadata if fetch fails
+    // 4️⃣ Fallback Metadata
     return {
       title: 'Fondpeace',
-      description: 'Fondpeace latest short.',
-      keywords: 'fondpeace, short, video, entertainment',
+      description: 'Fondpeace latest post.',
+      keywords: 'fondpeace, shorts, videos, entertainment',
       alternates: {
         canonical: siteUrl,
       },
       openGraph: {
-        title: 'Fondpeace Short',
-        description: 'Discover trending short videos on Fondpeace.',
+        title: 'Fondpeace Post',
+        description: 'Discover trending short videos and stories on Fondpeace.',
         url: siteUrl,
         siteName,
         type: 'article',
@@ -96,14 +104,15 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'Fondpeace Short',
-        description: 'Discover trending short videos on Fondpeace.',
+        title: 'Fondpeace Post',
+        description: 'Discover trending short videos and stories on Fondpeace.',
         images: [fallbackImage],
       },
       metadataBase: new URL('https://www.fondpeace.com'),
     };
   }
 }
+
 
 export default function Page() {
   return <LatestVideo />
