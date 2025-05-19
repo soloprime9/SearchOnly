@@ -121,7 +121,7 @@ export async function generateMetadata({ params }) {
 
 //     console.log(error);
 //   }
-// }
+}
 
 
 export default function Page() {
