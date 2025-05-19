@@ -86,7 +86,7 @@ export async function generateMetadata({ params }) {
     };
     
   } catch (error) {
-     4️⃣ Fallback Metadata
+     // 4️⃣ Fallback Metadata
      return {
        title: 'Fondpeace',
        description: 'Fondpeace latest post.',
