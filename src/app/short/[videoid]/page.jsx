@@ -25,7 +25,9 @@ export async function generateMetadata({ params }) {
 
     // 3️⃣ Extract dynamic content and prepare SEO meta
     const content = post.title.trim();
-    const title = content ? `${content.slice(0, 60)} | ${siteName}` : siteName;
+    // const title = content ? `${content.slice(0, 60)} | ${siteName}` : siteName;
+    const title = content;
+    
     const description = content ? content.slice(0, 150) : 'Fondpeace latest post.';
     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
     const keywords = tagsArray.join(', ') || 'fondpeace, post, shorts, videos';
