@@ -12,13 +12,13 @@ export async function generateMetadata({ params }) {
 
   try {
   console.log("Trying shorts API");
-  let response = await axios.get(`https://backendk-z915.onrender.com/post/shorts/${id}`);
+  let response = await axios.get(`https://backend-k.vercel.app/post/shorts/${id}`);
   let post = response.data;
   console.log("Shorts response:", post);
 
   if (!post || !post._id) {
     console.log("Trying posts API");
-    response = await axios.get(`https://backendk-z915.onrender.com/post/${id}`);
+    response = await axios.get(`https://backend-k.vercel.app/post/${id}`);
     post = response.data;
     console.log("Posts response:", post);
   }
