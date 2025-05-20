@@ -3,6 +3,7 @@ import React from 'react';
 const TermsAndConditions = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-gray-800">
+      <h1 text-xl font-bold>Terms and Conditions - Fond Peace</h1>
       <p className="text-lg font-semibold mb-4">Welcome to Fond Peace!</p>
 
       <p className="mb-4">
