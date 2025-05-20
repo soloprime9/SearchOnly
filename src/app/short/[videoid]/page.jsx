@@ -34,7 +34,7 @@ export async function generateMetadata({ params }) {
       console.log("Posts response:", post);
     }
 
-    const content = post?.title?.trim() || 'Fondpeace Post';
+    const content = post?.title?.trim() ;
     const title = content;
     const description = content ? content.slice(0, 150) : 'Fondpeace latest post.';
     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
