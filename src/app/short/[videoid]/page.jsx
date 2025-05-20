@@ -2,7 +2,7 @@ import Link from 'next/link';
 import StatusBar from '@/components/StatusBar';
 import LatestVideo from '@/components/LatestVideo';
 
-export const dynamic = 'force-dynamic'; // ensures metadata runs on each request
+export const dynamic = 'force-dynamic';
 
 const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
 const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
@@ -10,56 +10,59 @@ const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
 export async function generateMetadata({ params }) {
   const { videoid: id } = params;
 
-  const fallbackImage = 'https://www.fondpeace.com/default-og-image.jpg';
+  const fallbackImage = 'https://www.fondpeace.com/default-fallback.jpg';
+  const fallbackVideo = 'https://www.fondpeace.com/default-video.mp4';
   const siteUrl = `https://www.fondpeace.com/short/${id}`;
   const siteName = 'Fondpeace';
 
-  const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
-  const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
-  const page = 1;
-
   try {
-    console.log("Trying shorts API", id);
+    const page = 1;
 
-    const response = await fetch(`${API_URL}?page=${page}&limit=5`);
+    const response = await fetch(`${API_URL}?page=${page}&limit=5`, {
+      next: { revalidate: 60 },
+    });
     const shortsData = await response.json();
-    console.log("Shorts response:", shortsData);
 
     let post = shortsData?.find?.(item => item._id === id);
 
     if (!post || !post._id) {
-      console.log("Trying posts API");
       const res = await fetch(`${SECOND_API_URL}/single/${id}`);
       post = await res.json();
-      console.log("Posts response:", post);
     }
 
-    const content = post?.title?.trim() ;
+    const content = post?.title?.trim() || 'Fondpeace Video';
     const title = content;
-    const description = content ? content.slice(0, 150) : 'Fondpeace latest post.';
+    const description = content.slice(0, 160) || 'Watch the latest trending short video on Fondpeace.';
     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
-    const keywords = tagsArray.join(', ') || 'fondpeace, post, shorts, videos';
-    const ogImage = post?.media || post?.medias?.url || fallbackImage;
-    const author = post?.userId?.username || 'Fondpeace';
-    const publishedAt = post?.createdAt || new Date().toISOString();
+    const keywords = tagsArray.join(', ') || 'fondpeace, video, short, entertainment';
+
+    const mediaUrl = post?.media || post?.medias?.url || fallbackVideo;
+
+    // Using timestamps from Mongoose
+    const createdAt = post?.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
+    const updatedAt = post?.updatedAt ? new Date(post.updatedAt).toISOString() : createdAt;
+
+    const username = post?.userId?.username || 'Fondpeace';
 
     return {
       title,
       description,
       keywords,
-      authors: [{ name: author }],
+      authors: [{ name: username }],
       alternates: {
         canonical: siteUrl,
       },
+      metadataBase: new URL('https://www.fondpeace.com'),
       openGraph: {
         title,
         description,
-        type: 'video.other',
         url: siteUrl,
         siteName,
+        type: 'video.other',
+        locale: 'en_US',
         images: [
           {
-            url: ogImage,
+            url: mediaUrl,
             width: 1280,
             height: 720,
             alt: content,
@@ -67,16 +70,17 @@ export async function generateMetadata({ params }) {
         ],
         videos: [
           {
-            url: ogImage,
+            url: mediaUrl,
+            secureUrl: mediaUrl,
             width: 1280,
             height: 720,
             type: 'video/mp4',
           },
         ],
-        locale: 'en_US',
         article: {
-          authors: [author],
-          publishedTime: publishedAt,
+          authors: [username],
+          publishedTime: createdAt,
+          modifiedTime: updatedAt,
           tags: tagsArray,
         },
       },
@@ -86,27 +90,43 @@ export async function generateMetadata({ params }) {
         description,
         site: '@fondpeace',
         creator: '@fondpeace',
-        images: [ogImage],
+        images: [mediaUrl],
+        player: mediaUrl,
+        playerWidth: 1280,
+        playerHeight: 720,
       },
-      metadataBase: new URL('https://www.fondpeace.com'),
+      other: {
+        'og:video': mediaUrl,
+        'og:video:type': 'video/mp4',
+        'og:video:width': '1280',
+        'og:video:height': '720',
+        'og:video:secure_url': mediaUrl,
+        'twitter:player': mediaUrl,
+        'twitter:player:width': '1280',
+        'twitter:player:height': '720',
+        'video:type': 'video/mp4',
+        'video:release_date': createdAt,
+        'video:modified_date': updatedAt,
+        'author': username,
+      },
     };
-
   } catch (error) {
-    console.error("Metadata error:", error); // Make sure error is printed
+    console.error("Metadata generation error:", error);
 
     return {
       title: 'Fondpeace',
-      description: 'Fondpeace latest post.',
-      keywords: 'fondpeace, shorts, videos, entertainment',
+      description: 'Watch trending short videos and entertainment on Fondpeace.',
+      keywords: 'fondpeace, video, short, entertainment',
       alternates: {
         canonical: siteUrl,
       },
+      metadataBase: new URL('https://www.fondpeace.com'),
       openGraph: {
-        title: 'Fondpeace Post',
-        description: 'Discover trending short videos and stories on Fondpeace.',
+        title: 'Fondpeace',
+        description: 'Discover trending short videos and entertainment.',
+        type: 'website',
         url: siteUrl,
         siteName,
-        type: 'article',
         images: [
           {
             url: fallbackImage,
@@ -118,18 +138,17 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'Fondpeace Post',
-        description: 'Discover trending short videos and stories on Fondpeace.',
+        title: 'Fondpeace',
+        description: 'Discover trending short videos and entertainment.',
         images: [fallbackImage],
       },
-      metadataBase: new URL('https://www.fondpeace.com'),
     };
   }
 }
 
-export default function Page(){
-  return <LatestVideo />
-};
+export default function Page() {
+  return <LatestVideo />;
+}
 
 
 
