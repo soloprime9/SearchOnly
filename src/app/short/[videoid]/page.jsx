@@ -7,21 +7,30 @@ const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
 const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
 
 export async function generateMetadata({ params }) {
-  const { videoId } = params;
+  const { videoid: id } = params;
 
   const fallbackImage = 'https://www.fondpeace.com/default-og-image.jpg';
-  const siteUrl = `https://www.fondpeace.com/short/${videoId}`;
+  const siteUrl = `https://www.fondpeace.com/short/${id}`;
   const siteName = 'Fondpeace';
 
-  try {
-    const response = await fetch(`${API_URL}?page=1&limit=5`);
-    const shortsData = await response.json();
+  const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
+  const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
+  const page = 1;
 
-    let post = shortsData.find(item => item._id === videoId);
+  try {
+    console.log("Trying shorts API", id);
+
+    const response = await fetch(`${API_URL}?page=${page}&limit=5`);
+    const shortsData = await response.json();
+    console.log("Shorts response:", shortsData);
+
+    let post = shortsData?.find?.(item => item._id === id);
 
     if (!post || !post._id) {
-      const res = await fetch(`${SECOND_API_URL}/single/${videoId}`);
+      console.log("Trying posts API");
+      const res = await fetch(`${SECOND_API_URL}/single/${id}`);
       post = await res.json();
+      console.log("Posts response:", post);
     }
 
     const content = post?.title?.trim() || 'Fondpeace Post';
@@ -29,7 +38,7 @@ export async function generateMetadata({ params }) {
     const description = content ? content.slice(0, 150) : 'Fondpeace latest post.';
     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
     const keywords = tagsArray.join(', ') || 'fondpeace, post, shorts, videos';
-    const ogImage = post?.media || (post?.medias?.url) || fallbackImage;
+    const ogImage = post?.media || post?.medias?.url || fallbackImage;
     const author = post?.userId?.username || 'Fondpeace';
     const publishedAt = post?.createdAt || new Date().toISOString();
 
@@ -38,7 +47,9 @@ export async function generateMetadata({ params }) {
       description,
       keywords,
       authors: [{ name: author }],
-      alternates: { canonical: siteUrl },
+      alternates: {
+        canonical: siteUrl,
+      },
       openGraph: {
         title,
         description,
@@ -78,14 +89,17 @@ export async function generateMetadata({ params }) {
       },
       metadataBase: new URL('https://www.fondpeace.com'),
     };
+
   } catch (error) {
-    console.error("Metadata error:", error);
+    console.error("Metadata error:", error); // Make sure error is printed
 
     return {
       title: 'Fondpeace',
       description: 'Fondpeace latest post.',
       keywords: 'fondpeace, shorts, videos, entertainment',
-      alternates: { canonical: siteUrl },
+      alternates: {
+        canonical: siteUrl,
+      },
       openGraph: {
         title: 'Fondpeace Post',
         description: 'Discover trending short videos and stories on Fondpeace.',
@@ -111,6 +125,7 @@ export async function generateMetadata({ params }) {
     };
   }
 }
+
 
 async function fetchSingleVideo(id) {
   try {
