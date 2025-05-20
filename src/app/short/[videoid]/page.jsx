@@ -6,7 +6,8 @@ const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
 const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
 
 // Generate dynamic metadata for each video page
-export async function generateMetadata({ params }: { params: { videoId: string } }) {
+export async function generateMetadata({ params }) {
+
   const { videoId: id } = params;
 
   const fallbackImage = 'https://www.fondpeace.com/default-og-image.jpg';
