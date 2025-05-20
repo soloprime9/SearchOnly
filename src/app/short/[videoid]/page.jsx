@@ -128,7 +128,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default function Page(){
-  <LatestVideo />
+  return <LatestVideo />
 };
 
 
