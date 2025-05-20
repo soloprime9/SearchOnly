@@ -130,7 +130,7 @@ const ReelsFeed = () => {
   }, [videos, singlevid]);
 
  const handleShare = (item) => {
-    const shareText = `${window.location.origin}/video/${item._id}\nTitle: ${item.title}`;
+    const shareText = `${item.title}\n\n${window.location.origin}/short/${item._id}`;
   
     navigator.clipboard.writeText(shareText).then(() => {
       toast.success('Video link copied!', {
