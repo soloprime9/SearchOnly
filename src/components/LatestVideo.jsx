@@ -194,7 +194,7 @@ const ReelsFeed = () => {
 
                    <div
                          className="flex flex-col items-center cursor-pointer"
-                         onClick={() => handleShare(videoOrSingleVid)}
+                         onClick={() => handleShare(singlevid)}
                        >
                          {/* Share icon */}
                          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -262,7 +262,7 @@ const ReelsFeed = () => {
                    
                     {/* Replace this with your actual like icon */}
 
-                   <div className="flex flex-col items-center cursor-pointer" onClick={() => handleShare(videoOrSingleVid)}
+                   <div className="flex flex-col items-center cursor-pointer" onClick={() => handleShare(video)}
                      >
                        {/* Share icon */}
                        <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
