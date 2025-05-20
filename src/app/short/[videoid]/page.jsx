@@ -1,6 +1,8 @@
 import LatestVideo from '@/components/LatestVideo';
 
 export const dynamic = 'force-dynamic'; // ensures metadata runs on each request
+import Link from 'next/link';
+import StatusBar from '@/components/StatusBar';
 
 export async function generateMetadata({ params }) {
   const { videoid: id } = params;
@@ -124,8 +126,7 @@ export async function generateMetadata({ params }) {
 
 
 
-import Link from 'next/link';
-import StatusBar from '@/components/StatusBar';
+
 
 const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
 const Second_API_URL = 'https://backendk-z915.onrender.com/post';
