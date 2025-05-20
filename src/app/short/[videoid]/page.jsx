@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import StatusBar from '@/components/StatusBar';
-import LatestVideo from "@/components/LatestVideo';
+import LatestVideo from '@/components/LatestVideo';
 
 export const dynamic = 'force-dynamic'; // ensures metadata runs on each request
 
