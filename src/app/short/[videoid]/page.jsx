@@ -10,15 +10,11 @@ const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
 export async function generateMetadata({ params }) {
   const { videoid: id } = params;
 
-  const fallbackImage = 'https://www.fondpeace.com/default-fallback.jpg';
-  const fallbackVideo = 'https://www.fondpeace.com/default-video.mp4';
   const siteUrl = `https://www.fondpeace.com/short/${id}`;
   const siteName = 'Fondpeace';
 
   try {
-    const page = 1;
-
-    const response = await fetch(`${API_URL}?page=${page}&limit=5`, {
+    const response = await fetch(`${API_URL}?page=1&limit=5`, {
       next: { revalidate: 60 },
     });
     const shortsData = await response.json();
@@ -30,15 +26,16 @@ export async function generateMetadata({ params }) {
       post = await res.json();
     }
 
-    const content = post?.title?.trim() || 'Fondpeace Video';
+    const content = post?.title?.trim() || 'Watch this short video on Fondpeace';
     const title = content;
-    const description = content.slice(0, 160) || 'Watch the latest trending short video on Fondpeace.';
+    const description = content.slice(0, 160);
     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
     const keywords = tagsArray.join(', ') || 'fondpeace, video, short, entertainment';
 
-    const mediaUrl = post?.media || post?.medias?.url || fallbackVideo;
+    const mediaUrl = post?.media || post?.medias?.url;
 
-    // Using timestamps from Mongoose
+    if (!mediaUrl) throw new Error('No media URL found');
+
     const createdAt = post?.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
     const updatedAt = post?.updatedAt ? new Date(post.updatedAt).toISOString() : createdAt;
 
@@ -62,7 +59,7 @@ export async function generateMetadata({ params }) {
         locale: 'en_US',
         images: [
           {
-            url: mediaUrl,
+            url: mediaUrl, // ✅ Using video URL as thumbnail
             width: 1280,
             height: 720,
             alt: content,
@@ -90,7 +87,7 @@ export async function generateMetadata({ params }) {
         description,
         site: '@fondpeace',
         creator: '@fondpeace',
-        images: [mediaUrl],
+        images: [mediaUrl], // ✅ Again, using video as image
         player: mediaUrl,
         playerWidth: 1280,
         playerHeight: 720,
@@ -127,20 +124,13 @@ export async function generateMetadata({ params }) {
         type: 'website',
         url: siteUrl,
         siteName,
-        images: [
-          {
-            url: fallbackImage,
-            width: 1200,
-            height: 630,
-            alt: 'Fondpeace default image',
-          },
-        ],
+        images: [],
       },
       twitter: {
         card: 'summary_large_image',
         title: 'Fondpeace',
         description: 'Discover trending short videos and entertainment.',
-        images: [fallbackImage],
+        images: [],
       },
     };
   }
@@ -149,7 +139,6 @@ export async function generateMetadata({ params }) {
 export default function Page() {
   return <LatestVideo />;
 }
-
 
 
 
