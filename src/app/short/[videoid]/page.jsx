@@ -1,7 +1,6 @@
-import axios from 'axios';
 import LatestVideo from '@/components/LatestVideo';
 
-
+export const dynamic = 'force-dynamic'; // ensures metadata runs on each request
 
 export async function generateMetadata({ params }) {
   const { videoid: id } = params;
@@ -10,26 +9,28 @@ export async function generateMetadata({ params }) {
   const siteUrl = `https://www.fondpeace.com/short/${id}`;
   const siteName = 'Fondpeace';
 
+  const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
+  const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
+  const page = 1;
+
   try {
-  console.log("Trying shorts API", id);
-  let response = await fetch(`https://backend-k.vercel.app/post/shorts/?page=${page}&limit=5`);
-  let post = response.data;
-  console.log("Shorts response:", post);
+    console.log("Trying shorts API", id);
 
-  if (!post || !post._id) {
-    console.log("Trying posts API");
-    response = await fetch(`https://backend-k.vercel.app/post/single/${id}`);
-    post = response.data;
-    console.log("Posts response:", post);
-  }
+    const response = await fetch(`${API_URL}?page=${page}&limit=5`);
+    const shortsData = await response.json();
+    console.log("Shorts response:", shortsData);
 
+    let post = shortsData?.find?.(item => item._id === id);
 
+    if (!post || !post._id) {
+      console.log("Trying posts API");
+      const res = await fetch(`${SECOND_API_URL}/single/${id}`);
+      post = await res.json();
+      console.log("Posts response:", post);
+    }
 
-    // 3️⃣ Extract dynamic content and prepare SEO meta
-    const content = post.title.trim();
-    // const title = content ? `${content.slice(0, 60)} | ${siteName}` : siteName;
+    const content = post?.title?.trim() || 'Fondpeace Post';
     const title = content;
-    
     const description = content ? content.slice(0, 150) : 'Fondpeace latest post.';
     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
     const keywords = tagsArray.join(', ') || 'fondpeace, post, shorts, videos';
@@ -46,8 +47,8 @@ export async function generateMetadata({ params }) {
         canonical: siteUrl,
       },
       openGraph: {
-        title: content || 'Fondpeace Post',
-        description: content || 'Fondpeace post content',
+        title,
+        description,
         type: 'video.other',
         url: siteUrl,
         siteName,
@@ -56,7 +57,7 @@ export async function generateMetadata({ params }) {
             url: ogImage,
             width: 1280,
             height: 720,
-            alt: content || 'Post Image',
+            alt: content,
           },
         ],
         videos: [
@@ -76,57 +77,57 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: 'player',
-        title: content || 'Fondpeace Post',
-        description: content || 'Fondpeace post content',
+        title,
+        description,
         site: '@fondpeace',
         creator: '@fondpeace',
         images: [ogImage],
       },
       metadataBase: new URL('https://www.fondpeace.com'),
     };
-    
-  } catch (error) {
-     // 4️⃣ Fallback Metadata
-     return {
-       title: 'Fondpeace',
-       description: 'Fondpeace latest post.',
-       keywords: 'fondpeace, shorts, videos, entertainment',
-       alternates: {
-         canonical: siteUrl,
-       },
-       openGraph: {
-         title: 'Fondpeace Post',
-         description: 'Discover trending short videos and stories on Fondpeace.',
-         url: siteUrl,
-          siteName,
-         type: 'article',
-         images: [
-           {
-             url: fallbackImage,
-             width: 1200,
-             height: 630,
-             alt: 'Fondpeace default image',
-           },
-         ],
-       },
-       twitter: {
-         card: 'summary_large_image',
-         title: 'Fondpeace Post',
-         description: 'Discover trending short videos and stories on Fondpeace.',
-         images: [fallbackImage],
-       },
-       metadataBase: new URL('https://www.fondpeace.com'),
-      };
 
-     console.log(error);
-   }
+  } catch (error) {
+    console.error("Metadata error:", error); // Make sure error is printed
+
+    return {
+      title: 'Fondpeace',
+      description: 'Fondpeace latest post.',
+      keywords: 'fondpeace, shorts, videos, entertainment',
+      alternates: {
+        canonical: siteUrl,
+      },
+      openGraph: {
+        title: 'Fondpeace Post',
+        description: 'Discover trending short videos and stories on Fondpeace.',
+        url: siteUrl,
+        siteName,
+        type: 'article',
+        images: [
+          {
+            url: fallbackImage,
+            width: 1200,
+            height: 630,
+            alt: 'Fondpeace default image',
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'Fondpeace Post',
+        description: 'Discover trending short videos and stories on Fondpeace.',
+        images: [fallbackImage],
+      },
+      metadataBase: new URL('https://www.fondpeace.com'),
+    };
+  }
 }
 
 
-// export default function Page() {
-//   return <LatestVideo />
 
-// };
+export default function Page() {
+  return <LatestVideo />
+
+};
 
 
 
