@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import { formatPostTime } from '@/components/DateFormate';
 import Skeleton from '@/components/Skeleton';
+import toast from 'react-hot-toast';
 
 function Posts () {
     const [data, setData] = useState([]);
@@ -53,7 +54,10 @@ function Posts () {
         
           navigator.clipboard.writeText(shareText)
             .then(() => {
-              alert("Post copied to clipboard! You can now paste it anywhere.");
+              // console.log("Post copied to clipboard! You can now paste it anywhere.");
+                toast.success('Copied to Clipboard',{
+                    duration:1000,
+                });
             })
             .catch((err) => {
               console.error("Failed to copy: ", err);
