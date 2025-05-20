@@ -47,7 +47,20 @@ function Posts () {
             // fetchPosts();
         },[]);
 
+         const handleShare = (post) => {
+          const postURL = `${window.location.origin}/post/${post._id}`;
+          const shareText = `${post.content}\n\nImage: ${post.imageURL}\n\nRead more: ${postURL}`;
         
+          navigator.clipboard.writeText(shareText)
+            .then(() => {
+              alert("Post copied to clipboard! You can now paste it anywhere.");
+            })
+            .catch((err) => {
+              console.error("Failed to copy: ", err);
+              alert("Copy failed. Please try manually.");
+            });
+        };
+   
 
     return (
         <>
@@ -254,7 +267,11 @@ function Posts () {
                     <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'> like</p>
                     <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'>comment</p>
                     <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'>share</p>
-                    <p className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'>Save</p>
+                    <p onClick={() => handleShare(post)} className='flex items-center gap-1 cursor-pointer hover:text-blue-500 transition'
+                        >
+                          Share
+                    </p>
+
                     
                     </div>
                 
