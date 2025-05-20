@@ -4,6 +4,8 @@ import Link from 'next/link';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import StatusBar from '@/components/StatusBar'
 import { useParams } from 'next/navigation';
+import toast from 'react-hot-toast';
+
 
 
 const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
@@ -19,6 +21,7 @@ const ReelsFeed = () => {
   const [singlevid, setSinglevid] = useState([]);
   const {videoId} = useParams();
   const [expandedId, setExpandedId] = useState(null);
+ 
 
 
 
@@ -126,6 +129,23 @@ const ReelsFeed = () => {
     };
   }, [videos, singlevid]);
 
+ const handleShare = (post) => {
+          const postURL = `${window.location.origin}/short/${post._id}`;
+          const shareText = `${post.title}\nFond Peace \n${postURL}`;
+        
+          navigator.clipboard.writeText(shareText)
+            .then(() => {
+              // console.log("Post copied to clipboard! You can now paste it anywhere.");
+                toast.success('Copied to Clipboard',{
+                    duration:1000,
+                });
+            })
+            .catch((err) => {
+              console.error("Failed to copy: ", err);
+              alert("Copy failed. Please try manually.");
+            });
+        };
+
  return (
   <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-white md:mt-2">
 
@@ -174,6 +194,20 @@ const ReelsFeed = () => {
                 <div className="absolute bottom-20 md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
                   <div className="flex flex-col items-center">
                     {/* Replace this with your actual like icon */}
+
+                   <div
+                         className="flex flex-col items-center cursor-pointer"
+                         onClick={() => handleShare(videoOrSingleVid)}
+                       >
+                         {/* Share icon */}
+                         <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" d="M4 12v1a9 9 0 009 9h3M20 12v-1a9 9 0 00-9-9H8" />
+                           <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8" />
+                         </svg>
+                         <span className="text-xs">Share</span>
+                       </div>
+
+                   
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
                               2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 
@@ -228,7 +262,20 @@ const ReelsFeed = () => {
 
                 <div className="absolute bottom-20 md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
                   <div className="flex flex-col items-center">
+                   
                     {/* Replace this with your actual like icon */}
+
+                   <div className="flex flex-col items-center cursor-pointer" onClick={() => handleShare(videoOrSingleVid)}
+                     >
+                       {/* Share icon */}
+                       <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 12v1a9 9 0 009 9h3M20 12v-1a9 9 0 00-9-9H8" />
+                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8" />
+                       </svg>
+                       <span className="text-xs">Share</span>
+                     </div>
+
+                   
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
                               2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 
