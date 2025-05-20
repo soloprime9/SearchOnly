@@ -23,7 +23,7 @@ const Disclaimer = () => {
         .
       </p>
 
-      <h2 className="text-2xl font-semibold mb-4 text-gray-900">Disclaimers for Fond Peace</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-gray-900">Disclaimers - Fond Peace</h2>
 
       <p className="mb-4 text-base leading-relaxed text-gray-700">
         All the information on this website -{" "}
