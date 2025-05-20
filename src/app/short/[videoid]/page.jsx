@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import StatusBar from '@/components/StatusBar';
+import LatestVideo from "@/components/LatestVideo';
 
 export const dynamic = 'force-dynamic'; // ensures metadata runs on each request
 
@@ -126,147 +127,9 @@ export async function generateMetadata({ params }) {
   }
 }
 
-
-async function fetchSingleVideo(id) {
-  try {
-    const res = await fetch(`${SECOND_API_URL}/single/${id}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error('Failed to fetch single video');
-    return await res.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
-
-async function fetchVideos(page = 1, limit = 5) {
-  try {
-    const res = await fetch(`${API_URL}?page=${page}&limit=${limit}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error('Failed to fetch videos');
-    return await res.json();
-  } catch (error) {
-    console.error(error);
-    return { videos: [], totalPages: 0 };
-  }
-}
-
-export default async function PostPage({ params }) {
-  const { videoId } = params;
-
-  const singlevid = await fetchSingleVideo(videoId);
-  const data = await fetchVideos(1, 5);
-
-  const videos = data.videos ? data.videos.filter(v => v._id !== videoId) : [];
-
-  return (
-    <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-white md:mt-2">
-      <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] mb-2">
-        {/* Left Sidebar */}
-        <aside className="hidden md:flex flex-col sticky top-0 h-screen overflow-y-auto border border-gray-300 rounded-md p-4 text-lg font-semibold space-y-4">
-          <h4>Worlds</h4>
-          <h4>Search</h4>
-          <h4>Account</h4>
-          <h4>Setting</h4>
-          <h4>Privacy</h4>
-        </aside>
-
-        {/* Main Video Feed */}
-        <main className="grid">
-          <div className="w-full h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
-            {/* Single Video */}
-            {singlevid && (
-              <div className="snap-start w-full h-screen flex justify-center items-center mb-1">
-                <div className="relative w-full h-full max-h-screen flex justify-center items-center">
-                  <video
-                    src={singlevid.media}
-                    loop
-                    playsInline
-                    controls={false}
-                    autoPlay
-                    className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh]"
-                  />
-                  <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
-                    <p className="font-semibold text-lg mb-1">
-                      <Link href={`/profile/${singlevid.userId?.username}`}>@{singlevid.userId?.username}</Link>
-                    </p>
-                    <p className="text-sm leading-tight line-clamp-1">{singlevid.title}</p>
-                  </div>
-                  <div className="absolute bottom-20 md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
-                    <div className="flex flex-col items-center">
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                      </svg>
-                      <span className="text-xs">{singlevid.likes?.length || 0}</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" />
-                      </svg>
-                      <span className="text-xs">{singlevid.comments?.length || 0}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Other Videos */}
-            {videos.map((video) => (
-              <div
-                key={video._id}
-                className="snap-start w-full h-screen flex justify-center items-center mb-1"
-              >
-                <div className="relative w-full h-full max-h-screen flex justify-center items-center">
-                  <video
-                    src={video.media}
-                    data-id={video._id}
-                    loop
-                    playsInline
-                    controls={false}
-                    autoPlay
-                    className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh]"
-                  />
-                  <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
-                    <p className="font-semibold text-lg mb-1">
-                      <Link href={`/profile/${video.userId?.username}`}>@{video.userId?.username}</Link>
-                    </p>
-                    <p className="text-sm leading-tight line-clamp-1">{video.title}</p>
-                  </div>
-                  <div className="absolute bottom-20 md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
-                    <div className="flex flex-col items-center">
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.52 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-</svg>
-<span className="text-xs">{video.likes?.length || 0}</span>
-</div>
-<div className="flex flex-col items-center">
-<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" >
-<path strokeLinecap="round" strokeLinejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" />
-</svg>
-<span className="text-xs">{video.comments?.length || 0}</span>
-</div>
-</div>
-</div>
-</div>
-))}
-</div>
-</main>
-
-
-    {/* Right Sidebar */}
-    <aside className="hidden md:flex flex-col sticky top-0 h-screen overflow-y-auto border border-gray-300 rounded-md p-4 text-lg font-semibold space-y-4">
-      <StatusBar />
-    </aside>
-  </div>
-</div>
-    );
-}
-
-
+export default function Page(){
+  <LatestVideo />
+};
 
 
 
