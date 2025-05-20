@@ -4,6 +4,7 @@ const PrivacyPolicy = () => {
   return (
     <div className="px-4 sm:px-6 lg:px-20 py-10 max-w-5xl mx-auto text-gray-800">
       <div className="space-y-6 text-base leading-relaxed">
+        <h1 className="text-xl font-bold text-center">Privacy Policy - Fond Peace</h1>
         <p>
           At <strong>Fond Peace</strong>, accessible from{' '}
           <a href="https://www.fondpeace.com/" className="text-blue-600 underline">https://www.fondpeace.com/</a>,
