@@ -139,6 +139,7 @@ const ReelsFeed = () => {
      alert("Copied");
     }).catch(() => {
       toast.error('Failed to copy');
+     alert("!!! Not Copied");
     });
   };
 
