@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
   const siteName = 'Fondpeace';
 
   try {
-  console.log("Trying shorts API");
+  console.log("Trying shorts API", id);
   let response = await fetch(`https://backend-k.vercel.app/post/shorts/?page=${page}&limit=5`);
   let post = response.data;
   console.log("Shorts response:", post);
