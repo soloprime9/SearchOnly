@@ -20,7 +20,8 @@
     "jsonwebtoken": "^9.0.2",
     "rehype-raw": "^7.0.0",
     "react-hot-toast": "^2.4.1",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "react-hot-toast": "^2.4.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
