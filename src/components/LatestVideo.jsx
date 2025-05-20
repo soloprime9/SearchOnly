@@ -129,22 +129,18 @@ const ReelsFeed = () => {
     };
   }, [videos, singlevid]);
 
- const handleShare = (post) => {
-          const postURL = `${window.location.origin}/short/${post._id}`;
-          const shareText = `${post.title}\nFond Peace \n${postURL}`;
-        
-          navigator.clipboard.writeText(shareText)
-            .then(() => {
-              // console.log("Post copied to clipboard! You can now paste it anywhere.");
-                toast.success('Copied to Clipboard',{
-                    duration:1000,
-                });
-            })
-            .catch((err) => {
-              console.error("Failed to copy: ", err);
-              alert("Copy failed. Please try manually.");
-            });
-        };
+ const handleShare = (item) => {
+    const shareText = `${window.location.origin}/video/${item._id}\nTitle: ${item.title}`;
+  
+    navigator.clipboard.writeText(shareText).then(() => {
+      toast.success('Video link copied!', {
+        duration: 2000,
+      });
+     alert("Copied");
+    }).catch(() => {
+      toast.error('Failed to copy');
+    });
+  };
 
  return (
   <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-white md:mt-2">
