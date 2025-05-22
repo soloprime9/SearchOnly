@@ -5,8 +5,10 @@ import CreatePage from "@/components/CreatePage";
 function Create (){
 
     return (
+        <div>
         <CreatePage />
-    )
+        </div>
+    );
 }
 
 export default Create;
