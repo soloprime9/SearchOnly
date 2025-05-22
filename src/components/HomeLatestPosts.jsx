@@ -303,7 +303,7 @@ function Posts () {
                             </div>
     
     
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
     
                             
                         </div> 
@@ -316,7 +316,7 @@ function Posts () {
                             </div>
     
     
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
     
                             
                         </div> 
@@ -329,7 +329,7 @@ function Posts () {
                             </div>
     
     
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
     
                             
                         </div> 
@@ -342,7 +342,7 @@ function Posts () {
                             </div>
     
     
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
     
                             
                         </div> 
@@ -355,7 +355,7 @@ function Posts () {
                             </div>
     
     
-                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+                            <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
     
                             
                         </div> 
