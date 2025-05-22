@@ -6,10 +6,19 @@
     <loc>https://www.fondpeace.com/</loc>
   </url>
   <url>
-    <loc>https://www.fondpeace.com/about-us</loc>
+    <loc>https://www.fondpeace.com/aboutus</loc>
   </url>
   <url>
-    <loc>https://www.fondpeace.com/contact-us</loc>
+    <loc>https://www.fondpeace.com/contactus</loc>
+  </url>
+  <url>
+    <loc>https://www.fondpeace.com/privacypolicy</loc>
+  </url>
+  <url>
+    <loc>https://www.fondpeace.com/disclaimer</loc>
+  </url>
+  <url>
+    <loc>https://www.fondpeace.com/termcondition</loc>
   </url>
 
   <!-- Tools -->
