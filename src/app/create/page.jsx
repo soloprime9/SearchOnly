@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import CreatePage = "@/components/CreatePage";
+import CreatePage from "@/components/CreatePage";
 
 function Create (){
 
