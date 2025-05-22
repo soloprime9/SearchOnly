@@ -128,7 +128,7 @@ export default async function PostPage({ params }) {
                 />
                 <strong className="pt-2 truncate">Human Cant</strong>
               </div>
-              <button className="font-bold text-lg p-1 border-2 rounded-xl">Follow</button>
+              <button className="font-bold text-lg p-1 border-2 rounded-xl">Profile</button>
             </div>
             {/* Repeat the above block for additional items */}
           </div>
@@ -264,7 +264,7 @@ export default async function PostPage({ params }) {
 //                             </div>
 
 
-//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
 
                             
 //                         </div> 
@@ -277,7 +277,7 @@ export default async function PostPage({ params }) {
 //                             </div>
 
 
-//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
 
                             
 //                         </div> 
@@ -290,7 +290,7 @@ export default async function PostPage({ params }) {
 //                             </div>
 
 
-//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
 
                             
 //                         </div> 
@@ -303,7 +303,7 @@ export default async function PostPage({ params }) {
 //                             </div>
 
 
-//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
 
                             
 //                         </div> 
@@ -316,7 +316,7 @@ export default async function PostPage({ params }) {
 //                             </div>
 
 
-//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Follow</button>
+//                             <button className='font-bold text-lg p-1 border-2 rounded-xl'>Profile</button>
 
                             
 //                         </div> 
