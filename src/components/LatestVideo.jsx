@@ -159,7 +159,7 @@ const ReelsFeed = () => {
       </aside>
 
       {/* Main Video Feed */}
-      <main className="grid">
+      <main className="flex">
       <div className="w-full h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth">
         {/* Main Single Video */}
         {singlevid && (
@@ -235,7 +235,7 @@ const ReelsFeed = () => {
             ref={index === videos.length - 1 ? lastVideoRef : null}
             className="snap-start w-full h-screen flex justify-center items-center mb-1"
           >
-            <div className="relative w-full h-full max-h-screen flex justify-center items-center ">
+            <div className="relative w-full h-full aspect-video max-h-screen flex justify-center items-center ">
               <video
                 ref={(el) => (videoRefs.current[index] = el)}
                 src={video.media}
@@ -245,7 +245,7 @@ const ReelsFeed = () => {
                 playsInline
                 controls={false}
                 autoPlay
-                className="object-contain w-full h-8"
+                className="object-contain w-full h-full"
               />
               <div className="absolute md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
