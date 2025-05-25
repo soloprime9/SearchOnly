@@ -25,6 +25,10 @@ export default function RootLayout({ children }) {
             gtag('config', 'G-VTZGD645EG');
           `}
         </Script>
+
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5007774826517640"
+     crossorigin="anonymous"></script>
       </head>
       <body className={inter.variable}>
         <header className="md:m-2 flex justify-evenly">
