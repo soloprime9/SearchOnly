@@ -144,7 +144,7 @@ const ReelsFeed = () => {
   };
 
  return (
-  <div className="overflow-y-auto snap-y snap-mandatory min-h-screen bg-white md:mt-2">
+  <div className=" overflow-y-auto snap-y snap-mandatory bg-white md:mt-2">
 
     {/* Main Container */}
     <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] mb-2">
@@ -160,11 +160,11 @@ const ReelsFeed = () => {
 
       {/* Main Video Feed */}
       <main className="grid">
-      <div className="flex flex-col">
+      <div className="w-full h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
         {/* Main Single Video */}
         {singlevid && (
-          <div className="snap-start w-full min-h-[100svh] flex justify-center items-center mb-1">
-            <div className="relative w-full h-full  flex justify-center items-center">
+          <div className="snap-start w-full h-screen flex justify-center items-center mb-1">
+            <div className="relative w-full h-full max-h-screen flex justify-center items-center">
               <video
                 ref={(el) => (videoRefs.current[videos.length] = el)}
                 src={singlevid.media}
@@ -178,10 +178,10 @@ const ReelsFeed = () => {
               ></video>
               <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
-                    <a href={`/profile/${singlevid.userId?.username}`}>@{singlevid.userId?.username}</a>
+                    <a href={/profile/${singlevid.userId?.username}}>@{singlevid.userId?.username}</a>
                   </p>
                   <p
-                    className={`text-sm leading-tight cursor-pointer ${expandedId === singlevid._id ? '' : 'line-clamp-1'}`}
+                    className={text-sm leading-tight cursor-pointer ${expandedId === singlevid._id ? '' : 'line-clamp-1'}}
                     onClick={() => setExpandedId(expandedId === singlevid._id ? null : singlevid._id)}
                   >
                     {singlevid.title}
@@ -231,9 +231,9 @@ const ReelsFeed = () => {
           <div
             key={video._id}
             ref={index === videos.length - 1 ? lastVideoRef : null}
-            className="snap-start w-full min-h-[100svh] flex justify-center items-center mb-1"
+            className="snap-start w-full h-screen flex justify-center items-center mb-1"
           >
-            <div className="relative w-full h-full flex justify-center items-center ">
+            <div className="relative w-full h-full max-h-screen flex justify-center items-center ">
               <video
                 ref={(el) => (videoRefs.current[index] = el)}
                 src={video.media}
@@ -247,10 +247,10 @@ const ReelsFeed = () => {
               />
               <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
-                    <a href={`/profile/${video.userId?.username}`}>@{video.userId?.username}</a>
+                    <a href={/profile/${video.userId?.username}}>@{video.userId?.username}</a>
                   </p>
                   <p
-                    className={`text-sm leading-tight cursor-pointer ${expandedId === video._id ? '' : 'line-clamp-1'}`}
+                    className={text-sm leading-tight cursor-pointer ${expandedId === video._id ? '' : 'line-clamp-1'}}
                     onClick={() => setExpandedId(expandedId === video._id ? null : video._id)}
                   >
                     {video.title}
