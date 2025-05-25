@@ -144,7 +144,7 @@ const ReelsFeed = () => {
   };
 
  return (
-  <div className=" overflow-y-auto snap-y snap-mandatory bg-white md:mt-2">
+  <div className="flex flex-col min-h-screen bg-white md:mt-2">
 
     {/* Main Container */}
     <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] mb-2">
@@ -159,12 +159,12 @@ const ReelsFeed = () => {
       </aside>
 
       {/* Main Video Feed */}
-      <main className="grid">
-      <div className="w-full h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+      <main className="flex-1 overflow-y-auto snap-y snap-mandatory scroll-smooth">
+      <div className="flex flex-col">
         {/* Main Single Video */}
         {singlevid && (
-          <div className="snap-start w-full h-screen flex justify-center items-center mb-1">
-            <div className="relative w-full h-full max-h-screen flex justify-center items-center">
+          <div className="snap-start w-full min-h-[100svh] flex justify-center items-center mb-1">
+            <div className="relative w-full h-full  flex justify-center items-center">
               <video
                 ref={(el) => (videoRefs.current[videos.length] = el)}
                 src={singlevid.media}
@@ -231,9 +231,9 @@ const ReelsFeed = () => {
           <div
             key={video._id}
             ref={index === videos.length - 1 ? lastVideoRef : null}
-            className="snap-start w-full h-screen flex justify-center items-center mb-1"
+            className="snap-start w-full min-h-[100svh] flex justify-center items-center mb-1"
           >
-            <div className="relative w-full h-full max-h-screen flex justify-center items-center ">
+            <div className="relative w-full h-full flex justify-center items-center ">
               <video
                 ref={(el) => (videoRefs.current[index] = el)}
                 src={video.media}
