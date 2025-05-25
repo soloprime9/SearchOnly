@@ -163,7 +163,7 @@ const ReelsFeed = () => {
       <div className="w-full h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth">
         {/* Main Single Video */}
         {singlevid && (
-          <div className="snap-start w-full  flex justify-center items-center md:mb-1">
+          <div className="snap-start w-full h-screen flex justify-center items-center md:mb-1">
             <div className="relative w-full h-full aspect-video flex justify-center items-center">
               <video
                 ref={(el) => (videoRefs.current[videos.length] = el)}
