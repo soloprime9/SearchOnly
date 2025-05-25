@@ -144,7 +144,7 @@ const ReelsFeed = () => {
   };
 
  return (
-  <div className="flex flex-col min-h-screen bg-white md:mt-2">
+  <div className="overflow-y-auto snap-y snap-mandatory min-h-screen bg-white md:mt-2">
 
     {/* Main Container */}
     <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] mb-2">
@@ -159,7 +159,7 @@ const ReelsFeed = () => {
       </aside>
 
       {/* Main Video Feed */}
-      <main className="flex-1 overflow-y-auto snap-y snap-mandatory scroll-smooth">
+      <main className="grid">
       <div className="flex flex-col">
         {/* Main Single Video */}
         {singlevid && (
