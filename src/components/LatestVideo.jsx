@@ -174,7 +174,7 @@ const ReelsFeed = () => {
                 controls={false}
                 autoPlay
                 
-                className="object-contain w-full h-screen"
+                className="object-contain w-full h-8"
                 data-id={singlevid._id}
               ></video>
               <div className="absolute  md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
@@ -245,7 +245,7 @@ const ReelsFeed = () => {
                 playsInline
                 controls={false}
                 autoPlay
-                className="object-contain w-full h-screen"
+                className="object-contain w-full h-8"
               />
               <div className="absolute md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
@@ -262,7 +262,7 @@ const ReelsFeed = () => {
 
                 </div>
 
-                <div className="absolute bottom-20 md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
+                <div className="absolute  md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
                   <div className="flex flex-col items-center">
                    
                     {/* Replace this with your actual like icon */}
