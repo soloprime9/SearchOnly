@@ -147,7 +147,7 @@ const ReelsFeed = () => {
   <div className="overflow-y-auto snap-y snap-mandatory bg-white md:mt-2">
 
     {/* Main Container */}
-    <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] mb-2">
+    <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] md:mb-2">
     
       {/* Left Sidebar (hidden on mobile) */}
       <aside className="hidden md:flex flex-col sticky top-0 h-screen overflow-y-auto border border-gray-300 rounded-md p-4 text-lg font-semibold space-y-4">
@@ -163,7 +163,7 @@ const ReelsFeed = () => {
       <div className="w-full h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
         {/* Main Single Video */}
         {singlevid && (
-          <div className="snap-start w-full h-screen flex justify-center items-center mb-1">
+          <div className="snap-start w-full h-screen flex justify-center items-center md:mb-1">
             <div className="relative w-full h-full  flex justify-center items-center">
               <video
                 ref={(el) => (videoRefs.current[videos.length] = el)}
