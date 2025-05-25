@@ -144,7 +144,7 @@ const ReelsFeed = () => {
   };
 
  return (
-  <div className=" overflow-y-auto snap-y snap-mandatory bg-white md:mt-2">
+  <div className="overflow-y-auto snap-y snap-mandatory bg-white md:mt-2">
 
     {/* Main Container */}
     <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] mb-2">
