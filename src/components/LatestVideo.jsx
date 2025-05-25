@@ -160,7 +160,7 @@ const ReelsFeed = () => {
 
       {/* Main Video Feed */}
       <main className="grid">
-      <div className="w-full h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+      <div className="w-full  overflow-y-scroll snap-y snap-mandatory scroll-smooth">
         {/* Main Single Video */}
         {singlevid && (
           <div className="snap-start w-full h-screen flex justify-center items-center mb-1">
