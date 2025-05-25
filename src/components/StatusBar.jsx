@@ -52,7 +52,7 @@ const MobileTopNavBar = () => {
           
         </button>
         </Link>
-        <Link href="/create">
+        <Link href="/signup">
         <button className="flex flex-col items-center text-sm text-gray-700 hover:text-blue-600">
           <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M5.121 17.804A11.954 11.954 0 0112 15c2.236 0 4.312.656 6.121 1.804M15 11a3 3 0 10-6 0 3 3 0 006 0z" />
