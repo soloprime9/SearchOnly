@@ -173,7 +173,8 @@ const ReelsFeed = () => {
                 
                 controls={false}
                 autoPlay
-                className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] "
+                
+                className="object-contain w-full h-screen"
                 data-id={singlevid._id}
               ></video>
               <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
@@ -244,7 +245,7 @@ const ReelsFeed = () => {
                 playsInline
                 controls={false}
                 autoPlay
-                className="object-cover w-full h-full sm:h-[65vh] md:h-[70vh] "
+                className="object-contain w-full h-screen"
               />
               <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
