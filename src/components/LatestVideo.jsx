@@ -144,7 +144,7 @@ const ReelsFeed = () => {
   };
 
  return (
-  <div className="overflow-y-auto snap-y snap-mandatory bg-white md:mt-2">
+  <div className="overflow-y-auto snap-y snap-mandatory bg-white mt-2">
 
     {/* Main Container */}
     <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_300px] md:mb-2">
@@ -190,7 +190,7 @@ const ReelsFeed = () => {
 
                 </div>
 
-                <div className="absolute bottom-20 md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
+                <div className="absolute  md:bottom-[20vh] right-4 flex flex-col items-center gap-4 z-10 text-white">
                   <div className="flex flex-col items-center">
                     {/* Replace this with your actual like icon */}
 
@@ -247,7 +247,7 @@ const ReelsFeed = () => {
                 autoPlay
                 className="object-contain w-full h-screen"
               />
-              <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
+              <div className="absolute md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
                    <a href={`/profile/${video.userId?.username}`}>@{video.userId?.username}</a>
                  </p>
