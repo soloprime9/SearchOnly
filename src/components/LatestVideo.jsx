@@ -177,7 +177,7 @@ const ReelsFeed = () => {
                 className="object-contain w-full h-screen"
                 data-id={singlevid._id}
               ></video>
-              <div className="absolute bottom-20 md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
+              <div className="absolute  md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
                     <a href={`/profile/${singlevid.userId?.username}`}>@{singlevid.userId?.username}</a>
                   </p>
