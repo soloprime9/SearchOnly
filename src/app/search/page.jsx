@@ -1,4 +1,5 @@
 'use client';
+import React from "react";
 import SearchGo from "@/components/SearchGo;
 
 function Search  (){
