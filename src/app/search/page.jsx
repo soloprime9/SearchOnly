@@ -1,7 +1,7 @@
 'use client';
 import SearchGo from "@/components/SearchGo;
 
-function Search = (){
+function Search  (){
 
   return (
     <div>
