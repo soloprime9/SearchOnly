@@ -8,6 +8,7 @@ import SearchGo from "@/components/SearchGo;
     </div>
   )
   }
+export default Search;
 
 
 
