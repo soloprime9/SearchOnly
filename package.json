@@ -18,6 +18,7 @@
     "react-dom": "^19.0.0",
     "react-markdown": "^7.1.2",
     "jsonwebtoken": "^9.0.2",
+    "@vercel/analytics": "^1.2.3",
     "rehype-raw": "^7.0.0",
     "react-hot-toast": "^2.4.1",
     "remark-gfm": "^4.0.1",
