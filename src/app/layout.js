@@ -44,6 +44,7 @@ export default function RootLayout({ children }) {
         {children}
 
       <StatusBar />
+        <Analytics />
       </body>
     </html>
   );
