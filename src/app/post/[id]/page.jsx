@@ -23,7 +23,7 @@ export async function generateMetadata({ params }) {
         description: post.content ? post.content.slice(0, 150) : 'Fondpeace post content',
         images: [
           {
-            url: post.imageURL || 'https://www.fondpeace.com/default-og-image.jpg',
+            url: post.imageURL || 'https://www.fondpeace.com/og-image.jpg',
             width: 800,
             height: 600,
           },
