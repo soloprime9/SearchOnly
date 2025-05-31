@@ -38,7 +38,7 @@ export async function generateMetadata({ params }) {
         card: 'summary_large_image',
         title: post.content ? post.content : 'Fondpeace Post',
         description: post.content ? post.content.slice(0, 150) : 'Fondpeace post content',
-        images: [post.imageURL || 'https://www.fondpeace.com/default-og-image.jpg'],
+        images: [post.imageURL || 'https://www.fondpeace.com/og-image.jpg'],
       },
     };
   } catch (error) {
@@ -51,7 +51,7 @@ export async function generateMetadata({ params }) {
         description: 'Fondpeace post content',
         images: [
           {
-            url: 'https://www.fondpeace.com/default-og-image.jpg',
+            url: 'https://www.fondpeace.com/og-image.jpg',
             width: 800,
             height: 600,
           },
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }) {
         card: 'summary_large_image',
         title: 'Fondpeace Post',
         description: 'Fondpeace post content',
-        images: ['https://www.fondpeace.com/default-og-image.jpg'],
+        images: ['https://www.fondpeace.com/og-image.jpg'],
       },
     };
   }
