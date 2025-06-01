@@ -41,6 +41,8 @@ export async function generateMetadata({ params }) {
     const updatedAt = post?.updatedAt ? new Date(post.updatedAt).toISOString() : createdAt;
 
     const username = post?.userId?.username || 'Fondpeace';
+    const thumbnailUrl = post?.thumbnail || post?.image || mediaUrl.replace(/\.(mp4|mov|webm)$/, '.jpg') || mediaUrl || "https://www.fondpeace.com/og-image.jpg";
+
 
     return {
       title,
@@ -60,7 +62,7 @@ export async function generateMetadata({ params }) {
         locale: 'en_US',
         images: [
           {
-            url: mediaUrl, // ✅ Using video URL as thumbnail
+            url: thumbnailUrl, // ✅ Using thumbnail URL as thumbnail
             width: 1280,
             height: 720,
             alt: content,
@@ -88,7 +90,7 @@ export async function generateMetadata({ params }) {
         description,
         site: '@fondpeace',
         creator: '@fondpeace',
-        images: [mediaUrl], // ✅ Again, using video as image
+        images: [thumbnailUrl], // ✅ Again, using thumbnail as image
         player: mediaUrl,
         playerWidth: 1280,
         playerHeight: 720,
