@@ -2,6 +2,7 @@
 import { Metadata } from 'next';
 import axios from 'axios';
 import { formatPostTime } from '@/components/DateFormate';
+import LatestVideo from "@/components/LatestVideo";
 
 
 export async function generateMetadata({ params }) {
@@ -117,6 +118,7 @@ export default async function PostPage({ params }) {
               <p className="cursor-pointer border-2 rounded-xl p-2 px-4">Save</p>
             </div>
           </div>
+          <LatestVideo />
 
           {/* Right Sidebar */}
           <div className="justify-center text-center border-1 border-gray-300 p-4 mx-4 rounded-md hidden md:block">
