@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import MarkdownRenderer from "@/components/MarkdownRenderer"; 
    
 export default function Home() {
-  const [markdown, setMarkdown] = useState(`# Yrkkh 1st June 2025 Latest Written Update
+  const [markdown, setMarkdown] = useState(`# Yrkkh 2nd June 2025 Latest Written Update
 Buckle up, Yeh Rishta Kya Kehlata Hai fans! The drama is about to reach a fever pitch! After seven long years marked by a tragic accident, Armaan and Abhira are destined for a face-to-face encounter that promises to be nothing short of explosive.
 
 Adding fuel to the fire, Armaan, in a moment of emotional turmoil, accuses Abhira of being a selfish mother. This accusation stems from him seeing her on TV and believing that she has forgotten Pookie. How will Abhira respond to such a stinging remark? Will she finally reveal the truth behind her actions? Meanwhile, Abhira finds herself in a professional bind when she takes on a divorce case, only to discover that her client is none other than Armaan himself!
@@ -24,7 +24,7 @@ This blog source from <a href="https://www.hotstar.com/in">Jiohotstar</a> and <a
 
       <Head>
   
-  <title>Yrkkh 1st June 2025 Latest Written Update</title>
+  <title>Yrkkh 2nd June 2025 Latest Written Update</title>
 
 
   <meta name="description" content="Read the full written update of Yrkkh 5th April 2025 episode. Mohit plans against Prem! Now Yrkkh what will do. Find latest drama, twists, and emotional moments from today's Yrkkh episode." />
