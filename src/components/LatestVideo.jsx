@@ -8,8 +8,8 @@ import toast from 'react-hot-toast';
 
 
 
-const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
-const Second_API_URL = "https://backendk-z915.onrender.com/post";
+const API_URL = 'https://backend-k.vercel.app/post/shorts';
+const Second_API_URL = "https://backend-k.vercel.app/post";
 
 const ReelsFeed = () => {
   const [videos, setVideos] = useState([]);
