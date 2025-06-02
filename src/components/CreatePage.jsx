@@ -20,7 +20,7 @@ function Creation (){
 
                 const response = await axios.get(`https://backendk-z915.onrender.com/content/search?q=${prompt}`)
 
-                console.log(response.data)
+                console.log(response)
                 setData(response.data);
             }
             catch(error){
