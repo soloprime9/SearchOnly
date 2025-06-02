@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import axios from 'axios';
 import { formatPostTime } from '@/components/DateFormate';
 import LatestVideo from "@/components/LatestVideo";
+import SafeImage from "@/components/SafeImage";
 
 
 export async function generateMetadata({ params }) {
@@ -104,7 +105,7 @@ export default async function PostPage({ params }) {
               </div>
               <p className="cursor-pointer mb-4">{post.content}</p>
               <div className="flex justify-center">
-                <img
+                <SafeImage
                   src={post.imageURL}
                   alt="hello"
                   className="w-auto h-auto border-1 border-gray-900 rounded-2xl"
