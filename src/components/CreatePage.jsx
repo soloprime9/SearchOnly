@@ -57,7 +57,7 @@ function Creation (){
                     <div key={index} className="m-2 p-2 border-1 rounded-2xl w-full  object-cover bg-blue-800 text-white font-bold hover:shadow-xl/40 shadow-blue-900 ring-2 border-orange-200 relative pb-10   hover:shadow-[0px_0px_12px_9px_#742a2a]">
                         
                         
-                        <p> {post}</p>
+                        <p> {post.content}</p>
                         
                         <div className=" pt-2 ">
                         <button onClick={() => CopyContent(post)} className=" px-6 py-2 bg-black text-white rounded-lg font-bold transform hover:-translate-y-1 transition duration-400">Copy</button>
