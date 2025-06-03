@@ -164,7 +164,7 @@ const ReelsFeed = () => {
         {/* Main Single Video */}
         {singlevid && (
           <div className="snap-start w-full h-screen flex justify-center items-center md:mb-1">
-            <div className="relative w-full h-full aspect-video flex justify-center items-center">
+            <div className="relative w-full h-full aspect-video flex justify-center items-center bg-black">
               <video
                 ref={(el) => (videoRefs.current[videos.length] = el)}
                 src={singlevid.media}
@@ -174,7 +174,7 @@ const ReelsFeed = () => {
                 controls={false}
                 autoPlay
                 
-                className="object-contain w-full h-full"
+                className="object-contain w-full h-full bg-black"
                 data-id={singlevid._id}
               ></video>
               <div className="absolute  md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
@@ -235,7 +235,7 @@ const ReelsFeed = () => {
             ref={index === videos.length - 1 ? lastVideoRef : null}
             className="snap-start w-full h-screen flex justify-center items-center mb-1"
           >
-            <div className="relative w-full h-full aspect-video max-h-screen flex justify-center items-center ">
+            <div className="relative w-full h-full aspect-video max-h-screen flex justify-center items-center bg-black ">
               <video
                 ref={(el) => (videoRefs.current[index] = el)}
                 src={video.media}
@@ -245,7 +245,7 @@ const ReelsFeed = () => {
                 playsInline
                 controls={false}
                 autoPlay
-                className="object-contain w-full h-full"
+                className="object-contain w-full h-full bg-black"
               />
               <div className="absolute md:bottom-[20vh] left-4 z-10 text-white max-w-[80%]">
                   <p className="font-semibold text-lg mb-1">
