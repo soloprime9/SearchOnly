@@ -91,7 +91,7 @@ export default async function PostPage({ params }) {
           </div>
 
           {/* Main Content Area */}
-          <div className="border-1 border-gray-300 rounded-md h-screen">
+          <div className="border- border-gray-300 rounded-md h-screen">
             <div className="rounded-xl h-auto w-full p-2">
               <div className="flex gap-2 mb-6">
                 <img
@@ -120,7 +120,7 @@ export default async function PostPage({ params }) {
               <p className="cursor-pointer border-2 rounded-xl p-2 px-4">Save</p>
             </div>
 
-           </div>
+           
            
             {/* RELATED POSTS */}
              <div className="p-4 mt-6 border-t border-gray-300">
@@ -172,7 +172,7 @@ export default async function PostPage({ params }) {
              </div>
 
           
-          
+          </div>
 
           {/* Right Sidebar */}
           <div className="justify-center text-center border-1 border-gray-300 p-4 mx-4 rounded-md hidden md:block">
