@@ -77,6 +77,20 @@ export async function generateMetadata({ params }) {
   }
 }
 
+
+
+export default function PostPage({ params }) {
+  return (
+    <div >
+      
+
+      {/* ✅ This is correct way */}
+      <PostIdData postId={params.id} />
+    </div>
+  );
+}
+
+
 // export default async function PostPage({ params }) {
 //   const { id } = params;
 //   try {
