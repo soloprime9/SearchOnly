@@ -76,6 +76,7 @@ export default async function PostPage({ params }) {
   try {
     const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
     const post = response.data.post;
+    const relatedPosts = response.data.relatedPosts; // 👈 add this line
 
     return (
       <div className="md:mt-10">
@@ -118,6 +119,28 @@ export default async function PostPage({ params }) {
               <p className="cursor-pointer border-2 rounded-xl p-2 px-4">share</p>
               <p className="cursor-pointer border-2 rounded-xl p-2 px-4">Save</p>
             </div>
+
+           <div className="p-4 mt-6 border-t border-gray-300">
+            <h2 className="text-xl font-bold mb-4">Related Posts</h2>
+            {relatedPosts && relatedPosts.length > 0 ? (
+              relatedPosts.map((relatedPost) => (
+                <div key={relatedPost._id} className="mb-4 p-2 border border-gray-200 rounded-md">
+                  <p className="font-semibold mb-2">{relatedPost.content}</p>
+                  {relatedPost.imageURL && (
+                    <SafeImage
+                      src={relatedPost.imageURL}
+                      alt="Related post"
+                      className="w-auto h-auto rounded-md"
+                    />
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>No related posts found.</p>
+            )}
+          </div>
+
+           
             <LatestVideo />
           </div>
           
