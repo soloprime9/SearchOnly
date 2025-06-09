@@ -163,7 +163,7 @@ export default async function PostPage({ params }) {
               <p className="cursor-pointer mb-4">{post.content}</p>
               <div className="flex justify-center">
                 <SafeImage
-                  src={post.imageURL || "https://www.fondpeace.com/og-image.jpg"}
+                  src={post.imageURL}
                   alt="hello"
                   className="w-auto h-auto border-1 border-gray-900 rounded-2xl"
                 />
