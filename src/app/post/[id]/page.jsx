@@ -4,11 +4,15 @@ import axios from 'axios';
 import { formatPostTime } from '@/components/DateFormate';
 import LatestVideo from "@/components/LatestVideo";
 import SafeImage from "@/components/SafeImage";
-import PostIdData from "@/components/PostIdData";
 // import React, { useEffect, useRef, useState, useCallback } from 'react';
 // import { useParams, useRouter } from 'next/navigation';
 // const router = useRouter();
 // const relatedRefs = useRef({});
+
+import dynamic from 'next/dynamic';
+
+const PostIdData = dynamic(() => import('@/components/PostIdData'), { ssr: false });
+
 
   
 
