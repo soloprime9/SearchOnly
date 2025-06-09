@@ -151,7 +151,7 @@ export default async function PostPage({ params }) {
             <div className="border-1 rounded-xl h-auto w-full p-2">
               <div className="flex gap-2 mb-6">
                 <img
-                  src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360"
+                  src="https://www.fondpeace.com/og-image.jpg"
                   alt=""
                   className="w-10 h-10 rounded-full border-2"
                 />
@@ -163,7 +163,7 @@ export default async function PostPage({ params }) {
               <p className="cursor-pointer mb-4">{post.content}</p>
               <div className="flex justify-center">
                 <SafeImage
-                  src={post.imageURL}
+                  src={post.imageURL || "https://www.fondpeace.com/og-image.jpg"}
                   alt="hello"
                   className="w-auto h-auto border-1 border-gray-900 rounded-2xl"
                 />
@@ -194,7 +194,7 @@ export default async function PostPage({ params }) {
 
                       <div className="flex items-center gap-2 mb-2">
                         <img
-                          src={relatedPost.userImageURL || '/default-user.png'}
+                          src={relatedPost.userImageURL || 'https://www.fondpeace.com/og-image.jpg'}
                           alt="User"
                           className="w-8 h-8 rounded-full border"
                         />
