@@ -120,28 +120,57 @@ export default async function PostPage({ params }) {
               <p className="cursor-pointer border-2 rounded-xl p-2 px-4">Save</p>
             </div>
 
-           <div className="p-4 mt-6 border-t border-gray-300">
-            <h2 className="text-xl font-bold mb-4">Related Posts</h2>
-            {relatedPosts && relatedPosts.length > 0 ? (
-              relatedPosts.map((relatedPost) => (
-                <div key={relatedPost._id} className="mb-4 p-2 border border-gray-200 rounded-md">
-                  <p className="font-semibold mb-2">{relatedPost.content}</p>
-                  {relatedPost.imageURL && (
-                    <SafeImage
-                      src={relatedPost.imageURL}
-                      alt="Related post"
-                      className="w-auto h-auto rounded-md"
-                    />
-                  )}
-                </div>
-              ))
-            ) : (
-              <p>No related posts found.</p>
-            )}
-          </div>
-
            
-            <LatestVideo />
+           
+            {/* RELATED POSTS */}
+             <div className="p-4 mt-6 border-t border-gray-300">
+               <h2 className="text-xl font-bold mb-4">Related Posts</h2>
+               {relatedPosts && relatedPosts.length > 0 ? (
+                 relatedPosts.map((relatedPost) => (
+                   <div key={relatedPost._id} className="mb-6 p-4 border border-gray-200 rounded-md">
+                     
+                     {/* RELATED POST HEADER */}
+                     <div className="flex gap-2 mb-4">
+                       <img
+                         src="https://images.news18.com/ibnlive/uploads/2024/10/apple-iphone-16-pro-review-2024-10-b233e14934d84136a958a7037a4011aa-16x9.jpg?impolicy=website&width=640&height=360"
+                         alt=""
+                         className="w-10 h-10 rounded-full border-2"
+                       />
+                       <strong className="pt-2">Human Cant</strong> {/* You can replace with relatedPost.user if you have */}
+                       <p className="text-sm text-gray-400">{formatPostTime(relatedPost.timestamp)}</p>
+             
+                       <div className="font-bold text-2xl ml-auto">...</div>
+                     </div>
+             
+                     {/* RELATED POST CONTENT */}
+                     <p className="cursor-pointer mb-4">{relatedPost.content}</p>
+             
+                     {/* RELATED POST IMAGE */}
+                     {relatedPost.imageURL && (
+                       <div className="flex justify-center mb-4">
+                         <SafeImage
+                           src={relatedPost.imageURL}
+                           alt="Related post"
+                           className="w-auto h-auto border-1 border-gray-900 rounded-2xl"
+                         />
+                       </div>
+                     )}
+             
+                     {/* RELATED POST ACTIONS */}
+                     <div className="flex gap-2 justify-around p-2 border-1 border-gray-300">
+                       <p className="cursor-pointer border-2 p-2 px-4 rounded-xl">like</p>
+                       <p className="cursor-pointer border-2 p-2 rounded-xl px-4">comment</p>
+                       <p className="cursor-pointer border-2 rounded-xl p-2 px-4">share</p>
+                       <p className="cursor-pointer border-2 rounded-xl p-2 px-4">Save</p>
+                     </div>
+             
+                   </div>
+                 ))
+               ) : (
+                 <p>No related posts found.</p>
+               )}
+             </div>
+
           </div>
           
 
