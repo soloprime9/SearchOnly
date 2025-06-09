@@ -124,7 +124,7 @@ export default async function PostPage({ params }) {
            
             {/* RELATED POSTS */}
              <div className="p-4 mt-6 border-t border-gray-300">
-               <h2 className="text-xl font-bold mb-4">Related Posts</h2>
+               <h2 className="text-xl font-bold mb-6 text-center justify-center">Related Posts</h2>
                {relatedPosts && relatedPosts.length > 0 ? (
                  relatedPosts.map((relatedPost) => (
                    <div key={relatedPost._id} className="mb-6 p-4 border border-gray-200 rounded-md">
