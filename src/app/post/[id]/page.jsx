@@ -1,4 +1,5 @@
 // app/post/[id]/page.jsx
+export const revalidate = 60;
 import { Metadata } from 'next';
 import axios from 'axios';
 import { formatPostTime } from '@/components/DateFormate';
