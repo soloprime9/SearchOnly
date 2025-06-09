@@ -4,6 +4,11 @@ import axios from 'axios';
 import { formatPostTime } from '@/components/DateFormate';
 import LatestVideo from "@/components/LatestVideo";
 import SafeImage from "@/components/SafeImage";
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+const router = useRouter();
+const relatedRefs = useRef({});
+
  
 
 export async function generateMetadata({ params }) {
@@ -78,6 +83,37 @@ export default async function PostPage({ params }) {
     const post = response.data.post;
     const relatedPosts = response.data.relatedPosts; // 👈 add this line
 
+      useEffect(() => {
+      if (!relatedPosts.length) return;
+    
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const postId = entry.target.getAttribute('data-post-id');
+              router.replace(`/post/${postId}`, { scroll: false });
+            }
+          });
+        },
+        {
+          threshold: 0.5, // 50% visible → change URL
+        }
+      );
+    
+      // Observe all related post refs
+      Object.values(relatedRefs.current).forEach((ref) => {
+        if (ref) observer.observe(ref);
+      });
+    
+      return () => {
+        // Cleanup observer
+        Object.values(relatedRefs.current).forEach((ref) => {
+          if (ref) observer.unobserve(ref);
+        });
+      };
+    }, [relatedPosts, router]);
+
+
     return (
       <div className="md:mt-10">
         <div className="grid grid-cols-1 md:grid-cols-[150px_1fr_300px] h-screen">
@@ -130,7 +166,13 @@ export default async function PostPage({ params }) {
                   .slice()
                   .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                   .map((relatedPost) => (
-                    <div key={relatedPost._id} className="mb-4 p-4 border border-gray-200 rounded-md">
+                    <div
+                        key={relatedPost._id}
+                        ref={(el) => (relatedRefs.current[relatedPost._id] = el)}
+                        data-post-id={relatedPost._id}
+                        className="mb-4 p-4 border border-gray-200 rounded-md"
+                      >
+
                       <div className="flex items-center gap-2 mb-2">
                         <img
                           src={relatedPost.userImageURL || '/default-user.png'}
