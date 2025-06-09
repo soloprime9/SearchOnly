@@ -9,9 +9,8 @@ import SafeImage from "@/components/SafeImage";
 // const router = useRouter();
 // const relatedRefs = useRef({});
 
-import dynamic from 'next/dynamic';
 
-const PostIdData = dynamic(() => import('@/components/PostIdData'), { ssr: false });
+import PostIdDataWrapper from '@/components/PostIdDataWrapper';
 
 
   
@@ -83,13 +82,18 @@ export async function generateMetadata({ params }) {
 
 
 
-export default function PostPage({ params }) {
-  return (
-    <div >
-      
+export default async function Page({ params }) {
+  const { id } = params;
 
-      {/* ✅ This is correct way */}
-      <PostIdData postId={params.id} />
+  // Server Side data fetch kar lo agar chahiye
+  const postId = id;
+
+  return (
+    <div>
+      <h1>Server Side Page</h1>
+      
+      {/* Client Component ko wrapper ke zariye use karo */}
+      <PostIdDataWrapper postId={postId} />
     </div>
   );
 }
