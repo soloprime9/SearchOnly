@@ -15,8 +15,10 @@ import PostIdDataWrapper from '@/components/PostIdDataWrapper';
 export async function generateMetadata({ params }) {
   const { id } = params;
   try {
-    const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
-    const post = response.data;
+    const response = await fetch(`https://backend-k.vercel.app/content/post/${id}`, {
+    cache: 'no-cache',
+    });
+    const post = response.data.post;
     const content = typeof post.content === 'string' && post.content.trim().length > 0
     ? post.content.trim()
     : null;
