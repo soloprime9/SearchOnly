@@ -10,7 +10,7 @@ import PostIdData from "@/components/PostIdData";
 // const router = useRouter();
 // const relatedRefs = useRef({});
 
- 
+  
 
 export async function generateMetadata({ params }) {
   const { id } = params;
