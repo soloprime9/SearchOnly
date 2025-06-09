@@ -75,7 +75,7 @@ export default async function PostPage({ params }) {
   const { id } = params;
   try {
     const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
-    const post = response.data;
+    const post = response.data.post;
 
     return (
       <div className="md:mt-10">
