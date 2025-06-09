@@ -198,7 +198,7 @@ export default async function PostPage({ params }) {
                           alt="User"
                           className="w-8 h-8 rounded-full border"
                         />
-                        <strong>{relatedPost.username || 'Unknown User'}</strong>
+                        <strong>{relatedPost.username || 'Relate Curv'}</strong>
                         <p className="text-sm text-gray-400 ml-auto">
                           {formatPostTime(relatedPost.timestamp)}
                         </p>
