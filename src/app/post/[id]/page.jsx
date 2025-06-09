@@ -120,7 +120,7 @@ export default async function PostPage({ params }) {
               <p className="cursor-pointer border-2 rounded-xl p-2 px-4">Save</p>
             </div>
 
-           
+           </div>
            
             {/* RELATED POSTS */}
              <div className="p-4 mt-6 border-t border-gray-300">
@@ -171,7 +171,7 @@ export default async function PostPage({ params }) {
                )}
              </div>
 
-          </div>
+          
           
 
           {/* Right Sidebar */}
