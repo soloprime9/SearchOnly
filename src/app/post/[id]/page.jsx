@@ -4,10 +4,7 @@ import axios from 'axios';
 import { formatPostTime } from '@/components/DateFormate';
 import LatestVideo from "@/components/LatestVideo";
 import SafeImage from "@/components/SafeImage";
-// import React, { useEffect, useRef, useState, useCallback } from 'react';
-// import { useParams, useRouter } from 'next/navigation';
-// const router = useRouter();
-// const relatedRefs = useRef({});
+
 
 
 import PostIdDataWrapper from '@/components/PostIdDataWrapper';
@@ -106,35 +103,35 @@ export default async function PostPage({ params }) {
     const post = response.data.post;
     const relatedPosts = response.data.relatedPosts; // 👈 add this line
 
-      useEffect(() => {
-      if (!relatedPosts.length) return;
+    //   useEffect(() => {
+    //   if (!relatedPosts.length) return;
     
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const postId = entry.target.getAttribute('data-post-id');
-              router.replace(`/post/${postId}`, { scroll: false });
-            }
-          });
-        },
-        {
-          threshold: 0.5, // 50% visible → change URL
-        }
-      );
+    //   const observer = new IntersectionObserver(
+    //     (entries) => {
+    //       entries.forEach((entry) => {
+    //         if (entry.isIntersecting) {
+    //           const postId = entry.target.getAttribute('data-post-id');
+    //           router.replace(`/post/${postId}`, { scroll: false });
+    //         }
+    //       });
+    //     },
+    //     {
+    //       threshold: 0.5, // 50% visible → change URL
+    //     }
+    //   );
     
-      // Observe all related post refs
-      Object.values(relatedRefs.current).forEach((ref) => {
-        if (ref) observer.observe(ref);
-      });
+    //   // Observe all related post refs
+    //   Object.values(relatedRefs.current).forEach((ref) => {
+    //     if (ref) observer.observe(ref);
+    //   });
     
-      return () => {
-        // Cleanup observer
-        Object.values(relatedRefs.current).forEach((ref) => {
-          if (ref) observer.unobserve(ref);
-        });
-      };
-    }, [relatedPosts, router]);
+    //   return () => {
+    //     // Cleanup observer
+    //     Object.values(relatedRefs.current).forEach((ref) => {
+    //       if (ref) observer.unobserve(ref);
+    //     });
+    //   };
+    // }, [relatedPosts, router]);
 
 
     return (
@@ -191,8 +188,8 @@ export default async function PostPage({ params }) {
                   .map((relatedPost) => (
                     <div
                         key={relatedPost._id}
-                        ref={(el) => (relatedRefs.current[relatedPost._id] = el)}
-                        data-post-id={relatedPost._id}
+{/*                         ref={(el) => (relatedRefs.current[relatedPost._id] = el)}
+                        data-post-id={relatedPost._id} */}
                         className="mb-4 p-4 border border-gray-200 rounded-md"
                       >
 
