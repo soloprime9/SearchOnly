@@ -188,8 +188,7 @@ export default async function PostPage({ params }) {
                   .map((relatedPost) => (
                     <div
                         key={relatedPost._id}
-{/*                         ref={(el) => (relatedRefs.current[relatedPost._id] = el)}
-                        data-post-id={relatedPost._id} */}
+
                         className="mb-4 p-4 border border-gray-200 rounded-md"
                       >
 
