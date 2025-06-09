@@ -19,7 +19,8 @@ export async function generateMetadata({ params }) {
     const response = await fetch(`https://backend-k.vercel.app/content/post/${id}`, {
     cache: 'no-cache',
     });
-    const post = response.data.post;
+    const data = await response.json();
+    const post = data.post;
     const content = typeof post.content === 'string' && post.content.trim().length > 0
     ? post.content.trim()
     : null;
