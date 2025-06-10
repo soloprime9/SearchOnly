@@ -1,5 +1,6 @@
 // app/post/[id]/page.jsx
 export const revalidate = 60;
+import Link from 'next/link';
 import { Metadata } from 'next';
 import axios from 'axios';
 import { formatPostTime } from '@/components/DateFormate';
@@ -183,6 +184,7 @@ export default async function PostPage({ params }) {
            
            
             {/* RELATED POSTS */}
+            
              <div className="p-4 mt-6 border-t border-gray-300">
               <h2 className="text-xl font-bold mb-6 text-center justify-center">Related Posts</h2>
               {relatedPosts && relatedPosts.length > 0 ? (
@@ -195,7 +197,7 @@ export default async function PostPage({ params }) {
 
                         className="mb-4 p-4 border border-gray-200 rounded-md"
                       >
-
+                      <Link href={`/post/${relatedPost._id}` target="_blank" rel="noopener noreferrer"}>
                       <div className="flex items-center gap-2 mb-2">
                         <img
                           src={relatedPost.userImageURL || 'https://www.fondpeace.com/og-image.jpg'}
@@ -217,6 +219,7 @@ export default async function PostPage({ params }) {
                           className="w-auto h-auto rounded-md mb-2"
                         />
                       )}
+                        </Link>
             
                       <div className="flex gap-2 justify-around mt-2">
                         <p className="cursor-pointer border-2 p-1 px-3 rounded-xl text-sm">Like</p>
@@ -230,6 +233,7 @@ export default async function PostPage({ params }) {
                 <p>No related posts found.</p>
               )}
             </div>
+            
 
 
           
