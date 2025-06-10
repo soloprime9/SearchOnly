@@ -197,7 +197,7 @@ export default async function PostPage({ params }) {
 
                         className="mb-4 p-4 border border-gray-200 rounded-md"
                       >
-                      <Link href={`/post/${relatedPost._id}` target="_blank" rel="noopener noreferrer"}>
+                      <Link href={`/post/${relatedPost._id}`} target="_blank" rel="noopener noreferrer">
                       <div className="flex items-center gap-2 mb-2">
                         <img
                           src={relatedPost.userImageURL || 'https://www.fondpeace.com/og-image.jpg'}
