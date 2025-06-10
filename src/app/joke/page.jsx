@@ -1,6 +1,7 @@
 'use client';
 import axios from "axios";
 import { useEffect, useState } from "react";
+import PostIdDataWrapper from "@/components/PostIdDataWrapper";
 
 
 function Joke () {
@@ -41,6 +42,7 @@ function Joke () {
             <button onClick={NextJoke} className="cursor-pointer w-40 text-center bg-yellow-600 text-blue text-lg p-2 rounded-md mt-5">Next Questions</button>
 
             <h2>{message}</h2>
+                <PostIdDataWrapper />
             </div>
         </div>
     )
