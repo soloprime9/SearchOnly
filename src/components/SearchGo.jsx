@@ -17,7 +17,9 @@ function App() {
       const response = await axios.get(`https://backend-k.vercel.app/autoai/result?q=${query}`);
       const SearchResults = response.data.ScrapedData[0];
       setResults(SearchResults.results || []);
-      setImages(SearchResults.images[3] || []);
+      setImages(SearchResults.images || []);
+      // setImages(SearchResults.images || []);
+
       console.log("Results:", SearchResults.results);
       console.log("Images:", SearchResults.images);
     } catch (err) {
