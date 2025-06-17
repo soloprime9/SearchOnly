@@ -50,7 +50,7 @@ function Posts () {
 
          const handleShare = (post) => {
           const postURL = `${window.location.origin}/post/${post._id}`;
-          const shareText = `${post.content}\non Fondpeace \n${postURL}`;
+          const shareText = `${post.content}\non Fondpeace`;
         
           navigator.clipboard.writeText(shareText)
             .then(() => {
