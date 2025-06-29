@@ -59,7 +59,7 @@ const Profile = () => {
       console.log("userId: ", loggedUserId);
 
       try {
-        const result = await axios.get(`https://backendk-z915.onrender.com/user/${username}`, {
+        const result = await axios.get(`https://backend-k.vercel.app/user/${username}`, {
           headers: {
             'x-auth-token': token,
           },
