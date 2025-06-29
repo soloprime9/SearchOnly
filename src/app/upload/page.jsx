@@ -94,7 +94,7 @@ const UploadPost = () => {
       setMessage("Post uploaded successfully!");
       console.log("Successfully Uploaded Post:", response.data);
       setUploadProgress(0); // Reset progress bar
-      window.location.href = "/upload";
+      // window.location.href = "/upload";
     } catch (error) {
       setMessage("Internal Server Error. Please try again.");
       console.log(error);
