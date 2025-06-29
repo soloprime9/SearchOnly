@@ -78,9 +78,9 @@ const UploadPost = () => {
         return;
       }
 
-// https://backendk-z915.onrender.com/
+// https://backendk-z915.onrender.com/ https://backend-k.vercel.app/
 
-      const response = await axios.post("https://backend-k.vercel.app/post/upload", formData, {
+      const response = await axios.post("http://localhost:4000/post/upload", formData, {
         headers: {
           "x-auth-token": token,
           "Content-Type": "multipart/form-data",
