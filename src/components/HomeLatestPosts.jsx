@@ -161,33 +161,33 @@ function Posts () {
                         
 
                         <div className="rounded-xl overflow-hidden border border-gray-200 mt-2">
-      {post.media && post.mediaType ? (
-        post.mediaType.startsWith("video") ? (
-          <div className="w-full h-72 border border-gray-300 rounded-xl overflow-hidden bg-black">
-            <video
-              
-              src={post.media}
-              className="w-full h-full object-cover"
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              controls={false}
-            />
-          </div>
-        ) : post.mediaType.startsWith("image") ? (
-          <img
-            src={post.media}
-            alt="Post"
-            className="w-full max-h-[600px] object-contain border border-gray-300 rounded-md"
-          />
-        ) : (
-          <div className="text-center text-sm text-gray-500 p-4">Unsupported media type</div>
-        )
-      ) : (
-        <div className="text-center text-sm text-gray-400 p-4">No media available</div>
-      )}
-    </div>
+  {post.media && post.mediaType ? (
+    post.mediaType.startsWith("video") ? (
+      <div className="w-full h-72 border border-gray-300 rounded-xl overflow-hidden cursor-pointer bg-black">
+        <video
+          src={post.media}
+          className="w-full h-full object-cover"
+          loop
+          autoPlay
+          muted
+          playsInline
+          controls // Optional: remove if you want to auto-play silently
+          preload="metadata"
+        />
+      </div>
+    ) : post.mediaType.startsWith("image") ? (
+      <img
+        src={post.media}
+        alt="Post"
+        className="w-full max-h-[600px] object-contain border border-gray-300 rounded-md"
+      />
+    ) : (
+      <div className="text-center text-sm text-gray-500 p-4">Unsupported media type</div>
+    )
+  ) : (
+    <div className="text-center text-sm text-gray-400 p-4">No media available</div>
+  )}
+</div>
 
                         <div className='flex justify-between text-md text-gray-500 mt-3 px-4'>
 
