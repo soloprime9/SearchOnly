@@ -90,7 +90,7 @@ function PostsManager() {
 
             {/* 🔵 Media Preview */}
             <div className="rounded-xl overflow-hidden border border-gray-200 bg-black">
-              <div className="p-5>{post?.title}</div>
+              <div className="p-5">{post?.title}</div>
               {post.media && post.mediaType ? (
                 post.mediaType.startsWith("video") ? (
                   <video
