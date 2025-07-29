@@ -14,37 +14,7 @@ function Posts () {
 
 
 
-    const PostMedia = ({ post }) => {
-  const videoRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const videoEl = videoRef.current;
-        if (!videoEl) return;
-
-        if (entry.isIntersecting) {
-          videoEl.play().catch(() => {});
-        } else {
-          videoEl.pause();
-        }
-      },
-      {
-        threshold: 0.5, // 50% visible
-      }
-    );
-
-    if (videoRef.current) {
-      observer.observe(videoRef.current);
-    }
-
-    return () => {
-      if (videoRef.current) {
-        observer.unobserve(videoRef.current);
-      }
-    };
-  }, []);
-        
+    
 
     
     
