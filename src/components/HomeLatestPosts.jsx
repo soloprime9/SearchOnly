@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState , useRef} from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -13,6 +13,41 @@ function Posts () {
     const [loading, setloading] = useState(false);
 
 
+
+    const PostMedia = ({ post }) => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const videoEl = videoRef.current;
+        if (!videoEl) return;
+
+        if (entry.isIntersecting) {
+          videoEl.play().catch(() => {});
+        } else {
+          videoEl.pause();
+        }
+      },
+      {
+        threshold: 0.5, // 50% visible
+      }
+    );
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => {
+      if (videoRef.current) {
+        observer.unobserve(videoRef.current);
+      }
+    };
+  }, []);
+        
+
+    
+    
 
     const Content = async () => {
         try{
@@ -156,34 +191,33 @@ function Posts () {
                         
 
                         <div className="rounded-xl overflow-hidden border border-gray-200 mt-2">
-  {post.media && post.mediaType ? (
-    post.mediaType.startsWith("video") ? (
-      <div className="w-full h-72 border border-gray-300 rounded-xl overflow-hidden cursor-pointer bg-black">
-        <video
-          src={post.media}
-          className="w-full h-full object-cover"
-          loop
-          autoPlay
-          muted
-          playsInline
-          controls // Optional: remove if you want to auto-play silently
-          preload="metadata"
-        />
-      </div>
-    ) : post.mediaType.startsWith("image") ? (
-      <img
-        src={post.media}
-        alt="Post"
-        className="w-full max-h-[600px] object-contain border border-gray-300 rounded-md"
-      />
-    ) : (
-      <div className="text-center text-sm text-gray-500 p-4">Unsupported media type</div>
-    )
-  ) : (
-    <div className="text-center text-sm text-gray-400 p-4">No media available</div>
-  )}
-</div>
-
+      {post.media && post.mediaType ? (
+        post.mediaType.startsWith("video") ? (
+          <div className="w-full h-72 border border-gray-300 rounded-xl overflow-hidden bg-black">
+            <video
+              ref={videoRef}
+              src={post.media}
+              className="w-full h-full object-cover"
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              controls={false}
+            />
+          </div>
+        ) : post.mediaType.startsWith("image") ? (
+          <img
+            src={post.media}
+            alt="Post"
+            className="w-full max-h-[600px] object-contain border border-gray-300 rounded-md"
+          />
+        ) : (
+          <div className="text-center text-sm text-gray-500 p-4">Unsupported media type</div>
+        )
+      ) : (
+        <div className="text-center text-sm text-gray-400 p-4">No media available</div>
+      )}
+    </div>
 
                         <div className='flex justify-between text-md text-gray-500 mt-3 px-4'>
 
