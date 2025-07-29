@@ -86,11 +86,12 @@ function PostsManager() {
                 <span className="text-sm text-gray-500">{formatPostTime(post.createdAt)}</span>
               </div>
               <span className="ml-auto text-xl text-gray-500 cursor-pointer">...</span>
+              <p className="p-5">{post?.title}</p>
             </div>
 
             {/* 🔵 Media Preview */}
             <div className="rounded-xl overflow-hidden border border-gray-200 bg-black">
-              <div className="p-5">{post?.title}</div>
+              
               {post.media && post.mediaType ? (
                 post.mediaType.startsWith("video") ? (
                   <video
