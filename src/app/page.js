@@ -2,7 +2,8 @@ import { Metadata } from 'next';
 import HomeLatestPosts from '@/components/HomeLatestPosts';
 import CreatePage from "@/components/CreatePage";
 import SearchGo from "@/components/SearchGo";
-  
+import OnlyFeed from "@/components/OnlyFeed";
+
 export const metadata = {
   title: "Fond Peace",
   description:
@@ -41,7 +42,7 @@ export default function Page() {
   return (
     <div>
     <SearchGo />
-    <HomeLatestPosts />
+    <OnlyFeed />
     </div>
   )
 
