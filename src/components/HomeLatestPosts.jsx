@@ -29,23 +29,23 @@ function Posts () {
         };
 
 
-        // const fetchPosts = async () => {
+         const fetchPosts = async () => {
                 
-        //     try {
-        //         const { data } = await axios.get("https://backendk-z915.onrender.com/post/mango/getall");
-        //         setPosts(data);
-        //         console.log(data);
-        //         } catch (err) {
-        //         console.log(err);
-        //         }
-        //     };
+             try {
+                 const { data } = await axios.get("https://backendk-z915.onrender.com/post/mango/getall");
+                 setPosts(data);
+                 console.log(data);
+                 } catch (err) {
+                 console.log(err);
+                 }
+              };
     
         useEffect(() => {
 
 
             
             Content();
-            // fetchPosts();
+             fetchPosts();
         },[]);
 
          const handleShare = (post) => {
@@ -131,7 +131,7 @@ function Posts () {
 
                 <div className=" mt-10 px-4 space-y-6  w-full">
 
-{/*             { posts.length > 0 ?
+             { posts.length > 0 ?
                 (
                     posts.map((post, index) => 
                 
@@ -229,7 +229,7 @@ function Posts () {
 
                 )
 
-            } */}
+            } 
             {data.length > 0 ? 
                 (
                     data.slice().sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).map((post,index) => 
