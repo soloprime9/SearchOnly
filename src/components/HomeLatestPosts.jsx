@@ -172,9 +172,10 @@ function Posts () {
                                     <video
                                       src={post.media || ""}
                                       className="w-full h-full object-cover"
-                                      muted
                                       loop
-                                      playsInline
+                                    playsInline
+                controls={false}
+                autoPlay
                                       preload="metadata"
                                       // 🚫 REMOVE controls and autoPlay to prevent conflict
                                     />
