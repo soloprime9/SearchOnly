@@ -173,9 +173,9 @@ function Posts () {
                                       src={post.media || ""}
                                       className="w-full h-full object-cover"
                                       loop
-                                    playsInline
-                controls={false}
-                autoPlay
+                                      playsInline
+                                      controls={false}
+                                      autoPlay
                                       preload="metadata"
                                       // 🚫 REMOVE controls and autoPlay to prevent conflict
                                     />
