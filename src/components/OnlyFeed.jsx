@@ -86,8 +86,13 @@ function PostsManager() {
                 <span className="text-sm text-gray-500">{formatPostTime(post.createdAt)}</span>
               </div>
               <span className="ml-auto text-xl text-gray-500 cursor-pointer">...</span>
-              <p className="p-5">{post?.title}</p>
+              
             </div>
+
+            {/* ✅ Post Title section */}
+            {post?.title && (
+             <p className="text-base text-gray-800 mb-3 px-1">{post.title}</p>
+            )}
 
             {/* 🔵 Media Preview */}
             <div className="rounded-xl overflow-hidden border border-gray-200 bg-black">
