@@ -165,7 +165,7 @@ function Posts () {
         post.mediaType.startsWith("video") ? (
           <div className="w-full h-72 border border-gray-300 rounded-xl overflow-hidden bg-black">
             <video
-              ref={videoRef}
+              
               src={post.media}
               className="w-full h-full object-cover"
               loop
