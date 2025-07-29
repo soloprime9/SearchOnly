@@ -98,9 +98,10 @@ function PostsManager() {
                     className="w-full max-h-[400px] object-cover"
                     muted
                     loop
+                    autoPlay
                     playsInline
                     preload="metadata"
-                    controls={false}
+                    controls
                   />
                 ) : post.mediaType.startsWith("image") ? (
                   <img
