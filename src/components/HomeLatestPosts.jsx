@@ -167,7 +167,7 @@ function Posts () {
                                 // playsInline controls autoPlay />
                                 // </Link>
 
-                                <Link href={`/short/${post._id}`} passHref>
+                              //  <Link href={`/short/${post._id}`} passHref>
                                   <div className="w-full h-72 border border-gray-300 rounded-xl overflow-hidden cursor-pointer">
                                     <video
                                       src={post.media || ""}
@@ -180,7 +180,7 @@ function Posts () {
                                       // 🚫 REMOVE controls and autoPlay to prevent conflict
                                     />
                                   </div>
-                                </Link>
+                             //   </Link>
 
                                 
                                 
