@@ -72,7 +72,7 @@ function PostsManager() {
             <div className="flex items-start gap-3 mb-3">
               <Link href={`/profile/${post?.userId?.username}`}>
                 <img
-                  src={post?.userId?.profilePic || "/default-avatar.png"}
+                  src={"https://www.fondpeace.com/og-image.jpg"}
                   alt="profile"
                   className="w-10 h-10 rounded-full border object-cover"
                 />
