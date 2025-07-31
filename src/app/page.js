@@ -17,7 +17,7 @@ export const metadata = {
     url: "https://fondpeace.com",
     images: [
       {
-        url: "https://www.fondpeace.com/og-image.jpg",
+        url: "https://www.fondpeace.com/Fondpeace.jpg",
         width: 1200,
         height: 630,
       },
@@ -29,7 +29,7 @@ export const metadata = {
     title: "Fond Peace",
     description:
       "Fondpeace.com is a free social platform where you can search the web, share posts and videos, discover trending news, chat, and stay connected—all in one place.",
-    images: ["https://www.fondpeace.com/og-image.jpg"],
+    images: ["https://www.fondpeace.com/Fondpeace.jpg"],
     site: "@Gayatrisingho",
   },
   alternates: {
