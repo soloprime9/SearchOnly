@@ -42,7 +42,7 @@ const UploadPost = () => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
-    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "video/mp4", "video/webm"];
+    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "video/mp4", "video/webm", "video/mp4.mkv"];
     if (!allowedTypes.includes(selectedFile.type)) {
       setMessage("Invalid file type. Only images (PNG, JPG) and videos (MP4, WEBM) are allowed.");
       return;
