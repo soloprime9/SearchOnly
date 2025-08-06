@@ -3,6 +3,7 @@ import HomeLatestPosts from '@/components/HomeLatestPosts';
 import CreatePage from "@/components/CreatePage";
 import SearchGo from "@/components/SearchGo";
 import OnlyFeed from "@/components/OnlyFeed";
+import Upload from "@/components/Upload";
 
 export const metadata = {
   title: "Fond Peace",
@@ -41,7 +42,7 @@ export default function Page() {
   
   return (
     <div>
-    <SearchGo />
+    <Upload />
     <OnlyFeed />
     </div>
   )
