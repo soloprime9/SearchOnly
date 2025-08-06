@@ -19,7 +19,7 @@ function PostsManager() {
 
     if (!token) {
       console.log("Token is not available");
-      return (window.location.href = "/login");
+     // return (window.location.href = "/login");
     }
 
     try {
@@ -27,12 +27,12 @@ function PostsManager() {
       if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
         console.log("Token invalid or expired");
         localStorage.removeItem("token");
-        window.location.href = "/login";
+       // window.location.href = "/login";
       }
     } catch (err) {
       console.log("Invalid Token:", err);
       localStorage.removeItem("token");
-      window.location.href = "/login";
+   //   window.location.href = "/login";
     }
   }, []);
 
