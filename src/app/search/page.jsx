@@ -1,12 +1,13 @@
 'use client';
 import React from "react";
 import SearchGo from "@/components/SearchGo";
+import Village from "@/components/Village";
 
 function Search  (){
 
   return (
     <div>
-      <SearchGo />
+      <Village />
     </div>
   )
   }
