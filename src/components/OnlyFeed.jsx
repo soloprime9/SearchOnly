@@ -39,7 +39,7 @@ function PostsManager() {
   // ✅ Fetch posts
   const fetchPosts = async () => {
     try {
-      const { data } = await axios.get("https://backendk-z915.onrender.com/post/mango/getall");
+      const { data } = await axios.get("https://backend-k.vercel.app/post/mango/getall");
       setPosts(data);
     } catch (error) {
       console.error("Failed to fetch posts:", error);
@@ -82,7 +82,7 @@ function PostsManager() {
     const token = localStorage.getItem("token");
     try {
       const { data } = await axios.post(
-        `https://backendk-z915.onrender.com/post/like/${postId}`,
+        `https://backend-k.vercel.app/post/like/${postId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -106,7 +106,7 @@ function PostsManager() {
 
     try {
       await axios.post(
-        `https://backendk-z915.onrender.com/post/comment/${postId}`,
+        `https://backend-k.vercel.app/post/comment/${postId}`,
         { CommentText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
