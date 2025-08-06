@@ -15,7 +15,7 @@ function PostsManager() {
   // Fetch posts from API
   const fetchPosts = async () => {
     try {
-      const { data } = await axios.get("https://backendk-z915.onrender.com/post/mango/getall");
+      const { data } = await axios.get("https://backend-k.vercel.app/post/mango/getall");
       setPosts(data);
     } catch (error) {
       console.error("Failed to fetch posts:", error);
@@ -91,7 +91,7 @@ function PostsManager() {
 
     try {
       const res = await axios.post(
-        `https://backendk-z915.onrender.com/post/like/${postId}`,
+        `https://backend-k.vercel.app/post/like/${postId}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
