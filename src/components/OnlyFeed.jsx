@@ -3,15 +3,40 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import jwt from 'jsonwebtoken';
+import toast from 'react-hot-toast';
 import { formatPostTime } from '@/components/DateFormate';
 import Skeleton from '@/components/Skeleton';
-import toast from 'react-hot-toast';
 
 function PostsManager() {
   const [posts, setPosts] = useState([]);
+  const [commentInputs, setCommentInputs] = useState({});
   const videoRefs = useRef([]);
 
-  // ✅ Fetch posts from API
+  // ✅ Token check and redirect
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.log("Token is not available");
+      return (window.location.href = "/login");
+    }
+
+    try {
+      const decoded = jwt.decode(token);
+      if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
+        console.log("Token invalid or expired");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    } catch (err) {
+      console.log("Invalid Token:", err);
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+  }, []);
+
+  // ✅ Fetch posts
   const fetchPosts = async () => {
     try {
       const { data } = await axios.get("https://backendk-z915.onrender.com/post/mango/getall");
@@ -21,7 +46,11 @@ function PostsManager() {
     }
   };
 
-  // ✅ Setup observer to play/pause video based on visibility
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  // ✅ Auto play/pause videos
   useEffect(() => {
     const observers = [];
 
@@ -48,19 +77,54 @@ function PostsManager() {
     };
   }, [posts]);
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  // ✅ Handle Like Toggle
+  const handleLike = async (postId) => {
+    const token = localStorage.getItem("token");
+    try {
+      const { data } = await axios.post(
+        `https://backendk-z915.onrender.com/post/like/${postId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Post like updated");
+      fetchPosts(); // refresh posts after like/unlike
+    } catch (err) {
+      toast.error("Failed to update like");
+      console.error(err);
+    }
+  };
 
+  // ✅ Handle Comment Submission
+  const handleComment = async (postId) => {
+    const token = localStorage.getItem("token");
+    const CommentText = commentInputs[postId];
+
+    if (!CommentText || CommentText.trim() === "") {
+      toast.error("Comment cannot be empty");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `https://backendk-z915.onrender.com/post/comment/${postId}`,
+        { CommentText },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Comment added");
+      setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
+      fetchPosts();
+    } catch (error) {
+      toast.error("Failed to comment");
+      console.error(error);
+    }
+  };
+
+  // ✅ Share Post
   const handleShare = (post) => {
     const postURL = `${window.location.origin}/post/${post._id}`;
     navigator.clipboard.writeText(postURL)
-      .then(() => {
-        toast.success("Link copied to clipboard!", { duration: 1500 });
-      })
-      .catch(() => {
-        toast.error("Failed to copy link.");
-      });
+      .then(() => toast.success("Link copied to clipboard!", { duration: 1500 }))
+      .catch(() => toast.error("Failed to copy link."));
   };
 
   return (
@@ -86,17 +150,15 @@ function PostsManager() {
                 <span className="text-sm text-gray-500">{formatPostTime(post.createdAt)}</span>
               </div>
               <span className="ml-auto text-xl text-gray-500 cursor-pointer">...</span>
-              
             </div>
 
-            {/* ✅ Post Title section */}
+            {/* ✅ Post Title */}
             {post?.title && (
-             <p className="text-base text-gray-800 mb-3 px-1">{post.title}</p>
+              <p className="text-base text-gray-800 mb-3 px-1">{post.title}</p>
             )}
 
-            {/* 🔵 Media Preview */}
+            {/* 🔵 Media */}
             <div className="rounded-xl overflow-hidden border border-gray-200 bg-black">
-              
               {post.media && post.mediaType ? (
                 post.mediaType.startsWith("video") ? (
                   <video
@@ -124,14 +186,44 @@ function PostsManager() {
               )}
             </div>
 
-            {/* 🔵 Post Actions */}
+            {/* 🔵 Actions */}
             <div className="flex justify-around text-sm text-gray-600 mt-4">
-              <p className="cursor-pointer hover:text-blue-600">Like</p>
-              <p className="cursor-pointer hover:text-blue-600">Comment</p>
-              <p className="cursor-pointer hover:text-blue-600">Save</p>
-              <p className="cursor-pointer hover:text-blue-600" onClick={() => handleShare(post)}>
-                Share
+              <p
+                className="cursor-pointer hover:text-blue-600"
+                onClick={() => handleLike(post._id)}
+              >
+                ❤️ {post.likes.length} Like
               </p>
+              <p className="cursor-pointer hover:text-blue-600">💬 {post.comments.length} Comment</p>
+              <p className="cursor-pointer hover:text-blue-600">🔖 Save</p>
+              <p
+                className="cursor-pointer hover:text-blue-600"
+                onClick={() => handleShare(post)}
+              >
+                📤 Share
+              </p>
+            </div>
+
+            {/* 🔵 Comment Input */}
+            <div className="mt-4">
+              <input
+                type="text"
+                placeholder="Add a comment..."
+                className="w-full border px-3 py-2 rounded-md text-sm"
+                value={commentInputs[post._id] || ""}
+                onChange={(e) =>
+                  setCommentInputs((prev) => ({
+                    ...prev,
+                    [post._id]: e.target.value,
+                  }))
+                }
+              />
+              <button
+                onClick={() => handleComment(post._id)}
+                className="mt-2 px-4 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+              >
+                Post
+              </button>
             </div>
           </div>
         ))
@@ -143,3 +235,4 @@ function PostsManager() {
 }
 
 export default PostsManager;
+                  
