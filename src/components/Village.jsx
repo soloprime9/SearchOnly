@@ -7,11 +7,10 @@ import jwt from 'jsonwebtoken';
 
 const Feed = () => {
   const [posts, setPosts] = useState([]);
-  const [commentInputs, setCommentInputs] = useState({}); // { postId: comment text }
-  const [commentBoxesOpen, setCommentBoxesOpen] = useState({}); // { postId: bool }
+  const [commentInputs, setCommentInputs] = useState({});
+  const [commentBoxesOpen, setCommentBoxesOpen] = useState({});
   const [userId, setUserId] = useState(null);
 
-  // Check token validity & get userId on mount
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return window.location.replace('/login');
@@ -22,7 +21,6 @@ const Feed = () => {
         localStorage.removeItem('token');
         return window.location.replace('/login');
       }
-      // Adjust based on your token payload structure
       setUserId(decoded.UserId || decoded.id || decoded.userId);
     } catch {
       localStorage.removeItem('token');
@@ -30,7 +28,6 @@ const Feed = () => {
     }
   }, []);
 
-  // Fetch posts from backend
   const fetchPosts = async () => {
     try {
       const res = await axios.get('https://backend-k.vercel.app/post/mango/getall');
@@ -44,7 +41,6 @@ const Feed = () => {
     fetchPosts();
   }, []);
 
-  // Like/unlike post handler
   const handleLike = async (postId) => {
     const token = localStorage.getItem('token');
     if (!token) return window.location.replace('/login');
@@ -57,13 +53,26 @@ const Feed = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      fetchPosts();
+
+      // Optimistically update the UI
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post._id === postId) {
+            const alreadyLiked = post.likes.includes(userId);
+            const updatedLikes = alreadyLiked
+              ? post.likes.filter((id) => id !== userId)
+              : [...post.likes, userId];
+
+            return { ...post, likes: updatedLikes };
+          }
+          return post;
+        })
+      );
     } catch (error) {
-      console.error('Error liking post:', error);
+      console.error('Error liking/unliking post:', error);
     }
   };
 
-  // Toggle comment input visibility
   const toggleCommentBox = (postId) => {
     setCommentBoxesOpen((prev) => ({
       ...prev,
@@ -71,7 +80,6 @@ const Feed = () => {
     }));
   };
 
-  // Update comment input text
   const handleCommentInputChange = (postId, text) => {
     setCommentInputs((prev) => ({
       ...prev,
@@ -79,7 +87,6 @@ const Feed = () => {
     }));
   };
 
-  // Submit comment
   const handleSubmitComment = async (postId) => {
     const token = localStorage.getItem('token');
     if (!token) return window.location.replace('/login');
@@ -106,7 +113,6 @@ const Feed = () => {
     }
   };
 
-  // Check if current user liked a post
   const isLikedByUser = (post) => {
     if (!post.likes) return false;
     return post.likes.includes(userId);
