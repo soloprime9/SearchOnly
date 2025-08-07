@@ -1,182 +1,227 @@
-"use client";
-
-import React, { useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
-import Link from "next/link";
-import { formatPostTime } from "@/components/DateFormate";
-import Skeleton from "@/components/Skeleton";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import jwt from "jsonwebtoken";
 
-function PostsManager() {
+export default function Feed() {
   const [posts, setPosts] = useState([]);
+  const [commentTextMap, setCommentTextMap] = useState({});
+  const [commentBoxOpen, setCommentBoxOpen] = useState({});
   const [loading, setLoading] = useState(true);
+  const [expandedPosts, setExpandedPosts] = useState({});
+  const [userId, setUserId] = useState(null);
   const videoRefs = useRef([]);
-  const router = useRouter();
 
-  // Check login status and redirect after 1 minute if not logged in
+  const API_BASE = "https://backend-k.vercel.app";
+
   useEffect(() => {
-    const checkLogin = () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setTimeout(() => {
-          router.push("/login");
-        }, 60000);
-      }
-    };
-    checkLogin();
-  }, [router]);
+    const token = localStorage.getItem("token");
+    if (!token) return (window.location.href = "/login");
 
-  const fetchPosts = async () => {
     try {
-      const res = await axios.get("https://backend-k.vercel.app/post/mango/getall");
-      setPosts(res.data);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
+      const decoded = jwt.decode(token);
+      if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
+        localStorage.removeItem("token");
+        return (window.location.href = "/login");
+      }
+      setUserId(decoded.UserId);
+      fetchPosts();
+    } catch {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
     }
-  };
-
-  useEffect(() => {
-    fetchPosts();
   }, []);
 
-  const handleLike = async (postId) => {
+  const fetchPosts = async () => {
+    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return toast.error("Please login first");
-      const res = await axios.post(
-        `https://backend-k.vercel.app/post/like/${postId}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => (post._id === postId ? res.data : post))
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Error while liking post");
+      const { data } = await axios.get(`${API_BASE}/post/mango/getall`);
+      setPosts(data);
+    } catch {
+      alert("Failed to fetch posts");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleComment = async (postId, commentText) => {
+  const hasLikedPost = (post) =>
+    post.likes?.some((id) => id.toString() === userId?.toString());
+
+  const handleLikePost = async (postId) => {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("You must be logged in to like");
+
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return toast.error("Please login first");
       const res = await axios.post(
-        `https://backend-k.vercel.app/comment/${postId}`,
-        { text: commentText },
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${API_BASE}/post/like/${postId}`,
+        {},
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        }
       );
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post._id === postId ? { ...post, comments: res.data.comments } : post
+      setPosts((prev) =>
+        prev.map((p) => (p._id === postId ? res.data : p))
+      );
+    } catch {
+      alert("Failed to toggle like");
+    }
+  };
+
+  const handleComment = async (postId) => {
+    const token = localStorage.getItem("token");
+    const comment = commentTextMap[postId]?.trim();
+    if (!token || !userId) return alert("Not authenticated");
+    if (!comment) return alert("Comment cannot be empty");
+
+    try {
+      const res = await axios.post(
+        `${API_BASE}/post/comment/${postId}`,
+        { CommentText: comment, userId },
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        }
+      );
+      setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
+      setPosts((prev) =>
+        prev.map((p) =>
+          p._id === postId
+            ? { ...p, comments: res.data.comments }
+            : p
         )
       );
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to comment");
+    } catch {
+      alert("Failed to post comment");
     }
   };
 
-  return (
-    <div className="max-w-2xl mx-auto mt-6">
-      {loading ? (
-        <Skeleton />
-      ) : (
-        posts.map((post, index) => (
-          <div
-            key={post._id}
-            className="bg-white rounded-2xl shadow-md p-4 mb-6 border border-gray-100"
-          >
-            <div className="flex items-center mb-2">
-              <img
-                src={post.userProfile || "/default-avatar.png"}
-                alt="user"
-                className="w-10 h-10 rounded-full mr-3"
-              />
-              <div className="flex-grow">
-                <h3 className="font-semibold text-gray-800">{post.username}</h3>
-                <p className="text-xs text-gray-500">
-                  {formatPostTime(post.createdAt)}
-                </p>
-              </div>
-              <span className="ml-auto text-xl text-gray-500 cursor-pointer">
-                ...
-              </span>
-            </div>
+  const toggleCommentBox = (postId) => {
+    setCommentBoxOpen((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
 
-            <p className="mb-3 text-sm text-gray-700 whitespace-pre-line">
-              {post.caption}
-            </p>
+  const toggleExpanded = (postId) => {
+    setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
 
-            {post.media && post.media.endsWith(".mp4") ? (
-              <video
-                ref={(el) => (videoRefs.current[index] = el)}
-                src={post.media}
-                className="rounded-xl w-full max-h-[500px] object-cover"
-                controls
-                autoPlay
-                muted
-              />
-            ) : post.media ? (
-              <img
-                src={post.media}
-                alt="post-media"
-                className="rounded-xl w-full max-h-[500px] object-cover"
-              />
-            ) : null}
+  const renderPost = useCallback(
+    (post, index) => {
+      const isExpanded = expandedPosts[post._id];
+      const isVideo = post.mediaType?.startsWith("video");
+      const commentText = commentTextMap[post._id] || "";
+      const commentsVisible = commentBoxOpen[post._id];
+      const title = post.title || "";
+      const titleText = isExpanded
+        ? title
+        : title.slice(0, 100) + (title.length > 100 ? "..." : "");
 
-            <div className="flex items-center mt-4 space-x-4">
-              <button
-                onClick={() => handleLike(post._id)}
-                className={`text-sm font-medium ${
-                  post.likes.includes(localStorage.getItem("userId"))
-                    ? "text-red-500"
-                    : "text-gray-600"
-                }`}
+      return (
+        <div key={post._id} className="bg-white shadow rounded-lg p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <img
+              src={post.userId?.profilePic || ""}
+              alt="avatar"
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <span className="font-semibold text-gray-900">
+              {post.userId?.username || "Unknown"}
+            </span>
+          </div>
+
+          <p className="text-gray-800 mb-4">
+            {titleText}
+            {title.length > 100 && (
+              <span
+                className="text-blue-600 ml-2 cursor-pointer"
+                onClick={() => toggleExpanded(post._id)}
               >
-                ❤️ {post.likes.length} Like
-              </button>
-              <span className="text-sm text-gray-600">
-                💬 {post.comments.length} Comments
+                {isExpanded ? " See less" : " See more"}
               </span>
-            </div>
+            )}
+          </p>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const comment = e.target.comment.value;
-                if (!comment.trim()) return;
-                handleComment(post._id, comment);
-                e.target.reset();
-              }}
-              className="mt-3"
+          {post.media && (
+            <>
+              {isVideo ? (
+                <video
+                  ref={(ref) => (videoRefs.current[index] = ref)}
+                  src={post.media}
+                  controls
+                  className="w-full rounded-lg mb-4"
+                />
+              ) : (
+                <img
+                  src={post.media}
+                  alt="media"
+                  className="w-full rounded-lg mb-4 object-cover"
+                />
+              )}
+            </>
+          )}
+
+          <div className="flex items-center gap-6 text-gray-600 mb-4">
+            <button
+              onClick={() => handleLikePost(post._id)}
+              className={`text-sm font-medium ${
+                hasLikedPost(post) ? "text-red-600" : "text-gray-600"
+              }`}
             >
+              {hasLikedPost(post) ? "💔 Dislike" : "❤️ Like"} ({post.likes?.length || 0})
+            </button>
+            <button
+              onClick={() => toggleCommentBox(post._id)}
+              className="text-sm text-gray-600"
+            >
+              💬 Comment ({post.comments?.length || 0})
+            </button>
+          </div>
+
+          {commentsVisible && (
+            <div className="mt-4">
               <input
                 type="text"
-                name="comment"
                 placeholder="Write a comment..."
-                className="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-1 focus:ring-blue-400"
+                value={commentText}
+                onChange={(e) =>
+                  setCommentTextMap((prev) => ({
+                    ...prev,
+                    [post._id]: e.target.value,
+                  }))
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2 mb-2 focus:outline-none focus:border-blue-500"
               />
-            </form>
+              <button
+                onClick={() => handleComment(post._id)}
+                className="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700"
+              >
+                Post Comment
+              </button>
 
-            {post.comments.slice(0, 2).map((comment, idx) => (
-              <div key={idx} className="mt-2 pl-3 border-l-2 border-gray-200">
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium text-gray-800">
-                    {comment.username}:
-                  </span>{" "}
-                  {comment.text}
-                </p>
+              <div className="mt-4 space-y-2">
+                {post.comments.map((cmt, i) => (
+                  <div key={i} className="bg-gray-100 p-3 rounded-md">
+                    <p className="font-semibold text-gray-800">
+                      {cmt.userId?.username || "User"}
+                    </p>
+                    <p className="text-gray-700">{cmt.CommentText}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ))
-      )}
+            </div>
+          )}
+        </div>
+      );
+    },
+    [commentTextMap, commentBoxOpen, expandedPosts, userId]
+  );
+
+  if (loading) return <div className="text-center p-6">Loading feed...</div>;
+
+  return (
+    <div className="max-w-2xl mx-auto p-6 space-y-8">
+      {posts.map((post, idx) => renderPost(post, idx))}
     </div>
   );
-}
-
-export default PostsManager;
+    }
+               
