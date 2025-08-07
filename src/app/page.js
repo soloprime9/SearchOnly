@@ -42,7 +42,7 @@ export default function Page() {
   
   return (
     <div>
-    <Upload />
+    //<Upload />
     <OnlyFeed />
     </div>
   )
