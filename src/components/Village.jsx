@@ -1,134 +1,221 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import toast from 'react-hot-toast';
 
-export default function Posts() {
+export default function Feed() {
   const [posts, setPosts] = useState([]);
-  const [commentText, setCommentText] = useState({});
+  const [commentTextMap, setCommentTextMap] = useState({});
+  const [commentBoxOpen, setCommentBoxOpen] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [expandedPosts, setExpandedPosts] = useState({});
   const [userId, setUserId] = useState(null);
-  const [token, setToken] = useState(null);
+  const videoRefs = useRef([]);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (!storedToken) return (window.location.href = "/login");
+    const token = localStorage.getItem('token');
+    if (!token) return (window.location.href = '/login');
 
     try {
-      const decoded = jwt.decode(storedToken);
-      if (!decoded?.exp || decoded.exp * 1000 < Date.now()) {
-        localStorage.removeItem("token");
-        return (window.location.href = "/login");
+      const decoded = jwt.decode(token);
+      if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
+        localStorage.removeItem('token');
+        return (window.location.href = '/login');
       }
       setUserId(decoded.UserId);
-      setToken(storedToken);
-      fetchPosts(storedToken);
+      fetchPosts();
     } catch (err) {
-      localStorage.removeItem("token");
-      return (window.location.href = "/login");
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
   }, []);
 
-  const fetchPosts = async (token) => {
+  const fetchPosts = async () => {
+    setLoading(true);
     try {
-      const res = await axios.get("/api/posts", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setPosts(res.data);
+      const { data } = await axios.get('https://backend-k.vercel.app/post/mango/getall');
+      setPosts(data);
     } catch (err) {
-      console.error("Error fetching posts:", err);
+      alert('Failed to fetch posts');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLike = async (postId) => {
+  const hasLikedPost = (post) => post.likes?.includes(userId);
+
+  const handleLikePost = async (postId) => {
+    const token = localStorage.getItem('token');
+    if (!token) return alert('You must be logged in to like');
+
     try {
-      await axios.post(`/api/posts/like/${postId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchPosts(token);
+      await axios.post(
+        `https://backend-k.vercel.app/post/like/${postId}`,
+        {},
+        {
+          headers: {
+            'x-auth-token': token,
+          },
+        }
+      );
+      fetchPosts();
     } catch (err) {
-      console.error("Like failed:", err);
-      toast.error("Authentication failed. Please login.");
+      console.error('Like error:', err);
+      alert('Failed to toggle like');
     }
   };
 
   const handleComment = async (postId) => {
-    const text = commentText[postId]?.trim();
-    if (!text) {
-      toast.error("Comment cannot be empty.");
-      return;
-    }
+    const token = localStorage.getItem('token');
+    const comment = commentTextMap[postId]?.trim();
+
+    if (!token || !userId) return alert('Not authenticated');
+    if (!comment) return alert('Comment cannot be empty');
 
     try {
       await axios.post(
-        `/api/posts/comment/${postId}`,
-        { text },
-        { headers: { Authorization: `Bearer ${token}` } }
+        `https://backend-k.vercel.app/post/comment/${postId}`,
+        { CommentText: comment, userId },
+        {
+          headers: {
+            'x-auth-token': token,
+          },
+        }
       );
-      setCommentText((prev) => ({ ...prev, [postId]: "" }));
-      fetchPosts(token);
+      setCommentTextMap((prev) => ({ ...prev, [postId]: '' }));
+      fetchPosts();
     } catch (err) {
-      console.error("Comment failed:", err);
-      toast.error("Authentication failed. Please login.");
+      console.error('Comment error:', err);
+      alert('Failed to post comment');
     }
   };
 
-  const hasLiked = (post) => post.likes?.includes(userId);
+  const toggleCommentBox = (postId) => {
+    setCommentBoxOpen((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
+  const toggleExpanded = (postId) => {
+    setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
+  const renderPost = useCallback(
+    (post, index) => {
+      const isExpanded = expandedPosts[post._id];
+      const isVideo = post.mediaType?.startsWith('video');
+      const commentText = commentTextMap[post._id] || '';
+      const commentsVisible = commentBoxOpen[post._id];
+      const title = post.title || '';
+      const titleText = isExpanded ? title : title.slice(0, 100) + (title.length > 100 ? '...' : '');
+
+      return (
+        <div key={post._id} className="bg-white shadow rounded-lg p-4 mb-6">
+          {/* User Info */}
+          <div className="flex items-center gap-3 mb-3">
+            <img
+              src={post?.userId?.profilePic || 'https://www.fondpeace.com/og-image.jpg'}
+              alt="avatar"
+              className="w-10 h-10 rounded-full object-cover"
+            />
+            <span className="font-semibold text-gray-800">
+              {post?.userId?.username || 'Unknown'}
+            </span>
+          </div>
+
+          {/* Title */}
+          <p className="text-gray-700 mb-3">
+            {titleText}
+            {title.length > 100 && (
+              <span
+                className="text-blue-600 ml-2 cursor-pointer"
+                onClick={() => toggleExpanded(post._id)}
+              >
+                {isExpanded ? 'See less' : 'See more'}
+              </span>
+            )}
+          </p>
+
+          {/* Media */}
+          {post.media &&
+            (isVideo ? (
+              <video
+                ref={(ref) => (videoRefs.current[index] = ref)}
+                src={post.media}
+                controls
+                className="w-full rounded-lg mb-3"
+              />
+            ) : (
+              <img
+                src={post.media}
+                alt="media"
+                className="w-full rounded-lg mb-3 object-cover"
+              />
+            ))}
+
+          {/* Like & Comment Actions */}
+          <div className="flex gap-4 text-sm text-gray-700 mb-3">
+            <button
+              onClick={() => handleLikePost(post._id)}
+              className="hover:text-red-500 transition"
+            >
+              {hasLikedPost(post) ? '💔 Dislike' : '❤️ Like'} ({post.likes?.length || 0})
+            </button>
+            <button
+              onClick={() => toggleCommentBox(post._id)}
+              className="hover:text-blue-500 transition"
+            >
+              💬 Comment ({post.comments?.length || 0})
+            </button>
+          </div>
+
+          {/* Comment Box */}
+          {commentsVisible && (
+            <div className="mt-3">
+              <input
+                type="text"
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+                placeholder="Write a comment..."
+                value={commentText}
+                onChange={(e) =>
+                  setCommentTextMap((prev) => ({ ...prev, [post._id]: e.target.value }))
+                }
+              />
+              <button
+                onClick={() => handleComment(post._id)}
+                className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+              >
+                Post Comment
+              </button>
+
+              {/* Display Comments */}
+              <div className="mt-4 space-y-3">
+                {post.comments?.map((comment, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <img
+                      src={comment?.userId?.profilePic || 'https://www.fondpeace.com/og-image.jpg'}
+                      alt="comment-avatar"
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">
+                        {comment?.userId?.username || 'User'}
+                      </p>
+                      <p className="text-gray-700 text-sm">{comment?.CommentText}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    },
+    [commentTextMap, commentBoxOpen, expandedPosts, userId]
+  );
+
+  if (loading) return <div className="text-center p-6">Loading feed...</div>;
 
   return (
     <div className="max-w-2xl mx-auto p-4">
-      {posts.map((post) => (
-        <div key={post._id} className="bg-white shadow-md rounded-xl p-4 mb-6">
-          <div className="mb-2 text-lg font-semibold">{post.username}</div>
-          <div className="mb-3">{post.content}</div>
-
-          {post.media && (
-            post.media.endsWith(".mp4") ? (
-              <video controls className="w-full rounded-lg mb-3">
-                <source src={post.media} type="video/mp4" />
-              </video>
-            ) : (
-              <img src={post.media} className="w-full rounded-lg mb-3" alt="media" />
-            )
-          )}
-
-          <div className="flex items-center gap-4 mb-3">
-            <button
-              onClick={() => handleLike(post._id)}
-              className={`px-4 py-1 text-white rounded-full ${hasLiked(post) ? 'bg-red-500' : 'bg-gray-500'} hover:opacity-90`}
-            >
-              {hasLiked(post) ? "Dislike" : "Like"} ({post.likes?.length || 0})
-            </button>
-          </div>
-
-          <div className="mb-2">
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              value={commentText[post._id] || ""}
-              onChange={(e) =>
-                setCommentText({ ...commentText, [post._id]: e.target.value })
-              }
-              className="w-full border px-3 py-2 rounded-lg mb-2"
-            />
-            <button
-              onClick={() => handleComment(post._id)}
-              className="bg-blue-500 text-white px-4 py-1 rounded-full hover:bg-blue-600"
-            >
-              Comment
-            </button>
-          </div>
-
-          <div className="mt-4">
-            {post.comments?.map((c, i) => (
-              <div key={i} className="text-sm bg-gray-100 p-2 rounded mb-1">
-                <strong>{c.username || "User"}:</strong> {c.text}
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
+      {posts.map((post, index) => renderPost(post, index))}
     </div>
   );
-}
+              }
