@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { formatPostTime } from '@/components/DateFormate';
 import Skeleton from '@/components/Skeleton';
 import toast from 'react-hot-toast';
-
+  
 function PostsManager() {
   const [posts, setPosts] = useState([]);
   const videoRefs = useRef([]);
