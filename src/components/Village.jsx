@@ -20,6 +20,7 @@ export default function Feed() {
 
     if (!storedToken || !storedUserId) {
       alert('Authentication Error: Please login again.');
+      window.location.href="/login";
       
     }
 
