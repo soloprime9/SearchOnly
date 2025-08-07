@@ -3,6 +3,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import jwt from 'jsonwebtoken';
 
 export default function Feed() {
   const [posts, setPosts] = useState([]);
@@ -15,16 +16,34 @@ export default function Feed() {
   const videoRefs = useRef([]);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUserId = localStorage.getItem('UserId');
+    const token = localStorage.getItem("token");
 
-    if (!storedToken || !storedUserId) {
-      alert('Authentication Error: Please login again.');
-      window.location.href="/login";
-      
+    if (!token) {
+      console.log("Token is not available");
+      return (window.location.href = "/login");
     }
 
-    setToken(storedToken);
+    try {
+      const decoded = jwt.decode(token);
+      console.log("Decoded token data:", decoded);
+      if (!decoded || !decoded.exp) {
+        console.log("Token or Exp Missing");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+      if (decoded.exp * 1000 < Date.now()) {
+        console.log("Now Going to Redirect on Login Page");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    } catch (err) {
+      console.log("Invalid Token:", err);
+      localStorage.removeItem("token");
+      return (window.location.href = "/login");
+    }
+
+    const storedUserId = localStorage.getItem('UserId');
+    setToken(token);
     setUserId(storedUserId);
     fetchPosts();
   }, []);
@@ -157,5 +176,4 @@ export default function Feed() {
       {posts.map((post, index) => renderPost(post, index))}
     </div>
   );
-  }
-            
+}
