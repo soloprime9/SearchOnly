@@ -1,197 +1,160 @@
-'use client';
+// Converted React Web JSX Component
+// Assumes you use localStorage instead of AsyncStorage and an HTML5 video tag
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import Link from 'next/link';
-import { formatPostTime } from '@/components/DateFormate';
-import Skeleton from '@/components/Skeleton';
-import toast from 'react-hot-toast';
 
-function PostsManager() {
+export default function Feed() {
   const [posts, setPosts] = useState([]);
-  const videoRefs = useRef([]);
+  const [commentTextMap, setCommentTextMap] = useState({});
+  const [commentBoxOpen, setCommentBoxOpen] = useState({});
   const [userId, setUserId] = useState(null);
-
-  // Fetch posts from API
-  const fetchPosts = async () => {
-    try {
-      const { data } = await axios.get("https://backend-k.vercel.app/post/mango/getall");
-      setPosts(data);
-    } catch (error) {
-      console.error("Failed to fetch posts:", error);
-    }
-  };
-
-  // Extract UserId from token on mount
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return; // user not logged in
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1])); // decode JWT payload
-      setUserId(payload.UserId || payload.userId || payload.id);
-    } catch {
-      // invalid token format
-      setUserId(null);
-    }
-  }, []);
-
-  // Intersection observer for videos
-  useEffect(() => {
-    const observers = [];
-
-    videoRefs.current.forEach((video, index) => {
-      if (!video) return;
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            video.play().catch(() => {});
-          } else {
-            video.pause();
-          }
-        },
-        { threshold: 0.5 }
-      );
-
-      observer.observe(video);
-      observers.push(observer);
-    });
-
-    return () => {
-      observers.forEach((observer) => observer.disconnect());
-    };
-  }, [posts]);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [expandedPosts, setExpandedPosts] = useState({});
+  const videoRefs = useRef([]);
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    const storedToken = localStorage.getItem('token');
+    const storedUserId = localStorage.getItem('UserId');
 
-  // Handle share button
-  const handleShare = (post) => {
-    const postURL = `${window.location.origin}/post/${post._id}`;
-    navigator.clipboard.writeText(postURL)
-      .then(() => toast.success("Link copied to clipboard!", { duration: 1500 }))
-      .catch(() => toast.error("Failed to copy link."));
-  };
-
-  // Check if current user liked a post
-  const isLikedByUser = (post) => {
-    if (!post.likes || !userId) return false;
-    return post.likes.includes(userId);
-  };
-
-  // Handle like/unlike
-  const handleLike = async (postId) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Please login to like posts.");
+    if (!storedToken || !storedUserId) {
+      alert('Authentication Error: Please login again.');
       return;
     }
 
-    try {
-      const res = await axios.post(
-        `https://backend-k.vercel.app/post/like/${postId}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+    setToken(storedToken);
+    setUserId(storedUserId);
+    fetchPosts();
+  }, []);
 
-      // Update local post's likes from response
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post._id === postId ? { ...post, likes: res.data.likes } : post
-        )
-      );
-    } catch (error) {
-      console.error("Error liking post:", error.response?.data || error.message);
-      toast.error("Failed to like post.");
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get("https://backend-k.vercel.app/post/mango/getall");
+      setPosts(data);
+    } catch (err) {
+      alert('Failed to fetch posts');
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="w-full px-4 py-6 space-y-6">
-      {posts.length > 0 ? (
-        posts.map((post, index) => (
-          <div key={post._id} className="border rounded-xl p-4 shadow-sm bg-white">
-            {/* User Info */}
-            <div className="flex items-start gap-3 mb-3">
-              <Link href={`/profile/${post?.userId?.username}`}>
-                <img
-                  src={"https://www.fondpeace.com/og-image.jpg"}
-                  alt="profile"
-                  className="w-10 h-10 rounded-full border object-cover"
-                />
-              </Link>
-              <div className="flex flex-col">
-                <Link href={`/profile/${post?.userId?.username}`}>
-                  <span className="font-semibold text-md cursor-pointer">
-                    {post?.userId?.username}
-                  </span>
-                </Link>
-                <span className="text-sm text-gray-500">{formatPostTime(post.createdAt)}</span>
-              </div>
-              <span className="ml-auto text-xl text-gray-500 cursor-pointer">...</span>
-            </div>
+  const handleLikePost = async (postId) => {
+    if (!token) return alert('User not authenticated');
+    try {
+      await axios.post(`https://backend-k.vercel.app/post/like/${postId}`, {}, {
+        headers: { 'x-auth-token': token }
+      });
+      fetchPosts();
+    } catch (err) {
+      alert('Failed to like post');
+    }
+  };
 
-            {/* Post Title */}
-            {post?.title && (
-              <p className="text-base text-gray-800 mb-3 px-1">{post.title}</p>
+  const handleComment = async (postId) => {
+    const commentText = commentTextMap[postId];
+    if (!token || !userId || !commentText?.trim()) {
+      alert('Comment cannot be empty or unauthenticated');
+      return;
+    }
+    try {
+      await axios.post(
+        `https://backend-k.vercel.app/post/comment/${postId}`,
+        { CommentText: commentText, userId },
+        { headers: { 'x-auth-token': token } }
+      );
+      setCommentTextMap((prev) => ({ ...prev, [postId]: '' }));
+      setCommentBoxOpen((prev) => ({ ...prev, [postId]: false }));
+      fetchPosts();
+    } catch (err) {
+      alert('Failed to post comment');
+    }
+  };
+
+  const toggleCommentBox = (postId) => {
+    setCommentBoxOpen((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
+  const toggleExpanded = (postId) => {
+    setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
+  const renderPost = useCallback((post, index) => {
+    const isExpanded = expandedPosts[post._id];
+    const isVideo = post.mediaType?.startsWith('video');
+    const commentText = commentTextMap[post._id] || '';
+    const commentsVisible = commentBoxOpen[post._id];
+    const titleText = isExpanded ? post.title : post.title?.slice(0, 100) + (post.title?.length > 100 ? '...' : '');
+
+    return (
+      <div key={post._id} className="post">
+        <div className="post-header">
+          <img src={post?.userId?.profilePic || "https://www.fondpeace.com/og-image.jpg"} alt="avatar" className="avatar" />
+          <span>{post?.userId?.username || 'Unknown User'}</span>
+        </div>
+
+        {post.title && (
+          <p>
+            {titleText}
+            {post.title.length > 100 && (
+              <span className="see-more" onClick={() => toggleExpanded(post._id)}>
+                {isExpanded ? ' See less' : ' See more'}
+              </span>
             )}
+          </p>
+        )}
 
-            {/* Media Preview */}
-            <div className="rounded-xl overflow-hidden border border-gray-200 bg-black">
-              {post.media && post.mediaType ? (
-                post.mediaType.startsWith("video") ? (
-                  <video
-                    ref={(el) => (videoRefs.current[index] = el)}
-                    src={post.media}
-                    className="w-full max-h-[400px] object-cover"
-                    muted
-                    loop
-                    autoPlay
-                    playsInline
-                    preload="metadata"
-                    controls
-                  />
-                ) : post.mediaType.startsWith("image") ? (
-                  <img
-                    src={post.media}
-                    alt="Post"
-                    className="w-full max-h-[600px] object-contain"
-                  />
-                ) : (
-                  <p className="p-4 text-center text-gray-500">Unsupported media type</p>
-                )
-              ) : (
-                <p className="p-4 text-center text-gray-400">No media available</p>
-              )}
-            </div>
+        {post.media && (
+          isVideo ? (
+            <video
+              ref={(ref) => (videoRefs.current[index] = ref)}
+              src={post.media}
+              controls
+              className="media"
+            />
+          ) : (
+            <img src={post.media} alt="media" className="media" />
+          )
+        )}
 
-            {/* Post Actions */}
-            <div className="flex justify-around text-sm text-gray-600 mt-4">
-              <p
-                className={`cursor-pointer hover:text-blue-600 select-none ${
-                  isLikedByUser(post) ? "text-blue-600 font-semibold" : ""
-                }`}
-                onClick={() => handleLike(post._id)}
-              >
-                ❤️ Like ({post.likes?.length || 0})
-              </p>
-              <p className="cursor-pointer hover:text-blue-600">Comment</p>
-              <p className="cursor-pointer hover:text-blue-600">Save</p>
-              <p className="cursor-pointer hover:text-blue-600" onClick={() => handleShare(post)}>
-                Share
-              </p>
+        <div className="actions">
+          <button onClick={() => handleLikePost(post._id)}>Like ({post.likes?.length || 0})</button>
+          <button onClick={() => toggleCommentBox(post._id)}>Comment</button>
+        </div>
+
+        {commentsVisible && (
+          <div className="comments">
+            <input
+              type="text"
+              placeholder="Write a comment..."
+              value={commentText}
+              onChange={(e) => setCommentTextMap((prev) => ({ ...prev, [post._id]: e.target.value }))}
+            />
+            <button onClick={() => handleComment(post._id)}>Post Comment</button>
+            <div className="comment-list">
+              {post.comments?.map((comment, i) => (
+                <div key={i} className="comment-item">
+                  <img src={comment?.userId?.profilePic || 'https://www.fondpeace.com/og-image.jpg'} alt="avatar" className="comment-avatar" />
+                  <div>
+                    <strong>{comment?.userId?.username || 'User'}</strong>
+                    <p>{comment?.CommentText}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        ))
-      ) : (
-        <Skeleton />
-      )}
+        )}
+      </div>
+    );
+  }, [commentTextMap, commentBoxOpen, expandedPosts]);
+
+  if (loading) return <div className="loading">Loading feed...</div>;
+
+  return (
+    <div className="feed">
+      {posts.map((post, index) => renderPost(post, index))}
     </div>
   );
-}
-
-export default PostsManager;
+  }
+            
