@@ -14,22 +14,39 @@ export default function Feed() {
   const API_BASE = "https://backend-k.vercel.app";
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return (window.location.href = "/login");
+  const token = localStorage.getItem("token");
 
-    try {
-      const decoded = jwt.decode(token);
-      if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
-        localStorage.removeItem("token");
-        return (window.location.href = "/login");
-      }
-      setUserId(decoded.UserId);
-      fetchPosts();
-    } catch {
-      localStorage.removeItem("token");
+  const startRedirectTimer = () => {
+    const timer = setTimeout(() => {
       window.location.href = "/login";
+    }, 60 * 1000); // 1 minute
+    return timer;
+  };
+
+  let timer;
+
+  if (!token) {
+    timer = startRedirectTimer();
+    return () => clearTimeout(timer);
+  }
+
+  try {
+    const decoded = jwt.decode(token);
+    if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
+      localStorage.removeItem("token");
+      timer = startRedirectTimer();
+      return () => clearTimeout(timer);
     }
-  }, []);
+
+    setUserId(decoded.UserId);
+    fetchPosts();
+  } catch {
+    localStorage.removeItem("token");
+    timer = startRedirectTimer();
+    return () => clearTimeout(timer);
+  }
+}, []);
+
 
   const fetchPosts = async () => {
     setLoading(true);
