@@ -10,43 +10,7 @@ export default function Feed() {
   const [expandedPosts, setExpandedPosts] = useState({});
   const [userId, setUserId] = useState(null);
   const videoRefs = useRef([]);
-
   const API_BASE = "https://backend-k.vercel.app";
-
-  useEffect(() => {
-  const token = localStorage.getItem("token");
-
-  const startRedirectTimer = () => {
-    const timer = setTimeout(() => {
-      window.location.href = "/login";
-    }, 60 * 1000); // 1 minute
-    return timer;
-  };
-
-  let timer;
-
-  if (!token) {
-    timer = startRedirectTimer();
-    return () => clearTimeout(timer);
-  }
-
-  try {
-    const decoded = jwt.decode(token);
-    if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
-      localStorage.removeItem("token");
-      timer = startRedirectTimer();
-      return () => clearTimeout(timer);
-    }
-
-    setUserId(decoded.UserId);
-    fetchPosts();
-  } catch {
-    localStorage.removeItem("token");
-    timer = startRedirectTimer();
-    return () => clearTimeout(timer);
-  }
-}, []);
-
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -60,6 +24,44 @@ export default function Feed() {
     }
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    const startRedirectTimer = () => {
+      const timer = setTimeout(() => {
+        window.location.href = "/login";
+      }, 60 * 1000); // 1 minute
+      return timer;
+    };
+
+    let timer;
+
+    // Always fetch posts first
+    fetchPosts();
+
+    if (!token) {
+      timer = startRedirectTimer();
+      return () => clearTimeout(timer);
+    }
+
+    try {
+      const decoded = jwt.decode(token);
+
+      if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
+        localStorage.removeItem("token");
+        timer = startRedirectTimer();
+        return () => clearTimeout(timer);
+      }
+
+      // Valid token
+      setUserId(decoded.UserId);
+    } catch {
+      localStorage.removeItem("token");
+      timer = startRedirectTimer();
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   const hasLikedPost = (post) =>
     post.likes?.some((id) => id.toString() === userId?.toString());
 
@@ -71,11 +73,7 @@ export default function Feed() {
       const res = await axios.post(
         `${API_BASE}/post/like/${postId}`,
         {},
-        {
-          headers: {
-            "x-auth-token": token,
-          },
-        }
+        { headers: { "x-auth-token": token } }
       );
       setPosts((prev) =>
         prev.map((p) => (p._id === postId ? res.data : p))
@@ -95,11 +93,7 @@ export default function Feed() {
       const res = await axios.post(
         `${API_BASE}/post/comment/${postId}`,
         { CommentText: comment, userId },
-        {
-          headers: {
-            "x-auth-token": token,
-          },
-        }
+        { headers: { "x-auth-token": token } }
       );
       setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
       setPosts((prev) =>
@@ -184,7 +178,8 @@ export default function Feed() {
                 hasLikedPost(post) ? "text-red-600" : "text-gray-600"
               }`}
             >
-              {hasLikedPost(post) ? "💔 Dislike" : "❤️ Like"} ({post.likes?.length || 0})
+              {hasLikedPost(post) ? "💔 Dislike" : "❤️ Like"} (
+              {post.likes?.length || 0})
             </button>
             <button
               onClick={() => toggleCommentBox(post._id)}
@@ -240,5 +235,4 @@ export default function Feed() {
       {posts.map((post, idx) => renderPost(post, idx))}
     </div>
   );
-    }
-               
+}
