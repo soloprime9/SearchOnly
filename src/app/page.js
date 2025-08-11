@@ -4,6 +4,8 @@ import CreatePage from "@/components/CreatePage";
 import SearchGo from "@/components/SearchGo";
 import OnlyFeed from "@/components/OnlyFeed";
 import Upload from "@/components/Upload";
+import Village from "@/components/Village";
+
 
 export const metadata = {
   title: "Fond Peace",
@@ -43,7 +45,7 @@ export default function Page() {
   return (
     <div>
     
-    <OnlyFeed />
+    <Village />
     </div>
   )
 
