@@ -1,3 +1,4 @@
+'use client'
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import jwt from "jsonwebtoken";
