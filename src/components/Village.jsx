@@ -142,7 +142,7 @@ export default function Feed() {
     setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
   };
 
-  // Instagram/Twitter style click handling on video
+  // Instagram/Twitter style click handling on video container
   const handleVideoClick = (e, postId) => {
     if (
       e.target.closest("button") ||
@@ -150,6 +150,7 @@ export default function Feed() {
       e.target.closest("input") ||
       (e.target.tagName === "VIDEO" && e.target.controls)
     ) {
+      // Ignore clicks on buttons, links, inputs, or video controls
       return;
     }
     router.push(`/short/${postId}`);
@@ -195,7 +196,7 @@ export default function Feed() {
             <>
               {isVideo ? (
                 <div
-                  className="relative w-full rounded-lg mb-4 overflow-hidden cursor-pointer"
+                  className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden cursor-pointer mx-auto shadow-md"
                   onClick={(e) => handleVideoClick(e, post._id)}
                 >
                   <video
@@ -204,15 +205,16 @@ export default function Feed() {
                     autoPlay
                     loop
                     playsInline
+                    
                     controls
-                    className="w-full"
+                    className="w-full h-full object-cover rounded-lg"
                   />
                 </div>
               ) : (
                 <img
                   src={post.media}
                   alt="media"
-                  className="w-full rounded-lg mb-4 object-cover"
+                  className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto"
                 />
               )}
             </>
@@ -282,4 +284,4 @@ export default function Feed() {
       {posts.map((post, idx) => renderPost(post, idx))}
     </div>
   );
-                  }
+          }
