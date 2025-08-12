@@ -63,6 +63,31 @@ export default function Feed() {
     }
   }, []);
 
+  // IntersectionObserver for autoplay on 50% visibility
+  useEffect(() => {
+    if (!posts.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    videoRefs.current.forEach((video) => {
+      if (video) observer.observe(video);
+    });
+
+    return () => observer.disconnect();
+  }, [posts]);
+
   const hasLikedPost = (post) =>
     post.likes?.some((id) => id.toString() === userId?.toString());
 
@@ -117,7 +142,7 @@ export default function Feed() {
     setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
   };
 
-  // ✅ Instagram/Twitter style click handler
+  // Instagram/Twitter style click handling on video
   const handleVideoClick = (e, postId) => {
     if (
       e.target.closest("button") ||
@@ -167,28 +192,30 @@ export default function Feed() {
           </p>
 
           {post.media && (
-            isVideo ? (
-              <div
-                className="relative w-full rounded-lg mb-4 overflow-hidden cursor-pointer"
-                onClick={(e) => handleVideoClick(e, post._id)}
-              >
-                <video
-                  ref={(ref) => (videoRefs.current[index] = ref)}
+            <>
+              {isVideo ? (
+                <div
+                  className="relative w-full rounded-lg mb-4 overflow-hidden cursor-pointer"
+                  onClick={(e) => handleVideoClick(e, post._id)}
+                >
+                  <video
+                    ref={(ref) => (videoRefs.current[index] = ref)}
+                    src={post.media}
+                    autoPlay
+                    loop
+                    playsInline
+                    controls
+                    className="w-full"
+                  />
+                </div>
+              ) : (
+                <img
                   src={post.media}
-                  autoPlay
-                  loop
-                  playsInline
-                  
-                  className="w-full"
+                  alt="media"
+                  className="w-full rounded-lg mb-4 object-cover"
                 />
-              </div>
-            ) : (
-              <img
-                src={post.media}
-                alt="media"
-                className="w-full rounded-lg mb-4 object-cover"
-              />
-            )
+              )}
+            </>
           )}
 
           <div className="flex items-center gap-6 text-gray-600 mb-4">
@@ -255,5 +282,4 @@ export default function Feed() {
       {posts.map((post, idx) => renderPost(post, idx))}
     </div>
   );
-    }
-                
+                  }
