@@ -171,7 +171,7 @@ export default function Feed() {
         <div key={post._id} className="bg-white shadow rounded-lg p-6 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <img
-              src={post.userId?.profilePic || ""}
+              src={post.userId?.profilePic || "fondpeace.com/og-image.jpg"}
               alt="avatar"
               className="w-12 h-12 rounded-full object-cover"
             />
