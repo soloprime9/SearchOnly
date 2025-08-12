@@ -158,9 +158,8 @@ export default function Feed() {
 
 
           {post.media && (
-  
-    {isVideo ? (
-      <Link href={`/short/${post._id}`} passHref>
+  isVideo ? (
+    <Link href={`/short/${post._id}`}>
       <video
         ref={(ref) => (videoRefs.current[index] = ref)}
         src={post.media}
@@ -169,16 +168,16 @@ export default function Feed() {
         loop
         playsInline
       />
-        </Link>
-    ) : (
-      <img
-        src={post.media}
-        alt="media"
-        className="w-full rounded-lg mb-4 object-cover cursor-pointer"
-      />
-    )}
-  
+    </Link>
+  ) : (
+    <img
+      src={post.media}
+      alt="media"
+      className="w-full rounded-lg mb-4 object-cover cursor-pointer"
+    />
+  )
 )}
+
 
 
           
