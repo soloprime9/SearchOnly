@@ -54,7 +54,7 @@ export default function UsersList() {
             {users.map((u, i) => (
               <tr key={u._id} className="text-center">
                 <td className="py-2 px-4 border">{i + 1}</td>
-                <td className="py-2 px-4 border">{u.name}</td>
+                <td className="py-2 px-4 border">{u.username}</td>
                 <td className="py-2 px-4 border">{u.email}</td>
                 <td className="py-2 px-4 border">
                   {new Date(u.createdAt).toLocaleDateString()}
