@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import Link from "next/link";
 
 export default function Feed() {
   const [posts, setPosts] = useState([]);
@@ -153,24 +154,30 @@ export default function Feed() {
             )}
           </p>
 
+
+
+
           {post.media && (
-            <>
-              {isVideo ? (
-                <video
-                  ref={(ref) => (videoRefs.current[index] = ref)}
-                  src={post.media}
-                  controls
-                  className="w-full rounded-lg mb-4"
-                />
-              ) : (
-                <img
-                  src={post.media}
-                  alt="media"
-                  className="w-full rounded-lg mb-4 object-cover"
-                />
-              )}
-            </>
-          )}
+  <Link href={`/short/${post._id}`} passHref>
+    {isVideo ? (
+      <video
+        ref={(ref) => (videoRefs.current[index] = ref)}
+        src={post.media}
+        className="w-full rounded-lg mb-4 cursor-pointer"
+        muted
+      />
+    ) : (
+      <img
+        src={post.media}
+        alt="media"
+        className="w-full rounded-lg mb-4 object-cover cursor-pointer"
+      />
+    )}
+  </Link>
+)}
+
+
+          
 
           <div className="flex items-center gap-6 text-gray-600 mb-4">
             <button
