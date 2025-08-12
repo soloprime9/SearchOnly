@@ -1,8 +1,8 @@
 'use client';
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import jwt from "jsonwebtoken";
-import Link from "next/link";
 
 export default function Feed() {
   const [posts, setPosts] = useState([]);
@@ -12,6 +12,7 @@ export default function Feed() {
   const [expandedPosts, setExpandedPosts] = useState({});
   const [userId, setUserId] = useState(null);
   const videoRefs = useRef([]);
+  const router = useRouter();
   const API_BASE = "https://backend-k.vercel.app";
 
   const fetchPosts = async () => {
@@ -32,13 +33,12 @@ export default function Feed() {
     const startRedirectTimer = () => {
       const timer = setTimeout(() => {
         window.location.href = "/login";
-      }, 60 * 1000); // 1 minute
+      }, 60 * 1000);
       return timer;
     };
 
     let timer;
 
-    // Always fetch posts first
     fetchPosts();
 
     if (!token) {
@@ -55,7 +55,6 @@ export default function Feed() {
         return () => clearTimeout(timer);
       }
 
-      // Valid token
       setUserId(decoded.UserId);
     } catch {
       localStorage.removeItem("token");
@@ -118,6 +117,19 @@ export default function Feed() {
     setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
   };
 
+  // ✅ Instagram/Twitter style click handler
+  const handleVideoClick = (e, postId) => {
+    if (
+      e.target.closest("button") ||
+      e.target.closest("a") ||
+      e.target.closest("input") ||
+      (e.target.tagName === "VIDEO" && e.target.controls)
+    ) {
+      return;
+    }
+    router.push(`/short/${postId}`);
+  };
+
   const renderPost = useCallback(
     (post, index) => {
       const isExpanded = expandedPosts[post._id];
@@ -153,34 +165,31 @@ export default function Feed() {
               </span>
             )}
           </p>
- 
-
-
 
           {post.media && (
-  isVideo ? (
-    <Link href={`/short/${post._id}`}>
-      <video
-        ref={(ref) => (videoRefs.current[index] = ref)}
-        src={post.media}
-        className="w-full rounded-lg mb-4 cursor-pointer"
-        autoPlay
-        loop
-        playsInline
-      />
-    </Link>
-  ) : (
-    <img
-      src={post.media}
-      alt="media"
-      className="w-full rounded-lg mb-4 object-cover cursor-pointer"
-    />
-  )
-)}
-
-
-
-          
+            isVideo ? (
+              <div
+                className="relative w-full rounded-lg mb-4 overflow-hidden cursor-pointer"
+                onClick={(e) => handleVideoClick(e, post._id)}
+              >
+                <video
+                  ref={(ref) => (videoRefs.current[index] = ref)}
+                  src={post.media}
+                  autoPlay
+                  loop
+                  playsInline
+                  
+                  className="w-full"
+                />
+              </div>
+            ) : (
+              <img
+                src={post.media}
+                alt="media"
+                className="w-full rounded-lg mb-4 object-cover"
+              />
+            )
+          )}
 
           <div className="flex items-center gap-6 text-gray-600 mb-4">
             <button
@@ -246,4 +255,5 @@ export default function Feed() {
       {posts.map((post, idx) => renderPost(post, idx))}
     </div>
   );
-}
+    }
+                
