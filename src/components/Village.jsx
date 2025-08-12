@@ -220,7 +220,7 @@ export default function Feed() {
             </>
           )}
 
-          <div className="flex items-center justify-end gap-6 text-gray-600 mb-4">
+          <div className="flex justify-between items-center mb-4 text-gray-600">
 
             <button
               onClick={() => handleLikePost(post._id)}
