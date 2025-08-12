@@ -14,7 +14,7 @@ export default function UsersList() {
         // ✅ Get token from localStorage or cookies
         const token = localStorage.getItem('token');
 
-        const res = await axios.get("http://localhost:5000/mango/getall", {
+        const res = await axios.get("https://backend-k.vercel.app/user/mango/getall", {
           headers: {
             Authorization: `Bearer ${token}`
           }
