@@ -43,9 +43,16 @@ export const metadata = {
 export default function Page() {
   
   return (
-    <div>
-    
-    <Village />
+    <div className="flex flex-col items-center p-4">
+      {/* Title */}
+      <h1 className="text-center text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+        FondPeace.com
+      </h1>
+
+      {/* Village Component */}
+      <div className="w-full max-w-6xl">
+        <Village />
+      </div>
     </div>
   )
 
