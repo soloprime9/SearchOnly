@@ -33,7 +33,7 @@ export default function Feed() {
     const startRedirectTimer = () => {
       const timer = setTimeout(() => {
         window.location.href = "/login";
-      }, 60 * 1000);
+      }, 2 * 60 * 1000);
       return timer;
     };
 
