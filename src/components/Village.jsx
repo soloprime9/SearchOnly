@@ -282,8 +282,9 @@ export default function Feed() {
   if (loading) return <div className="text-center p-6">Loading feed...</div>;
 
   return (
-    <div className="max-w-lg mx-auto p-6 space-y-8">
-      {posts.map((post, idx) => renderPost(post, idx))}
-    </div>
-  );
+  <div className="max-w-2xl mx-auto space-y-8 px-2 sm:px-0">
+    {posts.map((post, idx) => renderPost(post, idx))}
+  </div>
+);
+
           }
