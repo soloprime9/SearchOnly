@@ -206,7 +206,7 @@ export default function Feed() {
                     loop
                     playsInline
                     
-                    controls
+                    controls={false}
                     className="w-full h-full object-cover rounded-lg"
                   />
                 </div>
