@@ -206,7 +206,8 @@ export default function Feed() {
                     loop
                     playsInline
                     
-                    controls={false}
+                    controls
+                    controlsList="nodownload noremoteplayback noplaybackrate"
                     className="w-full h-full object-cover rounded-lg"
                   />
                 </div>
