@@ -15,7 +15,7 @@ export default function WhatsAppPopup({ onPopupStateChange }) {
       setShowPopup(true);
       document.body.style.overflow = "hidden";
       onPopupStateChange(true); // popup visible
-    }, 30000); // 30 seconds
+    }, 10000); // 30 seconds
 
     return () => clearTimeout(timer);
   }, [onPopupStateChange]);
