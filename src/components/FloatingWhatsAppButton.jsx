@@ -8,7 +8,7 @@ export default function FloatingWhatsAppButton({ isPopupVisible }) {
       href="https://whatsapp.com/channel/0029Vb6VjYS5fM5Yi9h8pA2K"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-4 right-4 z-40 bg-green-500 p-3 rounded-full shadow-lg hover:bg-green-600 transition animate-bounce"
+      className="fixed bottom-8 right-4 z-40 bg-green-500 p-3 rounded-full shadow-lg hover:bg-green-600 transition animate-bounce"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
