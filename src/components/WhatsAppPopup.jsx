@@ -21,7 +21,7 @@ export default function WhatsAppPopup({ onPopupStateChange }) {
   }, [onPopupStateChange]);
 
   const handleYes = () => {
-    window.open("https://chat.whatsapp.com/YOUR_GROUP_LINK", "_blank");
+    window.open("https://whatsapp.com/channel/0029Vb6VjYS5fM5Yi9h8pA2K", "_blank");
     closePopup();
   };
 
