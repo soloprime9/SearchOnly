@@ -5,7 +5,7 @@ import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 
 export default function WhatsAppClientUI() {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-
+ 
   return (
     <>
       <WhatsAppPopup onPopupStateChange={setIsPopupVisible} />
