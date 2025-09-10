@@ -5,8 +5,8 @@ import SearchGo from "@/components/SearchGo";
 import OnlyFeed from "@/components/OnlyFeed";
 import Upload from "@/components/Upload";
 import Village from "@/components/Village";
-import WhatsAppPopup from "@/components/WhatsAppPopup";
-import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
+import WhatsAppClientUI from "@/components/WhatsAppClientUI";
+
 
 
 
@@ -44,12 +44,12 @@ export const metadata = {
 };
 
 export default function Page() {
-  const [isPopupVisible, setIsPopupVisible] = useState(false);
+
  
   return (
-    <WhatsAppPopup onPopupStateChange={setIsPopupVisible} />
-    <FloatingWhatsAppButton isPopupVisible={isPopupVisible} />
-      
+    
+      <>
+    <WhatsAppClientUI />
     <div className="flex flex-col items-center p-4">
       {/* Title */}
       <h1 className="text-center text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-6">
@@ -61,6 +61,8 @@ export default function Page() {
         <Village />
       </div>
     </div>
+        
+        </>
   )
 
 };
