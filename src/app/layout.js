@@ -36,26 +36,7 @@ export default function RootLayout({ children }) {
           strategy="afterInteractive"
         />
 
-        {/* OneSignal Push Notifications */}
-        <Script
-          src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
-          defer
-          strategy="afterInteractive"
-        />
-        <Script id="one-signal-init" strategy="afterInteractive">
-          {`
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            OneSignalDeferred.push(async function(OneSignal) {
-              await OneSignal.init({
-                appId: "7155774c-af3a-4dbd-8c0e-ff6ed3bd2090",
-                safari_web_id: "web.onesignal.auto.43666e9c-a8ad-4b1e-8de4-10291bcbdb86",
-                notifyButton: {
-                  enable: true,
-                },
-              });
-            });
-          `}
-        </Script>
+        
       </head>
 
       <body className={inter.variable}>
