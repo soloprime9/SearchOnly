@@ -200,7 +200,7 @@ export default function Feed() {
           </p>
 
           {post.media && (
-            
+            <>
               
                 {isVideo ? (
   <div
@@ -232,7 +232,8 @@ export default function Feed() {
   />
 )}
 
-
+    </>
+          )}
              
 
           <div className="flex justify-between items-center mb-4 text-gray-600">
