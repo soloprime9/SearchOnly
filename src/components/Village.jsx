@@ -200,7 +200,7 @@ export default function Feed() {
           </p>
 
           {post.media && (
-            <>
+            
               
                 {isVideo ? (
   <div
