@@ -153,7 +153,8 @@ export default function Feed() {
       // Ignore clicks on buttons, links, inputs, or video controls
       return;
     }
-    router.push(`/short/${postId}`);
+    router.push(`/post/${postId}`);
+
   };
 
   const renderPost = useCallback(
