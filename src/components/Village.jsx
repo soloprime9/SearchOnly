@@ -176,16 +176,38 @@ export default function Feed() {
 
       return (
         <div key={post._id} className="bg-white shadow rounded-lg p-4 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <img
-              src={"https://www.fondpeace.com/og-image.jpg"}
-              alt="profile"
-              className="w-12 h-12 rounded-full object-cover"
-            />
-            <span className="font-semibold text-gray-900">
-              {post.userId?.username || "Unknown"}
-            </span>
-          </div>
+          
+          
+          <div className="flex items-center justify-between mb-4">
+  {/* Left side → Avatar + Username */}
+  <div className="flex items-center gap-3">
+    <img
+      src={"https://www.fondpeace.com/og-image.jpg"}
+      alt="profile"
+      className="w-12 h-12 rounded-full object-cover"
+    />
+    <span className="font-semibold text-gray-900">
+      {post.userId?.username || "Unknown"}
+    </span>
+  </div>
+
+  {/* Right side → 3 dots menu */}
+  <button
+    className="text-gray-600 hover:text-gray-900 text-2xl px-2"
+    onClick={(e) => {
+      e.stopPropagation(); // prevent opening post when clicked
+      alert("Show post options menu here (Report, Save, Share etc.)");
+    }}
+  >
+    ⋮
+  </button>
+</div>
+
+
+
+
+
+          
 
           <p className="text-gray-800 mb-4">
             {titleText}
@@ -215,7 +237,7 @@ export default function Feed() {
         autoPlay
         loop
         playsInline
-        muted
+        
         className="w-full h-full object-cover rounded-lg pointer-events-none"
       />
 
