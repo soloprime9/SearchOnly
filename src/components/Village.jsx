@@ -144,18 +144,24 @@ export default function Feed() {
 
   // Instagram/Twitter style click handling on video container
   const handleVideoClick = (e, postId) => {
-    if (
-      e.target.closest("button") ||
-      e.target.closest("a") ||
-      e.target.closest("input") ||
-      (e.target.tagName === "VIDEO" && e.target.controls)
-    ) {
-      // Ignore clicks on buttons, links, inputs, or video controls
-      return;
-    }
-    router.push(`/post/${postId}`);
+  // ✅ Ignore clicks on buttons, links, inputs
+  if (
+    e.target.closest("button") ||
+    e.target.closest("a") ||
+    e.target.closest("input")
+  ) {
+    return;
+  }
 
-  };
+  // ✅ Ignore clicks on video controls (bottom 40px of video)
+  if (e.target.tagName === "VIDEO" && e.nativeEvent.offsetY > e.target.clientHeight - 40) {
+    return;
+  }
+
+  // ✅ Otherwise → go to single post page
+  router.push(`/post/${postId}`);
+};
+
 
   const renderPost = useCallback(
     (post, index) => {
@@ -197,21 +203,23 @@ export default function Feed() {
             <>
               {isVideo ? (
                 <div
-                  className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden cursor-pointer mx-auto shadow-md"
-                  onClick={(e) => handleVideoClick(e, post._id)}
-                >
-                  <video
-                    ref={(ref) => (videoRefs.current[index] = ref)}
-                    src={post.media}
-                    autoPlay
-                    loop
-                    playsInline
-                    
-                    controls
-                    controlsList="nodownload noremoteplayback noplaybackrate"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
+  className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden cursor-pointer mx-auto shadow-md"
+  onClick={(e) => handleVideoClick(e, post._id)}
+  onContextMenu={(e) => e.preventDefault()} // 🚫 Disable right-click
+>
+  <video
+    ref={(ref) => (videoRefs.current[index] = ref)}
+    src={post.media}
+    autoPlay
+    loop
+    playsInline
+    controls
+    controlsList="nodownload noremoteplayback noplaybackrate"
+    className="w-full h-full object-cover rounded-lg"
+    onContextMenu={(e) => e.preventDefault()} // 🚫 Disable right-click on video itself
+  />
+</div>
+
               ) : (
                 <img
                   src={post.media}
