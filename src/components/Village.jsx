@@ -199,41 +199,52 @@ export default function Feed() {
             )}
           </p>
 
-          {post.media && (
-            <>
+          
               
-                {isVideo ? (
-  <div
-    className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden mx-auto shadow-md"
-    onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on container click
-    onContextMenu={(e) => e.preventDefault()}        // 🔹 disable right-click
-  >
-    {/* Stop clicks on the <video> itself from bubbling to container */}
-    <video
-      ref={(ref) => (videoRefs.current[index] = ref)}
+                {post.media && (
+  isVideo ? (
+    <div
+      className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden mx-auto shadow-md cursor-pointer"
+      onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on container click
+      onContextMenu={(e) => e.preventDefault()}        // 🔹 disable right-click
+    >
+      {/* Video */}
+      <video
+        ref={(ref) => (videoRefs.current[index] = ref)}
+        src={post.media}
+        autoPlay
+        loop
+        playsInline
+        muted
+        className="w-full h-full object-cover rounded-lg pointer-events-none"
+      />
+
+      {/* 🔊 Volume button overlay */}
+      <button
+        className="absolute bottom-3 right-3 bg-black/60 text-white rounded-full p-2"
+        onClick={(e) => {
+          e.stopPropagation(); // prevent navigation
+          const video = videoRefs.current[index];
+          if (video) {
+            video.muted = !video.muted;
+          }
+        }}
+        onContextMenu={(e) => e.preventDefault()} // disable right-click on button
+      >
+        🔊
+      </button>
+    </div>
+  ) : (
+    <img
       src={post.media}
-      autoPlay
-      loop
-      playsInline
-      controls
-      controlsList="nodownload noremoteplayback noplaybackrate"
-      className="w-full h-full object-cover rounded-lg pointer-events-auto"
-      onClick={(e) => e.stopPropagation()}           // 🔹 allow controls to work
-      onContextMenu={(e) => e.preventDefault()}      // 🔹 disable right-click on video
+      alt="media"
+      className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto cursor-pointer"
+      onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on image click
+      onContextMenu={(e) => e.preventDefault()}        // 🔹 disable right-click on image
     />
-  </div>
-) : (
-  <img
-    src={post.media}
-    alt="media"
-    className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto cursor-pointer"
-    onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on image click
-    onContextMenu={(e) => e.preventDefault()}        // 🔹 disable right-click on image
-  />
+  )
 )}
 
-    </>
-          )}
              
 
           <div className="flex justify-between items-center mb-4 text-gray-600">
