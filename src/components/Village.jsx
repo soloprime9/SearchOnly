@@ -201,34 +201,39 @@ export default function Feed() {
 
           {post.media && (
             <>
-              {isVideo ? (
-                <div
-  className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden cursor-pointer mx-auto shadow-md"
-  onClick={(e) => handleVideoClick(e, post._id)}
-  onContextMenu={(e) => e.preventDefault()} // 🚫 Disable right-click
->
-  <video
-    ref={(ref) => (videoRefs.current[index] = ref)}
+              
+                {isVideo ? (
+  <div
+    className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden mx-auto shadow-md"
+    onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on container click
+    onContextMenu={(e) => e.preventDefault()}        // 🔹 disable right-click
+  >
+    {/* Stop clicks on the <video> itself from bubbling to container */}
+    <video
+      ref={(ref) => (videoRefs.current[index] = ref)}
+      src={post.media}
+      autoPlay
+      loop
+      playsInline
+      controls
+      controlsList="nodownload noremoteplayback noplaybackrate"
+      className="w-full h-full object-cover rounded-lg pointer-events-auto"
+      onClick={(e) => e.stopPropagation()}           // 🔹 allow controls to work
+      onContextMenu={(e) => e.preventDefault()}      // 🔹 disable right-click on video
+    />
+  </div>
+) : (
+  <img
     src={post.media}
-    autoPlay
-    loop
-    playsInline
-    controls
-    controlsList="nodownload noremoteplayback noplaybackrate"
-    className="w-full h-full object-cover rounded-lg"
-    onContextMenu={(e) => e.preventDefault()} // 🚫 Disable right-click on video itself
+    alt="media"
+    className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto cursor-pointer"
+    onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on image click
+    onContextMenu={(e) => e.preventDefault()}        // 🔹 disable right-click on image
   />
-</div>
+)}
 
-              ) : (
-                <img
-                  src={post.media}
-                  alt="media"
-                  className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto"
-                />
-              )}
-            </>
-          )}
+
+             
 
           <div className="flex justify-between items-center mb-4 text-gray-600">
 
