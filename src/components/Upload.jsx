@@ -67,9 +67,14 @@ const UploadPost = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("title", title);
+    // In handleSubmit inside UploadPost
+const extractedTags = title.match(/#\w+/g)?.map(tag => tag.replace("#", "")) || [];
+
+const formData = new FormData();
+formData.append("file", file);
+formData.append("title", title);
+formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as tags
+
 
     try {
       const token = localStorage.getItem("token");
