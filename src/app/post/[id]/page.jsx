@@ -1,3 +1,129 @@
+// app/post/[id]/page.jsx
+import SinglePostPage from "@/components/SinglePostPage";
+
+export async function generateMetadata({ params }) {
+  const { id } = params;
+  const API_BASE = "https://backend-k.vercel.app";
+
+  try {
+    const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+    const post = await res.json();
+
+    // ✅ Extract SEO fields with safe fallbacks
+    const seoTitle = post.title || post.content?.slice(0, 60) || "Post";
+    const seoDesc = post.content?.slice(0, 160) || "View post on FondPeace";
+    const seoImage = post.thumbnail || post.media || "https://fondpeace.com/default.jpg";
+    const seoUrl = `https://fondpeace.com/post/${id}`;
+    const seoKeywords = post.tags?.length
+      ? post.tags.join(", ")
+      : "Fondpeace, social media, trending posts, latest updates";
+
+    const publishedTime = post.createdAt || new Date().toISOString();
+    const modifiedTime = post.updatedAt || publishedTime;
+    const authorName = post.userId?.username || "FondPeace User";
+
+    // ✅ JSON-LD Schema (Google rich results)
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": post.mediaType?.startsWith("video") ? "VideoObject" : "Article",
+      headline: seoTitle,
+      description: seoDesc,
+      image: [seoImage],
+      datePublished: publishedTime,
+      dateModified: modifiedTime,
+      author: {
+        "@type": "Person",
+        name: authorName,
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "FondPeace",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://fondpeace.com/logo.png",
+        },
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": seoUrl,
+      },
+      ...(post.mediaType?.startsWith("video") && {
+        contentUrl: post.media,
+        embedUrl: seoUrl,
+        thumbnailUrl: seoImage,
+        uploadDate: publishedTime,
+      }),
+    };
+
+    return {
+      title: seoTitle,
+      description: seoDesc,
+      keywords: seoKeywords,
+      alternates: {
+        canonical: seoUrl,
+      },
+      openGraph: {
+        title: seoTitle,
+        description: seoDesc,
+        url: seoUrl,
+        siteName: "FondPeace",
+        type: post.mediaType?.startsWith("video") ? "video.other" : "article",
+        publishedTime,
+        modifiedTime,
+        images: [
+          {
+            url: seoImage,
+            width: 1200,
+            height: 630,
+            alt: seoTitle,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        site: "@Fondpeace",
+        creator: authorName,
+        title: seoTitle,
+        description: seoDesc,
+        images: [seoImage],
+      },
+      other: {
+        "article:author": authorName,
+        "article:published_time": publishedTime,
+        "article:modified_time": modifiedTime,
+        // Inject JSON-LD schema
+        "script:ld+json": JSON.stringify(jsonLd),
+      },
+    };
+  } catch {
+    return {
+      title: "Post Not Found",
+      description: "Error loading post.",
+      alternates: { canonical: "https://fondpeace.com/post" },
+    };
+  }
+}
+
+export default async function Page({ params }) {
+  const { id } = params;
+  const res = await fetch(`https://backend-k.vercel.app/post/single/${id}`, { cache: "no-store" });
+  const post = await res.json();
+
+  return <SinglePostPage post={post} />;
+}
+
+
+
+
+
+
+
+
+
+
+
+/*
+
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
@@ -97,7 +223,7 @@ export default function SinglePostPage() {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="bg-white shadow rounded-lg p-4">
-        {/* User Info */}
+        //* User Info 
         <div className="flex items-center gap-3 mb-4">
           <img
             src={"https://www.fondpeace.com/og-image.jpg"}
@@ -109,10 +235,10 @@ export default function SinglePostPage() {
           </span>
         </div>
 
-        {/* Post Title */}
+        //* Post Title 
         <p className="text-gray-800 mb-4">{post.title}</p>
 
-        {/* Media */}
+        //* Media 
         {post.media && (
           <>
             {isVideo ? (
@@ -135,7 +261,7 @@ export default function SinglePostPage() {
           </>
         )}
 
-        {/* Likes & Comments Actions */}
+        //* Likes & Comments Actions 
         <div className="flex justify-between items-center mb-4 text-gray-600">
           <button
             onClick={handleLikePost}
@@ -150,7 +276,7 @@ export default function SinglePostPage() {
           </span>
         </div>
 
-        {/* Add Comment */}
+        //* Add Comment 
         <div className="mt-4">
           <input
             type="text"
@@ -167,7 +293,7 @@ export default function SinglePostPage() {
           </button>
         </div>
 
-        {/* Show Comments */}
+        //* Show Comments *
         <div className="mt-4 space-y-2">
           {post.comments?.map((cmt, i) => (
             <div key={i} className="bg-gray-100 p-3 rounded-md">
@@ -182,3 +308,6 @@ export default function SinglePostPage() {
     </div>
   );
         }
+
+*/
+
