@@ -9,20 +9,26 @@ export async function generateMetadata({ params }) {
     const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
     const post = await res.json();
 
-    // ✅ Extract SEO fields with safe fallbacks
-    const seoTitle = post.title || post.content?.slice(0, 60) || "Post";
-    const seoDesc = post.content?.slice(0, 160) || "View post on FondPeace";
+    // ✅ Core SEO values
+    const seoTitle = post.title ? `${post.title} | FondPeace` : "Post | FondPeace";
+    const seoDesc =
+      post.title && post.userId?.username
+        ? `${post.title} uploaded by ${post.userId.username}. Watch, like, and comment on FondPeace.`
+        : "Discover trending posts, videos, and updates on FondPeace.";
     const seoImage = post.thumbnail || post.media || "https://fondpeace.com/default.jpg";
     const seoUrl = `https://fondpeace.com/post/${id}`;
     const seoKeywords = post.tags?.length
       ? post.tags.join(", ")
+      : post.title
+      ? post.title.split(" ").join(", ")
       : "Fondpeace, social media, trending posts, latest updates";
 
+    // ✅ Timestamps & author
     const publishedTime = post.createdAt || new Date().toISOString();
     const modifiedTime = post.updatedAt || publishedTime;
-    const authorName = post.userId?.username || "FondPeace User";
+    const authorName = post.userId?.username || "FondPeace";
 
-    // ✅ JSON-LD Schema (Google rich results)
+    // ✅ JSON-LD Schema (Rich Snippets)
     const jsonLd = {
       "@context": "https://schema.org",
       "@type": post.mediaType?.startsWith("video") ? "VideoObject" : "Article",
@@ -40,7 +46,7 @@ export async function generateMetadata({ params }) {
         name: "FondPeace",
         logo: {
           "@type": "ImageObject",
-          url: "https://fondpeace.com/logo.png",
+          url: "https://fondpeace.com/Fondpeace.jpg",
         },
       },
       mainEntityOfPage: {
@@ -55,13 +61,12 @@ export async function generateMetadata({ params }) {
       }),
     };
 
+    // ✅ Return metadata
     return {
       title: seoTitle,
       description: seoDesc,
       keywords: seoKeywords,
-      alternates: {
-        canonical: seoUrl,
-      },
+      alternates: { canonical: seoUrl },
       openGraph: {
         title: seoTitle,
         description: seoDesc,
@@ -91,13 +96,12 @@ export async function generateMetadata({ params }) {
         "article:author": authorName,
         "article:published_time": publishedTime,
         "article:modified_time": modifiedTime,
-        // Inject JSON-LD schema
         "script:ld+json": JSON.stringify(jsonLd),
       },
     };
   } catch {
     return {
-      title: "Post Not Found",
+      title: "Post Not Found | FondPeace",
       description: "Error loading post.",
       alternates: { canonical: "https://fondpeace.com/post" },
     };
@@ -106,13 +110,13 @@ export async function generateMetadata({ params }) {
 
 export default async function Page({ params }) {
   const { id } = params;
-  const res = await fetch(`https://backend-k.vercel.app/post/single/${id}`, { cache: "no-store" });
+  const res = await fetch(`https://backend-k.vercel.app/post/single/${id}`, {
+    cache: "no-store",
+  });
   const post = await res.json();
 
   return <SinglePostPage post={post} />;
 }
-
-
 
 
 
@@ -310,4 +314,5 @@ export default function SinglePostPage() {
         }
 
 */
+
 
