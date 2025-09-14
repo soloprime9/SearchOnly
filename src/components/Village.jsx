@@ -260,7 +260,7 @@ export default function Feed() {
     <img
       src={post.media}
       alt="media"
-      className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-contain shadow-md mx-auto cursor-pointer"
+      className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto cursor-pointer"
       onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on image click
       onContextMenu={(e) => e.preventDefault()}        // 🔹 disable right-click on image
     />
