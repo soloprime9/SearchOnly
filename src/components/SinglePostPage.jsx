@@ -206,7 +206,7 @@ export default function SinglePostPage() {
 
             alt="profile"
 
-            className="w-12 h-12 rounded-full object-contain"
+            className="w-12 h-12 rounded-full object-cover"
 
           />
 
