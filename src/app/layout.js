@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
 
 
 
-            <script type='text/javascript' src='//stinklistedtobacco.com/f6/16/56/f6165662a86e444978a2f98e3bc536f2.js'></script>
+            <Script type='text/javascript' src='//stinklistedtobacco.com/f6/16/56/f6165662a86e444978a2f98e3bc536f2.js'></script>
             
       </head>
 
@@ -56,6 +56,18 @@ export default function RootLayout({ children }) {
         </header>
 
         {children}
+
+
+<Script
+        id="adsterra-native-banner"
+        src="//stinklistedtobacco.com/14acfe7baf63468e154e48154f3469a1/invoke.js"
+        strategy="afterInteractive"
+        async
+        data-cfasync="false"
+      />
+      <div id="container-14acfe7baf63468e154e48154f3469a1"></div>
+
+          
 
         <StatusBar />
         <Analytics />
