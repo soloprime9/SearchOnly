@@ -35,8 +35,6 @@ export default function RootLayout({ children }) {
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-
-        
       </head>
 
       <body className={inter.variable}>
@@ -53,7 +51,7 @@ export default function RootLayout({ children }) {
         {/* Page Content */}
         {children}
 
-        {/* ✅ Native Banner Adsterra inside BODY */}
+        {/* ✅ Single Native Banner Ad */}
         <Script
           id="adsterra-native-banner"
           src="//stinklistedtobacco.com/14acfe7baf63468e154e48154f3469a1/invoke.js"
