@@ -36,12 +36,12 @@ export default function RootLayout({ children }) {
           strategy="afterInteractive"
         />
 
-
-
-
-
-            <Script type='text/javascript' src='//stinklistedtobacco.com/f6/16/56/f6165662a86e444978a2f98e3bc536f2.js'></script>
-            
+        {/* Optional extra Adsterra script (if required globally) */}
+        <Script
+          id="adsterra-extra"
+          src="//stinklistedtobacco.com/f6/16/56/f6165662a86e444978a2f98e3bc536f2.js"
+          strategy="afterInteractive"
+        />
       </head>
 
       <body className={inter.variable}>
@@ -55,19 +55,18 @@ export default function RootLayout({ children }) {
           </div>
         </header>
 
+        {/* Page Content */}
         {children}
 
-
-<Script
-        id="adsterra-native-banner"
-        src="//stinklistedtobacco.com/14acfe7baf63468e154e48154f3469a1/invoke.js"
-        strategy="afterInteractive"
-        async
-        data-cfasync="false"
-      />
-      <div id="container-14acfe7baf63468e154e48154f3469a1"></div>
-
-          
+        {/* ✅ Native Banner Adsterra inside BODY */}
+        <Script
+          id="adsterra-native-banner"
+          src="//stinklistedtobacco.com/14acfe7baf63468e154e48154f3469a1/invoke.js"
+          strategy="afterInteractive"
+          async
+          data-cfasync="false"
+        />
+        <div id="container-14acfe7baf63468e154e48154f3469a1"></div>
 
         <StatusBar />
         <Analytics />
