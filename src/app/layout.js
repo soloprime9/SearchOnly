@@ -35,6 +35,15 @@ export default function RootLayout({ children }) {
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+
+
+            {/* Optional extra Adsterra script (if required globally) */}
+        <Script
+          id="adsterra-extra"
+          src="//stinklistedtobacco.com/f6/16/56/f6165662a86e444978a2f98e3bc536f2.js"
+          strategy="afterInteractive"
+        />
+            
       </head>
 
       <body className={inter.variable}>
