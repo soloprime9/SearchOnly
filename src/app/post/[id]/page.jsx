@@ -33,8 +33,9 @@ export async function generateMetadata({ params }) {
     const serptitle = truncate(fullTitle, 60);
     const metaTitle = `${serptitle} - FondPeace`; // brand-last recommended
     const seoDesc =
-      (post.description || "").trim().slice(0, 155) ||
-      `${fullTitle} — shared on FondPeace. Explore trending images & videos.`;
+      post.title && post.userId?.username
+        ? `${post.title} uploaded by ${post.userId.username}. Watch, like, and comment on FondPeace.`
+        : "Discover trending posts, videos, and updates on FondPeace.";
     const seoImage = ogImage(post);
     const seoUrl = `https://fondpeace.com/post/${id}`;
     const publishedTime = post.createdAt || new Date().toISOString();
@@ -49,7 +50,9 @@ export async function generateMetadata({ params }) {
     // Keywords (note: Google ignores meta keywords, but other engines use it)
     const seoKeywords = post.tags?.length
       ? post.tags.join(", ")
-      : fullTitle.split(/\s+/).slice(0, 15).join(", ");
+      : post.title
+      ? post.title.split(" ").join(", ")
+      : "Fondpeace, social media, trending posts, latest updates";
 
     // Interaction stats fallbacks
     const viewCount = Number(post.views || 0);
@@ -535,6 +538,7 @@ export default function SinglePostPage() {
         }
 
 */
+
 
 
 
