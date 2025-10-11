@@ -11,7 +11,7 @@ function truncate(text = "", max = 60) {
 
 /** Normalize OpenGraph image (preferred OG size 1200x630) */
 function ogImage(post) {
-  return post.thumbnail || post.media || "https://fondpeace.com/default-og-1200x630.jpg";
+  return post.thumbnail || post.media || "https://www.fondpeace.com/Fondpeace.jpg";
 }
 
 /** Build unique @id for schema objects */
@@ -535,6 +535,7 @@ export default function SinglePostPage() {
         }
 
 */
+
 
 
 
