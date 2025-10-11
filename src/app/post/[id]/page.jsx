@@ -1,6 +1,227 @@
 // app/post/[id]/page.jsx
 import SinglePostPage from "@/components/SinglePostPage";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://backend-k.vercel.app";
+
+/** Helper: safely shorten text for SERP display */
+function truncate(text = "", max = 60) {
+  if (!text) return "";
+  return text.length > max ? text.slice(0, max - 1).trim() + "…" : text;
+}
+
+/** Normalize OpenGraph image (preferred OG size 1200x630) */
+function ogImage(post) {
+  return post.thumbnail || post.media || "https://fondpeace.com/default-og-1200x630.jpg";
+}
+
+/** Build unique @id for schema objects */
+function schemaId(seoUrl, type) {
+  return `${seoUrl}#${type}`;
+}
+
+export async function generateMetadata({ params }) {
+  const { id } = params;
+
+  try {
+    const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to fetch post");
+
+    const post = await res.json();
+
+    // Basic fields & fallbacks
+    const fullTitle = (post.title || "Untitled Post").trim();
+    const serptitle = truncate(fullTitle, 60);
+    const metaTitle = `${serptitle} - FondPeace`; // brand-last recommended
+    const seoDesc =
+      (post.description || "").trim().slice(0, 155) ||
+      `${fullTitle} — shared on FondPeace. Explore trending images & videos.`;
+    const seoImage = ogImage(post);
+    const seoUrl = `https://fondpeace.com/post/${id}`;
+    const publishedTime = post.createdAt || new Date().toISOString();
+    const modifiedTime = post.updatedAt || publishedTime;
+    const authorName = post.userId?.username || post.author || "FondPeace Creator";
+
+    // Detect media type: video or image (default to image)
+    const isVideo = !!post.mediaType && post.mediaType.startsWith("video");
+    const mediaUrl = post.media || null;
+    const mediaType = post.mediaType || (isVideo ? "video/mp4" : "image/jpeg");
+
+    // Keywords (note: Google ignores meta keywords, but other engines use it)
+    const seoKeywords = post.tags?.length
+      ? post.tags.join(", ")
+      : fullTitle.split(/\s+/).slice(0, 15).join(", ");
+
+    // Interaction stats fallbacks
+    const viewCount = Number(post.views || 0);
+    const likeCount = Number(post.likes || 0);
+
+    // JSON-LD schema (single object). Add @id and mainEntityOfPage for clarity.
+    let jsonLd = {
+      "@context": "https://schema.org",
+      "@id": schemaId(seoUrl, isVideo ? "video" : "image"),
+      "mainEntityOfPage": { "@type": "WebPage", "@id": seoUrl },
+      "publisher": {
+        "@type": "Organization",
+        "name": "FondPeace",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://fondpeace.com/Fondpeace.jpg"
+        }
+      },
+      "author": { "@type": "Person", "name": authorName },
+      "isAccessibleForFree": true
+    };
+
+    if (isVideo) {
+      jsonLd = {
+        ...jsonLd,
+        "@type": "VideoObject",
+        "name": fullTitle,
+        "description": seoDesc,
+        "thumbnailUrl": [seoImage],
+        "uploadDate": publishedTime,
+        "dateModified": modifiedTime,
+        "contentUrl": mediaUrl || "",
+        "embedUrl": seoUrl,
+        "duration": post.duration || "PT2M",
+        "interactionStatistic": {
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "WatchAction" },
+          "userInteractionCount": viewCount || 0
+        },
+        "isAccessibleForFree": true,
+        "availability": "https://schema.org/InStock",
+        "potentialAction": {
+          "@type": "WatchAction",
+          "target": [seoUrl]
+        },
+        "discussionUrl": `${seoUrl}#comments`
+      };
+    } else {
+      // ImageObject
+      jsonLd = {
+        ...jsonLd,
+        "@type": "ImageObject",
+        "name": fullTitle,
+        "description": seoDesc,
+        "contentUrl": mediaUrl || seoImage,
+        "thumbnailUrl": [seoImage],
+        "uploadDate": publishedTime,
+        "dateModified": modifiedTime,
+        "interactionStatistic": {
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "LikeAction" },
+          "userInteractionCount": likeCount || 0
+        },
+        "isAccessibleForFree": true,
+        "discussionUrl": `${seoUrl}#comments`
+      };
+    }
+
+    // Robots meta (explicit)
+    const robots = {
+      index: true,
+      follow: true,
+      nocache: false,
+      // allow large previews of images & videos which helps Discover:
+      maxSnippet: -1,
+      maxImagePreview: "large",
+      maxVideoPreview: -1
+    };
+
+    // Build metadata object returned by Next.js App Router
+    return {
+      title: metaTitle,
+      description: seoDesc,
+      keywords: seoKeywords,
+      alternates: { canonical: seoUrl },
+      robots,
+      openGraph: {
+        title: fullTitle,
+        description: seoDesc,
+        url: seoUrl,
+        siteName: "FondPeace",
+        type: isVideo ? "video.other" : "website",
+        publishedTime,
+        modifiedTime,
+        images: [
+          {
+            url: seoImage,
+            width: 1200,
+            height: 630,
+            alt: fullTitle
+          }
+        ],
+        ...(isVideo
+          ? {
+              videos: [
+                {
+                  url: mediaUrl,
+                  secureUrl: mediaUrl,
+                  type: mediaType,
+                  width: post.videoWidth || 1280,
+                  height: post.videoHeight || 720
+                }
+              ]
+            }
+          : {})
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: fullTitle,
+        description: seoDesc,
+        site: "@FondPeace",
+        creator: `@${authorName.replace(/\s+/g, "")}`,
+        images: [seoImage]
+      },
+      other: {
+        // single clean JSON-LD string (no duplicates)
+        "script:ld+json": JSON.stringify(jsonLd)
+      }
+    };
+  } catch (err) {
+    console.error("generateMetadata error:", err);
+    return {
+      title: "Post Not Found - FondPeace",
+      description: "The requested post could not be loaded.",
+      alternates: { canonical: "https://fondpeace.com/post" },
+      robots: { index: false, follow: true }
+    };
+  }
+}
+
+export default async function Page({ params }) {
+  const { id } = params;
+
+  try {
+    const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to load post");
+
+    const post = await res.json();
+    return <SinglePostPage post={post} />;
+  } catch (err) {
+    console.error("Page load error:", err);
+    return (
+      <div className="p-8 text-center text-gray-600">
+        <h2 className="text-xl font-semibold">Post Not Found</h2>
+        <p className="mt-2">Sorry, we couldn’t load this content. Please try again later.</p>
+      </div>
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+/*
+// app/post/[id]/page.jsx
+import SinglePostPage from "@/components/SinglePostPage";
+
 export async function generateMetadata({ params }) {
   const { id } = params;
   const API_BASE = "https://backend-k.vercel.app";
@@ -314,5 +535,6 @@ export default function SinglePostPage() {
         }
 
 */
+
 
 
