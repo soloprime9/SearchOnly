@@ -1,20 +1,21 @@
+/*
 // app/post/[id]/page.jsx
 import SinglePostPage from "@/components/SinglePostPage";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://backend-k.vercel.app";
 
-/** Helper: safely shorten text for SERP display */
+/** Helper: safely shorten text for SERP display 
 function truncate(text = "", max = 60) {
   if (!text) return "";
   return text.length > max ? text.slice(0, max - 1).trim() + "…" : text;
 }
 
-/** Normalize OpenGraph image (preferred OG size 1200x630) */
+/** Normalize OpenGraph image (preferred OG size 1200x630) 
 function ogImage(post) {
   return post.thumbnail || post.media || "https://www.fondpeace.com/Fondpeace.jpg";
 }
 
-/** Build unique @id for schema objects */
+/** Build unique @id for schema objects 
 function schemaId(seoUrl, type) {
   return `${seoUrl}#${type}`;
 }
@@ -218,10 +219,10 @@ export default async function Page({ params }) {
 
 
 
+*/
 
 
 
-/*
 // app/post/[id]/page.jsx
 import SinglePostPage from "@/components/SinglePostPage";
 
@@ -538,6 +539,7 @@ export default function SinglePostPage() {
         }
 
 */
+
 
 
 
