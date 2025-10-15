@@ -101,7 +101,7 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
       setUploadProgress(0); // Reset progress bar
       // window.location.href = "/upload";
     } catch (error) {
-      setMessage(error);
+      //setMessage(error);
       console.log(error);
       setUploadProgress(0); // Reset on error
     }
@@ -168,7 +168,7 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
         </form>
 
         {/* 🔹 Display Error/Success Message */}
-        {message && <p className="text-lg text-center text-red-400 mt-4">{message}</p>}
+     //   {message && <p className="text-lg text-center text-red-400 mt-4">{message}</p>}
       </div>
     </div>
   );
