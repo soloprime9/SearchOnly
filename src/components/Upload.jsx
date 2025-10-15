@@ -101,24 +101,10 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
       setUploadProgress(0); // Reset progress bar
       // window.location.href = "/upload";
     } catch (error) {
-  if (error.response) {
-    // 🔥 Show backend error message clearly
-    console.error("Backend Error:", error.response.data);
-    const backendMessage =
-      error.response.data?.error ||
-      error.response.data?.message ||
-      "Server returned an unknown error.";
-    setMessage(`Server Error: ${backendMessage}`);
-  } else if (error.request) {
-    console.error("No Response from Server:", error.request);
-    setMessage("No response received from backend. Check your Render URL or CORS.");
-  } else {
-    console.error("Request Error:", error.message);
-    setMessage(`Frontend Error: ${error.message}`);
-  }
-  setUploadProgress(0);
-}
-
+      //setMessage(error);
+      console.log(error);
+      setUploadProgress(0); // Reset on error
+    }
   };
 
   return (
@@ -182,8 +168,7 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
         </form>
 
         {/* 🔹 Display Error/Success Message */}
-     {message && <p className="text-lg text-center text-red-400 mt-4">{message}</p>}
-
+     //   {message && <p className="text-lg text-center text-red-400 mt-4">{message}</p>}
       </div>
     </div>
   );
