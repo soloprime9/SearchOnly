@@ -85,7 +85,7 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
 
 // https://backendk-z915.onrender.com/ https://backend-k.vercel.app/
 
-      const response = await axios.post("https://backendk-z915.onrender.com/demo/upload", formData, {
+      const response = await axios.post("https://backend-k.vercel.app/demo/upload", formData, {
         headers: {
           "x-auth-token": token,
           "Content-Type": "multipart/form-data",
