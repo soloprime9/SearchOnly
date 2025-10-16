@@ -101,8 +101,9 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
       setUploadProgress(0); // Reset progress bar
       // window.location.href = "/upload";
     } catch (error) {
+     console.log(error);
       setMessage("networks something error, Try Again");
-      console.log(error);
+      
       setUploadProgress(0); // Reset on error
     }
   };
