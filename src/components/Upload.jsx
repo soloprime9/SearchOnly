@@ -8,43 +8,58 @@ const UploadPost = () => {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [preview, setPreview] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0); // 🔥 NEW STATE
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      console.log("Token is not available");
+      console.error("Token not found! Redirecting to login...");
       return (window.location.href = "/login");
     }
 
     try {
       const decoded = jwt.decode(token);
-      console.log("Decoded token data:", decoded);
+      console.log("Decoded token:", decoded);
+
       if (!decoded || !decoded.exp) {
-        console.log("Token or Exp Missing");
+        console.error("Token missing expiration! Removing token and redirecting.");
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
+
       if (decoded.exp * 1000 < Date.now()) {
-        console.log("Now Going to Redirect on Login Page");
+        console.warn("Token expired! Redirecting to login...");
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
     } catch (err) {
-      console.log("Invalid Token:", err);
+      console.error("Invalid token!", err);
       localStorage.removeItem("token");
-      return (window.location.href = "/login");
+      window.location.href = "/login";
     }
   }, []);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      console.warn("No file selected.");
+      return;
+    }
 
-    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "video/mp4", "video/webm", "video/x-matroska"];
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "video/mp4",
+      "video/webm",
+      "video/x-matroska",
+    ];
     if (!allowedTypes.includes(selectedFile.type)) {
-      setMessage("Invalid file type. Only images (PNG, JPG) and videos (MP4, WEBM) are allowed.");
+      console.error("Invalid file type selected:", selectedFile.type);
+      setMessage(
+        "Invalid file type. Only images (PNG, JPG) and videos (MP4, WEBM) are allowed."
+      );
       return;
     }
 
@@ -62,49 +77,80 @@ const UploadPost = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!file || !title) {
-      setMessage("Please provide both a file and a title.");
+    if (!file) {
+      console.error("No file provided!");
+      setMessage("Please select a file to upload.");
       return;
     }
 
-    // In handleSubmit inside UploadPost
-const extractedTags = title.match(/#\w+/g)?.map(tag => tag.replace("#", "")) || [];
+    if (!title) {
+      console.error("No title provided!");
+      setMessage("Please enter a title.");
+      return;
+    }
 
-const formData = new FormData();
-formData.append("file", file);
-formData.append("title", title);
-formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as tags
+    const extractedTags = title.match(/#\w+/g)?.map((tag) => tag.replace("#", "")) || [];
 
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("title", title);
+    formData.append("tags", extractedTags.join(","));
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.log("User is not authenticated.");
+        console.error("Token missing during upload!");
+        setMessage("User is not authenticated.");
         return;
       }
 
-// https://backendk-z915.onrender.com/ https://backend-k.vercel.app/
+      const response = await axios.post(
+        "https://backend-k.vercel.app/demo/upload",
+        formData,
+        {
+          headers: {
+            "x-auth-token": token,
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percent);
+          },
+        }
+      );
 
-      const response = await axios.post("https://backend-k.vercel.app/demo/upload", formData, {
-        headers: {
-          "x-auth-token": token,
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percent); // 🔥 Update Upload Progress
-        },
-      });
-
+      console.log("Upload Success:", response.data);
       setMessage("Post uploaded successfully!");
-      console.log("Successfully Uploaded Post:", response.data);
-      setUploadProgress(0); // Reset progress bar
-      // window.location.href = "/upload";
+      setUploadProgress(0);
     } catch (error) {
-     console.log(error);
-      setMessage("networks something error, Try Again");
-      
-      setUploadProgress(0); // Reset on error
+      // Detailed error logging
+      if (error.response) {
+        // Server responded with a status outside 2xx
+        console.error(
+          "Server Error:",
+          error.response.status,
+          error.response.data
+        );
+        setMessage(
+          `Server Error (${error.response.status}): ${JSON.stringify(
+            error.response.data
+          )}`
+        );
+      } else if (error.request) {
+        // Request made but no response
+        console.error("No response received from server:", error.request);
+        setMessage(
+          "No response from server. Check your network or backend service."
+        );
+      } else {
+        // Something happened in setting up the request
+        console.error("Axios Error:", error.message);
+        setMessage(`Upload Failed: ${error.message}`);
+      }
+
+      setUploadProgress(0);
     }
   };
 
@@ -113,8 +159,6 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
       <div className="lg:m-20 border-2 bg-blue-700 text-white font-bold rounded py-4 px-6">
         <h2 className="text-2xl py-2 text-center">Upload a New Post</h2>
         <form onSubmit={handleSubmit} className="flex flex-col items-center">
-
-          {/* 🔹 File Upload Box */}
           <div className="relative border-2 border-dashed rounded-md m-2 h-20 w-full flex items-center justify-center cursor-pointer">
             <input
               type="file"
@@ -125,18 +169,27 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
             <p className="text-white">Select Media</p>
           </div>
 
-          {/* 🔹 File Preview */}
           {preview && (
             <div className="relative flex justify-center mt-4 w-full h-48 md:h-64">
               {file && file.type.startsWith("image/") ? (
-                <img className="border-2 rounded-md border-white object-contain w-full h-full" src={preview} alt="Preview" />
+                <img
+                  className="border-2 rounded-md border-white object-contain w-full h-full"
+                  src={preview}
+                  alt="Preview"
+                />
               ) : (
-                <video className="border-2 rounded-md border-white object-contain w-full h-full" src={preview} loop controls autoPlay muted />
+                <video
+                  className="border-2 rounded-md border-white object-contain w-full h-full"
+                  src={preview}
+                  loop
+                  controls
+                  autoPlay
+                  muted
+                />
               )}
             </div>
           )}
 
-          {/* 🔹 Title Input */}
           <input
             type="text"
             className="w-full text-white p-2 text-xl mt-3 focus:outline-none focus:ring-2 focus:ring-white rounded"
@@ -146,7 +199,6 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
             placeholder="Enter title"
           />
 
-          {/* 🔹 Upload Progress Bar */}
           {uploadProgress > 0 && (
             <div className="w-full mt-4">
               <div className="h-4 bg-gray-300 rounded">
@@ -159,7 +211,6 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
             </div>
           )}
 
-          {/* 🔹 Upload Button */}
           <button
             type="submit"
             className="w-full border-2 rounded bg-yellow-600 p-2 mt-4 text-xl font-bold hover:bg-red-700 transition"
@@ -168,7 +219,6 @@ formData.append("tags", extractedTags.join(","));  // ✅ auto add hashtags as t
           </button>
         </form>
 
-        {/* 🔹 Display Error/Success Message */}
         {message && <p className="text-lg text-center text-red-400 mt-4">{message}</p>}
       </div>
     </div>
