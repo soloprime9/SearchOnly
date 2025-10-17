@@ -105,7 +105,7 @@ const UploadPost = () => {
       }
 
       const response = await axios.post(
-        "https://backend-k.vercel.app/demo/upload",
+        "https://backendk-z915.onrender.com/demo/upload",
         formData,
         {
           headers: {
