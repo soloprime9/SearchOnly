@@ -51,7 +51,7 @@ export default function RootLayout({ children }) {
           <div>
             <h1 className="font-bold md:block hidden">
               <strong>
-                <a href="https://www.fondpeace.com/">Fondpeace</a>
+                <a className="text-blue-600 hover:text-blue-700 transition-colors" href="https://www.fondpeace.com/">Fondpeace</a>
               </strong>
             </h1>
           </div>
