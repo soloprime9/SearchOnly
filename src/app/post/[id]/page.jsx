@@ -343,21 +343,7 @@ export default async function Page({ params }) {
   return (
     <main className="w-full min-h-screen bg-white text-gray-900">
       {/* ✅ Responsive SEO header */}
-      <header className="w-full md:m-2 flex justify-evenly items-center py-3 border-b border-gray-200 bg-white shadow-sm">
-        <div>
-          <h1 className="font-bold text-lg md:text-xl">
-            <strong>
-              <a
-                href="https://www.fondpeace.com/"
-                className="text-blue-600 hover:text-blue-700 transition-colors"
-                aria-label="Fondpeace Homepage"
-              >
-                Fondpeace
-              </a>
-            </strong>
-          </h1>
-        </div>
-      </header>
+      
 
       {/* ✅ Post content */}
       <section className="container mx-auto px-4 py-6 md:py-8">
@@ -563,6 +549,7 @@ export default function SinglePostPage() {
         }
 
 */
+
 
 
 
