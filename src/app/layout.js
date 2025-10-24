@@ -47,15 +47,21 @@ export default function RootLayout({ children }) {
       </head>
 
       <body className={inter.variable}>
-        <header className="md:m-2 flex justify-evenly">
-          <div>
-            <h1 className="font-bold md:block hidden">
-              <strong>
-                <a className="text-blue-600 hover:text-blue-700 transition-colors" href="https://www.fondpeace.com/">Fondpeace</a>
-              </strong>
-            </h1>
-          </div>
-        </header>
+        <header className="w-full md:m-2 flex justify-evenly items-center py-3 border-b border-gray-200 bg-white shadow-sm">
+        <div>
+          <h1 className="font-bold text-lg md:text-xl">
+            <strong>
+              <a
+                href="https://www.fondpeace.com/"
+                className="text-blue-600 hover:text-blue-700 transition-colors"
+                aria-label="Fondpeace Homepage"
+              >
+                Fondpeace
+              </a>
+            </strong>
+          </h1>
+        </div>
+      </header>
 
         {/* Page Content */}
         {children}
