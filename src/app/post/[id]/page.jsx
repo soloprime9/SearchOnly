@@ -1,3 +1,156 @@
+// app/post/[id]/page.jsx
+import SinglePostPage from "@/components/SinglePostPage";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://backend-k.vercel.app";
+
+export async function generateMetadata({ params }) {
+  const { id } = params;
+
+  try {
+    // ✅ Fetch main post with related posts
+    const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to fetch post");
+
+    const { post, related = [] } = await res.json();
+
+    // Core SEO
+    const seoTitle = post.title ? `${post.title} | FondPeace` : "Post | FondPeace";
+
+    let seoDesc = post.title && post.userId?.username
+      ? `${post.title} uploaded by ${post.userId.username}.`
+      : "Discover trending posts, videos, and updates on FondPeace.";
+
+    if (related.length) {
+      const relatedTitles = related.slice(0, 3).map((r) => r.title).join(", ");
+      seoDesc += ` Related posts: ${relatedTitles}.`;
+    }
+
+    const seoImage = post.thumbnail || post.media || "https://fondpeace.com/Fondpeace.jpg";
+    const seoUrl = `https://fondpeace.com/post/${id}`;
+    const publishedTime = post.createdAt || new Date().toISOString();
+    const modifiedTime = post.updatedAt || publishedTime;
+    const authorName = post.userId?.username || "FondPeace";
+    const isVideo = post.mediaType?.startsWith("video");
+
+    // Keywords
+    const relatedKeywords = related.flatMap((r) => r.tags || []);
+    const seoKeywords = [
+      ...(post.tags || []),
+      ...relatedKeywords,
+      ...(post.title ? post.title.split(" ") : []),
+    ]
+      .filter(Boolean)
+      .slice(0, 20)
+      .join(", ");
+
+    // JSON-LD Schema with ItemList for related posts
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": isVideo ? "VideoObject" : "Article",
+      headline: seoTitle,
+      description: seoDesc,
+      image: [seoImage],
+      datePublished: publishedTime,
+      dateModified: modifiedTime,
+      author: { "@type": "Person", name: authorName },
+      publisher: {
+        "@type": "Organization",
+        name: "FondPeace",
+        logo: { "@type": "ImageObject", url: "https://fondpeace.com/Fondpeace.jpg" },
+      },
+      mainEntityOfPage: { "@type": "WebPage", "@id": seoUrl },
+      ...(isVideo && {
+        contentUrl: post.media,
+        embedUrl: seoUrl,
+        thumbnailUrl: seoImage,
+        uploadDate: publishedTime,
+      }),
+      relatedLink: related.map((r) => `https://fondpeace.com/post/${r._id}`),
+      // ✅ Structured list of related posts
+      hasPart: related.length
+        ? {
+            "@type": "ItemList",
+            name: "Related Posts",
+            itemListElement: related.map((r, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              url: `https://fondpeace.com/post/${r._id}`,
+              name: r.title,
+            })),
+          }
+        : undefined,
+    };
+
+    return {
+      title: seoTitle,
+      description: seoDesc,
+      keywords: seoKeywords,
+      alternates: { canonical: seoUrl },
+      robots: {
+        index: true,
+        follow: true,
+        nocache: false,
+        maxSnippet: -1,
+        maxImagePreview: "large",
+        maxVideoPreview: -1,
+      },
+      openGraph: {
+        title: seoTitle,
+        description: seoDesc,
+        url: seoUrl,
+        siteName: "FondPeace",
+        type: isVideo ? "video.other" : "article",
+        publishedTime,
+        modifiedTime,
+        images: [{ url: seoImage, width: 1200, height: 630, alt: seoTitle }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        site: "@Fondpeace",
+        creator: authorName,
+        title: seoTitle,
+        description: seoDesc,
+        images: [seoImage],
+      },
+      other: {
+        "article:author": authorName,
+        "article:published_time": publishedTime,
+        "article:modified_time": modifiedTime,
+        "script:ld+json": JSON.stringify(jsonLd),
+      },
+    };
+  } catch (err) {
+    console.error("generateMetadata error:", err);
+    return {
+      title: "Post Not Found | FondPeace",
+      description: "Error loading post.",
+      alternates: { canonical: "https://fondpeace.com/" },
+      robots: { index: false, follow: true },
+    };
+  }
+}
+
+export default async function Page({ params }) {
+  const { id } = params;
+  const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+  const { post, related } = await res.json();
+
+  return (
+    <main className="w-full min-h-screen bg-white text-gray-900">
+      <section className="container mx-auto px-4 py-6 md:py-8">
+        <SinglePostPage post={{ ...post, related }} />
+      </section>
+    </main>
+  );
+}
+
+
+
+
+
+
+
+
 /*
 // app/post/[id]/page.jsx
 import SinglePostPage from "@/components/SinglePostPage";
@@ -219,7 +372,7 @@ export default async function Page({ params }) {
 
 
 
-*/
+
 
 
 
@@ -342,10 +495,10 @@ export default async function Page({ params }) {
 
   return (
     <main className="w-full min-h-screen bg-white text-gray-900">
-      {/* ✅ Responsive SEO header */}
+      {/* ✅ Responsive SEO header 
       
 
-      {/* ✅ Post content */}
+      {/* ✅ Post content 
       <section className="container mx-auto px-4 py-6 md:py-8">
         <SinglePostPage post={post} />
       </section>
@@ -549,6 +702,7 @@ export default function SinglePostPage() {
         }
 
 */
+
 
 
 
