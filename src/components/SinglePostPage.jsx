@@ -30,19 +30,19 @@ export default function SinglePostPage() {
     }
   }, []);
 
-  // 🔹 Fetch single post
+  // 🔹 Fetch single post + related posts
   useEffect(() => {
     if (!id) return;
     const fetchPost = async () => {
+      setLoading(true);
       try {
         const { data } = await axios.get(`${API_BASE}/post/single/${id}`);
-        setPost(data);
-
-        // Fetch related posts by title or tags
-        const related = await axios.get(`${API_BASE}/post/related/${data.title || ""}`);
-        setRelatedPosts(related.data.slice(0, 10));
+        setPost(data.post);             // ✅ main post
+        setRelatedPosts(data.related);  // ✅ related posts
       } catch (err) {
         console.error("Failed to load post", err);
+        setPost(null);
+        setRelatedPosts([]);
       } finally {
         setLoading(false);
       }
@@ -100,8 +100,8 @@ export default function SinglePostPage() {
 
   return (
     <div className="max-w-2xl mx-auto p-4">
+      {/* Main Post */}
       <div className="bg-white shadow rounded-lg p-4">
-        {/* User Info */}
         <div className="flex items-center gap-3 mb-4">
           <img
             src={"https://www.fondpeace.com/og-image.jpg"}
@@ -113,10 +113,8 @@ export default function SinglePostPage() {
           </span>
         </div>
 
-        {/* Post Title */}
         <p className="text-gray-800 mb-4">{post.title}</p>
 
-        {/* Media */}
         {post.media && (
           <>
             {isVideo ? (
@@ -124,15 +122,14 @@ export default function SinglePostPage() {
                 ref={videoRef}
                 src={post.media}
                 controls
-                controlsList="nodownload noremoteplayback noplaybackrate"
-                className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto"
+                className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover mx-auto"
                 onContextMenu={(e) => e.preventDefault()}
               />
             ) : (
               <img
                 src={post.media}
                 alt="media"
-                className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto"
+                className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover mx-auto"
                 onContextMenu={(e) => e.preventDefault()}
               />
             )}
@@ -149,9 +146,7 @@ export default function SinglePostPage() {
           >
             {hasLiked ? "💔 Dislike" : "❤️ Like"} ({post.likes?.length || 0})
           </button>
-          <span className="text-sm">
-            💬 {post.comments?.length || 0} Comments
-          </span>
+          <span className="text-sm">💬 {post.comments?.length || 0} Comments</span>
         </div>
 
         {/* Add Comment */}
@@ -184,13 +179,12 @@ export default function SinglePostPage() {
         </div>
       </div>
 
-      {/* 🔹 Related Posts Section */}
+      {/* Related Posts */}
       {relatedPosts.length > 0 && (
         <div className="mt-10">
           <h2 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
             Related Posts
           </h2>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {relatedPosts.map((rel) => (
               <div
@@ -213,7 +207,6 @@ export default function SinglePostPage() {
                     onContextMenu={(e) => e.preventDefault()}
                   />
                 )}
-
                 <div className="p-3">
                   <p className="font-semibold text-gray-900 line-clamp-2">
                     {rel.title}
@@ -230,5 +223,5 @@ export default function SinglePostPage() {
       )}
     </div>
   );
-           }
-    
+}
+
