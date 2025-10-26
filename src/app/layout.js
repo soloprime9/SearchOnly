@@ -28,20 +28,6 @@ export default function RootLayout({ children }) {
           `}
         </Script>
 
-        {/* Google AdSense */}
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5007774826517640"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
-
-        {/* Optional extra Adsterra script */}
-        <Script
-          id="adsterra-extra"
-          src="//stinklistedtobacco.com/f6/16/56/f6165662a86e444978a2f98e3bc536f2.js"
-          strategy="afterInteractive"
-        />
       </head>
 
       <body className={inter.variable}>
