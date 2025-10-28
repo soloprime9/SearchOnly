@@ -1,3 +1,5 @@
+
+/*
 // app/post/[id]/page.jsx
 import SinglePostPage from "@/components/SinglePostPage";
 
@@ -370,7 +372,7 @@ export default async function Page({ params }) {
 
 
 
-
+*/
 
 
 
@@ -385,7 +387,8 @@ export async function generateMetadata({ params }) {
 
   try {
     const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
-    const post = await res.json();
+    const data = await res.json();
+    const post = data.post;
 
     // ✅ Core SEO values
     const seoTitle = post.title ? `${post.title} | FondPeace` : "Post | FondPeace";
@@ -702,6 +705,7 @@ export default function SinglePostPage() {
         }
 
 */
+
 
 
 
