@@ -498,10 +498,10 @@ export default async function Page({ params }) {
 
   return (
     <main className="w-full min-h-screen bg-white text-gray-900">
-       ✅ Responsive SEO header 
+       
       
 
-       ✅ Post content 
+       
       <section className="container mx-auto px-4 py-6 md:py-8">
         <SinglePostPage post={post} />
       </section>
@@ -705,6 +705,7 @@ export default function SinglePostPage() {
         }
 
 */
+
 
 
 
