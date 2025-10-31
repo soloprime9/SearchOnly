@@ -32,23 +32,34 @@ export default function SinglePostPage() {
 
   // 🔹 Fetch single post + related posts
   useEffect(() => {
-    if (!id) return;
-    const fetchPost = async () => {
-      setLoading(true);
-      try {
-        const { data } = await axios.get(`${API_BASE}/post/single/${id}`);
-        setPost(data.post);             // ✅ main post
-        setRelatedPosts(data.related);  // ✅ related posts
-      } catch (err) {
-        console.error("Failed to load post", err);
+  if (!id) return;
+
+  const fetchPost = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(`${API_BASE}/post/single/${id}`);
+
+      if (!data.post) {
+        // 🕒 Show redirect message for 2 seconds before going home
         setPost(null);
-        setRelatedPosts([]);
-      } finally {
-        setLoading(false);
+        setTimeout(() => router.push("/"), 2000);
+        return;
       }
-    };
-    fetchPost();
-  }, [id]);
+
+      setPost(data.post);             
+      setRelatedPosts(data.related || []);
+    } catch (err) {
+      console.error("Failed to load post", err);
+      setPost(null);
+      // 🕒 Same redirect delay if fetch fails
+      setTimeout(() => router.push("/"), 2000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPost();
+}, [id]);
 
   // 🔹 Like/Dislike
   const handleLikePost = async () => {
@@ -93,7 +104,13 @@ export default function SinglePostPage() {
   }, []);
 
   if (loading) return <div className="p-6 text-center">Loading...</div>;
-  if (!post) return <div className="p-6 text-center">Post not found</div>;
+
+if (!post)
+  return (
+    <div className="p-6 text-center text-gray-700 font-medium">
+      Post not found. Redirecting to homepage...
+    </div>
+  );
 
   const isVideo = post.mediaType?.startsWith("video");
   const hasLiked = post.likes?.some((id) => id.toString() === userId?.toString());
