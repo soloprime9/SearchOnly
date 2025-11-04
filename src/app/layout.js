@@ -41,7 +41,7 @@ export default function RootLayout({ children }) {
                   className="text-blue-600 hover:text-blue-700 transition-colors"
                   aria-label="Fondpeace Homepage"
                 >
-                  Fondpeace.com<span className="hidden sm:inline">.com</span>
+                  Fondpeace.com
                 </a>
               </strong>
             </h1>
