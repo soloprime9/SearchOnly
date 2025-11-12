@@ -155,73 +155,84 @@ const UploadPost = () => {
   };
 
   return (
-    <div className="mt-40">
-      <div className="lg:m-20 border-2 bg-blue-700 text-white font-bold rounded py-4 px-6">
-        <h2 className="text-2xl py-2 text-center">Upload a New Post</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col items-center">
-          <div className="relative border-2 border-dashed rounded-md m-2 h-20 w-full flex items-center justify-center cursor-pointer">
-            <input
-              type="file"
-              id="file"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer"
-            />
-            <p className="text-white">Select Media</p>
-          </div>
+    <div className="mt-20 sm:mt-32 lg:mt-40 px-4">
+  <div className="lg:m-20 border-2 bg-blue-700 text-white font-bold rounded-lg py-6 px-4 sm:px-6 shadow-lg">
+    <h2 className="text-2xl sm:text-3xl py-2 text-center">Upload a New Post</h2>
 
-          {preview && (
-            <div className="relative flex justify-center mt-4 w-full h-48 md:h-64">
-              {file && file.type.startsWith("image/") ? (
-                <img
-                  className="border-2 rounded-md border-white object-contain w-full h-full"
-                  src={preview}
-                  alt="Preview"
-                />
-              ) : (
-                <video
-                  className="border-2 rounded-md border-white object-contain w-full h-full"
-                  src={preview}
-                  loop
-                  controls
-                  autoPlay
-                  muted
-                />
-              )}
-            </div>
-          )}
-
-          <input
-            type="text"
-            className="w-full text-white p-2 text-xl mt-3 focus:outline-none focus:ring-2 focus:ring-white rounded"
-            id="title"
-            value={title}
-            onChange={handleTitleChange}
-            placeholder="Enter title"
-          />
-
-          {uploadProgress > 0 && (
-            <div className="w-full mt-4">
-              <div className="h-4 bg-gray-300 rounded">
-                <div
-                  className="h-4 bg-green-500 rounded"
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
-              </div>
-              <p className="text-center text-white mt-2">{uploadProgress}% uploaded</p>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="w-full border-2 rounded bg-yellow-600 p-2 mt-4 text-xl font-bold hover:bg-red-700 transition"
-          >
-            Upload Post
-          </button>
-        </form>
-
-        {message && <p className="text-lg text-center text-red-400 mt-4">{message}</p>}
+    <form onSubmit={handleSubmit} className="flex flex-col items-center w-full max-w-2xl mx-auto">
+      
+      {/* File Input Area */}
+      <div className="relative border-2 border-dashed border-white rounded-md m-2 h-24 w-full flex items-center justify-center cursor-pointer hover:bg-blue-600 transition">
+        <input
+          type="file"
+          id="file"
+          onChange={handleFileChange}
+          className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer"
+        />
+        <p className="text-white text-center">Select Media</p>
       </div>
-    </div>
+
+      {/* Preview Section */}
+      {preview && (
+        <div className="relative flex justify-center mt-4 w-full h-48 sm:h-64">
+          {file && file.type.startsWith("image/") ? (
+            <img
+              className="border-2 rounded-md border-white object-contain w-full h-full"
+              src={preview}
+              alt="Preview"
+            />
+          ) : (
+            <video
+              className="border-2 rounded-md border-white object-contain w-full h-full"
+              src={preview}
+              loop
+              controls
+              autoPlay
+              muted
+            />
+          )}
+        </div>
+      )}
+
+      {/* Title Input */}
+      <input
+        type="text"
+        className="w-full text-white p-3 text-lg sm:text-xl mt-4 bg-transparent border-b-2 border-white placeholder-white/80 focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+        id="title"
+        value={title}
+        onChange={handleTitleChange}
+        placeholder="Enter title"
+      />
+
+      {/* Upload Progress */}
+      {uploadProgress > 0 && (
+        <div className="w-full mt-4">
+          <div className="h-4 bg-gray-300 rounded">
+            <div
+              className="h-4 bg-green-500 rounded"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+          <p className="text-center text-white mt-2">{uploadProgress}% uploaded</p>
+        </div>
+      )}
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className="w-full border-2 border-yellow-400 rounded bg-yellow-600 hover:bg-yellow-700 p-3 mt-6 text-lg sm:text-xl font-bold text-white transition duration-200"
+      >
+        Upload Post
+      </button>
+    </form>
+
+    {/* Message Display */}
+    {message && (
+      <p className="text-lg text-center text-green-300 mt-4">{message}</p>
+    )}
+  </div>
+</div>
+
   );
 };
 
