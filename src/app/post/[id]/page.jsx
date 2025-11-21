@@ -60,18 +60,35 @@ function buildInteractionSchema(post) {
   ];
 }
 
-function buildHasPartRelated(related = []) {
-  if (!Array.isArray(related) || related.length === 0) return [];
-  return related.map((r) => ({
-    "@type": "Article",
-    name: r.title || "",
-    url: `${SITE_ROOT}/post/${r._id}`,
-    thumbnailUrl: toAbsolute(r.thumbnail || r.media || ""),
-  }));
+ function buildHasPartRelated(related = []) {
+  return (related || []).map(r => {
+    const url = `${SITE_ROOT}/post/${r._id}`;
+    const media = toAbsolute(r.media || "");
+    const thumb = toAbsolute(r.thumbnail || r.media || "");
+    if (r.mediaType?.startsWith("video") || media.endsWith(".mp4")) {
+      return {
+        "@type": "VideoObject",
+        name: r.title || "",
+        contentUrl: media,
+        url,
+        thumbnailUrl: thumb,
+        uploadDate: new Date(r.createdAt || Date.now()).toISOString(),
+      };
+    } else {
+      return {
+        "@type": "ImageObject",
+        name: r.title || "",
+        contentUrl: media,
+        url,
+        thumbnailUrl: thumb,
+      };
+    }
+  });
 }
 
-function buildRelatedItemList(related = []) {
-  if (!Array.isArray(related) || related.length === 0) return null;
+
+ function buildRelatedItemList(related = []) {
+  if (!related.length) return null;
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -79,15 +96,11 @@ function buildRelatedItemList(related = []) {
     itemListElement: related.map((r, idx) => ({
       "@type": "ListItem",
       position: idx + 1,
-      item: {
-        "@type": "Article",
-        name: r.title || "",
-        url: `${SITE_ROOT}/post/${r._id}`,
-        thumbnailUrl: toAbsolute(r.thumbnail || r.media || ""),
-      },
+      item: buildHasPartRelated([r])[0],
     })),
   };
 }
+
 
 /* keywords and description helpers */
 function extractKeywords(post) {
@@ -306,6 +319,7 @@ const jsonLd = isVideo
     </main>
   );
 }
+
 
 
 
