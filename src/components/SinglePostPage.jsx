@@ -86,11 +86,7 @@ export default function SinglePostInteractions({ initialPost }) {
       {/* INLINE INTERACTION BAR */}
       <div className="flex items-center justify-between py-2 px-3 bg-gray-100 rounded-lg">
 
-        {/* VIEWS */}
-        <div className="flex items-center gap-1 text-gray-700 text-sm">
-          <FaEye className="text-gray-600" />
-          <span>{post.views || 0}</span>
-        </div>
+        
 
         {/* LIKE */}
         <button onClick={handleLike} className="flex items-center gap-1 text-sm text-gray-700">
@@ -110,6 +106,12 @@ export default function SinglePostInteractions({ initialPost }) {
           <FaCommentDots className="text-lg" />
           <span>{post.comments.length}</span>
         </button>
+
+        {/* VIEWS */}
+        <div className="flex items-center gap-1 text-gray-700 text-sm">
+          <FaEye className="text-gray-600" />
+          <span>{post.views || 0}</span>
+        </div>
 
         {/* SHARE */}
         <button onClick={handleShare} className="text-gray-700 text-lg">
