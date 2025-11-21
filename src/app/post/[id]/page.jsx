@@ -173,33 +173,47 @@ export default async function Page({ params }) {
 
   const mediaUrl = toAbsolute(post.media);
   const thumbnail = toAbsolute(post.thumbnail || post.media || "");
-  const isVideo = Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
 
-  // build JSON-LD (VideoObject or Article)
-  const jsonLd = isVideo
-    ? {
-        "@context": "https://schema.org",
-        "@type": "VideoObject",
-        name: post.title,
-        description: buildDescription(post),
-        thumbnailUrl: [thumbnail],
-        contentUrl: mediaUrl,
-        embedUrl: mediaUrl,
-        uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
-        ...(post.duration ? { duration: post.duration } : {}),
-        interactionStatistic: buildInteractionSchema(post),
-        hasPart: buildHasPartRelated(related),
-      }
-    : {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        headline: post.title,
-        description: buildDescription(post),
-        image: [thumbnail],
-        datePublished: new Date(post.createdAt || Date.now()).toISOString(),
-        interactionStatistic: buildInteractionSchema(post),
-        hasPart: buildHasPartRelated(related),
-      };
+  const isVideo = Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
+const isImage = Boolean(!isVideo && mediaUrl && (post.mediaType?.startsWith("image") || /\.(jpg|jpeg|png|webp|gif)$/.test(mediaUrl)));
+
+const jsonLd = isVideo
+  ? {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      name: post.title,
+      description: buildDescription(post),
+      thumbnailUrl: [thumbnail],
+      contentUrl: mediaUrl,
+      embedUrl: mediaUrl,
+      uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
+      ...(post.duration ? { duration: post.duration } : {}),
+      interactionStatistic: buildInteractionSchema(post),
+      hasPart: buildHasPartRelated(related),
+    }
+  : isImage
+  ? {
+      "@context": "https://schema.org",
+      "@type": "ImageObject",
+      name: post.title,
+      description: buildDescription(post),
+      contentUrl: mediaUrl,
+      thumbnailUrl: [thumbnail],
+      datePublished: new Date(post.createdAt || Date.now()).toISOString(),
+      interactionStatistic: buildInteractionSchema(post),
+      hasPart: buildHasPartRelated(related),
+    }
+  : {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: post.title,
+      description: buildDescription(post),
+      image: [thumbnail],
+      datePublished: new Date(post.createdAt || Date.now()).toISOString(),
+      interactionStatistic: buildInteractionSchema(post),
+      hasPart: buildHasPartRelated(related),
+    };
+
 
   const relatedItemList = buildRelatedItemList(related);
 
@@ -292,6 +306,7 @@ export default async function Page({ params }) {
     </main>
   );
 }
+
 
 
 
