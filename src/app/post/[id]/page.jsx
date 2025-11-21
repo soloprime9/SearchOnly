@@ -359,8 +359,9 @@ const jsonLd = isVideo
     )}
   </section>
 </main>
-
+);
 }
+
 
 
 
