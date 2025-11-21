@@ -1,5 +1,5 @@
 // app/post/[id]/page.jsx
-import SinglePostPageClient from "@/components/SinglePostPageClient";
+import SinglePostPageClient from "@/components/SinglePostPage";
 
 const API_BASE = "https://backend-k.vercel.app"; // set your API
 const SITE_ROOT = "https://fondpeace.com"; // set your site root
@@ -280,3 +280,4 @@ export default async function Page({ params }) {
     </main>
   );
 }
+
