@@ -257,95 +257,111 @@ const jsonLd = isVideo
 
   const relatedItemList = buildRelatedItemList(related);
 
-  return (
-    <main className="w-full min-h-screen bg-white text-gray-900">
-      {/* JSON-LD: server-rendered so Google reads directly */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      {relatedItemList && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(relatedItemList) }} />}
+   <main className="w-full min-h-screen bg-gray-50 text-gray-900">
+  {/* JSON-LD */}
+  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+  {relatedItemList && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(relatedItemList) }} />}
 
-      <section className="container mx-auto px-2 py-4 md:py-10">
-        <article className="max-w-3xl mx-auto bg-white shadow rounded-lg overflow-hidden">
-          <div className="p-5 md:p-6">
-            {/* header */}
-            <div className="flex items-center gap-3 mb-4">
-              <img src={`${SITE_ROOT}/og-image.jpg`} alt="FondPeace" className="w-12 h-12 rounded-full object-cover" />
-              <div>
-                <div className="font-semibold text-gray-900">{post.userId?.username || "FondPeace"}</div>
-                <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
-              </div>
-            </div>
+  <section className="container mx-auto px-4 sm:px-6 md:px-10 py-6 md:py-12">
+    <article className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden">
+      <div className="p-5 sm:p-6 md:p-8">
+        
+        {/* header */}
+        <div className="flex items-center gap-4 mb-5">
+          <img 
+            src={`${SITE_ROOT}/og-image.jpg`} 
+            alt="FondPeace" 
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-gray-200"
+          />
+          <div>
+            <div className="font-semibold text-gray-900 text-sm sm:text-base">{post.userId?.username || "FondPeace"}</div>
+            <div className="text-xs sm:text-sm text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
+          </div>
+        </div>
 
-            {/* title */}
-            <h1 className="text-md md:text-xl font-bold leading-tight mb-4">{post.title}</h1>
+        {/* title */}
+        <h1 className="text-lg sm:text-2xl md:text-3xl font-bold leading-snug mb-6">{post.title}</h1>
 
-            {/* media */}
-            <div className="mb-5">
-              {isVideo && mediaUrl ? (
-                <div className="w-full aspect-video bg-black rounded-md overflow-hidden">
-                  <video controls preload="metadata" poster={thumbnail || undefined} className="w-full h-full object-cover" playsInline>
-                    <source src={mediaUrl} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              ) : mediaUrl ? (
-                <img src={mediaUrl} alt={post.title} className="w-full rounded-md object-cover" />
-              ) : null}
-            </div>
+        {/* media */}
+        <div className="mb-6">
+          {isVideo && mediaUrl ? (
+            <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-md">
+              <video 
+                controls 
+                preload="metadata" 
+                poster={thumbnail || undefined} 
+                className="w-full h-full object-cover rounded-xl"
+                playsInline
+              >
+                <source src={mediaUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          ) : mediaUrl ? (
+            <img src={mediaUrl} alt={post.title} className="w-full rounded-xl object-cover shadow-md" />
+          ) : null}
+        </div>
 
-            
-            
-            {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-              <div className="flex items-center gap-4 text-gray-700">
-                <span className="text-sm">❤️ {likesCount(post)}</span>
-                <span className="text-sm">💬 {commentsCount(post)}</span>
-                <span className="text-sm">👁️ {viewsCount(post)}</span>
-                {post.duration && <span className="text-sm">⏱ {post.duration}</span>}
-              </div>
-              <div className="text-sm text-gray-600">{extractKeywords(post)}</div>
-            </div> */}
+        {/* interactions */}
+        {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+          <div className="flex items-center gap-4 text-gray-700 text-sm sm:text-base">
+            <span>❤️ {likesCount(post)}</span>
+            <span>💬 {commentsCount(post)}</span>
+            <span>👁️ {viewsCount(post)}</span>
+            {post.duration && <span>⏱ {post.duration}</span>}
+          </div>
+          <div className="text-sm text-gray-500">{extractKeywords(post)}</div>
+        </div> */}
 
-            {/* client interactions component (no refetch) */}
-            <SinglePostPage initialPost={post} related={related} />
-          </div>
-        </article>
+        <SinglePostPage initialPost={post} related={related} />
+      </div>
+    </article>
 
-        {/* Related posts (server-rendered) */}
-        {Array.isArray(related) && related.length > 0 && (
-          <aside className="max-w-3xl mx-auto mt-8">
-            <h2 className="text-lg font-semibold mb-4">Related Posts</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {related.map((r) => {
-                const rMedia = toAbsolute(r.media || "");
-                const rIsVideo = Boolean(r.mediaType?.startsWith("video") || (rMedia && rMedia.endsWith(".mp4")));
-                return (
-                  <a key={r._id} href={`/post/${r._id}`} className="block bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
-                    <div className="w-full h-48 bg-gray-100 overflow-hidden">
-                      {rIsVideo ? <video src={rMedia} muted className="w-full h-full object-cover" /> : <img src={rMedia} alt={r.title} className="w-full h-full object-cover" />}
-                    </div>
-                    <div className="p-3">
-                      <p className="font-semibold text-gray-900 line-clamp-2">{r.title}</p>
-                      <div className="flex item-center gap-2 text-xs text-gray-500 mt-1">
-                        <FaHeart className="text-red-600 text-lg" />
-                        <span>{likesCount(r)}</span> 
-                        <span>•</span> 
-                        <FaCommentDots className="text-lg" />
-                        <span>{commentsCount(r)}</span> 
-                      <span>•</span> 
-                        <FaEye className="text-gray-600" />
-                        <span>{viewsCount(r) || 0}</span>
-                     
-                      </div>
-                    </div>
-                  </a>
-                );
-              })}
-            </div>
-          </aside>
-        )}
-      </section>
-    </main>
-  );
+    {/* Related posts */}
+    {Array.isArray(related) && related.length > 0 && (
+      <aside className="max-w-4xl mx-auto mt-10">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-5">Related Posts</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {related.map((r) => {
+            const rMedia = toAbsolute(r.media || "");
+            const rIsVideo = Boolean(r.mediaType?.startsWith("video") || (rMedia && rMedia.endsWith(".mp4")));
+            return (
+              <a 
+                key={r._id} 
+                href={`/post/${r._id}`} 
+                className="block bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl transition duration-300 ease-in-out"
+              >
+                <div className="w-full h-56 sm:h-64 md:h-56 lg:h-48 bg-gray-100 overflow-hidden">
+                  {rIsVideo ? (
+                    <video src={rMedia} muted className="w-full h-full object-cover" />
+                  ) : (
+                    <img src={rMedia} alt={r.title} className="w-full h-full object-cover" />
+                  )}
+                </div>
+                <div className="p-4">
+                  <p className="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base">{r.title}</p>
+                  <div className="flex items-center gap-3 text-gray-500 text-xs sm:text-sm mt-2">
+                    <FaHeart className="text-red-600" />
+                    <span>{likesCount(r)}</span>
+                    <span>•</span>
+                    <FaCommentDots />
+                    <span>{commentsCount(r)}</span>
+                    <span>•</span>
+                    <FaEye />
+                    <span>{viewsCount(r) || 0}</span>
+                  </div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </aside>
+    )}
+  </section>
+</main>
+
 }
+
 
 
 
