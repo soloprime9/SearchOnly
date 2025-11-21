@@ -270,11 +270,13 @@ export default async function Page({ params }) {
                     </div>
                     <div className="p-3">
                       <p className="font-semibold text-gray-900 line-clamp-2">{r.title}</p>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="flex item-center gap-2 text-xs text-gray-500 mt-1">
                         <FaHeart className="text-red-600 text-lg" />
-                        <span>{likesCount(r)}</span> • 
+                        <span>{likesCount(r)}</span> 
+                        <span>•</span> 
                         <FaCommentDots className="text-lg" />
-                        <span>{commentsCount(r)}</span> • 
+                        <span>{commentsCount(r)}</span> 
+                      <span>•</span> 
                         <FaEye className="text-gray-600" />
                         <span>{viewsCount(r) || 0}</span>
                      
@@ -290,6 +292,7 @@ export default async function Page({ params }) {
     </main>
   );
 }
+
 
 
 
