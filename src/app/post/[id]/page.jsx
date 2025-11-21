@@ -63,7 +63,7 @@ function buildInteractionSchema(post) {
 function buildHasPartRelated(related = []) {
   if (!Array.isArray(related) || related.length === 0) return [];
   return related.map((r) => ({
-    "@type": r.mediaType?.startsWith("video") ? "VideoObject" : "Article",
+    "@type": "Article",
     name: r.title || "",
     url: `${SITE_ROOT}/post/${r._id}`,
     thumbnailUrl: toAbsolute(r.thumbnail || r.media || ""),
@@ -80,7 +80,7 @@ function buildRelatedItemList(related = []) {
       "@type": "ListItem",
       position: idx + 1,
       item: {
-        "@type": r.mediaType?.startsWith("video") ? "VideoObject" : "Article",
+        "@type": "Article",
         name: r.title || "",
         url: `${SITE_ROOT}/post/${r._id}`,
         thumbnailUrl: toAbsolute(r.thumbnail || r.media || ""),
@@ -292,6 +292,7 @@ export default async function Page({ params }) {
     </main>
   );
 }
+
 
 
 
