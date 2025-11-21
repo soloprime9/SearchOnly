@@ -176,200 +176,171 @@ export async function generateMetadata({ params }) {
 /* ---------------------------- Page ----------------------------- */
 
 export default async function Page({ params }) {
-  const id = params?.id;
-  const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
-  const data = await res.json();
-  const post = data?.post ?? null;
-  const related = data?.related ?? [];
+  const id = params?.id;
+  const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+  const data = await res.json();
+  const post = data?.post ?? null;
+  const related = data?.related ?? [];
 
-  if (!post) {
-    return (
-      <main className="w-full min-h-screen flex items-center justify-center">
-        <div className="p-6 text-center">Post not found.</div>
-      </main>
-    );
-  }
+  if (!post) {
+    return (
+      <main className="w-full min-h-screen flex items-center justify-center">
+        <div className="p-6 text-center">Post not found.</div>
+      </main>
+    );
+  }
 
-  const mediaUrl = toAbsolute(post.media);
-  const thumbnail = toAbsolute(post.thumbnail || post.media || "");
+  const mediaUrl = toAbsolute(post.media);
+  const thumbnail = toAbsolute(post.thumbnail || post.media || "");
 
-  const isVideo = Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
-const isImage = Boolean(!isVideo && mediaUrl && (post.mediaType?.startsWith("image") || /\.(jpg|jpeg|png|webp|gif)$/.test(mediaUrl)));
+  const isVideo = Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
+  const isImage = Boolean(!isVideo && mediaUrl && (post.mediaType?.startsWith("image") || /\.(jpg|jpeg|png|webp|gif)$/.test(mediaUrl)));
 
-// Define common properties for structured data
-const pageUrl = `${SITE_ROOT}/post/${id}`;
-const publisher = {
+  // Define common properties for structured data
+  const pageUrl = `${SITE_ROOT}/post/${id}`;
+  const publisher = {
     "@type": "Organization",
     name: "FondPeace",
     url: SITE_ROOT,
-};
+  };
 
-const jsonLd = isVideo
-  ? {
-      "@context": "https://schema.org",
-      "@type": "VideoObject",
-      // ADDED: Required for a proper canonical link on the object itself
-      url: pageUrl, 
-      name: post.title,
-      description: buildDescription(post),
-      thumbnailUrl: [thumbnail],
-      contentUrl: mediaUrl,
-      embedUrl: mediaUrl,
-      uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
-      // UPDATED: Used secToISO for correct ISO 8601 duration format
-      ...(post.duration ? { duration: secToISO(post.duration) } : {}),
-      // ADDED: Recommended for video rich result
-      publisher: publisher,
-      interactionStatistic: buildInteractionSchema(post),
-      // hasPart was removed here to fix the Google Search Console warning
-    }
-  : isImage
-  ? {
-      "@context": "https://schema.org",
-      "@type": "ImageObject",
-      // ADDED: Required for a proper canonical link on the object itself
-      url: pageUrl,
-      name: post.title,
-      description: buildDescription(post),
-      contentUrl: mediaUrl,
-      thumbnailUrl: [thumbnail],
-      datePublished: new Date(post.createdAt || Date.now()).toISOString(),
-      // ADDED: Recommended for content organization
-      publisher: publisher,
-      interactionStatistic: buildInteractionSchema(post),
-      // hasPart was removed here to fix the Google Search Console warning
-    }
-  : {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      // ADDED: Required for a proper canonical link on the object itself
-      url: pageUrl,
-      headline: post.title,
-      description: buildDescription(post),
-      image: [thumbnail],
-      datePublished: new Date(post.createdAt || Date.now()).toISOString(),
-      // ADDED: Recommended for content organization
-      publisher: publisher,
-      interactionStatistic: buildInteractionSchema(post),
-      // hasPart was removed here to fix the Google Search Console warning
-    };
+  const jsonLd = isVideo
+    ? {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        url: pageUrl, 
+        name: post.title,
+        description: buildDescription(post),
+        thumbnailUrl: [thumbnail],
+        contentUrl: mediaUrl,
+        embedUrl: mediaUrl,
+        uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
+        ...(post.duration ? { duration: secToISO(post.duration) } : {}),
+        publisher: publisher,
+        interactionStatistic: buildInteractionSchema(post),
+      }
+    : isImage
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ImageObject",
+        url: pageUrl,
+        name: post.title,
+        description: buildDescription(post),
+        contentUrl: mediaUrl,
+        thumbnailUrl: [thumbnail],
+        datePublished: new Date(post.createdAt || Date.now()).toISOString(),
+        publisher: publisher,
+        interactionStatistic: buildInteractionSchema(post),
+      }
+    : {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        url: pageUrl,
+        headline: post.title,
+        description: buildDescription(post),
+        image: [thumbnail],
+        datePublished: new Date(post.createdAt || Date.now()).toISOString(),
+        publisher: publisher,
+        interactionStatistic: buildInteractionSchema(post),
+      };
 
+  const relatedItemList = buildRelatedItemList(related);
 
-  const relatedItemList = buildRelatedItemList(related);
+  // ✅ FIX: Added return here
+  return (
+    <main className="w-full min-h-screen bg-gray-50 text-gray-900">
+      {/* JSON-LD */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {relatedItemList && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(relatedItemList) }} />}
 
-   <main className="w-full min-h-screen bg-gray-50 text-gray-900">
-  {/* JSON-LD */}
-  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-  {relatedItemList && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(relatedItemList) }} />}
-
-  <section className="container mx-auto px-4 sm:px-6 md:px-10 py-6 md:py-12">
-    <article className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden">
-      <div className="p-5 sm:p-6 md:p-8">
-        
-        {/* header */}
-        <div className="flex items-center gap-4 mb-5">
-          <img 
-            src={`${SITE_ROOT}/og-image.jpg`} 
-            alt="FondPeace" 
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-gray-200"
-          />
-          <div>
-            <div className="font-semibold text-gray-900 text-sm sm:text-base">{post.userId?.username || "FondPeace"}</div>
-            <div className="text-xs sm:text-sm text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
-          </div>
-        </div>
-
-        {/* title */}
-        <h1 className="text-lg sm:text-2xl md:text-3xl font-bold leading-snug mb-6">{post.title}</h1>
-
-        {/* media */}
-        <div className="mb-6">
-          {isVideo && mediaUrl ? (
-            <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-md">
-              <video 
-                controls 
-                preload="metadata" 
-                poster={thumbnail || undefined} 
-                className="w-full h-full object-cover rounded-xl"
-                playsInline
-              >
-                <source src={mediaUrl} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+      <section className="container mx-auto px-4 sm:px-6 md:px-10 py-6 md:py-12">
+        <article className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden">
+          <div className="p-5 sm:p-6 md:p-8">
+            
+            {/* header */}
+            <div className="flex items-center gap-4 mb-5">
+              <img 
+                src={`${SITE_ROOT}/og-image.jpg`} 
+                alt="FondPeace" 
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-gray-200"
+              />
+              <div>
+                <div className="font-semibold text-gray-900 text-sm sm:text-base">{post.userId?.username || "FondPeace"}</div>
+                <div className="text-xs sm:text-sm text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
+              </div>
             </div>
-          ) : mediaUrl ? (
-            <img src={mediaUrl} alt={post.title} className="w-full rounded-xl object-cover shadow-md" />
-          ) : null}
-        </div>
 
-        {/* interactions */}
-        {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-          <div className="flex items-center gap-4 text-gray-700 text-sm sm:text-base">
-            <span>❤️ {likesCount(post)}</span>
-            <span>💬 {commentsCount(post)}</span>
-            <span>👁️ {viewsCount(post)}</span>
-            {post.duration && <span>⏱ {post.duration}</span>}
+            {/* title */}
+            <h1 className="text-lg sm:text-2xl md:text-3xl font-bold leading-snug mb-6">{post.title}</h1>
+
+            {/* media */}
+            <div className="mb-6">
+              {isVideo && mediaUrl ? (
+                <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-md">
+                  <video 
+                    controls 
+                    preload="metadata" 
+                    poster={thumbnail || undefined} 
+                    className="w-full h-full object-cover rounded-xl"
+                    playsInline
+                  >
+                    <source src={mediaUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              ) : mediaUrl ? (
+                <img src={mediaUrl} alt={post.title} className="w-full rounded-xl object-cover shadow-md" />
+              ) : null}
+            </div>
+
+            <SinglePostPage initialPost={post} related={related} />
           </div>
-          <div className="text-sm text-gray-500">{extractKeywords(post)}</div>
-        </div> */}
+        </article>
 
-        <SinglePostPage initialPost={post} related={related} />
-      </div>
-    </article>
-
-    {/* Related posts */}
-    {Array.isArray(related) && related.length > 0 && (
-      <aside className="max-w-4xl mx-auto mt-10">
-        <h2 className="text-xl sm:text-2xl font-semibold mb-5">Related Posts</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {related.map((r) => {
-            const rMedia = toAbsolute(r.media || "");
-            const rIsVideo = Boolean(r.mediaType?.startsWith("video") || (rMedia && rMedia.endsWith(".mp4")));
-            return (
-              <a 
-                key={r._id} 
-                href={`/post/${r._id}`} 
-                className="block bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl transition duration-300 ease-in-out"
-              >
-                <div className="w-full h-56 sm:h-64 md:h-56 lg:h-48 bg-gray-100 overflow-hidden">
-                  {rIsVideo ? (
-                    <video src={rMedia} muted className="w-full h-full object-cover" />
-                  ) : (
-                    <img src={rMedia} alt={r.title} className="w-full h-full object-cover" />
-                  )}
-                </div>
-                <div className="p-4">
-                  <p className="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base">{r.title}</p>
-                  <div className="flex items-center gap-3 text-gray-500 text-xs sm:text-sm mt-2">
-                    <FaHeart className="text-red-600" />
-                    <span>{likesCount(r)}</span>
-                    <span>•</span>
-                    <FaCommentDots />
-                    <span>{commentsCount(r)}</span>
-                    <span>•</span>
-                    <FaEye />
-                    <span>{viewsCount(r) || 0}</span>
-                  </div>
-                </div>
-              </a>
-            );
-          })}
-        </div>
-      </aside>
-    )}
-  </section>
-</main>
-);
+        {/* Related posts */}
+        {Array.isArray(related) && related.length > 0 && (
+          <aside className="max-w-4xl mx-auto mt-10">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-5">Related Posts</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {related.map((r) => {
+                const rMedia = toAbsolute(r.media || "");
+                const rIsVideo = Boolean(r.mediaType?.startsWith("video") || (rMedia && rMedia.endsWith(".mp4")));
+                return (
+                  <a 
+                    key={r._id} 
+                    href={`/post/${r._id}`} 
+                    className="block bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl transition duration-300 ease-in-out"
+                  >
+                    <div className="w-full h-56 sm:h-64 md:h-56 lg:h-48 bg-gray-100 overflow-hidden">
+                      {rIsVideo ? (
+                        <video src={rMedia} muted className="w-full h-full object-cover" />
+                      ) : (
+                        <img src={rMedia} alt={r.title} className="w-full h-full object-cover" />
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <p className="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base">{r.title}</p>
+                      <div className="flex items-center gap-3 text-gray-500 text-xs sm:text-sm mt-2">
+                        <FaHeart className="text-red-600" />
+                        <span>{likesCount(r)}</span>
+                        <span>•</span>
+                        <FaCommentDots />
+                        <span>{commentsCount(r)}</span>
+                        <span>•</span>
+                        <FaEye />
+                        <span>{viewsCount(r) || 0}</span>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </aside>
+        )}
+      </section>
+    </main>
+  );
 }
-
-
-
-
-
-
-
-
-
 
 
 
