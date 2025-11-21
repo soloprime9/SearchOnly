@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.16",
+    "react-icons": "^5.5.0",
     "axios": "^1.8.1",
     "next": "^15.2.1",
     "date-fns": "^4.1.0",
