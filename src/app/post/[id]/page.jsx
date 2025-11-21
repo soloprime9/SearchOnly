@@ -1,5 +1,5 @@
 // app/post/[id]/page.jsx
-import SinglePostPageClient from "@/components/SinglePostPage";
+import SinglePostPage from "@/components/SinglePostPage";
 
 const API_BASE = "https://backend-k.vercel.app"; // set your API
 const SITE_ROOT = "https://fondpeace.com"; // set your site root
@@ -249,7 +249,7 @@ export default async function Page({ params }) {
             </div>
 
             {/* client interactions component (no refetch) */}
-            <SinglePostPageClient initialPost={post} related={related} />
+            <SinglePostPage initialPost={post} related={related} />
           </div>
         </article>
 
@@ -280,4 +280,5 @@ export default async function Page({ params }) {
     </main>
   );
 }
+
 
