@@ -208,7 +208,7 @@ export default async function Page({ params }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {relatedItemList && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(relatedItemList) }} />}
 
-      <section className="container mx-auto px-4 py-6 md:py-10">
+      <section className="container mx-auto px-2 py-4 md:py-10">
         <article className="max-w-3xl mx-auto bg-white shadow rounded-lg overflow-hidden">
           <div className="p-5 md:p-6">
             {/* header */}
@@ -221,7 +221,7 @@ export default async function Page({ params }) {
             </div>
 
             {/* title */}
-            <h1 className="text-2xl md:text-3xl font-bold leading-tight mb-4">{post.title}</h1>
+            <h1 className="text-md md:text-xl font-bold leading-tight mb-4">{post.title}</h1>
 
             {/* media */}
             <div className="mb-5">
@@ -237,8 +237,9 @@ export default async function Page({ params }) {
               ) : null}
             </div>
 
-            {/* brief meta & keywords */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            
+            
+            {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
               <div className="flex items-center gap-4 text-gray-700">
                 <span className="text-sm">❤️ {likesCount(post)}</span>
                 <span className="text-sm">💬 {commentsCount(post)}</span>
@@ -246,7 +247,7 @@ export default async function Page({ params }) {
                 {post.duration && <span className="text-sm">⏱ {post.duration}</span>}
               </div>
               <div className="text-sm text-gray-600">{extractKeywords(post)}</div>
-            </div>
+            </div> */}
 
             {/* client interactions component (no refetch) */}
             <SinglePostPage initialPost={post} related={related} />
@@ -280,5 +281,6 @@ export default async function Page({ params }) {
     </main>
   );
 }
+
 
 
