@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye } from "react-icons/fa";
 
 export default function SinglePostInteractions({ initialPost }) {
   const [post, setPost] = useState(initialPost);
   const [comment, setComment] = useState("");
+  const [showComments, setShowComments] = useState(false);
   const [userId, setUserId] = useState(null);
 
   const API_BASE = "https://backend-k.vercel.app";
@@ -22,11 +24,11 @@ export default function SinglePostInteractions({ initialPost }) {
 
   const hasLiked = post.likes.some((id) => id.toString() === userId?.toString());
 
-  // ❤️ LIKE
+  // LIKE
   const handleLike = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) return alert("Please login to like");
+      if (!token) return alert("Please login");
 
       const res = await axios.post(
         `${API_BASE}/post/like/${post._id}`,
@@ -38,12 +40,10 @@ export default function SinglePostInteractions({ initialPost }) {
         ...prev,
         likes: res.data.likes,
       }));
-    } catch {
-      alert("Failed to update like");
-    }
+    } catch {}
   };
 
-  // 💬 COMMENT
+  // COMMENT
   const handleComment = async () => {
     if (!comment.trim()) return;
 
@@ -63,110 +63,95 @@ export default function SinglePostInteractions({ initialPost }) {
       }));
 
       setComment("");
-    } catch {
-      alert("Failed to post comment");
-    }
+    } catch {}
   };
 
-  // 🕒 TIME AGO HELPER
-  const timeAgo = (createdAt) => {
-    const seconds = Math.floor((new Date() - new Date(createdAt)) / 1000);
-
-    const intervals = {
-      year: 31536000,
-      month: 2592000,
-      week: 604800,
-      day: 86400,
-      hour: 3600,
-      minute: 60,
-    };
-
-    for (let key in intervals) {
-      const interval = Math.floor(seconds / intervals[key]);
-      if (interval >= 1) return `${interval} ${key}${interval > 1 ? "s" : ""} ago`;
-    }
-
-    return "Just now";
-  };
-
-  // 🔗 SHARE POST (USES IMAGE IF AVAILABLE)
+  // SHARE
   const handleShare = () => {
     const shareData = {
       title: post.title,
       url: window.location.href,
     };
 
-    // If post has an image, add it
-    if (post.thumbnail) {
-      shareData.files = [
-        new File([], post.thumbnail, { type: "image/jpeg" })
-      ];
-    }
-
-    if (navigator.share) {
-      navigator.share(shareData);
-    } else {
+    if (navigator.share) navigator.share(shareData);
+    else {
       navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      alert("Copied link!");
     }
   };
 
   return (
     <div className="mt-6">
 
-      {/* LIKE + SHARE */}
-      <div className="flex items-center justify-between mb-4">
+      {/* INLINE INTERACTION BAR */}
+      <div className="flex items-center justify-between py-2 px-3 bg-gray-100 rounded-lg">
+
+        {/* VIEWS */}
+        <div className="flex items-center gap-1 text-gray-700 text-sm">
+          <FaEye className="text-gray-600" />
+          <span>{post.views || 0}</span>
+        </div>
+
+        {/* LIKE */}
+        <button onClick={handleLike} className="flex items-center gap-1 text-sm text-gray-700">
+          {hasLiked ? (
+            <FaHeart className="text-red-600 text-lg" />
+          ) : (
+            <FaRegHeart className="text-lg" />
+          )}
+          <span>{post.likes.length}</span>
+        </button>
+
+        {/* COMMENT */}
         <button
-          onClick={handleLike}
-          className={`text-sm font-bold ${hasLiked ? "text-red-600" : "text-gray-700"}`}
+          onClick={() => setShowComments((prev) => !prev)}
+          className="flex items-center gap-1 text-sm text-gray-700"
         >
-          {hasLiked ? "💔 Dislike" : "❤️ Like"} ({post.likes.length})
+          <FaCommentDots className="text-lg" />
+          <span>{post.comments.length}</span>
         </button>
 
-        <button onClick={handleShare} className="text-blue-600 font-medium text-sm">
-          Share
-        </button>
-      </div>
-
-      {/* COMMENT COUNT */}
-      <div className="text-gray-700 font-medium mb-2">
-        💬 {post.comments.length} Comments
-      </div>
-
-      {/* COMMENT INPUT */}
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Write a comment..."
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          className="w-full border border-gray-300 rounded-md px-3 py-2"
-        />
-        <button
-          onClick={handleComment}
-          className="bg-blue-600 text-white px-4 rounded-md"
-        >
-          Post
+        {/* SHARE */}
+        <button onClick={handleShare} className="text-gray-700 text-lg">
+          <FaShareAlt />
         </button>
       </div>
 
-      {/* SHOW COMMENTS */}
-      <div className="space-y-2">
-        {post.comments.map((cmt, i) => (
-          <div key={i} className="bg-gray-100 p-3 rounded-md">
-            <p className="font-semibold text-gray-800">
-              {cmt.userId?.username || "User"}
-            </p>
-            <p className="text-gray-700">{cmt.CommentText}</p>
+      {/* COMMENTS SECTION TOGGLE */}
+      {showComments && (
+        <div className="mt-4">
 
-            {/* TIME AGO */}
-            <span className="text-xs text-gray-500">
-              {cmt.createdAt ? timeAgo(cmt.createdAt) : ""}
-            </span>
+          {/* Comment Input */}
+          <div className="flex gap-2 mb-3">
+            <input
+              type="text"
+              placeholder="Write a comment..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 rounded-md"
+            />
+            <button
+              onClick={handleComment}
+              className="bg-blue-600 text-white px-4 rounded-md"
+            >
+              Post
+            </button>
           </div>
-        ))}
-      </div>
 
+          {/* Show Comments */}
+          <div className="space-y-2">
+            {post.comments.map((cmt, i) => (
+              <div key={i} className="bg-gray-100 p-3 rounded-md">
+                <p className="font-semibold text-gray-800">
+                  {cmt.userId?.username || "User"}
+                </p>
+                <p className="text-gray-700">{cmt.CommentText}</p>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      )}
     </div>
   );
 }
