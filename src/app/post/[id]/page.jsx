@@ -181,11 +181,11 @@ export default async function Page({ params }) {
         "@context": "https://schema.org",
         "@type": "VideoObject",
         name: post.title,
-        description: post.title,
+        description: buildDescription(post),
         thumbnailUrl: [thumbnail],
         contentUrl: mediaUrl,
-        embedUrl: `${SITE_ROOT}/post/${post._id}`,
-        uploadDate: post.createdAt || new Date().toISOString(),
+        embedUrl: mediaUrl,
+        uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
         ...(post.duration ? { duration: post.duration } : {}),
         interactionStatistic: buildInteractionSchema(post),
         hasPart: buildHasPartRelated(related),
@@ -194,9 +194,9 @@ export default async function Page({ params }) {
         "@context": "https://schema.org",
         "@type": "Article",
         headline: post.title,
-        description: post.title,
+        description: buildDescription(post),
         image: [thumbnail],
-        datePublished: post.createdAt || new Date().toISOString(),
+        datePublished: new Date(post.createdAt || Date.now()).toISOString(),
         interactionStatistic: buildInteractionSchema(post),
         hasPart: buildHasPartRelated(related),
       };
@@ -292,6 +292,7 @@ export default async function Page({ params }) {
     </main>
   );
 }
+
 
 
 
