@@ -65,10 +65,14 @@ function buildInteractionSchema(post) {
     const url = `${SITE_ROOT}/post/${r._id}`;
     const media = toAbsolute(r.media || "");
     const thumb = toAbsolute(r.thumbnail || r.media || "");
+    const Desc = `${r.title || "Trending post"} on FondPeace.com – watch the latest updates, like, comment, and share with your friends. Discover trending content, join the conversation, and stay up to date with what’s popular today!`
+
     if (r.mediaType?.startsWith("video") || media.endsWith(".mp4")) {
       return {
         "@type": "VideoObject",
         name: r.title || "",
+        description: Desc,
+
         contentUrl: media,
         url,
         thumbnailUrl: thumb,
@@ -78,9 +82,11 @@ function buildInteractionSchema(post) {
       return {
         "@type": "ImageObject",
         name: r.title || "",
+        description: Desc,
         contentUrl: media,
         url,
         thumbnailUrl: thumb,
+        uploadDate: new Date(r.createdAt || Date.now()).toISOString(),
       };
     }
   });
@@ -319,6 +325,7 @@ const jsonLd = isVideo
     </main>
   );
 }
+
 
 
 
