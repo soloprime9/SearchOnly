@@ -208,7 +208,7 @@ const jsonLd = isVideo
       uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
       ...(post.duration ? { duration: post.duration } : {}),
       interactionStatistic: buildInteractionSchema(post),
-      hasPart: buildHasPartRelated(related),
+      // hasPart: buildHasPartRelated(related),
     }
   : isImage
   ? {
@@ -220,7 +220,7 @@ const jsonLd = isVideo
       thumbnailUrl: [thumbnail],
       datePublished: new Date(post.createdAt || Date.now()).toISOString(),
       interactionStatistic: buildInteractionSchema(post),
-      hasPart: buildHasPartRelated(related),
+      // hasPart: buildHasPartRelated(related),
     }
   : {
       "@context": "https://schema.org",
@@ -230,7 +230,7 @@ const jsonLd = isVideo
       image: [thumbnail],
       datePublished: new Date(post.createdAt || Date.now()).toISOString(),
       interactionStatistic: buildInteractionSchema(post),
-      hasPart: buildHasPartRelated(related),
+      // hasPart: buildHasPartRelated(related),
     };
 
 
@@ -325,6 +325,7 @@ const jsonLd = isVideo
     </main>
   );
 }
+
 
 
 
