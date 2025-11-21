@@ -1,5 +1,6 @@
 // app/post/[id]/page.jsx
 import SinglePostPage from "@/components/SinglePostPage";
+import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye } from "react-icons/fa";
 
 const API_BASE = "https://backend-k.vercel.app"; // set your API
 const SITE_ROOT = "https://fondpeace.com"; // set your site root
@@ -269,7 +270,15 @@ export default async function Page({ params }) {
                     </div>
                     <div className="p-3">
                       <p className="font-semibold text-gray-900 line-clamp-2">{r.title}</p>
-                      <div className="text-xs text-gray-500 mt-1">{likesCount(r)} likes • {commentsCount(r)} comments</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        <FaHeart className="text-red-600 text-lg" />
+                        <span>likesCount(r)}</span> • 
+                        <FaCommentDots className="text-lg" />
+                        <span>{commentsCount(r)}</span> • 
+                        <FaEye className="text-gray-600" />
+                        <span>{viewsCount(r) || 0}</span>
+                     
+                      </div>
                     </div>
                   </a>
                 );
@@ -281,6 +290,7 @@ export default async function Page({ params }) {
     </main>
   );
 }
+
 
 
 
