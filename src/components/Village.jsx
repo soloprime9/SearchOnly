@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye } from "react-icons/fa";
+
 
 export default function Feed() {
   const [posts, setPosts] = useState([]);
@@ -269,24 +271,47 @@ export default function Feed() {
 
              
 
-          <div className="flex justify-between items-center mb-4 text-gray-600">
+          <div className="flex items-center justify-between text-gray-700 mb-4 text-sm">
 
-            <button
-              onClick={() => handleLikePost(post._id)}
-              className={`text-sm font-medium ${
-                hasLikedPost(post) ? "text-red-600" : "text-gray-600"
-              }`}
-            >
-              {hasLikedPost(post) ? "💔 Dislike" : "❤️ Like"} (
-              {post.likes?.length || 0})
-            </button>
-            <button
-              onClick={() => toggleCommentBox(post._id)}
-              className="text-sm text-gray-600"
-            >
-              💬 Comment ({post.comments?.length || 0})
-            </button>
-          </div>
+  {/* ❤️ LIKE */}
+  <button
+    onClick={() => handleLikePost(post._id)}
+    className="flex items-center gap-1"
+  >
+    {hasLikedPost(post) ? (
+      <FaHeart className="text-red-600 text-lg" />
+    ) : (
+      <FaRegHeart className="text-lg" />
+    )}
+    <span>{post.likes?.length || 0}</span>
+  </button>
+
+  {/* 💬 COMMENT */}
+  <button
+    onClick={() => toggleCommentBox(post._id)}
+    className="flex items-center gap-1"
+  >
+    <FaCommentDots className="text-lg" />
+    <span>{post.comments?.length || 0}</span>
+  </button>
+
+  {/* 👁️ VIEWS */}
+  <div className="flex items-center gap-1">
+    <FaEye className="text-lg text-gray-600" />
+    <span>{post.views || 0}</span>
+  </div>
+
+  {/* 🔗 SHARE */}
+  <button
+    onClick={() => handleShare(post)}
+    className="flex items-center gap-1 text-blue-600"
+  >
+    <FaShareAlt className="text-lg" />
+    
+  </button>
+
+</div>
+
 
           {commentsVisible && (
             <div className="mt-4">
