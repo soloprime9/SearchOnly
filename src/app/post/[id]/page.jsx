@@ -136,13 +136,35 @@ export async function generateMetadata({ params }) {
       description: desc,
       keywords,
       alternates: { canonical: `${SITE_ROOT}/post/${id}` },
+
       openGraph: {
-        title: titleTag,
-        description: desc,
-        url: `${SITE_ROOT}/post/${id}`,
-        type: isVideo ? "video.other" : "article",
-        images: [{ url: thumb }],
-      },
+  title: titleTag,
+  description: desc,
+  url: `${SITE_ROOT}/post/${id}`,
+  type: isVideo ? "video.other" : "article",
+  images: [
+    {
+      url: thumb,
+      secureUrl: thumb,
+      type: "image/jpeg",
+      width: 1280,
+      height: 720,
+    }
+  ],
+  ...(isVideo && {
+    videos: [
+      {
+        url: mediaUrl,
+        secureUrl: mediaUrl,
+        type: "video/mp4",
+        width: 1280,
+        height: 720,
+      }
+    ]
+  })
+},
+
+      
       robots: { index: true, follow: true },
     };
   } catch (err) {
@@ -988,6 +1010,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
