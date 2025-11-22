@@ -4,7 +4,7 @@ import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye } from "react-ico
 
 const API_BASE = "https://backend-k.vercel.app"; // set your API
 const SITE_ROOT = "https://fondpeace.com"; // set your site root
-const WATCH_ROOT = `${SITE_ROOT}/watch`; // New Watch Page root
+const WATCH_ROOT = `${SITE_ROOT}/short`; // New Watch Page root
 
 /* --------------------------- Helpers (unchanged) --------------------------- */
 
@@ -686,6 +686,7 @@ export default async function Page({ params }) {
 //     </main>
 //   );
 // }
+
 
 
 
