@@ -1,7 +1,7 @@
 // app/post/[id]/page.jsx
 import SinglePostPage from "@/components/SinglePostPage";
 import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
-
+ 
 const API_BASE = "https://backend-k.vercel.app";
 const SITE_ROOT = "https://fondpeace.com";
 const WATCH_ROOT = `${SITE_ROOT}/short`;
@@ -1010,6 +1010,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
