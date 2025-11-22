@@ -182,7 +182,7 @@ export default async function Page({ params }) {
   // --- FINAL JSON-LD LOGIC (SocialMediaPosting host page) ---
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "SocialMediaPosting",
+    "@type": "Article",
     url: pageUrl,
     headline: post.title,
     articleBody: buildDescription(post),
@@ -988,6 +988,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
