@@ -297,26 +297,24 @@ export default async function Page({ params }) {
           </div>
         </article>
 
-        {/* Related posts */}
+
+        {/* Related posts - IMPORTANT: use images only (no <video>) so Google doesn't detect multiple videos */}
         {Array.isArray(related) && related.length > 0 && (
           <aside className="max-w-4xl mx-auto mt-10">
             <h2 className="text-xl sm:text-2xl font-semibold mb-5">Related Posts</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {related.map((r) => {
                 const rMedia = toAbsolute(r.media || "");
-                const rIsVideo = Boolean(r.mediaType?.startsWith("video") || (rMedia && rMedia.endsWith(".mp4")));
+                const thumb = toAbsolute(r.thumbnail || r.media || "");
                 return (
-                  <a 
-                    key={r._id} 
-                    href={`/post/${r._id}`} 
+                  <a
+                    key={r._id}
+                    href={`/post/${r._id}`}
                     className="block bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl transition duration-300 ease-in-out"
                   >
+                    {/* Use thumbnail image only to avoid extra video tags */}
                     <div className="w-full h-56 sm:h-64 md:h-56 lg:h-48 bg-gray-100 overflow-hidden">
-                      {rIsVideo ? (
-                        <video src={rMedia} muted className="w-full h-full object-cover" />
-                      ) : (
-                        <img src={rMedia} alt={r.title} className="w-full h-full object-cover" />
-                      )}
+                      <img src={thumb || rMedia} alt={r.title} className="w-full h-full object-cover" />
                     </div>
                     <div className="p-4">
                       <p className="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base">{r.title}</p>
@@ -337,10 +335,12 @@ export default async function Page({ params }) {
             </div>
           </aside>
         )}
+        
       </section>
     </main>
   );
 }
+
 
 
 
