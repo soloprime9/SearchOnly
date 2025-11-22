@@ -1,6 +1,6 @@
 // app/short/[id]/page.jsx
 import { FaHeart, FaCommentDots, FaEye, FaShareAlt } from "react-icons/fa";
-
+ 
 const API_BASE = "https://backend-k.vercel.app";
 const SITE_ROOT = "https://fondpeace.com";
 const CANONICAL_ROOT = `${SITE_ROOT}/post`; // canonical social page
