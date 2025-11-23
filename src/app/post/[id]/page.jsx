@@ -321,7 +321,7 @@ export default async function Page({ params }) {
           description: buildDescription(post),
           thumbnailUrl: thumbnail,
           contentUrl: mediaUrl || undefined,
-          embedUrl: pageUrl,
+          // Removed the conflicting embedUrl: pageUrl
           uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
           datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
           dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
@@ -505,8 +505,6 @@ export default async function Page({ params }) {
     </main>
   );
 }
-
-
 
 
 
@@ -1526,6 +1524,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
