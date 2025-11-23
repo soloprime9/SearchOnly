@@ -148,7 +148,7 @@ export default async function Page({ params }) {
         url: SITE_ROOT,
         logo: {
           "@type": "ImageObject",
-          url: `${SITE_ROOT}/logo.png`,
+          url: `${SITE_ROOT}/logo.jpg`,
           width: 512,
           height: 512,
         },
@@ -1819,6 +1819,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
