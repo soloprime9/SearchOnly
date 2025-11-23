@@ -17,17 +17,22 @@ function toAbsolute(url) {
 }
 
 function secToISO(sec) {
-  if (!sec) return undefined;
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = sec % 60;
+  const s = Number(sec);
+
+  if (!Number.isFinite(s) || s <= 0) return undefined;
+
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const secLeft = Math.floor(s % 60);
 
   let iso = "PT";
-  if (h) iso += `${h}H`;
-  if (m) iso += `${m}M`;
-  if (s || (!h && !m)) iso += `${s}S`;
+  if (h > 0) iso += `${h}H`;
+  if (m > 0) iso += `${m}M`;
+  if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
+
   return iso;
 }
+
 
 function likesCount(post) {
   return Array.isArray(post.likes) ? post.likes.length : post.likes || 0;
@@ -139,7 +144,8 @@ export default async function Page({ params }) {
       datePublished: new Date(post.createdAt).toISOString(),
       dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
 
-      duration: post.duration ? secToISO(post.duration) : undefined,
+      duration: Number.isFinite(Number(post.duration)) ? secToISO(Number(post.duration)) : undefined,
+
       width: post.width || 1280,
       height: post.height || 720,
       encodingFormat: "video/mp4",
@@ -1821,6 +1827,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
