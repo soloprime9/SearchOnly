@@ -51,8 +51,15 @@ function buildInteractionSchema(post) {
   ];
 }
 function buildDescription(post) {
-  return `${post.title} uploaded by ${post?.userId?.username}. Watch, like & comment.`;
+  const author = post?.userId?.username || "FondPeace";
+  const likes = likesCount(post);
+  const comments = commentsCount(post);
+  const views = viewsCount(post);
+
+  // SEO-friendly, high-CTR, single flowing paragraph without periods
+  return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${post.title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
 }
+
 function extractKeywords(post) {
   if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
   if (Array.isArray(post.hashtags) && post.hashtags.length)
@@ -79,26 +86,40 @@ export async function generateMetadata({ params }) {
     const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
 
-    const titleTag = `${post.title} | FondPeace`;
+    const titleTag = `${post.title} - FondPeace`;
+
 
     return {
       title: titleTag,
       description: buildDescription(post),
       keywords: extractKeywords(post),
       alternates: { canonical: pageUrl },
+
       openGraph: {
-        title: titleTag,
-        description: buildDescription(post),
-        url: pageUrl,
-        type: isVideo ? "video.other" : "article",
-        images: [{ url: thumb }],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: titleTag,
-        description: buildDescription(post),
-        image: thumb,
-      },
+  title: titleTag,
+  description: buildDescription(post),
+  url: pageUrl,
+  type: isVideo ? "video.other" : "article",
+  images: [{ url: thumb }],
+  ...(isVideo && {
+    video: [
+      {
+        url: mediaUrl,
+        type: "video/mp4",
+        width: 1280,
+        height: 720
+      }
+    ]
+  })
+},
+twitter: {
+  card: isVideo ? "player" : "summary_large_image",
+  title: titleTag,
+  description: buildDescription(post),
+  image: thumb,
+  ...(isVideo && { player: mediaUrl })
+},
+
     };
   } catch {
     return { title: "Post | FondPeace" };
@@ -1830,6 +1851,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
