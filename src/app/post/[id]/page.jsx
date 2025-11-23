@@ -315,13 +315,13 @@ export default async function Page({ params }) {
       ? {
           "@context": "https://schema.org",
           "@type": "VideoObject",
-          url: pageUrl,
+          // url: pageUrl, <-- REMOVED THIS CONFLICTING LINE
           name: post.title,
           headline: post.title,
           description: buildDescription(post),
           thumbnailUrl: thumbnail,
-          contentUrl: mediaUrl || undefined,
-          // Removed the conflicting embedUrl: pageUrl
+          contentUrl: mediaUrl || undefined, // Video URL #1
+          embedUrl: pageUrl, // Explicitly set the player URL to address "not on a watch page"
           uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
           datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
           dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
@@ -505,6 +505,9 @@ export default async function Page({ params }) {
     </main>
   );
 }
+
+
+
 
 
 
@@ -1524,6 +1527,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
