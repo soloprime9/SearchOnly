@@ -80,7 +80,7 @@ function buildRelatedItemList(related = [], mainPostId) {
 
   const itemList = related
     .map((r, idx) => {
-      if (!r || r._id === mainPostId) return null;
+      if (!r || r._id === mainPostId) return null; // skip main post to avoid duplication
       const mediaUrl = toAbsolute(r.media || r.mediaUrl || "");
       const thumb = toAbsolute(r.thumbnail || r.media || r.mediaUrl || "");
       const isVideo = r.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4"));
@@ -161,6 +161,10 @@ function buildRelatedItemList(related = [], mainPostId) {
 }
 
 /* ------------------------- generateMetadata ------------------------ */
+/**
+ * All OpenGraph / Twitter / canonical / robots metadata are returned here.
+ * No meta tags will be injected in the page body.
+ */
 export async function generateMetadata({ params }) {
   const id = params?.id;
   const pageUrl = `${SITE_ROOT}/post/${id}`;
@@ -182,6 +186,7 @@ export async function generateMetadata({ params }) {
     const desc = buildDescription(post);
     const keywords = extractKeywords(post);
 
+    // genre + hashtags
     const genreList = [
       "Trending",
       "Entertainment",
@@ -195,6 +200,14 @@ export async function generateMetadata({ params }) {
     const views = viewsCount(post);
     const comments = commentsCount(post);
 
+    const publisher = {
+      "@type": "Organization",
+      name: "FondPeace",
+      url: SITE_ROOT,
+      logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` },
+    };
+
+    // OpenGraph object returned by Next.js metadata
     const openGraph = {
       title: titleTag,
       description: desc,
@@ -208,6 +221,7 @@ export async function generateMetadata({ params }) {
         tag: Array.isArray(post.tags) ? post.tags.join(", ") : undefined,
         published_time: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
       },
+      // non-standard helpers (some scrapers read these)
       "og:likes": likes,
       "og:views": views,
       "og:comments": comments,
@@ -223,6 +237,7 @@ export async function generateMetadata({ params }) {
           duration: post.duration ? secToISO(post.duration) : undefined,
           release_date: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
           tags: Array.isArray(post.tags) ? post.tags.join(", ") : undefined,
+          secure_url: mediaUrl && mediaUrl.startsWith("https") ? mediaUrl : undefined,
         },
       ];
     }
@@ -237,6 +252,12 @@ export async function generateMetadata({ params }) {
       "twitter:label2": "Views",
       "twitter:data2": views.toString(),
     };
+    if (isVideo) {
+      twitter.player = pageUrl;
+      twitter.player_width = 1280;
+      twitter.player_height = 720;
+      twitter.player_stream = mediaUrl;
+    }
 
     return {
       title: titleTag,
@@ -253,7 +274,7 @@ export async function generateMetadata({ params }) {
   }
 }
 
-/* ---------------------------- Page ----------------------------- */
+/* ---------------------------- Page (server) ----------------------------- */
 export default async function Page({ params }) {
   const id = params?.id;
   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
@@ -269,6 +290,7 @@ export default async function Page({ params }) {
     );
   }
 
+  // prepare common variables
   const mediaUrl = toAbsolute(post.media || post.mediaUrl || "");
   const thumbnail = toAbsolute(post.thumbnail || post.media || post.mediaUrl || `${SITE_ROOT}/og-image.jpg`);
   const extraImages = Array.isArray(post.extraImages) ? post.extraImages.map(toAbsolute) : [];
@@ -277,6 +299,7 @@ export default async function Page({ params }) {
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
   const authorName = post.userId?.username || "FondPeace";
 
+  // build genre list
   const genreList = [
     "Trending",
     "Entertainment",
@@ -286,25 +309,33 @@ export default async function Page({ params }) {
   ].filter(Boolean);
   const genre = genreList.join(", ");
 
+  // Main JSON-LD (VideoObject / ImageObject / Article)
   const jsonLdMain =
     isVideo
       ? {
           "@context": "https://schema.org",
           "@type": "VideoObject",
+          // url: pageUrl, <-- REMOVED THIS CONFLICTING LINE
           name: post.title,
           headline: post.title,
           description: buildDescription(post),
           thumbnailUrl: thumbnail,
-          contentUrl: mediaUrl,
-          embedUrl: pageUrl,
+          contentUrl: mediaUrl || undefined, // Video URL #1
+          embedUrl: pageUrl, // Explicitly set the player URL to address "not on a watch page"
           uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
-          publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT },
+          datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+          dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+          publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` } },
           author: { "@type": "Person", name: authorName },
           creator: { "@type": "Person", name: authorName },
           interactionStatistic: buildInteractionSchema(post),
           duration: post.duration ? secToISO(post.duration) : undefined,
           genre,
           keywords: extractKeywords(post),
+          inLanguage: "hi-IN",
+          isFamilyFriendly: true,
+          contentRating: "General",
+          potentialAction: { "@type": "WatchAction", target: pageUrl },
           mainEntityOfPage: pageUrl,
         }
       : isImage
@@ -315,13 +346,20 @@ export default async function Page({ params }) {
           name: post.title,
           headline: post.title,
           description: buildDescription(post),
-          contentUrl: mediaUrl,
+          contentUrl: mediaUrl || undefined,
           thumbnailUrl: thumbnail,
-          publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT },
+          datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+          dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+          publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` } },
           author: { "@type": "Person", name: authorName },
           interactionStatistic: buildInteractionSchema(post),
           genre,
           keywords: extractKeywords(post),
+          inLanguage: "hi-IN",
+          isFamilyFriendly: true,
+          contentRating: "General",
+          potentialAction: { "@type": "ReadAction", target: pageUrl },
+          mainEntityOfPage: pageUrl,
         }
       : {
           "@context": "https://schema.org",
@@ -332,13 +370,20 @@ export default async function Page({ params }) {
           description: buildDescription(post),
           image: [thumbnail, ...extraImages],
           datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-          publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT },
+          dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+          publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` } },
           author: { "@type": "Person", name: authorName },
           interactionStatistic: buildInteractionSchema(post),
           genre,
           keywords: extractKeywords(post),
+          inLanguage: "hi-IN",
+          isFamilyFriendly: true,
+          contentRating: "General",
+          potentialAction: { "@type": "ReadAction", target: pageUrl },
+          mainEntityOfPage: pageUrl,
         };
 
+  // Breadcrumb schema
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -349,6 +394,7 @@ export default async function Page({ params }) {
     ],
   };
 
+  // Website + SearchAction
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -361,12 +407,15 @@ export default async function Page({ params }) {
     },
   };
 
+  // Speakable (for voice)
   const speakableSchema = {
     "@context": "https://schema.org",
     "@type": "SpeakableSpecification",
+    xpath: [],
     cssSelector: [".post-title", ".post-description"],
   };
 
+  // Organization (full)
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -376,41 +425,39 @@ export default async function Page({ params }) {
     sameAs: [
       "https://www.facebook.com/fondpeace",
       "https://www.instagram.com/fondpeace",
-      "https://www.youtube.com/@fondpeace",
+      "https://www.youtube.com/@fondpeace"
     ],
   };
 
-  const relatedItemList = buildRelatedItemList(related, post._id);
+  // Related posts ItemList
+  // const relatedItemList = buildRelatedItemList(related, post._id);
 
   return (
     <main className="w-full min-h-screen bg-gray-50 text-gray-900">
-
+      {/* JSON-LD scripts (multiple) - best for Google */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-      {relatedItemList && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(relatedItemList) }} />
-      )}
+      {relatedItemList && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(relatedItemList) }} />}
 
       <section className="max-w-4xl mx-auto px-4 py-6 md:py-12">
         <article className="bg-white shadow rounded-2xl overflow-hidden">
           <div className="p-5 md:p-8">
-            
-            {/* Header */}
+            {/* header */}
             <div className="flex items-center gap-4 mb-4">
               <img src={`${SITE_ROOT}/og-image.jpg`} alt="FondPeace" className="w-12 h-12 rounded-full object-cover border-2 border-gray-200" />
               <div>
-                <div className="font-semibold text-gray-900">{authorName}</div>
+                <div className="font-semibold text-gray-900 text-sm md:text-base">{authorName}</div>
                 <div className="text-xs text-gray-500">{post.createdAt ? new Date(post.createdAt).toLocaleString() : ""}</div>
               </div>
             </div>
 
-            {/* Title */}
-            <h1 className="post-title text-lg md:text-2xl font-bold mb-4">{post.title}</h1>
+            {/* title */}
+            <h1 className="post-title text-lg md:text-2xl font-bold leading-tight mb-4">{post.title}</h1>
 
-            {/* Media */}
+            {/* media */}
             <div className="mb-6 post-description">
               {isVideo && mediaUrl ? (
                 <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-md">
@@ -421,17 +468,43 @@ export default async function Page({ params }) {
               ) : null}
             </div>
 
-            {/* Main content */}
+            {/* main component */}
             <SinglePostPage initialPost={post} related={related} />
-
           </div>
         </article>
+
+        {/* Related posts UI */}
+         {Array.isArray(related) && related.length > 0 && (
+          <aside className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Related Posts</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {related.map((r) => {
+                const thumb = toAbsolute(r.thumbnail || r.media || "");
+                return (
+                  <a key={r._id} href={`/post/${r._1}`} className="block bg-white rounded-lg shadow hover:shadow-lg overflow-hidden">
+                    <div className="w-full h-48 bg-gray-100 overflow-hidden">
+                      <img src={thumb} alt={r.title} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="p-3">
+                      <p className="font-semibold text-gray-900 line-clamp-2 text-sm">{r.title}</p>
+                      <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
+                        <FaHeart className="text-red-600" /><span>{likesCount(r)}</span>
+                        <span>•</span>
+                        <FaCommentDots /><span>{commentsCount(r)}</span>
+                        <span>•</span>
+                        <FaEye /><span>{viewsCount(r) || 0}</span>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })} 
+            </div>
+          </aside>
+        )}
       </section>
     </main>
   );
 }
-
-
 
 
 
@@ -1451,6 +1524,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
