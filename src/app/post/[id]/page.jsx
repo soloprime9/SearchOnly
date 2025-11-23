@@ -71,7 +71,8 @@ export async function generateMetadata({ params }) {
     const thumb = toAbsolute(post.thumbnail || mediaUrl);
 
     const isVideo = mediaUrl?.endsWith(".mp4");
-    const isImage = /\.(jpg|jpeg|png|webp)$/i.test(mediaUrl);
+    const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
+
 
     const titleTag = `${post.title} | FondPeace`;
 
@@ -114,7 +115,8 @@ export default async function Page({ params }) {
   const authorName = post.userId?.username || "FondPeace";
 
   const isVideo = mediaUrl?.endsWith(".mp4");
-  const isImage = /\.(jpg|jpeg|png|webp)$/i.test(mediaUrl);
+  const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
+
 
   /* ---------------------- JSON-LD ---------------------- */
   let jsonLdMain;
@@ -1819,6 +1821,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
