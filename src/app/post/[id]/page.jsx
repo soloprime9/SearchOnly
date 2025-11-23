@@ -1,4 +1,5 @@
-// app/post/[id]/page.jsx
+// ✅ SINGLE VIDEO SEO – NO RELATED POSTS – WATCH PAGE FIXED
+
 import SinglePostPage from "@/components/SinglePostPage";
 import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
 
@@ -63,108 +64,18 @@ function buildDescription(post) {
 
 function extractKeywords(post) {
   if (!post) return "FondPeace, social media, trending posts";
-  if (Array.isArray(post.tags) && post.tags.length) return post.tags.map(t => t.trim()).filter(Boolean).join(", ");
-  if (Array.isArray(post.hashtags) && post.hashtags.length) return post.hashtags.map(h => h.replace(/^#/, "").trim()).filter(Boolean).join(", ");
+  if (Array.isArray(post.tags) && post.tags.length)
+    return post.tags.map(t => t.trim()).filter(Boolean).join(", ");
+  if (Array.isArray(post.hashtags) && post.hashtags.length)
+    return post.hashtags.map(h => h.replace(/^#/, "").trim()).filter(Boolean).join(", ");
   const title = post.title || "";
-  const stopwords = new Set(["the","and","for","with","this","that","from","your","you","a","an","of","on","in","to","is","by","at","it"]);
-  const words = title
-    .split(/\s+/)
-    .map((w) => w.replace(/[^\w\u00C0-\u017F-]/g, "").toLowerCase())
-    .filter((w) => w && w.length > 2 && !stopwords.has(w));
-  return words.slice(0, 12).join(", ") || "FondPeace, social media, trending posts";
+  return title.split(" ").slice(0, 10).join(", ");
 }
 
-/* -------------------- Related posts JSON-LD builder -------------------- */
-function buildRelatedItemList(related = [], mainPostId) {
-  if (!Array.isArray(related) || related.length === 0) return null;
-
-  const itemList = related
-    .map((r, idx) => {
-      if (!r || r._id === mainPostId) return null; // skip main post to avoid duplication
-      const mediaUrl = toAbsolute(r.media || r.mediaUrl || "");
-      const thumb = toAbsolute(r.thumbnail || r.media || r.mediaUrl || "");
-      const isVideo = r.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4"));
-      const authorName = r.userId?.username || "FondPeace";
-      const genre = Array.isArray(r.tags) && r.tags.length ? `Trending, Entertainment, ${r.tags.join(", ")}` : "Trending, Entertainment, Social Media";
-      const keywords = Array.isArray(r.tags) && r.tags.length ? r.tags.join(", ") : (Array.isArray(r.hashtags) ? r.hashtags.join(", ") : "FondPeace, social media, trending posts");
-      const pageUrl = `${SITE_ROOT}/post/${r._id}`;
-
-      const baseItem = {
-        url: pageUrl,
-        name: r.title || "",
-        headline: r.title || "",
-        description: r.description || `${r.title || "Related post"} on FondPeace.com`,
-        thumbnailUrl: thumb || undefined,
-        uploadDate: r.createdAt ? new Date(r.createdAt).toISOString() : undefined,
-        publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT },
-        author: { "@type": "Person", name: authorName },
-        interactionStatistic: buildInteractionSchema(r),
-        genre,
-        keywords,
-        inLanguage: "hi-IN",
-        isFamilyFriendly: true,
-        contentRating: "General",
-        potentialAction: { "@type": isVideo ? "WatchAction" : "ReadAction", target: pageUrl },
-        mainEntityOfPage: pageUrl,
-        creator: { "@type": "Person", name: authorName },
-      };
-
-      if (isVideo) {
-        return {
-          "@type": "ListItem",
-          position: idx + 1,
-          item: {
-            "@context": "https://schema.org",
-            "@type": "VideoObject",
-            ...baseItem,
-            contentUrl: mediaUrl || undefined,
-            embedUrl: pageUrl,
-            duration: r.duration ? secToISO(r.duration) : undefined,
-          },
-        };
-      } else if (r.mediaType?.startsWith("image") || thumb) {
-        return {
-          "@type": "ListItem",
-          position: idx + 1,
-          item: {
-            "@context": "https://schema.org",
-            "@type": "ImageObject",
-            ...baseItem,
-            contentUrl: mediaUrl || undefined,
-          },
-        };
-      } else {
-        return {
-          "@type": "ListItem",
-          position: idx + 1,
-          item: {
-            "@context": "https://schema.org",
-            "@type": "Article",
-            ...baseItem,
-            image: thumb ? [thumb] : undefined,
-            datePublished: r.createdAt ? new Date(r.createdAt).toISOString() : undefined,
-            dateModified: r.updatedAt ? new Date(r.updatedAt).toISOString() : undefined,
-          },
-        };
-      }
-    })
-    .filter(Boolean);
-
-  if (!itemList.length) return null;
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Related Posts",
-    itemListElement: itemList,
-  };
-}
+/* ------------------ REMOVE RELATED POSTS ENTIRELY ------------------ */
+/* No related posts. No related schema. No related fetch. */
 
 /* ------------------------- generateMetadata ------------------------ */
-/**
- * All OpenGraph / Twitter / canonical / robots metadata are returned here.
- * No meta tags will be injected in the page body.
- */
 export async function generateMetadata({ params }) {
   const id = params?.id;
   const pageUrl = `${SITE_ROOT}/post/${id}`;
@@ -179,108 +90,48 @@ export async function generateMetadata({ params }) {
     }
 
     const mediaUrl = toAbsolute(post.media || post.mediaUrl || "");
-    const thumb = toAbsolute(post.thumbnail || post.media || post.mediaUrl || `${SITE_ROOT}/og-image.jpg`);
-    const extraImages = Array.isArray(post.extraImages) ? post.extraImages.map(toAbsolute) : [];
-    const isVideo = Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
-    const titleTag = post.title ? `${post.title} | FondPeace` : "Post | FondPeace";
+    const thumb = toAbsolute(
+      post.thumbnail || post.media || post.mediaUrl || `${SITE_ROOT}/og-image.jpg`
+    );
+
+    const isVideo =
+      Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
+
+    const titleTag = `${post.title} | FondPeace`;
     const desc = buildDescription(post);
     const keywords = extractKeywords(post);
-
-    // genre + hashtags
-    const genreList = [
-      "Trending",
-      "Entertainment",
-      "Social Media",
-      ...(Array.isArray(post.tags) ? post.tags : []),
-      ...(Array.isArray(post.hashtags) ? post.hashtags : []),
-    ].filter(Boolean);
-    const genre = genreList.join(", ");
-
-    const likes = likesCount(post);
-    const views = viewsCount(post);
-    const comments = commentsCount(post);
-
-    const publisher = {
-      "@type": "Organization",
-      name: "FondPeace",
-      url: SITE_ROOT,
-      logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` },
-    };
-
-    // OpenGraph object returned by Next.js metadata
-    const openGraph = {
-      title: titleTag,
-      description: desc,
-      url: pageUrl,
-      type: isVideo ? "video.other" : "article",
-      site_name: "FondPeace",
-      locale: "hi_IN",
-      images: [{ url: thumb }, ...extraImages.map((u) => ({ url: u }))],
-      article: {
-        author: post.userId?.username || "FondPeace",
-        tag: Array.isArray(post.tags) ? post.tags.join(", ") : undefined,
-        published_time: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-      },
-      // non-standard helpers (some scrapers read these)
-      "og:likes": likes,
-      "og:views": views,
-      "og:comments": comments,
-    };
-
-    if (isVideo) {
-      openGraph.videos = [
-        {
-          url: mediaUrl,
-          type: "video/mp4",
-          width: 1280,
-          height: 720,
-          duration: post.duration ? secToISO(post.duration) : undefined,
-          release_date: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-          tags: Array.isArray(post.tags) ? post.tags.join(", ") : undefined,
-          secure_url: mediaUrl && mediaUrl.startsWith("https") ? mediaUrl : undefined,
-        },
-      ];
-    }
-
-    const twitter = {
-      card: isVideo ? "player" : "summary_large_image",
-      title: titleTag,
-      description: desc,
-      image: thumb,
-      "twitter:label1": "Likes",
-      "twitter:data1": likes.toString(),
-      "twitter:label2": "Views",
-      "twitter:data2": views.toString(),
-    };
-    if (isVideo) {
-      twitter.player = pageUrl;
-      twitter.player_width = 1280;
-      twitter.player_height = 720;
-      twitter.player_stream = mediaUrl;
-    }
 
     return {
       title: titleTag,
       description: desc,
       keywords,
       alternates: { canonical: pageUrl },
-      openGraph,
-      twitter,
+      openGraph: {
+        title: titleTag,
+        description: desc,
+        url: pageUrl,
+        type: isVideo ? "video.other" : "article",
+        images: [{ url: thumb }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: titleTag,
+        description: desc,
+        image: thumb,
+      },
       robots: { index: true, follow: true },
     };
-  } catch (err) {
-    console.error("generateMetadata error", err);
+  } catch {
     return { title: "Post | FondPeace" };
   }
 }
 
-/* ---------------------------- Page (server) ----------------------------- */
+/* ---------------------------- Page ----------------------------- */
 export default async function Page({ params }) {
   const id = params?.id;
   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
   const data = await res.json();
   const post = data?.post ?? null;
-  const related = data?.related ?? [];
 
   if (!post) {
     return (
@@ -290,221 +141,612 @@ export default async function Page({ params }) {
     );
   }
 
-  // prepare common variables
   const mediaUrl = toAbsolute(post.media || post.mediaUrl || "");
-  const thumbnail = toAbsolute(post.thumbnail || post.media || post.mediaUrl || `${SITE_ROOT}/og-image.jpg`);
-  const extraImages = Array.isArray(post.extraImages) ? post.extraImages.map(toAbsolute) : [];
-  const isVideo = Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
-  const isImage = Boolean(post.mediaType?.startsWith("image") || /\.(jpg|jpeg|png|webp|gif)$/i.test(mediaUrl));
+  const thumbnail = toAbsolute(
+    post.thumbnail || post.media || post.mediaUrl || `${SITE_ROOT}/og-image.jpg`
+  );
+  const isVideo =
+    Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
+
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
   const authorName = post.userId?.username || "FondPeace";
 
-  // build genre list
-  const genreList = [
-    "Trending",
-    "Entertainment",
-    "Social Media",
-    ...(Array.isArray(post.tags) ? post.tags : []),
-    ...(Array.isArray(post.hashtags) ? post.hashtags : []),
-  ].filter(Boolean);
-  const genre = genreList.join(", ");
-
-  // Main JSON-LD (VideoObject / ImageObject / Article)
-  const jsonLdMain =
-    isVideo
-      ? {
-          "@context": "https://schema.org",
-          "@type": "VideoObject",
-          // url: pageUrl, <-- REMOVED THIS CONFLICTING LINE
-          name: post.title,
-          headline: post.title,
-          description: buildDescription(post),
-          thumbnailUrl: thumbnail,
-          contentUrl: mediaUrl || undefined, // Video URL #1
-          embedUrl: pageUrl, // Explicitly set the player URL to address "not on a watch page"
-          uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
-          datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-          dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
-          publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` } },
-          author: { "@type": "Person", name: authorName },
-          creator: { "@type": "Person", name: authorName },
-          interactionStatistic: buildInteractionSchema(post),
-          duration: post.duration ? secToISO(post.duration) : undefined,
-          genre,
-          keywords: extractKeywords(post),
-          inLanguage: "hi-IN",
-          isFamilyFriendly: true,
-          contentRating: "General",
-          potentialAction: { "@type": "WatchAction", target: pageUrl },
-          mainEntityOfPage: pageUrl,
-        }
-      : isImage
-      ? {
-          "@context": "https://schema.org",
-          "@type": "ImageObject",
-          url: pageUrl,
-          name: post.title,
-          headline: post.title,
-          description: buildDescription(post),
-          contentUrl: mediaUrl || undefined,
-          thumbnailUrl: thumbnail,
-          datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-          dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
-          publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` } },
-          author: { "@type": "Person", name: authorName },
-          interactionStatistic: buildInteractionSchema(post),
-          genre,
-          keywords: extractKeywords(post),
-          inLanguage: "hi-IN",
-          isFamilyFriendly: true,
-          contentRating: "General",
-          potentialAction: { "@type": "ReadAction", target: pageUrl },
-          mainEntityOfPage: pageUrl,
-        }
-      : {
-          "@context": "https://schema.org",
-          "@type": "Article",
-          url: pageUrl,
-          name: post.title,
-          headline: post.title,
-          description: buildDescription(post),
-          image: [thumbnail, ...extraImages],
-          datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-          dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
-          publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` } },
-          author: { "@type": "Person", name: authorName },
-          interactionStatistic: buildInteractionSchema(post),
-          genre,
-          keywords: extractKeywords(post),
-          inLanguage: "hi-IN",
-          isFamilyFriendly: true,
-          contentRating: "General",
-          potentialAction: { "@type": "ReadAction", target: pageUrl },
-          mainEntityOfPage: pageUrl,
-        };
-
-  // Breadcrumb schema
-  const breadcrumbSchema = {
+  /* ----------- SINGLE VIDEO JSON-LD ONLY (NO RELATED!) ----------- */
+  const jsonLdMain = {
     "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: SITE_ROOT },
-      { "@type": "ListItem", position: 2, name: "Posts", item: `${SITE_ROOT}/posts` },
-      { "@type": "ListItem", position: 3, name: post.title || "Post", item: pageUrl },
-    ],
+    "@type": isVideo ? "VideoObject" : "Article",
+    name: post.title,
+    headline: post.title,
+    description: buildDescription(post),
+    thumbnailUrl: thumbnail,
+    contentUrl: mediaUrl,
+    uploadDate: post.createdAt
+      ? new Date(post.createdAt).toISOString()
+      : new Date().toISOString(),
+    publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT },
+    author: { "@type": "Person", name: authorName },
+    interactionStatistic: buildInteractionSchema(post),
+    keywords: extractKeywords(post),
+    mainEntityOfPage: pageUrl,
   };
-
-  // Website + SearchAction
-  const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "FondPeace",
-    url: SITE_ROOT,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${SITE_ROOT}/search?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
-  };
-
-  // Speakable (for voice)
-  const speakableSchema = {
-    "@context": "https://schema.org",
-    "@type": "SpeakableSpecification",
-    xpath: [],
-    cssSelector: [".post-title", ".post-description"],
-  };
-
-  // Organization (full)
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "FondPeace",
-    url: SITE_ROOT,
-    logo: `${SITE_ROOT}/logo.png`,
-    sameAs: [
-      "https://www.facebook.com/fondpeace",
-      "https://www.instagram.com/fondpeace",
-      "https://www.youtube.com/@fondpeace"
-    ],
-  };
-
-  // Related posts ItemList
-  // const relatedItemList = buildRelatedItemList(related, post._id);
 
   return (
     <main className="w-full min-h-screen bg-gray-50 text-gray-900">
-      {/* JSON-LD scripts (multiple) - best for Google */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-      {relatedItemList && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(relatedItemList) }} />}
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }}
+      />
 
       <section className="max-w-4xl mx-auto px-4 py-6 md:py-12">
         <article className="bg-white shadow rounded-2xl overflow-hidden">
           <div className="p-5 md:p-8">
-            {/* header */}
+
+            {/* Header */}
             <div className="flex items-center gap-4 mb-4">
-              <img src={`${SITE_ROOT}/og-image.jpg`} alt="FondPeace" className="w-12 h-12 rounded-full object-cover border-2 border-gray-200" />
+              <img
+                src={`${SITE_ROOT}/og-image.jpg`}
+                alt="FondPeace"
+                className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+              />
               <div>
-                <div className="font-semibold text-gray-900 text-sm md:text-base">{authorName}</div>
-                <div className="text-xs text-gray-500">{post.createdAt ? new Date(post.createdAt).toLocaleString() : ""}</div>
+                <div className="font-semibold text-gray-900">{authorName}</div>
+                <div className="text-xs text-gray-500">
+                  {post.createdAt ? new Date(post.createdAt).toLocaleString() : ""}
+                </div>
               </div>
             </div>
 
-            {/* title */}
-            <h1 className="post-title text-lg md:text-2xl font-bold leading-tight mb-4">{post.title}</h1>
+            {/* Title */}
+            <h1 className="text-lg md:text-2xl font-bold mb-4">{post.title}</h1>
 
-            {/* media */}
-            <div className="mb-6 post-description">
-              {isVideo && mediaUrl ? (
+            {/* Media */}
+            <div className="mb-6">
+              {isVideo ? (
                 <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-md">
-                  <video src={mediaUrl} poster={thumbnail} controls preload="metadata" className="w-full h-full object-cover rounded-xl" />
+                  <video
+                    src={mediaUrl}
+                    poster={thumbnail}
+                    controls
+                    preload="metadata"
+                    className="w-full h-full object-cover rounded-xl"
+                  />
                 </div>
-              ) : mediaUrl ? (
-                <img src={mediaUrl} alt={post.title} className="w-full rounded-xl object-cover shadow-md" />
-              ) : null}
+              ) : (
+                <img
+                  src={mediaUrl}
+                  alt={post.title}
+                  className="w-full rounded-xl shadow-md"
+                />
+              )}
             </div>
 
-            {/* main component */}
-            <SinglePostPage initialPost={post} related={related} />
+            {/* Main content */}
+            <SinglePostPage initialPost={post} />
+
           </div>
         </article>
-
-        {/* Related posts UI */}
-         {Array.isArray(related) && related.length > 0 && (
-          <aside className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Related Posts</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {related.map((r) => {
-                const thumb = toAbsolute(r.thumbnail || r.media || "");
-                return (
-                  <a key={r._id} href={`/post/${r._1}`} className="block bg-white rounded-lg shadow hover:shadow-lg overflow-hidden">
-                    <div className="w-full h-48 bg-gray-100 overflow-hidden">
-                      <img src={thumb} alt={r.title} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="p-3">
-                      <p className="font-semibold text-gray-900 line-clamp-2 text-sm">{r.title}</p>
-                      <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
-                        <FaHeart className="text-red-600" /><span>{likesCount(r)}</span>
-                        <span>•</span>
-                        <FaCommentDots /><span>{commentsCount(r)}</span>
-                        <span>•</span>
-                        <FaEye /><span>{viewsCount(r) || 0}</span>
-                      </div>
-                    </div>
-                  </a>
-                );
-              })} 
-            </div>
-          </aside>
-        )}
       </section>
     </main>
   );
 }
+
+
+
+
+
+
+
+
+
+
+// // app/post/[id]/page.jsx
+// import SinglePostPage from "@/components/SinglePostPage";
+// import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
+
+// const API_BASE = "https://backend-k.vercel.app";
+// const SITE_ROOT = "https://fondpeace.com";
+
+// /* --------------------------- Helpers --------------------------- */
+// function toAbsolute(url) {
+//   if (!url) return null;
+//   if (url.startsWith("http")) return url;
+//   if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
+//   return `${SITE_ROOT}/${url}`;
+// }
+
+// function secToISO(sec) {
+//   if (sec == null) return undefined;
+//   const s = Number(sec);
+//   if (!s || isNaN(s)) return undefined;
+//   const h = Math.floor(s / 3600);
+//   const m = Math.floor((s % 3600) / 60);
+//   const sLeft = s % 60;
+//   let iso = "PT";
+//   if (h) iso += `${h}H`;
+//   if (m) iso += `${m}M`;
+//   if (sLeft || (!h && !m)) iso += `${sLeft}S`;
+//   return iso;
+// }
+
+// function likesCount(post) {
+//   if (!post) return 0;
+//   if (Array.isArray(post.likes)) return post.likes.length;
+//   if (typeof post.likes === "number") return post.likes;
+//   return 0;
+// }
+// function commentsCount(post) {
+//   if (!post) return 0;
+//   if (Array.isArray(post.comments)) return post.comments.length;
+//   if (typeof post.commentCount === "number") return post.commentCount;
+//   return 0;
+// }
+// function viewsCount(post) {
+//   if (!post) return 0;
+//   if (typeof post.views === "number") return post.views;
+//   return 0;
+// }
+
+// function buildInteractionSchema(post) {
+//   return [
+//     { "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
+//     { "@type": "InteractionCounter", interactionType: { "@type": "CommentAction" }, userInteractionCount: commentsCount(post) },
+//     { "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) },
+//   ];
+// }
+
+// function buildDescription(post) {
+//   const title = post?.title || "";
+//   const author = post?.userId?.username;
+//   if (title && author) return `${title} uploaded by ${author}. Watch, like, and comment on FondPeace.`;
+//   if (title) return title;
+//   return "Discover trending posts and videos on FondPeace.";
+// }
+
+// function extractKeywords(post) {
+//   if (!post) return "FondPeace, social media, trending posts";
+//   if (Array.isArray(post.tags) && post.tags.length) return post.tags.map(t => t.trim()).filter(Boolean).join(", ");
+//   if (Array.isArray(post.hashtags) && post.hashtags.length) return post.hashtags.map(h => h.replace(/^#/, "").trim()).filter(Boolean).join(", ");
+//   const title = post.title || "";
+//   const stopwords = new Set(["the","and","for","with","this","that","from","your","you","a","an","of","on","in","to","is","by","at","it"]);
+//   const words = title
+//     .split(/\s+/)
+//     .map((w) => w.replace(/[^\w\u00C0-\u017F-]/g, "").toLowerCase())
+//     .filter((w) => w && w.length > 2 && !stopwords.has(w));
+//   return words.slice(0, 12).join(", ") || "FondPeace, social media, trending posts";
+// }
+
+// /* -------------------- Related posts JSON-LD builder -------------------- */
+// function buildRelatedItemList(related = [], mainPostId) {
+//   if (!Array.isArray(related) || related.length === 0) return null;
+
+//   const itemList = related
+//     .map((r, idx) => {
+//       if (!r || r._id === mainPostId) return null; // skip main post to avoid duplication
+//       const mediaUrl = toAbsolute(r.media || r.mediaUrl || "");
+//       const thumb = toAbsolute(r.thumbnail || r.media || r.mediaUrl || "");
+//       const isVideo = r.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4"));
+//       const authorName = r.userId?.username || "FondPeace";
+//       const genre = Array.isArray(r.tags) && r.tags.length ? `Trending, Entertainment, ${r.tags.join(", ")}` : "Trending, Entertainment, Social Media";
+//       const keywords = Array.isArray(r.tags) && r.tags.length ? r.tags.join(", ") : (Array.isArray(r.hashtags) ? r.hashtags.join(", ") : "FondPeace, social media, trending posts");
+//       const pageUrl = `${SITE_ROOT}/post/${r._id}`;
+
+//       const baseItem = {
+//         url: pageUrl,
+//         name: r.title || "",
+//         headline: r.title || "",
+//         description: r.description || `${r.title || "Related post"} on FondPeace.com`,
+//         thumbnailUrl: thumb || undefined,
+//         uploadDate: r.createdAt ? new Date(r.createdAt).toISOString() : undefined,
+//         publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT },
+//         author: { "@type": "Person", name: authorName },
+//         interactionStatistic: buildInteractionSchema(r),
+//         genre,
+//         keywords,
+//         inLanguage: "hi-IN",
+//         isFamilyFriendly: true,
+//         contentRating: "General",
+//         potentialAction: { "@type": isVideo ? "WatchAction" : "ReadAction", target: pageUrl },
+//         mainEntityOfPage: pageUrl,
+//         creator: { "@type": "Person", name: authorName },
+//       };
+
+//       if (isVideo) {
+//         return {
+//           "@type": "ListItem",
+//           position: idx + 1,
+//           item: {
+//             "@context": "https://schema.org",
+//             "@type": "VideoObject",
+//             ...baseItem,
+//             contentUrl: mediaUrl || undefined,
+//             embedUrl: pageUrl,
+//             duration: r.duration ? secToISO(r.duration) : undefined,
+//           },
+//         };
+//       } else if (r.mediaType?.startsWith("image") || thumb) {
+//         return {
+//           "@type": "ListItem",
+//           position: idx + 1,
+//           item: {
+//             "@context": "https://schema.org",
+//             "@type": "ImageObject",
+//             ...baseItem,
+//             contentUrl: mediaUrl || undefined,
+//           },
+//         };
+//       } else {
+//         return {
+//           "@type": "ListItem",
+//           position: idx + 1,
+//           item: {
+//             "@context": "https://schema.org",
+//             "@type": "Article",
+//             ...baseItem,
+//             image: thumb ? [thumb] : undefined,
+//             datePublished: r.createdAt ? new Date(r.createdAt).toISOString() : undefined,
+//             dateModified: r.updatedAt ? new Date(r.updatedAt).toISOString() : undefined,
+//           },
+//         };
+//       }
+//     })
+//     .filter(Boolean);
+
+//   if (!itemList.length) return null;
+
+//   return {
+//     "@context": "https://schema.org",
+//     "@type": "ItemList",
+//     name: "Related Posts",
+//     itemListElement: itemList,
+//   };
+// }
+
+// /* ------------------------- generateMetadata ------------------------ */
+// /**
+//  * All OpenGraph / Twitter / canonical / robots metadata are returned here.
+//  * No meta tags will be injected in the page body.
+//  */
+// export async function generateMetadata({ params }) {
+//   const id = params?.id;
+//   const pageUrl = `${SITE_ROOT}/post/${id}`;
+
+//   try {
+//     const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+//     const data = await res.json();
+//     const post = data?.post ?? null;
+
+//     if (!post) {
+//       return { title: "Post Not Found | FondPeace" };
+//     }
+
+//     const mediaUrl = toAbsolute(post.media || post.mediaUrl || "");
+//     const thumb = toAbsolute(post.thumbnail || post.media || post.mediaUrl || `${SITE_ROOT}/og-image.jpg`);
+//     const extraImages = Array.isArray(post.extraImages) ? post.extraImages.map(toAbsolute) : [];
+//     const isVideo = Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
+//     const titleTag = post.title ? `${post.title} | FondPeace` : "Post | FondPeace";
+//     const desc = buildDescription(post);
+//     const keywords = extractKeywords(post);
+
+//     // genre + hashtags
+//     const genreList = [
+//       "Trending",
+//       "Entertainment",
+//       "Social Media",
+//       ...(Array.isArray(post.tags) ? post.tags : []),
+//       ...(Array.isArray(post.hashtags) ? post.hashtags : []),
+//     ].filter(Boolean);
+//     const genre = genreList.join(", ");
+
+//     const likes = likesCount(post);
+//     const views = viewsCount(post);
+//     const comments = commentsCount(post);
+
+//     const publisher = {
+//       "@type": "Organization",
+//       name: "FondPeace",
+//       url: SITE_ROOT,
+//       logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` },
+//     };
+
+//     // OpenGraph object returned by Next.js metadata
+//     const openGraph = {
+//       title: titleTag,
+//       description: desc,
+//       url: pageUrl,
+//       type: isVideo ? "video.other" : "article",
+//       site_name: "FondPeace",
+//       locale: "hi_IN",
+//       images: [{ url: thumb }, ...extraImages.map((u) => ({ url: u }))],
+//       article: {
+//         author: post.userId?.username || "FondPeace",
+//         tag: Array.isArray(post.tags) ? post.tags.join(", ") : undefined,
+//         published_time: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+//       },
+//       // non-standard helpers (some scrapers read these)
+//       "og:likes": likes,
+//       "og:views": views,
+//       "og:comments": comments,
+//     };
+
+//     if (isVideo) {
+//       openGraph.videos = [
+//         {
+//           url: mediaUrl,
+//           type: "video/mp4",
+//           width: 1280,
+//           height: 720,
+//           duration: post.duration ? secToISO(post.duration) : undefined,
+//           release_date: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+//           tags: Array.isArray(post.tags) ? post.tags.join(", ") : undefined,
+//           secure_url: mediaUrl && mediaUrl.startsWith("https") ? mediaUrl : undefined,
+//         },
+//       ];
+//     }
+
+//     const twitter = {
+//       card: isVideo ? "player" : "summary_large_image",
+//       title: titleTag,
+//       description: desc,
+//       image: thumb,
+//       "twitter:label1": "Likes",
+//       "twitter:data1": likes.toString(),
+//       "twitter:label2": "Views",
+//       "twitter:data2": views.toString(),
+//     };
+//     if (isVideo) {
+//       twitter.player = pageUrl;
+//       twitter.player_width = 1280;
+//       twitter.player_height = 720;
+//       twitter.player_stream = mediaUrl;
+//     }
+
+//     return {
+//       title: titleTag,
+//       description: desc,
+//       keywords,
+//       alternates: { canonical: pageUrl },
+//       openGraph,
+//       twitter,
+//       robots: { index: true, follow: true },
+//     };
+//   } catch (err) {
+//     console.error("generateMetadata error", err);
+//     return { title: "Post | FondPeace" };
+//   }
+// }
+
+// /* ---------------------------- Page (server) ----------------------------- */
+// export default async function Page({ params }) {
+//   const id = params?.id;
+//   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+//   const data = await res.json();
+//   const post = data?.post ?? null;
+//   const related = data?.related ?? [];
+
+//   if (!post) {
+//     return (
+//       <main className="w-full min-h-screen flex items-center justify-center">
+//         <div className="p-6 text-center">Post not found.</div>
+//       </main>
+//     );
+//   }
+
+//   // prepare common variables
+//   const mediaUrl = toAbsolute(post.media || post.mediaUrl || "");
+//   const thumbnail = toAbsolute(post.thumbnail || post.media || post.mediaUrl || `${SITE_ROOT}/og-image.jpg`);
+//   const extraImages = Array.isArray(post.extraImages) ? post.extraImages.map(toAbsolute) : [];
+//   const isVideo = Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
+//   const isImage = Boolean(post.mediaType?.startsWith("image") || /\.(jpg|jpeg|png|webp|gif)$/i.test(mediaUrl));
+//   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
+//   const authorName = post.userId?.username || "FondPeace";
+
+//   // build genre list
+//   const genreList = [
+//     "Trending",
+//     "Entertainment",
+//     "Social Media",
+//     ...(Array.isArray(post.tags) ? post.tags : []),
+//     ...(Array.isArray(post.hashtags) ? post.hashtags : []),
+//   ].filter(Boolean);
+//   const genre = genreList.join(", ");
+
+//   // Main JSON-LD (VideoObject / ImageObject / Article)
+//   const jsonLdMain =
+//     isVideo
+//       ? {
+//           "@context": "https://schema.org",
+//           "@type": "VideoObject",
+//           // url: pageUrl, <-- REMOVED THIS CONFLICTING LINE
+//           name: post.title,
+//           headline: post.title,
+//           description: buildDescription(post),
+//           thumbnailUrl: thumbnail,
+//           contentUrl: mediaUrl || undefined, // Video URL #1
+//           embedUrl: pageUrl, // Explicitly set the player URL to address "not on a watch page"
+//           uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
+//           datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+//           dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+//           publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` } },
+//           author: { "@type": "Person", name: authorName },
+//           creator: { "@type": "Person", name: authorName },
+//           interactionStatistic: buildInteractionSchema(post),
+//           duration: post.duration ? secToISO(post.duration) : undefined,
+//           genre,
+//           keywords: extractKeywords(post),
+//           inLanguage: "hi-IN",
+//           isFamilyFriendly: true,
+//           contentRating: "General",
+//           potentialAction: { "@type": "WatchAction", target: pageUrl },
+//           mainEntityOfPage: pageUrl,
+//         }
+//       : isImage
+//       ? {
+//           "@context": "https://schema.org",
+//           "@type": "ImageObject",
+//           url: pageUrl,
+//           name: post.title,
+//           headline: post.title,
+//           description: buildDescription(post),
+//           contentUrl: mediaUrl || undefined,
+//           thumbnailUrl: thumbnail,
+//           datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+//           dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+//           publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` } },
+//           author: { "@type": "Person", name: authorName },
+//           interactionStatistic: buildInteractionSchema(post),
+//           genre,
+//           keywords: extractKeywords(post),
+//           inLanguage: "hi-IN",
+//           isFamilyFriendly: true,
+//           contentRating: "General",
+//           potentialAction: { "@type": "ReadAction", target: pageUrl },
+//           mainEntityOfPage: pageUrl,
+//         }
+//       : {
+//           "@context": "https://schema.org",
+//           "@type": "Article",
+//           url: pageUrl,
+//           name: post.title,
+//           headline: post.title,
+//           description: buildDescription(post),
+//           image: [thumbnail, ...extraImages],
+//           datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+//           dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+//           publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png` } },
+//           author: { "@type": "Person", name: authorName },
+//           interactionStatistic: buildInteractionSchema(post),
+//           genre,
+//           keywords: extractKeywords(post),
+//           inLanguage: "hi-IN",
+//           isFamilyFriendly: true,
+//           contentRating: "General",
+//           potentialAction: { "@type": "ReadAction", target: pageUrl },
+//           mainEntityOfPage: pageUrl,
+//         };
+
+//   // Breadcrumb schema
+//   const breadcrumbSchema = {
+//     "@context": "https://schema.org",
+//     "@type": "BreadcrumbList",
+//     itemListElement: [
+//       { "@type": "ListItem", position: 1, name: "Home", item: SITE_ROOT },
+//       { "@type": "ListItem", position: 2, name: "Posts", item: `${SITE_ROOT}/posts` },
+//       { "@type": "ListItem", position: 3, name: post.title || "Post", item: pageUrl },
+//     ],
+//   };
+
+//   // Website + SearchAction
+//   const websiteSchema = {
+//     "@context": "https://schema.org",
+//     "@type": "WebSite",
+//     name: "FondPeace",
+//     url: SITE_ROOT,
+//     potentialAction: {
+//       "@type": "SearchAction",
+//       target: `${SITE_ROOT}/search?q={search_term_string}`,
+//       "query-input": "required name=search_term_string",
+//     },
+//   };
+
+//   // Speakable (for voice)
+//   const speakableSchema = {
+//     "@context": "https://schema.org",
+//     "@type": "SpeakableSpecification",
+//     xpath: [],
+//     cssSelector: [".post-title", ".post-description"],
+//   };
+
+//   // Organization (full)
+//   const organizationSchema = {
+//     "@context": "https://schema.org",
+//     "@type": "Organization",
+//     name: "FondPeace",
+//     url: SITE_ROOT,
+//     logo: `${SITE_ROOT}/logo.png`,
+//     sameAs: [
+//       "https://www.facebook.com/fondpeace",
+//       "https://www.instagram.com/fondpeace",
+//       "https://www.youtube.com/@fondpeace"
+//     ],
+//   };
+
+//   // Related posts ItemList
+//   // const relatedItemList = buildRelatedItemList(related, post._id);
+
+//   return (
+//     <main className="w-full min-h-screen bg-gray-50 text-gray-900">
+//       {/* JSON-LD scripts (multiple) - best for Google */}
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }} />
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }} />
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+//       {relatedItemList && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(relatedItemList) }} />}
+
+//       <section className="max-w-4xl mx-auto px-4 py-6 md:py-12">
+//         <article className="bg-white shadow rounded-2xl overflow-hidden">
+//           <div className="p-5 md:p-8">
+//             {/* header */}
+//             <div className="flex items-center gap-4 mb-4">
+//               <img src={`${SITE_ROOT}/og-image.jpg`} alt="FondPeace" className="w-12 h-12 rounded-full object-cover border-2 border-gray-200" />
+//               <div>
+//                 <div className="font-semibold text-gray-900 text-sm md:text-base">{authorName}</div>
+//                 <div className="text-xs text-gray-500">{post.createdAt ? new Date(post.createdAt).toLocaleString() : ""}</div>
+//               </div>
+//             </div>
+
+//             {/* title */}
+//             <h1 className="post-title text-lg md:text-2xl font-bold leading-tight mb-4">{post.title}</h1>
+
+//             {/* media */}
+//             <div className="mb-6 post-description">
+//               {isVideo && mediaUrl ? (
+//                 <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-md">
+//                   <video src={mediaUrl} poster={thumbnail} controls preload="metadata" className="w-full h-full object-cover rounded-xl" />
+//                 </div>
+//               ) : mediaUrl ? (
+//                 <img src={mediaUrl} alt={post.title} className="w-full rounded-xl object-cover shadow-md" />
+//               ) : null}
+//             </div>
+
+//             {/* main component */}
+//             <SinglePostPage initialPost={post} related={related} />
+//           </div>
+//         </article>
+
+//         {/* Related posts UI */}
+//          {Array.isArray(related) && related.length > 0 && (
+//           <aside className="mt-8">
+//             <h2 className="text-xl font-semibold mb-4">Related Posts</h2>
+//             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+//               {related.map((r) => {
+//                 const thumb = toAbsolute(r.thumbnail || r.media || "");
+//                 return (
+//                   <a key={r._id} href={`/post/${r._1}`} className="block bg-white rounded-lg shadow hover:shadow-lg overflow-hidden">
+//                     <div className="w-full h-48 bg-gray-100 overflow-hidden">
+//                       <img src={thumb} alt={r.title} className="w-full h-full object-cover" />
+//                     </div>
+//                     <div className="p-3">
+//                       <p className="font-semibold text-gray-900 line-clamp-2 text-sm">{r.title}</p>
+//                       <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
+//                         <FaHeart className="text-red-600" /><span>{likesCount(r)}</span>
+//                         <span>•</span>
+//                         <FaCommentDots /><span>{commentsCount(r)}</span>
+//                         <span>•</span>
+//                         <FaEye /><span>{viewsCount(r) || 0}</span>
+//                       </div>
+//                     </div>
+//                   </a>
+//                 );
+//               })} 
+//             </div>
+//           </aside>
+//         )}
+//       </section>
+//     </main>
+//   );
+// }
 
 
 
@@ -1524,6 +1766,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
