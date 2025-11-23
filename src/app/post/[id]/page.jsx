@@ -138,7 +138,7 @@ export default async function Page({ params }) {
 
       thumbnailUrl: thumbnail,
       contentUrl: mediaUrl,
-      embedUrl: `${SITE_ROOT}/short/${post._id}`,
+      embedUrl: `${SITE_ROOT}/post/${post._id}`,
 
       uploadDate: new Date(post.createdAt).toISOString(),
       datePublished: new Date(post.createdAt).toISOString(),
@@ -1830,6 +1830,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
