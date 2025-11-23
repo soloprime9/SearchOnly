@@ -144,7 +144,10 @@ export default async function Page({ params }) {
       datePublished: new Date(post.createdAt).toISOString(),
       dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
 
-      duration: Number.isFinite(Number(post.duration)) ? secToISO(Number(post.duration)) : undefined,
+      duration: post.duration
+  ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration)
+  : undefined,
+
 
       width: post.width || 1280,
       height: post.height || 720,
@@ -1827,6 +1830,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
