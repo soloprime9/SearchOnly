@@ -1,4 +1,6 @@
-// ✅ SINGLE VIDEO SEO – NO RELATED POSTS – WATCH PAGE FIXED
+// ✓ GOOGLE-OPTIMIZED POST PAGE (VIDEO + IMAGE + ARTICLE)
+// ✓ AUTO DETECT MEDIA TYPE
+// ✓ FIXES "VIDEO ISN’T ON WATCH PAGE" ERROR
 
 import SinglePostPage from "@/components/SinglePostPage";
 import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
@@ -6,7 +8,7 @@ import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
 const API_BASE = "https://backend-k.vercel.app";
 const SITE_ROOT = "https://fondpeace.com";
 
-/* --------------------------- Helpers --------------------------- */
+/* ---------------------- HELPERS ---------------------- */
 function toAbsolute(url) {
   if (!url) return null;
   if (url.startsWith("http")) return url;
@@ -15,37 +17,27 @@ function toAbsolute(url) {
 }
 
 function secToISO(sec) {
-  if (sec == null) return undefined;
-  const s = Number(sec);
-  if (!s || isNaN(s)) return undefined;
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sLeft = s % 60;
+  if (!sec) return undefined;
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+
   let iso = "PT";
   if (h) iso += `${h}H`;
   if (m) iso += `${m}M`;
-  if (sLeft || (!h && !m)) iso += `${sLeft}S`;
+  if (s || (!h && !m)) iso += `${s}S`;
   return iso;
 }
 
 function likesCount(post) {
-  if (!post) return 0;
-  if (Array.isArray(post.likes)) return post.likes.length;
-  if (typeof post.likes === "number") return post.likes;
-  return 0;
+  return Array.isArray(post.likes) ? post.likes.length : post.likes || 0;
 }
 function commentsCount(post) {
-  if (!post) return 0;
-  if (Array.isArray(post.comments)) return post.comments.length;
-  if (typeof post.commentCount === "number") return post.commentCount;
-  return 0;
+  return Array.isArray(post.comments) ? post.comments.length : post.commentCount || 0;
 }
 function viewsCount(post) {
-  if (!post) return 0;
-  if (typeof post.views === "number") return post.views;
-  return 0;
+  return typeof post.views === "number" ? post.views : 0;
 }
-
 function buildInteractionSchema(post) {
   return [
     { "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
@@ -53,29 +45,17 @@ function buildInteractionSchema(post) {
     { "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) },
   ];
 }
-
 function buildDescription(post) {
-  const title = post?.title || "";
-  const author = post?.userId?.username;
-  if (title && author) return `${title} uploaded by ${author}. Watch, like, and comment on FondPeace.`;
-  if (title) return title;
-  return "Discover trending posts and videos on FondPeace.";
+  return `${post.title} uploaded by ${post?.userId?.username}. Watch, like & comment.`;
 }
-
 function extractKeywords(post) {
-  if (!post) return "FondPeace, social media, trending posts";
-  if (Array.isArray(post.tags) && post.tags.length)
-    return post.tags.map(t => t.trim()).filter(Boolean).join(", ");
+  if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
   if (Array.isArray(post.hashtags) && post.hashtags.length)
-    return post.hashtags.map(h => h.replace(/^#/, "").trim()).filter(Boolean).join(", ");
-  const title = post.title || "";
-  return title.split(" ").slice(0, 10).join(", ");
+    return post.hashtags.map(h => h.replace("#", "")).join(", ");
+  return post.title.split(" ").slice(0, 10).join(", ");
 }
 
-/* ------------------ REMOVE RELATED POSTS ENTIRELY ------------------ */
-/* No related posts. No related schema. No related fetch. */
-
-/* ------------------------- generateMetadata ------------------------ */
+/* ------------------------- generateMetadata ------------------------- */
 export async function generateMetadata({ params }) {
   const id = params?.id;
   const pageUrl = `${SITE_ROOT}/post/${id}`;
@@ -83,32 +63,26 @@ export async function generateMetadata({ params }) {
   try {
     const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
     const data = await res.json();
-    const post = data?.post ?? null;
+    const post = data?.post;
 
-    if (!post) {
-      return { title: "Post Not Found | FondPeace" };
-    }
+    if (!post) return { title: "Post Not Found | FondPeace" };
 
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl || "");
-    const thumb = toAbsolute(
-      post.thumbnail || post.media || post.mediaUrl || `${SITE_ROOT}/og-image.jpg`
-    );
+    const mediaUrl = toAbsolute(post.media || post.mediaUrl);
+    const thumb = toAbsolute(post.thumbnail || mediaUrl);
 
-    const isVideo =
-      Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
+    const isVideo = mediaUrl?.endsWith(".mp4");
+    const isImage = /\.(jpg|jpeg|png|webp)$/i.test(mediaUrl);
 
     const titleTag = `${post.title} | FondPeace`;
-    const desc = buildDescription(post);
-    const keywords = extractKeywords(post);
 
     return {
       title: titleTag,
-      description: desc,
-      keywords,
+      description: buildDescription(post),
+      keywords: extractKeywords(post),
       alternates: { canonical: pageUrl },
       openGraph: {
         title: titleTag,
-        description: desc,
+        description: buildDescription(post),
         url: pageUrl,
         type: isVideo ? "video.other" : "article",
         images: [{ url: thumb }],
@@ -116,115 +90,194 @@ export async function generateMetadata({ params }) {
       twitter: {
         card: "summary_large_image",
         title: titleTag,
-        description: desc,
+        description: buildDescription(post),
         image: thumb,
       },
-      robots: { index: true, follow: true },
     };
   } catch {
     return { title: "Post | FondPeace" };
   }
 }
 
-/* ---------------------------- Page ----------------------------- */
+/* ------------------------------ PAGE ------------------------------ */
 export default async function Page({ params }) {
   const id = params?.id;
   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
   const data = await res.json();
-  const post = data?.post ?? null;
+  const post = data?.post;
 
-  if (!post) {
-    return (
-      <main className="w-full min-h-screen flex items-center justify-center">
-        <div className="p-6 text-center">Post not found.</div>
-      </main>
-    );
-  }
-
-  const mediaUrl = toAbsolute(post.media || post.mediaUrl || "");
-  const thumbnail = toAbsolute(
-    post.thumbnail || post.media || post.mediaUrl || `${SITE_ROOT}/og-image.jpg`
-  );
-  const isVideo =
-    Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
+  if (!post) return <div>Post not found</div>;
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
+  const mediaUrl = toAbsolute(post.media || post.mediaUrl);
+  const thumbnail = toAbsolute(post.thumbnail || mediaUrl);
   const authorName = post.userId?.username || "FondPeace";
 
-  /* ----------- SINGLE VIDEO JSON-LD ONLY (NO RELATED!) ----------- */
-  const jsonLdMain = {
-    "@context": "https://schema.org",
-    "@type": isVideo ? "VideoObject" : "Article",
-    name: post.title,
-    headline: post.title,
-    description: buildDescription(post),
-    thumbnailUrl: thumbnail,
-    contentUrl: mediaUrl,
-    uploadDate: post.createdAt
-      ? new Date(post.createdAt).toISOString()
-      : new Date().toISOString(),
-    publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT },
-    author: { "@type": "Person", name: authorName },
-    interactionStatistic: buildInteractionSchema(post),
-    keywords: extractKeywords(post),
-    mainEntityOfPage: pageUrl,
-  };
+  const isVideo = mediaUrl?.endsWith(".mp4");
+  const isImage = /\.(jpg|jpeg|png|webp)$/i.test(mediaUrl);
+
+  /* ---------------------- JSON-LD ---------------------- */
+  let jsonLdMain;
+
+  if (isVideo) {
+    jsonLdMain = {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+
+      url: pageUrl,
+      name: post.title,
+      headline: post.title,
+      description: buildDescription(post),
+
+      thumbnailUrl: thumbnail,
+      contentUrl: mediaUrl,
+      embedUrl: `${SITE_ROOT}/short/${post._id}`,
+
+      uploadDate: new Date(post.createdAt).toISOString(),
+      datePublished: new Date(post.createdAt).toISOString(),
+      dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+
+      duration: post.duration ? secToISO(post.duration) : undefined,
+      width: post.width || 1280,
+      height: post.height || 720,
+      encodingFormat: "video/mp4",
+
+      publisher: {
+        "@type": "Organization",
+        name: "FondPeace",
+        url: SITE_ROOT,
+        logo: {
+          "@type": "ImageObject",
+          url: `${SITE_ROOT}/logo.png`,
+          width: 512,
+          height: 512,
+        },
+      },
+
+      author: { "@type": "Person", name: authorName },
+      creator: { "@type": "Person", name: authorName },
+
+      interactionStatistic: buildInteractionSchema(post),
+      keywords: extractKeywords(post),
+      inLanguage: "hi-IN",
+      isFamilyFriendly: true,
+
+      potentialAction: { "@type": "WatchAction", target: pageUrl },
+
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": pageUrl,
+      },
+    };
+  }
+
+  else if (isImage) {
+    jsonLdMain = {
+      "@context": "https://schema.org",
+      "@type": "ImageObject",
+
+      url: pageUrl,
+      name: post.title,
+      headline: post.title,
+      description: buildDescription(post),
+
+      contentUrl: mediaUrl,
+      thumbnailUrl: thumbnail,
+
+      datePublished: new Date(post.createdAt).toISOString(),
+      dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+
+      publisher: {
+        "@type": "Organization",
+        name: "FondPeace",
+        url: SITE_ROOT,
+        logo: {
+          "@type": "ImageObject",
+          url: `${SITE_ROOT}/logo.png`,
+          width: 512,
+          height: 512,
+        },
+      },
+
+      author: { "@type": "Person", name: authorName },
+
+      interactionStatistic: buildInteractionSchema(post),
+      keywords: extractKeywords(post),
+      inLanguage: "hi-IN",
+      isFamilyFriendly: true,
+
+      potentialAction: { "@type": "ViewAction", target: pageUrl },
+
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": pageUrl,
+      },
+    };
+  }
+
+  else {
+    jsonLdMain = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+
+      url: pageUrl,
+      name: post.title,
+      headline: post.title,
+      description: buildDescription(post),
+
+      image: [thumbnail],
+
+      datePublished: new Date(post.createdAt).toISOString(),
+      dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+
+      publisher: {
+        "@type": "Organization",
+        name: "FondPeace",
+        url: SITE_ROOT,
+        logo: {
+          "@type": "ImageObject",
+          url: `${SITE_ROOT}/logo.png`,
+          width: 512,
+          height: 512,
+        },
+      },
+
+      author: { "@type": "Person", name: authorName },
+
+      interactionStatistic: buildInteractionSchema(post),
+      keywords: extractKeywords(post),
+      inLanguage: "hi-IN",
+      isFamilyFriendly: true,
+
+      potentialAction: { "@type": "ReadAction", target: pageUrl },
+
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": pageUrl,
+      },
+    };
+  }
 
   return (
-    <main className="w-full min-h-screen bg-gray-50 text-gray-900">
+    <main className="w-full min-h-screen bg-gray-50">
 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }}
       />
 
-      <section className="max-w-4xl mx-auto px-4 py-6 md:py-12">
-        <article className="bg-white shadow rounded-2xl overflow-hidden">
-          <div className="p-5 md:p-8">
+      <section className="max-w-4xl mx-auto px-4 py-8">
+        <article className="bg-white shadow rounded-2xl overflow-hidden p-6">
 
-            {/* Header */}
-            <div className="flex items-center gap-4 mb-4">
-              <img
-                src={`${SITE_ROOT}/og-image.jpg`}
-                alt="FondPeace"
-                className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
-              />
-              <div>
-                <div className="font-semibold text-gray-900">{authorName}</div>
-                <div className="text-xs text-gray-500">
-                  {post.createdAt ? new Date(post.createdAt).toLocaleString() : ""}
-                </div>
-              </div>
-            </div>
+          <h1 className="text-2xl font-bold mb-4">{post.title}</h1>
 
-            {/* Title */}
-            <h1 className="text-lg md:text-2xl font-bold mb-4">{post.title}</h1>
+          {isVideo ? (
+            <video src={mediaUrl} poster={thumbnail} controls className="rounded-xl w-full" />
+          ) : isImage ? (
+            <img src={mediaUrl} className="rounded-xl w-full" />
+          ) : null}
 
-            {/* Media */}
-            <div className="mb-6">
-              {isVideo ? (
-                <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-md">
-                  <video
-                    src={mediaUrl}
-                    poster={thumbnail}
-                    controls
-                    preload="metadata"
-                    className="w-full h-full object-cover rounded-xl"
-                  />
-                </div>
-              ) : (
-                <img
-                  src={mediaUrl}
-                  alt={post.title}
-                  className="w-full rounded-xl shadow-md"
-                />
-              )}
-            </div>
-
-            {/* Main content */}
-            <SinglePostPage initialPost={post} />
-
-          </div>
+          <SinglePostPage initialPost={post} />
         </article>
       </section>
     </main>
@@ -1766,6 +1819,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
