@@ -474,7 +474,7 @@ export default async function Page({ params }) {
         </article>
 
         {/* Related posts UI */}
-        {Array.isArray(related) && related.length > 0 && (
+        {/* /* {Array.isArray(related) && related.length > 0 && (
           <aside className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Related Posts</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -497,7 +497,7 @@ export default async function Page({ params }) {
                     </div>
                   </a>
                 );
-              })}
+              })} */ */}
             </div>
           </aside>
         )}
@@ -1527,6 +1527,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
