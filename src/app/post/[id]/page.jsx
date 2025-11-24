@@ -301,7 +301,7 @@ export default async function Page({ params }) {
       <section className="max-w-4xl mx-auto px-4 py-8">
         <article className="bg-white shadow rounded-2xl overflow-hidden p-6">
 
-          <h1 className="text-2xl font-bold mb-4">{post.title}</h1>
+          <p className="text-gray-800 mb-4">{post.title}</p>
 
           {isVideo ? (
             <video src={mediaUrl} poster={thumbnail} controls className="rounded-xl w-full" />
@@ -1851,6 +1851,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
