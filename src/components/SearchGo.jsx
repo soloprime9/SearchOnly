@@ -21,50 +21,51 @@ export default function App() {
     loadTrendingFromBackend();
   }, []);
 
-  async function loadTrendingFromBackend() {
-    try {
-      let ids = [
-        "6923ef50849dda709966a7e0",
-        "6923ee33849dda709966a7de",
-        "6923eca2849dda709966a7dc",
-        "6923eba7849dda709966a7da",
-      ];
+  // ----------------------------------------------------
+// 1️⃣ LOAD TRENDING POSTS (MAX LIMIT = 6, ANY MEDIA TYPE)
+// ----------------------------------------------------
+async function loadTrendingFromBackend() {
+  try {
+    let ids = [
+      "6923ef50849dda709966a7e0",
+      "6923ee33849dda709966a7de",
+      "6923eca2849dda709966a7dc",
+      "6923eba7849dda709966a7da",
+    ];
 
-      // shuffle random
-      ids = ids.sort(() => 0.5 - Math.random());
+    // shuffle random
+    ids = ids.sort(() => 0.5 - Math.random());
 
-      let finalTrending = [];
-      const pickedIds = new Set();
+    let finalTrending = [];
+    const pickedIds = new Set();
 
-      for (const id of ids) {
-        if (finalTrending.length >= 6) break; // only 6 posts
+    for (const id of ids) {
+      if (finalTrending.length >= 6) break; // only 6 posts
 
-        const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
-        const data = await res.json();
-        const related = data?.related || [];
+      const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+      const data = await res.json();
+      const related = data?.related || [];
 
-        if (related.length > 0) {
-          // Filter posts with at least 4 views
-          const eligible = related.filter(post => (post.views || 0) >= 4);
+      if (related.length > 0) {
+        // pick randomly from all related posts, no restriction
+        const eligible = related.filter(post => post.media); // ensure it has some media
+        if (eligible.length > 0) {
+          const pick = eligible[Math.floor(Math.random() * eligible.length)];
 
-          if (eligible.length > 0) {
-            // Pick the one with maximum views
-            const pick = eligible.reduce((max, post) => (post.views > max.views ? post : max), eligible[0]);
-
-            // Avoid duplicates
-            if (!pickedIds.has(pick._id)) {
-              pickedIds.add(pick._id);
-              finalTrending.push(pick);
-            }
+          if (!pickedIds.has(pick._id)) {
+            pickedIds.add(pick._id);
+            finalTrending.push(pick);
           }
         }
       }
-
-      setTrending(finalTrending);
-    } catch (e) {
-      console.log("Trending Error", e);
     }
+
+    setTrending(finalTrending);
+  } catch (e) {
+    console.log("Trending Error", e);
   }
+}
+
 
   // ----------------------------------------------------
   // 2️⃣ SEARCH HANDLER
