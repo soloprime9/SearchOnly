@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
 
-const API_BASE = "https://fondpeace-backend.vercel.app";
+// const API_BASE = "https://fondpeace-backend.vercel.app";
+const API_BASE = "https://backend-k.vercel.app";
 
 export default function App() {
   const [query, setQuery] = useState("");
