@@ -157,26 +157,29 @@ export default function App() {
               </p>
 
               {/* ICONS SECTION */}
+
               <div className="flex items-center gap-4 text-gray-600 text-xs mt-3">
 
-                {/* Likes */}
-                <span className="flex items-center gap-1">
-                  <FaHeart className="text-red-500" size={12} />
-                  {post.likes || 0}
-                </span>
+  {/* Likes */}
+  <span className="flex items-center gap-1">
+    <FaHeart className="text-red-500" size={12} />
+    {post.likes?.length || 0}
+  </span>
 
-                {/* Comments */}
-                <span className="flex items-center gap-1">
-                  <FaCommentDots className="text-blue-500" size={12} />
-                  {post.comments || 0}
-                </span>
+  {/* Comments */}
+  <span className="flex items-center gap-1">
+    <FaCommentDots className="text-blue-500" size={12} />
+    {post.comments?.length || 0}
+  </span>
 
-                {/* Views */}
-                <span className="flex items-center gap-1">
-                  <FaEye className="text-green-600" size={12} />
-                  {post.views || 0}
-                </span>
-              </div>
+  {/* Views */}
+  <span className="flex items-center gap-1">
+    <FaEye className="text-green-600" size={12} />
+    {post.views || 0}
+  </span>
+
+</div>
+
             </div>
           </a>
         );
