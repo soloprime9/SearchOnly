@@ -8,21 +8,25 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [images, setImages] = useState([]);
+  const [activeTab, setActiveTab] = useState("results"); // results | images
 
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
       const response = await axios.get(
         `https://backend-k.vercel.app/autoai/result?q=${query}`
       );
+
       const SearchResults = response.data.ScrapedData[0];
+
       setResults(SearchResults.results || []);
       setImages(SearchResults.images || []);
 
-      console.log("Results:", SearchResults.results);
-      console.log("Images:", SearchResults.images);
+      setActiveTab("results");
+
     } catch (err) {
       setError("Error fetching results. Please try again.");
     } finally {
@@ -31,23 +35,23 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white py-10 px-4">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border p-6">
+    <div className="min-h-screen bg-white py-8 px-4">
+      <div className="max-w-4xl mx-auto rounded-xl">
 
         {/* HEADER */}
-        <h1 className="text-4xl font-extrabold text-center text-gray-900 mb-6">
-          🔍 FondPeace Search
+        <h1 className="text-4xl font-bold text-center text-gray-900 mb-8">
+          FondPeace Search
         </h1>
 
         {/* SEARCH BAR */}
         <form
           onSubmit={handleSearch}
-          className="flex w-full shadow-md rounded-full border overflow-hidden"
+          className="flex shadow-lg rounded-full overflow-hidden border"
         >
           <input
             type="text"
             className="p-4 w-full text-lg outline-none"
-            placeholder="Search news, videos, images, AI tools..."
+            placeholder="Search anything..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -67,80 +71,107 @@ export default function App() {
         )}
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-        {/* TOP IMAGES */}
-        {images.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-              📸 Top Images
-            </h2>
+        {/* TABS */}
+        <div className="flex gap-4 mt-8 border-b">
+          <button
+            onClick={() => setActiveTab("results")}
+            className={`pb-2 text-lg font-semibold ${
+              activeTab === "results"
+                ? "border-b-4 border-black text-black"
+                : "text-gray-500"
+            }`}
+          >
+            Results
+          </button>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {images.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt=""
-                  className="w-full h-40 object-cover rounded-lg shadow-sm hover:scale-[1.02] transition"
-                />
-              ))}
-            </div>
+          <button
+            onClick={() => setActiveTab("images")}
+            className={`pb-2 text-lg font-semibold ${
+              activeTab === "images"
+                ? "border-b-4 border-black text-black"
+                : "text-gray-500"
+            }`}
+          >
+            Images ({images.length})
+          </button>
+        </div>
+
+        {/* ------------------------- RESULTS TAB ------------------------- */}
+        {activeTab === "results" && (
+          <div className="mt-8 space-y-6">
+            {results.length > 0 ? (
+              results.map((result, index) => (
+                <div
+                  key={index}
+                  className="p-5 border bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition"
+                >
+                  <a
+                    href={result.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xl font-bold text-blue-700 hover:underline"
+                  >
+                    {result.title}
+                  </a>
+
+                  <div className="flex gap-3 mt-2">
+                    <p className="text-gray-700 flex-1">{result.snippet}</p>
+
+                    {result.thumbnail && (
+                      <img
+                        src={result.thumbnail}
+                        className="h-24 w-32 object-cover rounded-md shadow hidden md:block"
+                      />
+                    )}
+                  </div>
+
+                  {/* ONLY SHOW 3 IMAGES MAX */}
+                  {result.images?.length > 0 && (
+                    <div className="mt-3 grid grid-cols-3 gap-3">
+                      {result.images.slice(0, 3).map((image, idx) => (
+                        <img
+                          key={idx}
+                          src={image}
+                          alt=""
+                          className="w-full h-24 object-cover rounded-md shadow-sm"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              !loading && (
+                <p className="text-center text-gray-500">No results found.</p>
+              )
+            )}
           </div>
         )}
 
-        {/* RESULTS */}
-        <div className="mt-10 space-y-6">
-          {results.length > 0 ? (
-            results.map((result, index) => (
-              <div
-                key={index}
-                className="p-5 border rounded-xl shadow-sm hover:shadow-lg transition bg-gray-50"
-              >
-                <a
-                  href={result.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xl font-bold text-blue-700 hover:underline"
-                >
-                  {result.title}
-                </a>
-
-                <div className="flex gap-3 mt-3">
-                  <p className="text-gray-700 flex-1">{result.snippet}</p>
-
-                  {result.thumbnail && (
-                    <img
-                      src={result.thumbnail}
-                      className="h-28 w-36 object-cover rounded-md shadow-md hidden md:block"
-                    />
-                  )}
-                </div>
-
-                {result.images?.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {result.images.map((image, idx) => (
-                      <img
-                        key={idx}
-                        src={image}
-                        alt=""
-                        className="w-full h-32 object-cover rounded-md shadow-sm"
-                      />
-                    ))}
-                  </div>
-                )}
+        {/* ------------------------- IMAGES TAB ------------------------- */}
+        {activeTab === "images" && (
+          <div className="mt-8">
+            {images.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {images.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt=""
+                    className="w-full h-40 object-cover rounded-lg shadow hover:scale-[1.02] transition"
+                  />
+                ))}
               </div>
-            ))
-          ) : (
-            !loading && (
-              <p className="text-center text-gray-500">No results found.</p>
-            )
-          )}
-        </div>
+            ) : (
+              <p className="text-center text-gray-500">No images found.</p>
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
-
-
 
 
 
