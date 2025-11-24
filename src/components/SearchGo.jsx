@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
 
-// const API_BASE = "https://fondpeace-backend.vercel.app";
 const API_BASE = "https://backend-k.vercel.app";
 
 export default function App() {
@@ -16,7 +15,7 @@ export default function App() {
   const [trending, setTrending] = useState([]);
 
   // ----------------------------------------------------
-  // 1️⃣ LOAD TRENDING POSTS (MAX LIMIT = 6)
+  // 1️⃣ LOAD TRENDING POSTS (MAX LIMIT = 6, MIN VIEWS = 4)
   // ----------------------------------------------------
   useEffect(() => {
     loadTrendingFromBackend();
@@ -31,24 +30,32 @@ export default function App() {
         "6923eba7849dda709966a7da",
       ];
 
-      ids = ids.sort(() => 0.5 - Math.random()); // shuffle
+      // shuffle random
+      ids = ids.sort(() => 0.5 - Math.random());
 
       let finalTrending = [];
       const pickedIds = new Set();
 
       for (const id of ids) {
-        if (finalTrending.length >= 6) break;
+        if (finalTrending.length >= 6) break; // only 6 posts
 
         const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
         const data = await res.json();
         const related = data?.related || [];
 
         if (related.length > 0) {
-          let pick = related[Math.floor(Math.random() * related.length)];
+          // Filter posts with at least 4 views
+          const eligible = related.filter(post => (post.views || 0) >= 4);
 
-          if (!pickedIds.has(pick._id)) {
-            pickedIds.add(pick._id);
-            finalTrending.push(pick);
+          if (eligible.length > 0) {
+            // Pick the one with maximum views
+            const pick = eligible.reduce((max, post) => (post.views > max.views ? post : max), eligible[0]);
+
+            // Avoid duplicates
+            if (!pickedIds.has(pick._id)) {
+              pickedIds.add(pick._id);
+              finalTrending.push(pick);
+            }
           }
         }
       }
@@ -86,18 +93,6 @@ export default function App() {
   };
 
   // ----------------------------------------------------
-  // 3️⃣ SHOW TRENDING AGAIN WHEN SEARCH BOX IS EMPTY
-  // ----------------------------------------------------
-  useEffect(() => {
-    if (query.trim() === "") {
-      loadTrendingFromBackend();
-      setResults([]);
-      setImages([]);
-      setActiveTab("results");
-    }
-  }, [query]);
-
-  // ----------------------------------------------------
   // UI
   // ----------------------------------------------------
   return (
@@ -132,30 +127,36 @@ export default function App() {
 
         {/* -------------------------------------------------- */}
         {/* TRENDING POSTS */}
-        {trending.length > 0 && (
+        {/* -------------------------------------------------- */}
+        {trending.length > 0 && results.length === 0 && (
           <section className="mt-10">
             <h2 className="text-2xl font-bold mb-5">🔥 Trending on FondPeace</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {trending.map((post) => {
                 const thumb = post.thumbnail || post.media || `/api/thumbnail/${post._id}`;
+                const isVideo = post.media?.endsWith(".mp4");
+
                 return (
                   <a
                     key={post._id}
                     href={`/post/${post._id}`}
                     className="block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition"
                   >
-                    <img
-                      src={thumb}
-                      className="w-full h-40 object-cover"
-                      alt={post.title}
-                    />
+                    {/* THUMBNAIL / VIDEO */}
+                    {isVideo ? (
+                      <video src={post.media} className="w-full h-40 object-cover" controls />
+                    ) : (
+                      <img src={thumb} className="w-full h-40 object-cover" alt={post.title} />
+                    )}
 
+                    {/* CONTENT */}
                     <div className="p-4">
                       <p className="font-semibold text-gray-900 line-clamp-2 text-sm">
                         {post.title}
                       </p>
 
+                      {/* ICONS */}
                       <div className="flex items-center gap-4 text-gray-600 text-xs mt-3">
                         <span className="flex items-center gap-1">
                           <FaHeart className="text-red-500" size={12} />
@@ -179,13 +180,16 @@ export default function App() {
         )}
 
         {/* -------------------------------------------------- */}
-        {/* SEARCH RESULTS TABS */}
+        {/* TABS (ONLY WHEN SEARCH RESULTS EXIST) */}
+        {/* -------------------------------------------------- */}
         {results.length > 0 && (
           <div className="flex gap-4 mt-10 border-b">
             <button
               onClick={() => setActiveTab("results")}
               className={`pb-2 text-lg font-semibold ${
-                activeTab === "results" ? "border-b-4 border-black" : "text-gray-500"
+                activeTab === "results"
+                  ? "border-b-4 border-black"
+                  : "text-gray-500"
               }`}
             >
               Results
@@ -194,7 +198,9 @@ export default function App() {
             <button
               onClick={() => setActiveTab("images")}
               className={`pb-2 text-lg font-semibold ${
-                activeTab === "images" ? "border-b-4 border-black" : "text-gray-500"
+                activeTab === "images"
+                  ? "border-b-4 border-black"
+                  : "text-gray-500"
               }`}
             >
               Images ({images.length})
@@ -202,11 +208,16 @@ export default function App() {
           </div>
         )}
 
+        {/* -------------------------------------------------- */}
         {/* RESULTS TAB */}
+        {/* -------------------------------------------------- */}
         {activeTab === "results" && results.length > 0 && (
           <div className="mt-8 space-y-6">
             {results.map((result, index) => (
-              <div key={index} className="p-5 border bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
+              <div
+                key={index}
+                className="p-5 border bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition"
+              >
                 <a
                   href={result.link}
                   target="_blank"
@@ -220,7 +231,9 @@ export default function App() {
           </div>
         )}
 
+        {/* -------------------------------------------------- */}
         {/* IMAGES TAB */}
+        {/* -------------------------------------------------- */}
         {activeTab === "images" && images.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-8">
             {images.map((img, idx) => (
