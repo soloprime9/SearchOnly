@@ -7,7 +7,7 @@ function Search  (){
 
   return (
     <div>
-      <Village />
+      <SearchGo />
     </div>
   )
   }
