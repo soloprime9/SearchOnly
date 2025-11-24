@@ -31,26 +31,21 @@ export default function App() {
         "6923eba7849dda709966a7da",
       ];
 
-      // shuffle random
-      ids = ids.sort(() => 0.5 - Math.random());
+      ids = ids.sort(() => 0.5 - Math.random()); // shuffle
 
       let finalTrending = [];
       const pickedIds = new Set();
 
       for (const id of ids) {
-        if (finalTrending.length >= 6) break; // only 6 posts
+        if (finalTrending.length >= 6) break;
 
-        const res = await fetch(`${API_BASE}/post/single/${id}`, {
-          cache: "no-store",
-        });
-
+        const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
         const data = await res.json();
         const related = data?.related || [];
 
         if (related.length > 0) {
           let pick = related[Math.floor(Math.random() * related.length)];
 
-          // avoid duplicates
           if (!pickedIds.has(pick._id)) {
             pickedIds.add(pick._id);
             finalTrending.push(pick);
@@ -75,10 +70,7 @@ export default function App() {
     setError(null);
 
     try {
-      const response = await axios.get(
-        `https://backend-k.vercel.app/autoai/result?q=${query}`
-      );
-
+      const response = await axios.get(`${API_BASE}/autoai/result?q=${query}`);
       const SearchResults = response.data.ScrapedData[0];
 
       setResults(SearchResults.results || []);
@@ -86,13 +78,24 @@ export default function App() {
       setActiveTab("results");
 
       setTrending([]); // hide trending after search
-
     } catch (err) {
       setError("Error fetching results. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  // ----------------------------------------------------
+  // 3️⃣ SHOW TRENDING AGAIN WHEN SEARCH BOX IS EMPTY
+  // ----------------------------------------------------
+  useEffect(() => {
+    if (query.trim() === "") {
+      loadTrendingFromBackend();
+      setResults([]);
+      setImages([]);
+      setActiveTab("results");
+    }
+  }, [query]);
 
   // ----------------------------------------------------
   // UI
@@ -128,77 +131,61 @@ export default function App() {
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
         {/* -------------------------------------------------- */}
+        {/* TRENDING POSTS */}
         {trending.length > 0 && (
-  <section className="mt-10">
-    <h2 className="text-2xl font-bold mb-5">🔥 Trending on FondPeace</h2>
+          <section className="mt-10">
+            <h2 className="text-2xl font-bold mb-5">🔥 Trending on FondPeace</h2>
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-      {trending.map((post) => {
-        const thumb =
-          post.thumbnail || post.media || `/api/thumbnail/${post._id}`;
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {trending.map((post) => {
+                const thumb = post.thumbnail || post.media || `/api/thumbnail/${post._id}`;
+                return (
+                  <a
+                    key={post._id}
+                    href={`/post/${post._id}`}
+                    className="block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition"
+                  >
+                    <img
+                      src={thumb}
+                      className="w-full h-40 object-cover"
+                      alt={post.title}
+                    />
 
-        return (
-          <a
-            key={post._id}
-            href={`/post/${post._id}`}
-            className="block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition"
-          >
-            {/* THUMBNAIL */}
-            <img
-              src={thumb}
-              className="w-full h-40 object-cover"
-              alt={post.title}
-            />
+                    <div className="p-4">
+                      <p className="font-semibold text-gray-900 line-clamp-2 text-sm">
+                        {post.title}
+                      </p>
 
-            {/* CONTENT */}
-            <div className="p-4">
-              <p className="font-semibold text-gray-900 line-clamp-2 text-sm">
-                {post.title}
-              </p>
-
-              {/* ICONS SECTION */}
-
-              <div className="flex items-center gap-4 text-gray-600 text-xs mt-3">
-
-  {/* Likes */}
-  <span className="flex items-center gap-1">
-    <FaHeart className="text-red-500" size={12} />
-    {post.likes?.length || 0}
-  </span>
-
-  {/* Comments */}
-  <span className="flex items-center gap-1">
-    <FaCommentDots className="text-blue-500" size={12} />
-    {post.comments?.length || 0}
-  </span>
-
-  {/* Views */}
-  <span className="flex items-center gap-1">
-    <FaEye className="text-green-600" size={12} />
-    {post.views || 0}
-  </span>
-
-</div>
-
+                      <div className="flex items-center gap-4 text-gray-600 text-xs mt-3">
+                        <span className="flex items-center gap-1">
+                          <FaHeart className="text-red-500" size={12} />
+                          {post.likes?.length || 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <FaCommentDots className="text-blue-500" size={12} />
+                          {post.comments?.length || 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <FaEye className="text-green-600" size={12} />
+                          {post.views || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
-          </a>
-        );
-      })}
-    </div>
-  </section>
-)}
+          </section>
+        )}
 
         {/* -------------------------------------------------- */}
-        {/* TABS (ONLY WHEN SEARCH RESULTS EXIST) */}
-        {/* -------------------------------------------------- */}
+        {/* SEARCH RESULTS TABS */}
         {results.length > 0 && (
           <div className="flex gap-4 mt-10 border-b">
             <button
               onClick={() => setActiveTab("results")}
               className={`pb-2 text-lg font-semibold ${
-                activeTab === "results"
-                  ? "border-b-4 border-black"
-                  : "text-gray-500"
+                activeTab === "results" ? "border-b-4 border-black" : "text-gray-500"
               }`}
             >
               Results
@@ -207,9 +194,7 @@ export default function App() {
             <button
               onClick={() => setActiveTab("images")}
               className={`pb-2 text-lg font-semibold ${
-                activeTab === "images"
-                  ? "border-b-4 border-black"
-                  : "text-gray-500"
+                activeTab === "images" ? "border-b-4 border-black" : "text-gray-500"
               }`}
             >
               Images ({images.length})
@@ -217,16 +202,11 @@ export default function App() {
           </div>
         )}
 
-        {/* -------------------------------------------------- */}
         {/* RESULTS TAB */}
-        {/* -------------------------------------------------- */}
         {activeTab === "results" && results.length > 0 && (
           <div className="mt-8 space-y-6">
             {results.map((result, index) => (
-              <div
-                key={index}
-                className="p-5 border bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition"
-              >
+              <div key={index} className="p-5 border bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
                 <a
                   href={result.link}
                   target="_blank"
@@ -234,16 +214,13 @@ export default function App() {
                 >
                   {result.title}
                 </a>
-
                 <p className="text-gray-700 mt-2">{result.snippet}</p>
               </div>
             ))}
           </div>
         )}
 
-        {/* -------------------------------------------------- */}
         {/* IMAGES TAB */}
-        {/* -------------------------------------------------- */}
         {activeTab === "images" && images.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-8">
             {images.map((img, idx) => (
