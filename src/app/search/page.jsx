@@ -186,7 +186,7 @@ export default function SearchPage() {
 
       {/* 1. SEARCH BOX (Main Functional Component - HIGHEST VISUAL POSITION) */}
       <section
-  className="max-w-3xl mx-auto px-4 pt-2 md:pt-4" // reduced top padding
+  className="max-w-3xl mx-auto px-4 pt-1 md:pt-2" // reduced top padding
   aria-label="FondPeace Search Bar"
 >
   <div className="sticky top-4 bg-white z-30"> {/* removed py-4 */}
@@ -196,7 +196,7 @@ export default function SearchPage() {
 
 
       {/* 2. HERO SECTION (Page Title and Meta Information - NOW BELOW THE SEARCH BAR) */}
-      <header className="max-w-5xl mx-auto px-4 pt-4 pb-8">
+      <header className="max-w-5xl mx-auto px-2 pt-4 pb-4">
         
         {/* H1 must still exist to define the page topic, but is now second in the content flow */}
         <h1 className="text-3xl md:text-4xl font-extrabold">
