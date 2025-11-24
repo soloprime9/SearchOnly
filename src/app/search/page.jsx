@@ -55,7 +55,7 @@ export const metadata = {
     locale: "en_US", 
     images: [
       {
-        url: "https://www.fondpeace.com/og-search.jpg",
+        url: "https://www.fondpeace.com/Fondpeace.jpg",
         width: 1200,
         height: 630,
         alt: "FondPeace Search",
@@ -68,7 +68,7 @@ export const metadata = {
     title: "FondPeace Search — Fast Trending News & Viral Videos",
     description:
       "Search global news, viral videos, AI tools & entertainment instantly.",
-    images: ["https://www.fondpeace.com/og-search.jpg"],
+    images: ["https://www.fondpeace.com/logo.jpg"],
   },
 };
 
@@ -132,12 +132,12 @@ function JsonLD() {
     "@type": "Organization",
     name: "FondPeace",
     url: "https://www.fondpeace.com",
-    logo: "https://www.fondpeace.com/logo.png",
+    logo: "https://www.fondpeacelogo.jpg",
     sameAs: [
-      "https://www.facebook.com/fondpeace",
-      "https://www.instagram.com/fondpeace",
-      "https://twitter.com/fondpeace",
-      "https://www.youtube.com/@FondPeace",
+      "https://www.facebookfondpeace",
+      "https://www.instagramfondpeace",
+      "https://twitterfondpeace",
+      "https://www.youtube@FondPeace",
     ],
   };
 
@@ -146,7 +146,7 @@ function JsonLD() {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: "FondPeace Search",
-    url: "https://www.fondpeace.com/search",
+    url: "https://www.fondpeacesearch",
     description: metadata.description,
     inLanguage: "en",
     datePublished: "2024-01-01T00:00:00+00:00", 
@@ -399,7 +399,7 @@ export default function SearchPage() {
 //   ],
 //   // Canonical URL: Essential for avoiding duplicate content issues
 //   alternates: {
-//     canonical: "https://www.fondpeace.com/search",
+//     canonical: "https://www.fondpeacesearch",
 //     languages: {
 //       "en": "/search", // Default English
 //       "en-IN": "/in/search", // Specific for India, good for geo-targeting
