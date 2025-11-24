@@ -1,6 +1,8 @@
 'use client';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+
+const API_BASE = "https://fondpeace-backend.vercel.app";
 
 export default function App() {
   const [query, setQuery] = useState("");
@@ -8,10 +10,65 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [images, setImages] = useState([]);
-  const [activeTab, setActiveTab] = useState("results"); // results | images
+  const [activeTab, setActiveTab] = useState("results");
+  const [trending, setTrending] = useState([]);
 
+  // ----------------------------------------------------
+  // 1️⃣ LOAD TRENDING POSTS (MAX LIMIT = 6)
+  // ----------------------------------------------------
+  useEffect(() => {
+    loadTrendingFromBackend();
+  }, []);
+
+  async function loadTrendingFromBackend() {
+    try {
+      let ids = [
+        "6923ef50849dda709966a7e0",
+        "6923ee33849dda709966a7de",
+        "6923eca2849dda709966a7dc",
+        "6923eba7849dda709966a7da",
+      ];
+
+      // shuffle random
+      ids = ids.sort(() => 0.5 - Math.random());
+
+      let finalTrending = [];
+      const pickedIds = new Set();
+
+      for (const id of ids) {
+        if (finalTrending.length >= 6) break; // only 6 posts
+
+        const res = await fetch(`${API_BASE}/post/single/${id}`, {
+          cache: "no-store",
+        });
+
+        const data = await res.json();
+        const related = data?.related || [];
+
+        if (related.length > 0) {
+          let pick = related[Math.floor(Math.random() * related.length)];
+
+          // avoid duplicates
+          if (!pickedIds.has(pick._id)) {
+            pickedIds.add(pick._id);
+            finalTrending.push(pick);
+          }
+        }
+      }
+
+      setTrending(finalTrending);
+    } catch (e) {
+      console.log("Trending Error", e);
+    }
+  }
+
+  // ----------------------------------------------------
+  // 2️⃣ SEARCH HANDLER
+  // ----------------------------------------------------
   const handleSearch = async (e) => {
     e.preventDefault();
+    if (!query.trim()) return;
+
     setLoading(true);
     setError(null);
 
@@ -24,8 +81,9 @@ export default function App() {
 
       setResults(SearchResults.results || []);
       setImages(SearchResults.images || []);
-
       setActiveTab("results");
+
+      setTrending([]); // hide trending after search
 
     } catch (err) {
       setError("Error fetching results. Please try again.");
@@ -34,6 +92,9 @@ export default function App() {
     }
   };
 
+  // ----------------------------------------------------
+  // UI
+  // ----------------------------------------------------
   return (
     <div className="min-h-screen bg-white py-8 px-4">
       <div className="max-w-4xl mx-auto rounded-xl">
@@ -55,116 +116,122 @@ export default function App() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button
-            type="submit"
-            className="bg-black text-white px-8 text-lg font-semibold hover:bg-gray-800"
-          >
+          <button className="bg-black text-white px-8 text-lg font-semibold hover:bg-gray-800">
             Search
           </button>
         </form>
 
         {/* STATUS */}
-        {loading && (
-          <p className="text-center text-gray-500 mt-4 animate-pulse">
-            Searching...
-          </p>
-        )}
+        {loading && <p className="text-center text-gray-500 mt-4">Searching...</p>}
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-        {/* TABS */}
-        <div className="flex gap-4 mt-8 border-b">
-          <button
-            onClick={() => setActiveTab("results")}
-            className={`pb-2 text-lg font-semibold ${
-              activeTab === "results"
-                ? "border-b-4 border-black text-black"
-                : "text-gray-500"
-            }`}
-          >
-            Results
-          </button>
+        {/* -------------------------------------------------- */}
+        {/* 🔥 TRENDING (ONLY WHEN NO SEARCH) */}
+        {/* -------------------------------------------------- */}
+        {trending.length > 0 && (
+          <section className="mt-10">
+            <h2 className="text-2xl font-bold mb-5">🔥 Trending on FondPeace</h2>
 
-          <button
-            onClick={() => setActiveTab("images")}
-            className={`pb-2 text-lg font-semibold ${
-              activeTab === "images"
-                ? "border-b-4 border-black text-black"
-                : "text-gray-500"
-            }`}
-          >
-            Images ({images.length})
-          </button>
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {trending.map((post) => {
+                const thumb =
+                  post.thumbnail || post.media || `/api/thumbnail/${post._id}`;
 
-        {/* ------------------------- RESULTS TAB ------------------------- */}
-        {activeTab === "results" && (
-          <div className="mt-8 space-y-6">
-            {results.length > 0 ? (
-              results.map((result, index) => (
-                <div
-                  key={index}
-                  className="p-5 border bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition"
-                >
+                return (
                   <a
-                    href={result.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xl font-bold text-blue-700 hover:underline"
+                    key={post._id}
+                    href={`/post/${post._id}`}
+                    className="block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition"
                   >
-                    {result.title}
-                  </a>
+                    <img
+                      src={thumb}
+                      className="w-full h-40 object-cover"
+                      alt={post.title}
+                    />
 
-                  <div className="flex gap-3 mt-2">
-                    <p className="text-gray-700 flex-1">{result.snippet}</p>
+                    <div className="p-4">
+                      <p className="font-semibold text-gray-900 line-clamp-2 text-sm">
+                        {post.title}
+                      </p>
 
-                    {result.thumbnail && (
-                      <img
-                        src={result.thumbnail}
-                        className="h-24 w-32 object-cover rounded-md shadow hidden md:block"
-                      />
-                    )}
-                  </div>
-
-                  {/* ONLY SHOW 3 IMAGES MAX */}
-                  {result.images?.length > 0 && (
-                    <div className="mt-3 grid grid-cols-3 gap-3">
-                      {result.images.slice(0, 3).map((image, idx) => (
-                        <img
-                          key={idx}
-                          src={image}
-                          alt=""
-                          className="w-full h-24 object-cover rounded-md shadow-sm"
-                        />
-                      ))}
+                      <div className="flex items-center gap-3 text-gray-600 text-xs mt-3">
+                        <span>❤️ {post.likes || 0}</span>
+                        <span>💬 {post.comments || 0}</span>
+                        <span>👁️ {post.views || 0}</span>
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              !loading && (
-                <p className="text-center text-gray-500">No results found.</p>
-              )
-            )}
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* -------------------------------------------------- */}
+        {/* TABS (ONLY WHEN SEARCH RESULTS EXIST) */}
+        {/* -------------------------------------------------- */}
+        {results.length > 0 && (
+          <div className="flex gap-4 mt-10 border-b">
+            <button
+              onClick={() => setActiveTab("results")}
+              className={`pb-2 text-lg font-semibold ${
+                activeTab === "results"
+                  ? "border-b-4 border-black"
+                  : "text-gray-500"
+              }`}
+            >
+              Results
+            </button>
+
+            <button
+              onClick={() => setActiveTab("images")}
+              className={`pb-2 text-lg font-semibold ${
+                activeTab === "images"
+                  ? "border-b-4 border-black"
+                  : "text-gray-500"
+              }`}
+            >
+              Images ({images.length})
+            </button>
           </div>
         )}
 
-        {/* ------------------------- IMAGES TAB ------------------------- */}
-        {activeTab === "images" && (
-          <div className="mt-8">
-            {images.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {images.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img}
-                    alt=""
-                    className="w-full h-40 object-cover rounded-lg shadow hover:scale-[1.02] transition"
-                  />
-                ))}
+        {/* -------------------------------------------------- */}
+        {/* RESULTS TAB */}
+        {/* -------------------------------------------------- */}
+        {activeTab === "results" && results.length > 0 && (
+          <div className="mt-8 space-y-6">
+            {results.map((result, index) => (
+              <div
+                key={index}
+                className="p-5 border bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition"
+              >
+                <a
+                  href={result.link}
+                  target="_blank"
+                  className="text-xl font-bold text-blue-700 hover:underline"
+                >
+                  {result.title}
+                </a>
+
+                <p className="text-gray-700 mt-2">{result.snippet}</p>
               </div>
-            ) : (
-              <p className="text-center text-gray-500">No images found.</p>
-            )}
+            ))}
+          </div>
+        )}
+
+        {/* -------------------------------------------------- */}
+        {/* IMAGES TAB */}
+        {/* -------------------------------------------------- */}
+        {activeTab === "images" && images.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-8">
+            {images.map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                className="w-full h-40 object-cover rounded-lg shadow"
+              />
+            ))}
           </div>
         )}
 
