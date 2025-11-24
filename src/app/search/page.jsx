@@ -12,13 +12,7 @@ import { Metadata } from "next";
 export const metadata = {
   // Primary Title: Keep it concise and keyword-rich
   title: "FondPeace Search — Trending News, Viral Videos, AI, Tech & Global Stories",
-  // Custom meta tags
-  other: [
-    {
-      name: "_foundr",
-      content: "7f8d56b9adc93ec7a5a670f551d33814",
-    },
-  ],
+  
   // Primary Description: Detailed, compelling, and keyword-inclusive
   description:
     "Search trending news, viral videos, AI tools, tech updates, serial written updates, sports highlights & global stories on FondPeace.",
