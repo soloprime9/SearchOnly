@@ -15,7 +15,7 @@ export const metadata = {
   // Primary Description: Detailed, compelling, and keyword-inclusive
   description:
     "Search trending news, viral videos, AI tools, tech updates, serial written updates, sports highlights & global stories on FondPeace.",
-  // Keywords: Include a mix of primary and long-tail terms (Google uses these less, but still good for context)
+  // Keywords: Use sparingly, focus on Title/Description instead
   keywords: [
     "FondPeace search",
     "trending news",
@@ -44,7 +44,7 @@ export const metadata = {
     "max-snippet": -1, // Allows Google to use maximum snippet length
     "max-video-preview": -1, // Allows Google to use maximum video preview length
   },
-  // Open Graph (OG) for social media previews (Facebook, LinkedIn, etc.)
+  // Open Graph (OG) for social media previews
   openGraph: {
     title: "FondPeace Search — Find Trending News & Viral Videos",
     description:
@@ -52,7 +52,7 @@ export const metadata = {
     url: "https://www.fondpeace.com/search",
     siteName: "FondPeace",
     type: "website",
-    locale: "en_US", // Best practice to set locale
+    locale: "en_US", 
     images: [
       {
         url: "https://www.fondpeace.com/og-search.jpg",
@@ -109,7 +109,6 @@ const FAQS = [
 ];
 
 // ------------------ JSON-LD (Structured Data) ------------------
-// This is CRITICAL for good search results and features like Sitelinks Searchbox and FAQ Snippets.
 
 function JsonLD() {
   const now = new Date().toISOString();
@@ -150,7 +149,7 @@ function JsonLD() {
     url: "https://www.fondpeace.com/search",
     description: metadata.description,
     inLanguage: "en",
-    datePublished: "2024-01-01T00:00:00+00:00", // Placeholder for a real published date
+    datePublished: "2024-01-01T00:00:00+00:00", 
     dateModified: now,
   };
 
@@ -166,7 +165,6 @@ function JsonLD() {
   };
 
   return (
-    // Use dangerouslySetInnerHTML to inject valid JSON-LD scripts
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
@@ -184,13 +182,13 @@ export default function SearchPage() {
 
   return (
     <main className="min-h-screen bg-white text-gray-900">
-      {/* Inject the SEO-critical structured data here. 
-        Google recommends placing JSON-LD scripts high in the page. 
-      */}
       <JsonLD />
 
-      {/* HERO SECTION - Good use of h1, strong title */}
-      <header className="max-w-5xl mx-auto px-4 py-8">
+      {/* 1. HERO SECTION (Page Title and Meta Information) */}
+      {/* Contains the H1, which must be the first major content element for SEO */}
+      <header className="max-w-5xl mx-auto px-4 py-8 pb-4">
+        
+        {/* H1 must be the first major element to define the page topic */}
         <h1 className="text-3xl md:text-4xl font-extrabold">
           FondPeace Search — Discover Trending News, Videos, AI & More
         </h1>
@@ -207,29 +205,27 @@ export default function SearchPage() {
         </div>
       </header>
 
-      {/* SEARCH BOX - Key functionality, wrapped in a section for semantic clarity */}
-      <section 
-        className="max-w-3xl mx-auto px-4"
-        aria-label="FondPeace Search Bar" // Added for accessibility
+      {/* 2. SEARCH BOX (Main Functional Component) */}
+      {/* This is immediately below the H1 and header for the best user access. */}
+      <section 
+        className="max-w-3xl mx-auto px-4 -mt-4" // Use negative margin to pull it up closer to the header text
+        aria-label="FondPeace Search Bar" 
       >
         <div className="sticky top-4 bg-white z-30 py-4">
-          {/* SearchGo is the client component, properly isolated */}
           <SearchGo />
         </div>
       </section>
 
-      {/* TRENDING NOW - Good for internal linking and indexation of high-value keywords */}
+      {/* 3. TRENDING NOW - Good for internal linking and indexation of high-value keywords */}
       <section className="max-w-5xl mx-auto px-4 mt-6">
-        {/* Use a clear heading for this content block */}
         <h2 className="text-lg font-semibold">Trending Now</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {TRENDING_TOPICS.map((t, i) => (
-            // Links are essential for SEO, directing link equity
             <Link
               key={i}
               href={`/search?q=${encodeURIComponent(t)}`}
               className="px-3 py-2 text-sm bg-gray-100 rounded-full hover:bg-black hover:text-white transition"
-              prefetch={false} // May improve performance for less critical links
+              prefetch={false} 
             >
               {t}
             </Link>
@@ -237,7 +233,7 @@ export default function SearchPage() {
         </div>
       </section>
 
-      {/* CATEGORIES - Excellent for internal linking and topic authority */}
+      {/* 4. CATEGORIES - Excellent for internal linking and topic authority */}
       <section className="max-w-5xl mx-auto px-4 mt-10">
         <h3 className="text-xl font-semibold">Popular Categories</h3>
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -255,34 +251,53 @@ export default function SearchPage() {
         </div>
       </section>
 
-      {/* SEO CONTENT - Long-form text to establish authority and context */}
+      {/* 5. SEO CONTENT - Trust and E-A-T Building */}
       <article className="max-w-5xl mx-auto px-4 prose prose-lg mt-10">
-        <h2>About FondPeace Search</h2>
-        <p>
-          FondPeace Search helps millions discover trending global stories quickly.
-          We provide fast results, clear categories, and AI-based clustering to keep your search efficient.
+        <h2 className="!mb-4">About FondPeace Search</h2>
+
+        <p className="text-gray-700 leading-relaxed">
+          FondPeace Search is built to help people discover information faster —
+          whether it’s **breaking news**, **viral videos**, entertainment updates, **AI tools**,
+          sports highlights or community stories. Our focus is on delivering a clean,
+          simple and reliable search experience that works smoothly across all devices.
         </p>
 
-        <h3>Why FondPeace?</h3>
-        <ul>
-          <li>Strong coverage of **global news** and entertainment.</li>
-          <li>**Smart suggestions** powered by AI.</li>
-          <li>**Privacy-first systems** — no data selling.</li>
+        <p className="text-gray-700 mt-4 leading-relaxed">
+          Instead of overwhelming users with clutter, FondPeace Search organizes topics
+          into easy categories and presents results in a straightforward way. This makes
+          it easier for you to explore what’s trending without distractions or confusion.
+        </p>
+
+        <h3 className="mt-8">What Makes FondPeace Different?</h3>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Fast and clean search experience without unnecessary complexity.</li>
+          <li>Fresh updates across news, entertainment, tech and sports.</li>
+          <li>Simple design that focuses on clarity and user comfort.</li>
+          <li>No intrusive ads, no aggressive push — just straightforward results.</li>
+          <li>Privacy-friendly approach with minimum required data usage.</li>
         </ul>
 
-        <h3>Accuracy & Editorial Quality</h3>
-        <p>
-          FondPeace maintains transparency by linking to original sources and labeling content clearly.  
-          For corrections, email us: <a href="mailto:contact@fondpeace.com">contact@fondpeace.com</a>.
+        <h3 className="mt-8">Our Commitment</h3>
+        <p className="text-gray-700 leading-relaxed">
+          FondPeace aims to maintain **accuracy**, **clarity** and **transparency** in all search
+          results. When possible, we provide context and source references to ensure
+          readers can verify the information easily.
+        </p>
+
+        <p className="text-gray-700 mt-4 leading-relaxed">
+          If you ever find incorrect information or need clarification, feel free to
+          reach us at{" "}
+          <a href="mailto:contact@fondpeace.com" className="underline">
+            contact@fondpeace.com
+          </a>.
         </p>
       </article>
 
-      {/* FAQ SECTION - Directly maps to the FAQPage schema.org data */}
+      {/* 6. FAQ SECTION - Supports Rich Snippets (using h3) */}
       <section className="max-w-5xl mx-auto px-4 mt-12">
         <h3 className="text-2xl font-semibold mb-4">Frequently Asked Questions (FAQ)</h3>
         <div className="space-y-3">
           {FAQS.map((f, i) => (
-            // details/summary is a great native, accessible way to handle FAQs
             <details key={i} className="bg-gray-50 p-4 rounded-md">
               <summary className="font-medium">{f.q}</summary>
               <p className="mt-2 text-gray-700">{f.a}</p>
@@ -291,17 +306,51 @@ export default function SearchPage() {
         </div>
       </section>
 
-      {/* PRIVACY SUMMARY - Builds trust and links to a key policy page */}
-      <section className="max-w-5xl mx-auto px-4 mt-10">
-        <h3 className="text-xl font-semibold">Privacy Summary</h3>
-        <p className="text-gray-700">
-          Updated: <time dateTime={today}>{today}</time>.  
-          FondPeace uses minimal analytics & never sells data.  
-          Full policy: <Link href="/privacy" className="underline">Privacy Policy</Link>
+      {/* 7. PRIVACY & DATA HANDLING - Critical for Trust/E-A-T */}
+      <section className="max-w-5xl mx-auto px-4 mt-12">
+        <h3 className="text-2xl font-semibold mb-4">Privacy & Data Handling</h3>
+
+        <p className="text-gray-700 mt-3">
+          FondPeace is designed with user privacy in mind. We do not sell, rent, or misuse
+          any personal data. Only essential technical information is processed to keep the
+          website secure, stable, and fast.
+        </p>
+
+        <p className="text-gray-700 mt-3">
+          Search terms are only used to show results and improve performance. They are
+          not linked to your identity, and we do not create user profiles or track
+          personal behavior across pages.
+        </p>
+
+        <p className="text-gray-700 mt-3">
+          We use a small number of necessary cookies for performance, spam-prevention,
+          and error monitoring. These cookies do not identify who you are and are never
+          used for targeted advertising.
+        </p>
+
+        <p className="text-gray-700 mt-3">
+          Some search results may link to third-party websites. Their privacy policies
+          may differ, and FondPeace does not control their content. We encourage users
+          to review external policies before interacting with them.
+        </p>
+
+        <p className="text-gray-700 mt-3">
+          Users may request correction or removal of content or ask for data-related
+          clarifications anytime by contacting us at 
+          <a className="underline ml-1" href="mailto:contact@fondpeace.com">
+            contact@fondpeace.com
+          </a>.
+        </p>
+
+        <p className="text-gray-700 mt-3">
+          Updated: {today}. For full details, visit our{" "}
+          <Link href="/privacy" className="underline">
+            Privacy Policy
+          </Link>.
         </p>
       </section>
 
-      {/* FOOTER - Essential utility links */}
+      {/* 8. FOOTER - Essential utility links */}
       <footer className="max-w-5xl mx-auto px-4 mt-12 mb-12 border-t pt-6 text-sm text-gray-600">
         <div className="flex flex-col md:flex-row md:justify-between gap-4">
           <div>© {currentYear} FondPeace</div>
@@ -316,6 +365,392 @@ export default function SearchPage() {
     </main>
   );
 }
+
+
+
+
+
+
+
+// // app/search/page.jsx
+// // FINAL PRODUCTION VERSION — fully SEO optimized, no "use client"
+// // Entire page is server-rendered. SearchGo is client-only but isolated.
+
+// import React from "react";
+// import SearchGo from "@/components/SearchGo"; // client component (assumed path)
+// import Link from "next/link";
+// import { Metadata } from "next"; // Import for type hinting, though not strictly needed for runtime
+
+// // -------------------- SEO METADATA --------------------
+
+// export const metadata = {
+//   // Primary Title: Keep it concise and keyword-rich
+//   title: "FondPeace Search — Trending News, Viral Videos, AI, Tech & Global Stories",
+//   // Primary Description: Detailed, compelling, and keyword-inclusive
+//   description:
+//     "Search trending news, viral videos, AI tools, tech updates, serial written updates, sports highlights & global stories on FondPeace.",
+//   // Keywords: Include a mix of primary and long-tail terms (Google uses these less, but still good for context)
+//   keywords: [
+//     "FondPeace search",
+//     "trending news",
+//     "viral videos",
+//     "AI tools",
+//     "tech news",
+//     "serial updates",
+//     "sports highlights",
+//     "global stories",
+//     "breaking news",
+//   ],
+//   // Canonical URL: Essential for avoiding duplicate content issues
+//   alternates: {
+//     canonical: "https://www.fondpeace.com/search",
+//     languages: {
+//       "en": "/search", // Default English
+//       "en-IN": "/in/search", // Specific for India, good for geo-targeting
+//       "en-GB": "/uk/search", // Specific for UK
+//     },
+//   },
+//   // Robots: Standard best practice for full indexing
+//   robots: {
+//     index: true,
+//     follow: true,
+//     "max-image-preview": "large",
+//     "max-snippet": -1, // Allows Google to use maximum snippet length
+//     "max-video-preview": -1, // Allows Google to use maximum video preview length
+//   },
+//   // Open Graph (OG) for social media previews (Facebook, LinkedIn, etc.)
+//   openGraph: {
+//     title: "FondPeace Search — Find Trending News & Viral Videos",
+//     description:
+//       "Explore trending news, viral videos, AI updates, tech, entertainment & more — instantly.",
+//     url: "https://www.fondpeace.com/search",
+//     siteName: "FondPeace",
+//     type: "website",
+//     locale: "en_US", // Best practice to set locale
+//     images: [
+//       {
+//         url: "https://www.fondpeace.com/og-search.jpg",
+//         width: 1200,
+//         height: 630,
+//         alt: "FondPeace Search",
+//       },
+//     ],
+//   },
+//   // Twitter Card for X (Twitter) previews
+//   twitter: {
+//     card: "summary_large_image",
+//     title: "FondPeace Search — Fast Trending News & Viral Videos",
+//     description:
+//       "Search global news, viral videos, AI tools & entertainment instantly.",
+//     images: ["https://www.fondpeace.com/og-search.jpg"],
+//   },
+// };
+
+// // -------------------- DATA (REMAINS THE SAME) --------------------
+
+// const GLOBAL_CATEGORIES = [
+//   "India News", "World News", "USA News", "UK News", "Europe", "Middle East", "Asia", "Africa",
+//   "Politics", "Elections", "Crime", "Weather", "Technology", "Artificial Intelligence",
+//   "Machine Learning", "Startups", "Business", "Finance", "Stock Market", "Crypto", "Economy",
+//   "Science", "Space", "Sports", "Cricket", "Football", "NBA", "Gaming", "Movies", "Bollywood",
+//   "Hollywood", "K-Dramas", "Anime", "Serial Updates", "Lifestyle", "Health", "Food",
+//   "Travel", "Education", "Jobs", "Automobile", "Viral Videos", "Shorts", "Reels", "Influencers"
+// ];
+
+// const TRENDING_TOPICS = [
+//   "OpenAI updates",
+//   "World Cup Highlights",
+//   "India Breaking News",
+//   "Top Viral Video Today",
+//   "Best AI Tools 2025",
+//   "Latest Movie Trailers",
+//   "Serial Written Update Today"
+// ];
+
+// const FAQS = [
+//   {
+//     q: "What is FondPeace Search?",
+//     a: "FondPeace Search helps users discover trending news, viral videos, AI updates, entertainment, sports and global stories — fast and organized.",
+//   },
+//   {
+//     q: "Is FondPeace free?",
+//     a: "Yes. FondPeace Search is completely free to use.",
+//   },
+//   {
+//     q: "How does FondPeace find trending topics?",
+//     a: "We use freshness, engagement, trust score and AI clustering to highlight trending topics.",
+//   },
+// ];
+
+// // ------------------ JSON-LD (Structured Data) ------------------
+// // This is CRITICAL for good search results and features like Sitelinks Searchbox and FAQ Snippets.
+
+// function JsonLD() {
+//   const now = new Date().toISOString();
+
+//   // 1. WebSite Schema (For Sitelinks Searchbox)
+//   const website = {
+//     "@context": "https://schema.org",
+//     "@type": "WebSite",
+//     name: "FondPeace",
+//     url: "https://www.fondpeace.com",
+//     potentialAction: {
+//       "@type": "SearchAction",
+//       target: "https://www.fondpeace.com/search?q={search_term_string}",
+//       "query-input": "required name=search_term_string",
+//     },
+//   };
+
+//   // 2. Organization Schema
+//   const org = {
+//     "@context": "https://schema.org",
+//     "@type": "Organization",
+//     name: "FondPeace",
+//     url: "https://www.fondpeace.com",
+//     logo: "https://www.fondpeace.com/logo.png",
+//     sameAs: [
+//       "https://www.facebook.com/fondpeace",
+//       "https://www.instagram.com/fondpeace",
+//       "https://twitter.com/fondpeace",
+//       "https://www.youtube.com/@FondPeace",
+//     ],
+//   };
+
+//   // 3. WebPage Schema
+//   const page = {
+//     "@context": "https://schema.org",
+//     "@type": "WebPage",
+//     name: "FondPeace Search",
+//     url: "https://www.fondpeace.com/search",
+//     description: metadata.description,
+//     inLanguage: "en",
+//     datePublished: "2024-01-01T00:00:00+00:00", // Placeholder for a real published date
+//     dateModified: now,
+//   };
+
+//   // 4. FAQPage Schema (For FAQ Rich Snippets)
+//   const faq = {
+//     "@context": "https://schema.org",
+//     "@type": "FAQPage",
+//     mainEntity: FAQS.map((f) => ({
+//       "@type": "Question",
+//       name: f.q,
+//       acceptedAnswer: { "@type": "Answer", text: f.a },
+//     })),
+//   };
+
+//   return (
+//     // Use dangerouslySetInnerHTML to inject valid JSON-LD scripts
+//     <>
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }} />
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(page) }} />
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }} />
+//     </>
+//   );
+// }
+
+// // ------------------ PAGE COMPONENT ------------------
+
+// export default function SearchPage() {
+//   const today = new Date().toISOString().split("T")[0];
+//   const currentYear = new Date().getFullYear();
+
+//   return (
+//     <main className="min-h-screen bg-white text-gray-900">
+//       {/* Inject the SEO-critical structured data here. 
+//         Google recommends placing JSON-LD scripts high in the page. 
+//       */}
+//       <JsonLD />
+
+//       {/* HERO SECTION - Good use of h1, strong title */}
+//       <header className="max-w-5xl mx-auto px-4 py-8">
+
+//         {/* SEARCH BOX - Key functionality, wrapped in a section for semantic clarity */}
+//       <section 
+//         className="max-w-3xl mx-auto px-4"
+//         aria-label="FondPeace Search Bar" // Added for accessibility
+//       >
+//         <div className="sticky top-4 bg-white z-30 py-4">
+//           {/* SearchGo is the client component, properly isolated */}
+//           <SearchGo />
+//         </div>
+//       </section>
+        
+//         <h1 className="text-3xl md:text-4xl font-extrabold">
+//           FondPeace Search — Discover Trending News, Videos, AI & More
+//         </h1>
+//         <p className="mt-3 text-gray-700 max-w-3xl">
+//           Find trending topics, viral videos, AI tool updates, sports highlights & local stories.
+//           Fast, reliable and updated — powered by FondPeace.
+//         </p>
+
+//         <div className="mt-3 text-sm text-gray-600">
+//           © FondPeace • Updated <time dateTime={today}>{today}</time> • Email:{" "}
+//           <a href="mailto:contact@fondpeace.com" className="underline">
+//             contact@fondpeace.com
+//           </a>
+//         </div>
+//       </header>
+
+      
+
+//       {/* TRENDING NOW - Good for internal linking and indexation of high-value keywords */}
+//       <section className="max-w-5xl mx-auto px-4 mt-6">
+//         {/* Use a clear heading for this content block */}
+//         <h2 className="text-lg font-semibold">Trending Now</h2>
+//         <div className="mt-3 flex flex-wrap gap-2">
+//           {TRENDING_TOPICS.map((t, i) => (
+//             // Links are essential for SEO, directing link equity
+//             <Link
+//               key={i}
+//               href={`/search?q=${encodeURIComponent(t)}`}
+//               className="px-3 py-2 text-sm bg-gray-100 rounded-full hover:bg-black hover:text-white transition"
+//               prefetch={false} // May improve performance for less critical links
+//             >
+//               {t}
+//             </Link>
+//           ))}
+//         </div>
+//       </section>
+
+//       {/* CATEGORIES - Excellent for internal linking and topic authority */}
+//       <section className="max-w-5xl mx-auto px-4 mt-10">
+//         <h3 className="text-xl font-semibold">Popular Categories</h3>
+//         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+//           {GLOBAL_CATEGORIES.map((cat, index) => (
+//             <Link
+//               key={index}
+//               href={`/search?q=${encodeURIComponent(cat)}`}
+//               className="bg-sky-50 hover:bg-sky-100 p-3 rounded-md"
+//               prefetch={false}
+//             >
+//               <div className="font-medium">{cat}</div>
+//               <div className="text-xs text-gray-600">Trending stories</div>
+//             </Link>
+//           ))}
+//         </div>
+//       </section>
+
+
+//       <article className="max-w-5xl mx-auto px-4 prose prose-lg mt-10">
+//   <h2 className="!mb-4">About FondPeace Search</h2>
+
+//   <p className="text-gray-700 leading-relaxed">
+//     FondPeace Search is built to help people discover information faster —
+//     whether it’s breaking news, viral videos, entertainment updates, AI tools,
+//     sports highlights or community stories. Our focus is on delivering a clean,
+//     simple and reliable search experience that works smoothly across all devices.
+//   </p>
+
+//   <p className="text-gray-700 mt-4 leading-relaxed">
+//     Instead of overwhelming users with clutter, FondPeace Search organizes topics
+//     into easy categories and presents results in a straightforward way. This makes
+//     it easier for you to explore what’s trending without distractions or confusion.
+//   </p>
+
+//   <h3 className="mt-8">What Makes FondPeace Different?</h3>
+//   <ul className="list-disc pl-5 space-y-2">
+//     <li>Fast and clean search experience without unnecessary complexity.</li>
+//     <li>Fresh updates across news, entertainment, tech and sports.</li>
+//     <li>Simple design that focuses on clarity and user comfort.</li>
+//     <li>No intrusive ads, no aggressive push — just straightforward results.</li>
+//     <li>Privacy-friendly approach with minimum required data usage.</li>
+//   </ul>
+
+//   <h3 className="mt-8">Our Commitment</h3>
+//   <p className="text-gray-700 leading-relaxed">
+//     FondPeace aims to maintain accuracy, clarity and transparency in all search
+//     results. When possible, we provide context and source references to ensure
+//     readers can verify the information easily.
+//   </p>
+
+//   <p className="text-gray-700 mt-4 leading-relaxed">
+//     If you ever find incorrect information or need clarification, feel free to
+//     reach us at{" "}
+//     <a href="mailto:contact@fondpeace.com" className="underline">
+//       contact@fondpeace.com
+//     </a>.
+//   </p>
+// </article>
+
+
+//       {/* FAQ SECTION - Directly maps to the FAQPage schema.org data */}
+//       <section className="max-w-5xl mx-auto px-4 mt-12">
+//         <h3 className="text-2xl font-semibold mb-4">Frequently Asked Questions (FAQ)</h3>
+//         <div className="space-y-3">
+//           {FAQS.map((f, i) => (
+//             // details/summary is a great native, accessible way to handle FAQs
+//             <details key={i} className="bg-gray-50 p-4 rounded-md">
+//               <summary className="font-medium">{f.q}</summary>
+//               <p className="mt-2 text-gray-700">{f.a}</p>
+//             </details>
+//           ))}
+//         </div>
+//       </section>
+
+
+//       {/* PRIVACY & DATA HANDLING */}
+// <section className="max-w-5xl mx-auto px-4 mt-12">
+//   <h3 className="text-2xl font-semibold mb-4">Privacy & Data Handling</h3>
+
+//   <p className="text-gray-700 mt-3">
+//     FondPeace is designed with user privacy in mind. We do not sell, rent, or misuse
+//     any personal data. Only essential technical information is processed to keep the
+//     website secure, stable, and fast.
+//   </p>
+
+//   <p className="text-gray-700 mt-3">
+//     Search terms are only used to show results and improve performance. They are
+//     not linked to your identity, and we do not create user profiles or track
+//     personal behavior across pages.
+//   </p>
+
+//   <p className="text-gray-700 mt-3">
+//     We use a small number of necessary cookies for performance, spam-prevention,
+//     and error monitoring. These cookies do not identify who you are and are never
+//     used for targeted advertising.
+//   </p>
+
+//   <p className="text-gray-700 mt-3">
+//     Some search results may link to third-party websites. Their privacy policies
+//     may differ, and FondPeace does not control their content. We encourage users
+//     to review external policies before interacting with them.
+//   </p>
+
+//   <p className="text-gray-700 mt-3">
+//     Users may request correction or removal of content or ask for data-related
+//     clarifications anytime by contacting us at 
+//     <a className="underline ml-1" href="mailto:contact@fondpeace.com">
+//       contact@fondpeace.com
+//     </a>.
+//   </p>
+
+//   <p className="text-gray-700 mt-3">
+//     Updated: {today}. For full details, visit our{" "}
+//     <Link href="/privacy" className="underline">
+//       Privacy Policy
+//     </Link>.
+//   </p>
+// </section>
+
+      
+
+//       {/* FOOTER - Essential utility links */}
+//       <footer className="max-w-5xl mx-auto px-4 mt-12 mb-12 border-t pt-6 text-sm text-gray-600">
+//         <div className="flex flex-col md:flex-row md:justify-between gap-4">
+//           <div>© {currentYear} FondPeace</div>
+//           <nav className="flex gap-4" aria-label="Footer Navigation">
+//             <Link href="/about" className="hover:underline">About</Link>
+//             <Link href="/contact" className="hover:underline">Contact</Link>
+//             <Link href="/privacy" className="hover:underline">Privacy</Link>
+//             <Link href="/terms" className="hover:underline">Terms</Link>
+//           </nav>
+//         </div>
+//       </footer>
+//     </main>
+//   );
+// }
 
 
 
