@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-function App() {
+export default function App() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,11 +14,12 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`https://backend-k.vercel.app/autoai/result?q=${query}`);
+      const response = await axios.get(
+        `https://backend-k.vercel.app/autoai/result?q=${query}`
+      );
       const SearchResults = response.data.ScrapedData[0];
       setResults(SearchResults.results || []);
       setImages(SearchResults.images || []);
-      // setImages(SearchResults.images || []);
 
       console.log("Results:", SearchResults.results);
       console.log("Images:", SearchResults.images);
@@ -30,73 +31,98 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex  items-center justify-center">
-      <div className=" w-full px-2 py-8 bg-white shadow-lg rounded-lg">
-        <h1 className="text-3xl font-bold text-center text-indigo-600 mb-6">Search Engine</h1>
+    <div className="min-h-screen bg-white py-10 px-4">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border p-6">
 
-        <form onSubmit={handleSearch} className="flex mb-6">
+        {/* HEADER */}
+        <h1 className="text-4xl font-extrabold text-center text-gray-900 mb-6">
+          🔍 FondPeace Search
+        </h1>
+
+        {/* SEARCH BAR */}
+        <form
+          onSubmit={handleSearch}
+          className="flex w-full shadow-md rounded-full border overflow-hidden"
+        >
           <input
             type="text"
-            className="p-3 w-full border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Search..."
+            className="p-4 w-full text-lg outline-none"
+            placeholder="Search news, videos, images, AI tools..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
           <button
             type="submit"
-            className="p-3 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700 focus:outline-none"
+            className="bg-black text-white px-8 text-lg font-semibold hover:bg-gray-800"
           >
             Search
           </button>
         </form>
 
-        {loading && <p className="text-center text-gray-500">Loading...</p>}
-        {error && <p className="text-center text-red-500">{error}</p>}
+        {/* STATUS */}
+        {loading && (
+          <p className="text-center text-gray-500 mt-4 animate-pulse">
+            Searching...
+          </p>
+        )}
+        {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-        {/* General Images Section */}
+        {/* TOP IMAGES */}
         {images.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-indigo-700 mb-4">Top Images</h2>
+          <div className="mt-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+              📸 Top Images
+            </h2>
+
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {images.map((img, idx) => (
                 <img
                   key={idx}
                   src={img}
-                  alt={`Image ${idx + 1}`}
-                  className="w-full h-32 object-cover rounded-md"
+                  alt=""
+                  className="w-full h-40 object-cover rounded-lg shadow-sm hover:scale-[1.02] transition"
                 />
               ))}
             </div>
           </div>
         )}
 
-        {/* Results Section */}
-        <div className="space-y-2">
+        {/* RESULTS */}
+        <div className="mt-10 space-y-6">
           {results.length > 0 ? (
             results.map((result, index) => (
-              <div key={index} className="border-b pb-2">
-                <h2 className="text-xl font-semibold text-indigo-700">
+              <div
+                key={index}
+                className="p-5 border rounded-xl shadow-sm hover:shadow-lg transition bg-gray-50"
+              >
                 <a
                   href={result.link}
-                  className="text-blue-600 hover:text-blue-800 mt-2 block"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="text-xl font-bold text-blue-700 hover:underline"
                 >
                   {result.title}
                 </a>
-                  </h2>
-                <div className="flex gap-2">
-                <p className="text-gray-700 mt-2 ">{result.snippet}</p>
-                  <img src={result.thumbnail} className="h-28 w-auto object-cover rounded-md ml-auto md:block hidden" />
+
+                <div className="flex gap-3 mt-3">
+                  <p className="text-gray-700 flex-1">{result.snippet}</p>
+
+                  {result.thumbnail && (
+                    <img
+                      src={result.thumbnail}
+                      className="h-28 w-36 object-cover rounded-md shadow-md hidden md:block"
+                    />
+                  )}
                 </div>
-                {result.images && result.images.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+                {result.images?.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {result.images.map((image, idx) => (
                       <img
                         key={idx}
                         src={image}
-                        alt={`Result Image ${idx + 1}`}
-                        className="w-full h-32 object-cover rounded-md"
+                        alt=""
+                        className="w-full h-32 object-cover rounded-md shadow-sm"
                       />
                     ))}
                   </div>
@@ -104,7 +130,9 @@ function App() {
               </div>
             ))
           ) : (
-            !loading && <p className="text-center text-gray-500">No results found.</p>
+            !loading && (
+              <p className="text-center text-gray-500">No results found.</p>
+            )
           )}
         </div>
       </div>
@@ -112,7 +140,129 @@ function App() {
   );
 }
 
-export default App;
+
+
+
+
+
+
+
+
+// 'use client';
+// import React, { useState } from "react";
+// import axios from "axios";
+
+// function App() {
+//   const [query, setQuery] = useState("");
+//   const [results, setResults] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+//   const [images, setImages] = useState([]);
+
+//   const handleSearch = async (e) => {
+//     e.preventDefault();
+//     setLoading(true);
+//     setError(null);
+//     try {
+//       const response = await axios.get(`https://backend-k.vercel.app/autoai/result?q=${query}`);
+//       const SearchResults = response.data.ScrapedData[0];
+//       setResults(SearchResults.results || []);
+//       setImages(SearchResults.images || []);
+//       // setImages(SearchResults.images || []);
+
+//       console.log("Results:", SearchResults.results);
+//       console.log("Images:", SearchResults.images);
+//     } catch (err) {
+//       setError("Error fetching results. Please try again.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gray-100 flex  items-center justify-center">
+//       <div className=" w-full px-2 py-8 bg-white shadow-lg rounded-lg">
+//         <h1 className="text-3xl font-bold text-center text-indigo-600 mb-6">Search Engine</h1>
+
+//         <form onSubmit={handleSearch} className="flex mb-6">
+//           <input
+//             type="text"
+//             className="p-3 w-full border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+//             placeholder="Search..."
+//             value={query}
+//             onChange={(e) => setQuery(e.target.value)}
+//           />
+//           <button
+//             type="submit"
+//             className="p-3 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700 focus:outline-none"
+//           >
+//             Search
+//           </button>
+//         </form>
+
+//         {loading && <p className="text-center text-gray-500">Loading...</p>}
+//         {error && <p className="text-center text-red-500">{error}</p>}
+
+//         {/* General Images Section */}
+//         {images.length > 0 && (
+//           <div className="mb-6">
+//             <h2 className="text-xl font-semibold text-indigo-700 mb-4">Top Images</h2>
+//             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+//               {images.map((img, idx) => (
+//                 <img
+//                   key={idx}
+//                   src={img}
+//                   alt={`Image ${idx + 1}`}
+//                   className="w-full h-32 object-cover rounded-md"
+//                 />
+//               ))}
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Results Section */}
+//         <div className="space-y-2">
+//           {results.length > 0 ? (
+//             results.map((result, index) => (
+//               <div key={index} className="border-b pb-2">
+//                 <h2 className="text-xl font-semibold text-indigo-700">
+//                 <a
+//                   href={result.link}
+//                   className="text-blue-600 hover:text-blue-800 mt-2 block"
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                 >
+//                   {result.title}
+//                 </a>
+//                   </h2>
+//                 <div className="flex gap-2">
+//                 <p className="text-gray-700 mt-2 ">{result.snippet}</p>
+//                   <img src={result.thumbnail} className="h-28 w-auto object-cover rounded-md ml-auto md:block hidden" />
+//                 </div>
+//                 {result.images && result.images.length > 0 && (
+//                   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
+//                     {result.images.map((image, idx) => (
+//                       <img
+//                         key={idx}
+//                         src={image}
+//                         alt={`Result Image ${idx + 1}`}
+//                         className="w-full h-32 object-cover rounded-md"
+//                       />
+//                     ))}
+//                   </div>
+//                 )}
+//               </div>
+//             ))
+//           ) : (
+//             !loading && <p className="text-center text-gray-500">No results found.</p>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default App;
 
 
 
