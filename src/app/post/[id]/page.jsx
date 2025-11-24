@@ -306,14 +306,14 @@ export default async function Page({ params }) {
       <div className="flex items-center space-x-3">
         {/* Profile Picture */}
         <img
-          src={post.user?.profilePic || '/default-profile.png'}
-          alt={post.user?.username || 'User'}
+          src={post.user?.profilePic || '/Fondpeace.jpg'}
+          alt={post.userId?.username || 'User'}
           className="w-10 h-10 rounded-full object-cover"
         />
 
         {/* Username and Upload Date */}
         <div className="flex flex-col">
-          <span className="font-semibold text-gray-800">{post.user?.username || 'Anonymous'}</span>
+          <span className="font-semibold text-gray-800">{post.userId?.username || 'Anonymous'}</span>
           <span className="text-gray-500 text-sm">{new Date(post.createdAt).toLocaleDateString()}</span>
         </div>
       </div>
@@ -1880,6 +1880,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
