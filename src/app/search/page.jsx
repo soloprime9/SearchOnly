@@ -5,7 +5,7 @@
 import React from "react";
 import SearchGo from "@/components/SearchGo"; // client component (assumed path)
 import Link from "next/link";
-import { Metadata } from "next"; // Import for type hinting, though not strictly needed for runtime
+import { Metadata } from "next"; 
 
 // -------------------- SEO METADATA --------------------
 
@@ -31,9 +31,9 @@ export const metadata = {
   alternates: {
     canonical: "https://www.fondpeace.com/search",
     languages: {
-      "en": "/search", // Default English
-      "en-IN": "/in/search", // Specific for India, good for geo-targeting
-      "en-GB": "/uk/search", // Specific for UK
+      "en": "/search", 
+      "en-IN": "/in/search", 
+      "en-GB": "/uk/search", 
     },
   },
   // Robots: Standard best practice for full indexing
@@ -41,8 +41,8 @@ export const metadata = {
     index: true,
     follow: true,
     "max-image-preview": "large",
-    "max-snippet": -1, // Allows Google to use maximum snippet length
-    "max-video-preview": -1, // Allows Google to use maximum video preview length
+    "max-snippet": -1, 
+    "max-video-preview": -1, 
   },
   // Open Graph (OG) for social media previews
   openGraph: {
@@ -184,11 +184,20 @@ export default function SearchPage() {
     <main className="min-h-screen bg-white text-gray-900">
       <JsonLD />
 
-      {/* 1. HERO SECTION (Page Title and Meta Information) */}
-      {/* Contains the H1, which must be the first major content element for SEO */}
-      <header className="max-w-5xl mx-auto px-4 py-8 pb-4">
+      {/* 1. SEARCH BOX (Main Functional Component - HIGHEST VISUAL POSITION) */}
+      <section 
+        className="max-w-3xl mx-auto px-4 pt-6 md:pt-10" // Added top padding for spacing
+        aria-label="FondPeace Search Bar" 
+      >
+        <div className="sticky top-4 bg-white z-30 py-4">
+          <SearchGo />
+        </div>
+      </section>
+
+      {/* 2. HERO SECTION (Page Title and Meta Information - NOW BELOW THE SEARCH BAR) */}
+      <header className="max-w-5xl mx-auto px-4 pt-4 pb-8">
         
-        {/* H1 must be the first major element to define the page topic */}
+        {/* H1 must still exist to define the page topic, but is now second in the content flow */}
         <h1 className="text-3xl md:text-4xl font-extrabold">
           FondPeace Search — Discover Trending News, Videos, AI & More
         </h1>
@@ -204,17 +213,6 @@ export default function SearchPage() {
           </a>
         </div>
       </header>
-
-      {/* 2. SEARCH BOX (Main Functional Component) */}
-      {/* This is immediately below the H1 and header for the best user access. */}
-      <section 
-        className="max-w-3xl mx-auto px-4 -mt-4" // Use negative margin to pull it up closer to the header text
-        aria-label="FondPeace Search Bar" 
-      >
-        <div className="sticky top-4 bg-white z-30 py-4">
-          <SearchGo />
-        </div>
-      </section>
 
       {/* 3. TRENDING NOW - Good for internal linking and indexation of high-value keywords */}
       <section className="max-w-5xl mx-auto px-4 mt-6">
@@ -365,8 +363,6 @@ export default function SearchPage() {
     </main>
   );
 }
-
-
 
 
 
