@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
 
 const API_BASE = "https://fondpeace-backend.vercel.app";
 
@@ -126,46 +127,62 @@ export default function App() {
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
         {/* -------------------------------------------------- */}
-        {/* 🔥 TRENDING (ONLY WHEN NO SEARCH) */}
-        {/* -------------------------------------------------- */}
         {trending.length > 0 && (
-          <section className="mt-10">
-            <h2 className="text-2xl font-bold mb-5">🔥 Trending on FondPeace</h2>
+  <section className="mt-10">
+    <h2 className="text-2xl font-bold mb-5">🔥 Trending on FondPeace</h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {trending.map((post) => {
-                const thumb =
-                  post.thumbnail || post.media || `/api/thumbnail/${post._id}`;
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      {trending.map((post) => {
+        const thumb =
+          post.thumbnail || post.media || `/api/thumbnail/${post._id}`;
 
-                return (
-                  <a
-                    key={post._id}
-                    href={`/post/${post._id}`}
-                    className="block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition"
-                  >
-                    <img
-                      src={thumb}
-                      className="w-full h-40 object-cover"
-                      alt={post.title}
-                    />
+        return (
+          <a
+            key={post._id}
+            href={`/post/${post._id}`}
+            className="block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition"
+          >
+            {/* THUMBNAIL */}
+            <img
+              src={thumb}
+              className="w-full h-40 object-cover"
+              alt={post.title}
+            />
 
-                    <div className="p-4">
-                      <p className="font-semibold text-gray-900 line-clamp-2 text-sm">
-                        {post.title}
-                      </p>
+            {/* CONTENT */}
+            <div className="p-4">
+              <p className="font-semibold text-gray-900 line-clamp-2 text-sm">
+                {post.title}
+              </p>
 
-                      <div className="flex items-center gap-3 text-gray-600 text-xs mt-3">
-                        <span>❤️ {post.likes || 0}</span>
-                        <span>💬 {post.comments || 0}</span>
-                        <span>👁️ {post.views || 0}</span>
-                      </div>
-                    </div>
-                  </a>
-                );
-              })}
+              {/* ICONS SECTION */}
+              <div className="flex items-center gap-4 text-gray-600 text-xs mt-3">
+
+                {/* Likes */}
+                <span className="flex items-center gap-1">
+                  <FaHeart className="text-red-500" size={12} />
+                  {post.likes || 0}
+                </span>
+
+                {/* Comments */}
+                <span className="flex items-center gap-1">
+                  <FaCommentDots className="text-blue-500" size={12} />
+                  {post.comments || 0}
+                </span>
+
+                {/* Views */}
+                <span className="flex items-center gap-1">
+                  <FaEye className="text-green-600" size={12} />
+                  {post.views || 0}
+                </span>
+              </div>
             </div>
-          </section>
-        )}
+          </a>
+        );
+      })}
+    </div>
+  </section>
+)}
 
         {/* -------------------------------------------------- */}
         {/* TABS (ONLY WHEN SEARCH RESULTS EXIST) */}
