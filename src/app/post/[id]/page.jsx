@@ -299,19 +299,48 @@ export default async function Page({ params }) {
       />
 
       <section className="max-w-4xl mx-auto px-4 py-8">
-        <article className="bg-white shadow rounded-2xl overflow-hidden p-6">
+  <article className="bg-white shadow rounded-2xl overflow-hidden p-6">
 
-          <p className="text-gray-800 mb-4">{post.title}</p>
+    {/* User info */}
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center space-x-3">
+        {/* Profile Picture */}
+        <img
+          src={post.user?.profilePic || '/default-profile.png'}
+          alt={post.user?.username || 'User'}
+          className="w-10 h-10 rounded-full object-cover"
+        />
 
-          {isVideo ? (
-            <video src={mediaUrl} poster={thumbnail} controls className="rounded-xl w-full" />
-          ) : isImage ? (
-            <img src={mediaUrl} className="rounded-xl w-full" />
-          ) : null}
+        {/* Username and Upload Date */}
+        <div className="flex flex-col">
+          <span className="font-semibold text-gray-800">{post.user?.username || 'Anonymous'}</span>
+          <span className="text-gray-500 text-sm">{new Date(post.createdAt).toLocaleDateString()}</span>
+        </div>
+      </div>
 
-          <SinglePostPage initialPost={post} />
-        </article>
-      </section>
+      {/* Three dots menu */}
+      <button className="text-gray-500 hover:text-gray-700">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v.01M12 12v.01M12 18v.01" />
+        </svg>
+      </button>
+    </div>
+
+    {/* Post title */}
+    <p className="text-gray-800 mb-4">{post.title}</p>
+
+    {/* Media */}
+    {isVideo ? (
+      <video src={mediaUrl} poster={thumbnail} controls className="rounded-xl w-full" />
+    ) : isImage ? (
+      <img src={mediaUrl} className="rounded-xl w-full" />
+    ) : null}
+
+    {/* Post content component */}
+    <SinglePostPage initialPost={post} />
+  </article>
+</section>
+
     </main>
   );
 }
@@ -1851,6 +1880,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
