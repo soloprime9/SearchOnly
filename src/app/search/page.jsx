@@ -185,14 +185,15 @@ export default function SearchPage() {
       <JsonLD />
 
       {/* 1. SEARCH BOX (Main Functional Component - HIGHEST VISUAL POSITION) */}
-      <section 
-        className="max-w-3xl mx-auto px-4 pt-6 md:pt-10" // Added top padding for spacing
-        aria-label="FondPeace Search Bar" 
-      >
-        <div className="sticky top-4 bg-white z-30 py-4">
-          <SearchGo />
-        </div>
-      </section>
+      <section
+  className="max-w-3xl mx-auto px-4 pt-2 md:pt-4" // reduced top padding
+  aria-label="FondPeace Search Bar"
+>
+  <div className="sticky top-4 bg-white z-30"> {/* removed py-4 */}
+    <SearchGo />
+  </div>
+</section>
+
 
       {/* 2. HERO SECTION (Page Title and Meta Information - NOW BELOW THE SEARCH BAR) */}
       <header className="max-w-5xl mx-auto px-4 pt-4 pb-8">
