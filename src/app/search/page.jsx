@@ -354,10 +354,10 @@ export default function SearchPage() {
         <div className="flex flex-col md:flex-row md:justify-between gap-4">
           <div>© {currentYear} FondPeace</div>
           <nav className="flex gap-4" aria-label="Footer Navigation">
-            <Link href="/about" className="hover:underline">About</Link>
-            <Link href="/contact" className="hover:underline">Contact</Link>
-            <Link href="/privacy" className="hover:underline">Privacy</Link>
-            <Link href="/terms" className="hover:underline">Terms</Link>
+            <Link href="/aboutus" className="hover:underline">About</Link>
+            <Link href="/contactus" className="hover:underline">Contact</Link>
+            <Link href="/privacypolicy" className="hover:underline">Privacy</Link>
+            <Link href="/termcondition" className="hover:underline">Terms</Link>
           </nav>
         </div>
       </footer>
