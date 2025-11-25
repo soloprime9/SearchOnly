@@ -4,7 +4,7 @@ import CreatePage from "@/components/CreatePage";
 import SearchGo from "@/components/SearchGo";
 import OnlyFeed from "@/components/OnlyFeed";
 import Upload from "@/components/Upload";
-// import Village from "@/components/Village";
+{/*import Village from "@/components/Village";*/}
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
 
 
@@ -53,10 +53,10 @@ export default function Page() {
     <div className="flex flex-col items-center p-4">
       
 
-      {/* Village Component */}
+      {/* Village Component 
       <div className="w-full max-w-6xl">
         // <Village />
-      </div>
+      </div>*/}
     </div>
         
         </>
