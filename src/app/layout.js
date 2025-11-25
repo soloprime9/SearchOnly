@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
         </header>
 <div> 
                     <SearchBox />
-  
+                    </div>
         {/* ✅ Adds space so page content doesn't hide behind fixed header */}
         <div className="pt-24 md:pt-28">
           {children}
