@@ -66,21 +66,41 @@ export default function SinglePostInteractions({ initialPost }) {
     } catch {}
   };
 
-  const handleShare = () => {
-  const shareData = {
-    title: post.title,
-    text: `${post.title}\n\n${window.location.href}`,
-    url: window.location.href,
-  };
+  const handleShare = async () => {
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareText = `${post.title}\n${shareUrl}`;
 
+  // ✔ 1. Modern Web Share API
   if (navigator.share) {
-    navigator.share(shareData).catch(() => {});
-  } else {
-    const textToCopy = `${post.title}\n${window.location.href}`;
-    navigator.clipboard.writeText(textToCopy);
+    try {
+      await navigator.share({
+        title: post.title,
+        text: post.title,
+        url: shareUrl,
+      });
+      return;
+    } catch (err) {
+      // user cancelled — ignore
+    }
+  }
+
+  // ✔ 2. Clipboard Copy Fallback (Works on all browsers)
+  try {
+    await navigator.clipboard.writeText(shareText);
     alert("Link + Title Copied!");
+  } catch (err) {
+    // ✔ Final fallback for older devices
+    const temp = document.createElement("textarea");
+    temp.value = shareText;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand("copy");
+    document.body.removeChild(temp);
+
+    alert("Copied!");
   }
 };
+
 
 
   return (
