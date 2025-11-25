@@ -3,7 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import Link from "next/link";
   const API_BASE = "https://backend-k.vercel.app";
-
+ 
 export default function SearchFull() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
