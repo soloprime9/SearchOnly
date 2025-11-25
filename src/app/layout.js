@@ -4,6 +4,7 @@ import "./globals.css";
 import StatusBar from "@/components/StatusBar";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/react";
+import { FaHeart, FaCommentDots, FaEye, FaSearch } from "react-icons/fa";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,9 +30,9 @@ export default function RootLayout({ children }) {
           {/* Search Page Button */}
           <Link
             href="/searchbro"
-            className="hidden sm:inline-flex items-center gap-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-full shadow hover:bg-blue-700 transition"
+            className="hidden sm:inline-flex items-center gap-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-full shadow hover:bg-blue-700 transition cursor-pointer"
           >
-            🔍 Search
+            <FaSearch /> Search
           </Link>
         </header>
 
@@ -42,8 +43,8 @@ export default function RootLayout({ children }) {
               href="/searchbro"
               className="block w-full text-gray-500 text-sm md:text-base p-3 rounded-xl border border-gray-300 bg-white shadow hover:shadow-md transition cursor-pointer"
             >
-              🔍 Click here to search posts...
-            </Link>
+
+                </Link>
           </div>
         </div>
 
