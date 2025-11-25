@@ -132,6 +132,7 @@ export default async function Page({ params }) {
   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
   const data = await res.json();
   const post = data?.post;
+  const related = data?.related ?? [];
 
   if (!post) return <div>Post not found</div>;
 
@@ -291,58 +292,123 @@ export default async function Page({ params }) {
   }
 
   return (
-    <main className="w-full min-h-screen bg-gray-50">
+  <main className="w-full min-h-screen bg-gray-50">
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }}
-      />
+    {/* JSON-LD */}
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }}
+    />
 
-      <section className="max-w-4xl mx-auto px-4 py-8">
-  <article className="bg-white shadow rounded-2xl overflow-hidden p-6">
+    <section className="max-w-3xl mx-auto px-4 py-8">
+      <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
 
-    {/* User info */}
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center space-x-3">
-        {/* Profile Picture */}
-        <img
-          src={post.user?.profilePic || '/Fondpeace.jpg'}
-          alt={post.userId?.username || 'User'}
-          className="w-10 h-10 rounded-full object-cover"
-        />
+        {/* User Profile */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <img
+              src={post.user?.profilePic || "/Fondpeace.jpg"}
+              alt={post.userId?.username || "User"}
+              className="w-11 h-11 rounded-full object-cover border"
+              loading="lazy"
+            />
+            <div>
+              <span className="font-semibold text-gray-800 block">
+                {post.userId?.username || "Anonymous"}
+              </span>
+              <span className="text-gray-500 text-sm">
+                {new Date(post.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
 
-        {/* Username and Upload Date */}
-        <div className="flex flex-col">
-          <span className="font-semibold text-gray-800">{post.userId?.username || 'Anonymous'}</span>
-          <span className="text-gray-500 text-sm">{new Date(post.createdAt).toLocaleDateString()}</span>
+          {/* Menu button */}
+          <button className="text-gray-500 hover:text-black transition">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v.01M12 12v.01M12 18v.01" />
+            </svg>
+          </button>
         </div>
-      </div>
 
-      {/* Three dots menu */}
-      <button className="text-gray-500 hover:text-gray-700">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v.01M12 12v.01M12 18v.01" />
-        </svg>
-      </button>
-    </div>
+        {/* Post Title */}
+        <h1 className="text-lg font-semibold text-gray-900 mb-4 leading-relaxed">
+          {post.title}
+        </h1>
 
-    {/* Post title */}
-    <p className="text-gray-800 mb-4">{post.title}</p>
+        {/* Media Section */}
+        {isVideo ? (
+          <video
+            src={mediaUrl}
+            poster={thumbnail}
+            controls
+            className="rounded-xl w-full max-h-[480px] bg-black"
+          />
+        ) : isImage ? (
+          <img
+            src={mediaUrl}
+            alt={post.title}
+            className="rounded-xl w-full object-cover"
+            loading="lazy"
+          />
+        ) : null}
 
-    {/* Media */}
-    {isVideo ? (
-      <video src={mediaUrl} poster={thumbnail} controls className="rounded-xl w-full" />
-    ) : isImage ? (
-      <img src={mediaUrl} className="rounded-xl w-full" />
-    ) : null}
+        {/* Post Content */}
+        <SinglePostPage initialPost={post} />
+      </article>
+    </section>
 
-    {/* Post content component */}
-    <SinglePostPage initialPost={post} />
-  </article>
-</section>
+    {/* Related Posts */}
+    {Array.isArray(related) && related.length > 0 && (
+      <aside className="max-w-5xl mx-auto mt-10 px-4">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900">Related Posts</h2>
 
-    </main>
-  );
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {related.map((r) => {
+            const thumb = toAbsolute(r.thumbnail || r.media || "");
+            return (
+              <a
+                key={r._id}
+                href={`/post/${r._id}`}
+                className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
+              >
+                <div className="w-full h-40 bg-gray-100">
+                  <img
+                    src={thumb}
+                    alt={r.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div className="p-3">
+                  <p className="font-medium text-gray-900 line-clamp-2 text-sm">
+                    {r.title}
+                  </p>
+
+                  <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
+                    <FaHeart className="text-red-500" /> {likesCount(r)}
+                    <span>•</span>
+                    <FaCommentDots /> {commentsCount(r)}
+                    <span>•</span>
+                    <FaEye /> {viewsCount(r) || 0}
+                  </div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </aside>
+    )}
+
+  </main>
+);
+
 }
 
 
@@ -1880,6 +1946,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
