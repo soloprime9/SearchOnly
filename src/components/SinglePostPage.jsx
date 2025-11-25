@@ -115,9 +115,10 @@ export default function SinglePostInteractions({ initialPost }) {
         </div>
 
         {/* SHARE */}
-        <button onClick={handleShare} className="text-gray-700 text-lg">
-          <FaShareAlt />
-        </button>
+        <button onClick={() => handleShare(post)} className="text-gray-700 text-lg">
+  <FaShareAlt />
+</button>
+
       </div>
 
       {/* COMMENTS SECTION TOGGLE */}
