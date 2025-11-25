@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
         </header>
 
           <Link
-                href="/search"
+                href="/searchbro"
                 className="ml-4 text-sm bg-blue-600 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-700">
                 Search
          </Link>
