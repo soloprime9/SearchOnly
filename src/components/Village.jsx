@@ -221,49 +221,49 @@ export default function Feed() {
 
           
               
-                {post.media && (
-  isVideo ? (
-    <div
-      className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden mx-auto shadow-md cursor-pointer"
-      onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on container click
-             
-    >
-      {/* Video */}
-      <video
-        ref={(ref) => (videoRefs.current[index] = ref)}
-        src={post.media}
-        autoPlay
-        loop
-        playsInline
-        
-        className="w-full h-full object-cover rounded-lg cursor-pointer"
+               {post.media && (
+  <Link href={`/post/${post._id}`} prefetch>
+    <div className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden mx-auto shadow-md cursor-pointer">
 
-      />
+      {isVideo ? (
+        <video
+          ref={(ref) => (videoRefs.current[index] = ref)}
+          src={post.media}
+          alt={post.title}
+          autoPlay
+          loop
+          playsInline
+          muted
+          preload="none"
+          className="w-full h-full object-cover rounded-lg"
+        />
+      ) : (
+        <Image
+          src={post.media}
+          alt={post.title}
+          className="w-full h-full object-cover rounded-lg"
+          loading="lazy"
+          decoding="async"
+          
+        />
+      )}
 
-      {/* 🔊 Volume button overlay */}
-      <button
-        className="absolute bottom-3 right-3 bg-black/60 text-white rounded-full p-2"
-        onClick={(e) => {
-          e.stopPropagation(); // prevent navigation
-          const video = videoRefs.current[index];
-          if (video) {
-            video.muted = !video.muted;
-          }
-        }}
-        
-      >
-        🔊
-      </button>
+      {/* Sound toggle */}
+      {isVideo && (
+        <button
+          className="absolute bottom-3 right-3 bg-black/60 text-white rounded-full p-2"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const video = videoRefs.current[index];
+            if (video) video.muted = !video.muted;
+          }}
+        >
+          🔊
+        </button>
+      )}
     </div>
-  ) : (
-    <img
-      src={post.media}
-      alt="media"
-      className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto cursor-pointer"
-      onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on image click
-            // 🔹 disable right-click on image
-    />
-  )
+  </Link>
 )}
 
              
