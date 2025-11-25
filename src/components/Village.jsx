@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import jwt from "jsonwebtoken";
+import Image from "next/image";
 import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye } from "react-icons/fa";
   
 
