@@ -244,8 +244,7 @@ export default function Feed() {
           src={post.media}
           alt={post.title}
           className="w-full h-full object-cover rounded-lg"
-          loading="lazy"
-          decoding="async"
+          
           
         />
       )}
