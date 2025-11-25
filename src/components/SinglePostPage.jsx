@@ -66,19 +66,22 @@ export default function SinglePostInteractions({ initialPost }) {
     } catch {}
   };
 
-  // SHARE
   const handleShare = () => {
-    const shareData = {
-      title: post.title,
-      url: window.location.href,
-    };
-
-    if (navigator.share) navigator.share(shareData);
-    else {
-      navigator.clipboard.writeText(window.location.href);
-      alert("Copied link!");
-    }
+  const shareData = {
+    title: post.title,
+    text: `${post.title}\n\n${window.location.href}`,
+    url: window.location.href,
   };
+
+  if (navigator.share) {
+    navigator.share(shareData).catch(() => {});
+  } else {
+    const textToCopy = `${post.title}\n${window.location.href}`;
+    navigator.clipboard.writeText(textToCopy);
+    alert("Link + Title Copied!");
+  }
+};
+
 
   return (
     <div className="mt-6">
