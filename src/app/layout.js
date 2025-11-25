@@ -41,7 +41,7 @@ export default function RootLayout({ children }) {
           {children}
         </div>
 
-          <div className=-"pt-24 md:pt-28">
+          <div className=-"mt-8">
         <StatusBar />
           </div>
         <Analytics />
