@@ -53,7 +53,6 @@ export default function Page() {
     <div className="flex flex-col items-center p-4">
       
 
-       Village Component 
       <div className="w-full max-w-6xl">
          <Village />
       </div>
