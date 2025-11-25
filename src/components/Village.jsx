@@ -144,25 +144,18 @@ export default function Feed() {
     setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
   };
 
-  // Instagram/Twitter style click handling on video container
-  const handleVideoClick = (e, postId) => {
-  // ✅ Ignore clicks on buttons, links, inputs
-  if (
-    e.target.closest("button") ||
-    e.target.closest("a") ||
-    e.target.closest("input")
-  ) {
-    return;
-  }
+  const handleShare = async (post) => {
+  try {
+    const shareText = `${post.title}\n${window.location.origin}/post/${post._id}`;
 
-  // ✅ Ignore clicks on video controls (bottom 40px of video)
-  if (e.target.tagName === "VIDEO" && e.nativeEvent.offsetY > e.target.clientHeight - 40) {
-    return;
-  }
+    await navigator.clipboard.writeText(shareText);
 
-  // ✅ Otherwise → go to single post page
-  router.push(`/post/${postId}`);
+    alert("Copied: Title + URL");
+  } catch (error) {
+    console.error("Share failed:", error);
+  }
 };
+
 
 
   const renderPost = useCallback(
@@ -176,7 +169,10 @@ export default function Feed() {
         ? title
         : title.slice(0, 100) + (title.length > 100 ? "..." : "");
 
-      return (
+
+
+      
+  return (
         <div key={post._id} className="bg-white shadow rounded-lg p-4 mb-6">
           
           
@@ -230,7 +226,7 @@ export default function Feed() {
     <div
       className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden mx-auto shadow-md cursor-pointer"
       onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on container click
-      onContextMenu={(e) => e.preventDefault()}        // 🔹 disable right-click
+             
     >
       {/* Video */}
       <video
@@ -240,7 +236,8 @@ export default function Feed() {
         loop
         playsInline
         
-        className="w-full h-full object-cover rounded-lg pointer-events-none"
+        className="w-full h-full object-cover rounded-lg cursor-pointer"
+
       />
 
       {/* 🔊 Volume button overlay */}
@@ -253,7 +250,7 @@ export default function Feed() {
             video.muted = !video.muted;
           }
         }}
-        onContextMenu={(e) => e.preventDefault()} // disable right-click on button
+        
       >
         🔊
       </button>
@@ -264,7 +261,7 @@ export default function Feed() {
       alt="media"
       className="w-full max-w-[600px] aspect-square rounded-lg mb-4 object-cover shadow-md mx-auto cursor-pointer"
       onClick={() => router.push(`/post/${post._id}`)} // 🔹 navigate on image click
-      onContextMenu={(e) => e.preventDefault()}        // 🔹 disable right-click on image
+            // 🔹 disable right-click on image
     />
   )
 )}
