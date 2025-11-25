@@ -66,40 +66,18 @@ export default function SinglePostInteractions({ initialPost }) {
     } catch {}
   };
 
-  const handleShare = async () => {
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const shareText = `${post.title}\n${shareUrl}`;
-
-  // ✔ 1. Modern Web Share API
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: post.title,
-        text: post.title,
-        url: shareUrl,
-      });
-      return;
-    } catch (err) {
-      // user cancelled — ignore
-    }
-  }
-
-  // ✔ 2. Clipboard Copy Fallback (Works on all browsers)
+  const handleShare = async (post) => {
   try {
-    await navigator.clipboard.writeText(shareText);
-    alert("Link + Title Copied!");
-  } catch (err) {
-    // ✔ Final fallback for older devices
-    const temp = document.createElement("textarea");
-    temp.value = shareText;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand("copy");
-    document.body.removeChild(temp);
+    const shareText = `${post.title}\n${window.location.origin}/post/${post._id}`;
 
-    alert("Copied!");
+    await navigator.clipboard.writeText(shareText);
+
+    alert("Copied: Title + URL");
+  } catch (error) {
+    console.error("Share failed:", error);
   }
 };
+
 
 
 
