@@ -53,10 +53,10 @@ export default function Page() {
     <div className="flex flex-col items-center p-4">
       
 
-      {/* Village Component 
+       Village Component 
       <div className="w-full max-w-6xl">
-        // <Village />
-      </div>*/}
+         <Village />
+      </div>
     </div>
         
         </>
