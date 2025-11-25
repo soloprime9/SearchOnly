@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import StatusBar from "@/components/StatusBar";
-import SearchBox from "@/components/SearchBox";
+// import SearchBox from "@/components/SearchBox";
 
 import { Analytics } from "@vercel/analytics/react";
 
@@ -39,9 +39,7 @@ export default function RootLayout({ children }) {
           </div>
         </header>
 
-  <div>
-           <SearchBox />         
-                    </div>
+  
         {/* ✅ Adds space so page content doesn't hide behind fixed header */}
         <div className="pt-24 md:pt-28">
           {children}
