@@ -337,9 +337,9 @@ export default async function Page({ params }) {
         </div>
 
         {/* Post Title */}
-        <h1 className="text-lg font-semibold text-gray-900 mb-4 leading-relaxed">
+        <p className="text-gray-800 mb-4">
           {post.title}
-        </h1>
+        </p>
 
         {/* Media Section */}
         {isVideo ? (
@@ -1946,6 +1946,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
