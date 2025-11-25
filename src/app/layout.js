@@ -30,13 +30,14 @@ export default function RootLayout({ children }) {
             </Link>
           </h1>
 
-          {/* Search icon on the right */}
+          {/* Search icon on the right 
           <Link
             href="/searchbro"
             className="flex items-center text-sm bg-blue-600 text-white px-3 py-2 rounded-full shadow hover:bg-blue-700 transition cursor-pointer"
           >
             <FaSearch className="mr-1" /> Search
           </Link>
+          */}
 
         </header>
 
