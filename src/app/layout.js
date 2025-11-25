@@ -1,12 +1,9 @@
 // app/layout.js
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
 import StatusBar from "@/components/StatusBar";
 import Link from "next/link";
-
 import { Analytics } from "@vercel/analytics/react";
-
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,46 +13,50 @@ const inter = Inter({
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head>
-       
+      <head></head>
+      <body className={`${inter.variable} bg-gray-50`}>
 
-      </head>
+        {/* ===== HEADER ===== */}
+        <header className="w-full fixed top-0 left-0 z-50 flex justify-between items-center px-4 py-3 md:py-4 border-b border-gray-200 bg-white shadow-md backdrop-blur-sm">
+          {/* Logo */}
+          <Link
+            href="/"
+            className="font-extrabold text-xl sm:text-2xl md:text-3xl text-blue-600 hover:text-blue-700"
+          >
+            FondPeace.com
+          </Link>
 
-      <body className={inter.variable}>
-        {/* ✅ Fixed, responsive & SEO-friendly header */}
-        <header className="w-full fixed top-0 left-0 z-50 flex justify-center items-center py-4 md:py-6 border-b border-gray-200 bg-white shadow-md backdrop-blur-sm">
-          <div>
-            <h1 className="font-extrabold text-2xl sm:text-3xl md:text-4xl tracking-tight">
-              <strong>
-                <a
-                  href="https://www.fondpeace.com/"
-                  className="text-blue-600 hover:text-blue-700 transition-colors"
-                  aria-label="Fondpeace Homepage"
-                >
-                  FondPeace.com
-                </a>
-              </strong>
-            </h1>
-          </div>
-
-                    <Link
-                href="/searchbro"
-                className="ml-4 text-sm bg-blue-600 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-700">
-                Search
-         </Link>
+          {/* Search Page Button */}
+          <Link
+            href="/searchbro"
+            className="hidden sm:inline-flex items-center gap-2 text-sm bg-blue-600 text-white px-4 py-2 rounded-full shadow hover:bg-blue-700 transition"
+          >
+            🔍 Search
+          </Link>
         </header>
 
-          
+        {/* ===== SEARCH BOX BELOW HEADER ===== */}
+        <div className="pt-16 md:pt-20 px-4 flex justify-center w-full">
+          <div className="w-full max-w-3xl">
+            <Link
+              href="/searchbro"
+              className="block w-full text-gray-500 text-sm md:text-base p-3 rounded-xl border border-gray-300 bg-white shadow hover:shadow-md transition cursor-pointer"
+            >
+              🔍 Click here to search posts...
+            </Link>
+          </div>
+        </div>
 
-  
-        {/* ✅ Adds space so page content doesn't hide behind fixed header */}
-        <div className="pt-24 md:pt-28">
+        {/* ===== PAGE CONTENT ===== */}
+        <div className="pt-8 px-4 md:px-0 max-w-5xl mx-auto">
           {children}
         </div>
 
-          <div className="mt-8">
-        <StatusBar />
-          </div>
+        {/* ===== STATUS BAR ===== */}
+        <div className="mt-8 px-4 md:px-0">
+          <StatusBar />
+        </div>
+
         <Analytics />
       </body>
     </html>
