@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import jwt from "jsonwebtoken";
-import Image from "next/image";
+
 import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye } from "react-icons/fa";
   
 
@@ -240,7 +240,7 @@ export default function Feed() {
           className="w-full h-full object-cover rounded-lg"
         />
       ) : (
-        <Image
+        <img
           src={post.media}
           alt={post.title}
           className="w-full h-full object-cover rounded-lg"
