@@ -93,24 +93,38 @@ export async function generateMetadata({ params }) {
     const img = post.thumbnail || DEFAULT_THUMB;
     const title = (post.title || "Fondpeace Video").slice(0, 160);
 
+    const isVideo = mediaUrl?.endsWith(".mp4");
+
     return {
       title,
-      description: (post.description || title).slice(0, 200),
+      description: buildDescription(post),
+      keywords: extractKeywords(post),
       alternates: { canonical: `${SITE_ROOT}/short/${id}` },
       openGraph: {
         title,
-        description: post.description,
+        description: buildDescription(post),
         url: `${SITE_ROOT}/short/${id}`,
-        type: "video.other",
+        type: isVideo ? "video.other" : "article",
         images: [img],
-        videos: mediaUrl ? [{ url: mediaUrl }] : undefined,
-      },
+        ...(isVideo && {
+    video: [
+      {
+        url: mediaUrl,
+        type: "video/mp4",
+        width: 1280,
+        height: 720
+      }
+    ]
+  })
+  },
       twitter: {
-        card: "player",
-        title,
-        description: post.description,
-        images: [img],
-      },
+  card: isVideo ? "player" : "summary_large_image",
+  title: title,
+  description: buildDescription(post),
+  image: img,
+  ...(isVideo && { player: mediaUrl })
+},
+
     };
   } catch (e) {
     return { title: "Fondpeace Video" };
@@ -157,7 +171,7 @@ publisher: {
 "@type": "Organization",
 name: "FondPeace",
 url: SITE_ROOT,
-logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.jpg`, width: 512, height: 512 },
+logo: { "@type": "ImageObject", url: `${SITE_ROOT}/Fondpeace.jpg`, width: 512, height: 512 },
 },
 author: { "@type": "Person", name: authorName },
 creator: { "@type": "Person", name: authorName },
@@ -167,6 +181,19 @@ inLanguage: "hi-IN",
 isFamilyFriendly: true,
 potentialAction: { "@type": "WatchAction", target: pageUrl },
 mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+    genre: [
+  "Entertainment",
+  "Short Video",
+  "Funny",
+  "Viral",
+  "Dance",
+  "Music",
+  "Comedy",
+  "Lifestyle",
+  "News",
+  "Motivation"
+],
+
     
   };
 
