@@ -146,7 +146,7 @@ export default function Page() {
   (
   <main>
   helle dear 
-  <LatestVideo />;
+  <LatestVideo />
   </main>
 );
 }
