@@ -142,8 +142,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default function Page() {
-   return
-  (
+   return (
   <main>
   helle dear 
   <LatestVideo />
