@@ -25,16 +25,20 @@ function toAbsolute(url) {
 }
 
 function secToISO(sec) {
-const s = Number(sec);
-if (!Number.isFinite(s) || s <= 0) return undefined;
-const h = Math.floor(s / 3600);
-const m = Math.floor((s % 3600) / 60);
-const secLeft = Math.floor(s % 60);
-let iso = "PT";
-if (h > 0) iso += ${h}H;
-if (m > 0) iso += ${m}M;
-if (secLeft > 0 || (h === 0 && m === 0)) iso += ${secLeft}S;
-return iso;
+  const s = Number(sec);
+
+  if (!Number.isFinite(s) || s <= 0) return undefined;
+
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const secLeft = Math.floor(s % 60);
+
+  let iso = "PT";
+  if (h > 0) iso += `${h}H`;
+  if (m > 0) iso += `${m}M`;
+  if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
+
+  return iso;
 }
 
 function likesCount(post) {
