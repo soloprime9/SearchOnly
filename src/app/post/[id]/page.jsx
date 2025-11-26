@@ -374,7 +374,7 @@ export default async function Page({ params }) {
             return (
               <a
                 key={r._id}
-                href={`/post/${r._id}`}
+                href={`/short/${r._id}`}
                 className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
               >
                 <div className="w-full h-40 bg-gray-100">
@@ -1946,6 +1946,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
