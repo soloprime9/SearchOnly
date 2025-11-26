@@ -109,7 +109,7 @@ export default async function VideoPage({ params }) {
 
         <p className="mt-4 text-gray-700">{post.description}</p>
 
-        <ReelsFeed />
+        {/* <ReelsFeed /> */}
       </section>
     </main>
   );
