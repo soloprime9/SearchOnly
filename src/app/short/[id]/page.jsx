@@ -4,7 +4,7 @@
 
 // export const dynamic = 'force-dynamic';
 
-// const SITE_ROOT = "[https://www.fondpeace.com](https://www.fondpeace.com)";
+// const SITE_ROOT = "https://www.fondpeace.com";
 // const DEFAULT_TITLE = 'Watch Trending Short Video on FondPeace';
 // const DEFAULT_DESCRIPTION = 'Discover trending short videos and entertainment on Fondpeace.';
 // const DEFAULT_THUMBNAIL = `${SITE_ROOT}/fondpeace.jpg`;
