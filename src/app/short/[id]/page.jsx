@@ -1,208 +1,272 @@
-import Link from 'next/link';
-import StatusBar from '@/components/StatusBar';
-import LatestVideo from '@/components/LatestVideo';
+import ReelsFeed from "@/components/LatestVideo";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
-const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
+const API = "https://backend-k.vercel.app/post";
 
 export async function generateMetadata({ params }) {
-  const { videoid: id } = params;
-
-  const siteUrl = `https://www.fondpeace.com/short/${id}`;
-  const siteName = 'Fondpeace';
-
   try {
-    // Fetch post
-    const response = await fetch(`${API_URL}?page=1&limit=20`, { next: { revalidate: 60 } });
-    const shortsData = await response.json();
+    const res = await fetch(`${API}/single/${params.videoId}`, {
+      next: { revalidate: 60 }
+    });
+    const video = await res.json();
 
-    let post = shortsData?.find(item => item._id === id);
-
-    if (!post || !post._id) {
-      const res = await fetch(`${SECOND_API_URL}/single/${id}`);
-      post = await res.json();
+    if (!video || !video.title) {
+      return {
+        title: "Watch Video - FondPeace",
+        description: "Watch trending videos on Fondpeace."
+      };
     }
 
-    const content = post?.title?.trim() || 'Watch this short video on Fondpeace';
-    const description = content.slice(0, 160);
-
-    const mediaUrl = post?.media || post?.medias?.url;
-    if (!mediaUrl) throw new Error('No media URL found.');
-
-    const thumbnailUrl =
-      post?.thumbnail ||
-      post?.image ||
-      mediaUrl.replace(/\.(mp4|mov|webm)$/i, '.jpg') ||
-      'https://www.fondpeace.com/og-image.jpg';
-
-    const createdAt = post?.createdAt
-      ? new Date(post.createdAt).toISOString()
-      : new Date().toISOString();
-
-    const updatedAt = post?.updatedAt
-      ? new Date(post.updatedAt).toISOString()
-      : createdAt;
-
-    const username = post?.userId?.username || 'Fondpeace';
-    const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
+    const url = `https://www.fondpeace.com/short/${video._id}`;
+    const thumb = video.thumb || video.media || "";
 
     return {
-      title: content,
-      description,
-      keywords: [...tagsArray, 'fondpeace', 'short video', 'entertainment'].join(', '),
-
-      alternates: { canonical: siteUrl },
-      metadataBase: new URL('https://www.fondpeace.com'),
-
+      title: `${video.title} - FondPeace Shorts`,
+      description: video.title,
+      alternates: { canonical: url },
       openGraph: {
-        title: content,
-        description,
-        url: siteUrl,
-        siteName,
-        type: 'video.other',
-        images: [
-          {
-            url: thumbnailUrl,
-            width: 1280,
-            height: 720,
-            alt: content,
-          },
-        ],
-        videos: [
-          {
-            url: mediaUrl,
-            secureUrl: mediaUrl,
-            width: 1280,
-            height: 720,
-            type: 'video/mp4',
-          },
-        ],
-        article: {
-          authors: [username],
-          publishedTime: createdAt,
-          modifiedTime: updatedAt,
-          tags: tagsArray,
-        },
+        title: video.title,
+        description: video.title,
+        url,
+        type: "video.other",
+        images: [{ url: thumb }],
+        videos: [{ url: video.media }]
       },
-
       twitter: {
-        card: 'player',
-        title: content,
-        description,
-        site: '@fondpeace',
-        creator: '@fondpeace',
-        images: [thumbnailUrl],
-        player: mediaUrl,
-        playerWidth: 1280,
-        playerHeight: 720,
-      },
-
-      other: {
-        'og:video': mediaUrl,
-        'og:video:type': 'video/mp4',
-        'og:video:secure_url': mediaUrl,
-        'twitter:player': mediaUrl,
-        'video:release_date': createdAt,
-        'video:modified_date': updatedAt,
-        'author': username,
-      },
+        card: "player",
+        title: video.title,
+        description: video.title,
+        images: [thumb]
+      }
     };
-  } catch (error) {
-    console.error('Metadata error:', error);
-
+  } catch (e) {
     return {
-      title: 'Fondpeace',
-      description: 'Watch trending short videos on Fondpeace.',
-      alternates: { canonical: siteUrl },
-      metadataBase: new URL('https://www.fondpeace.com'),
-      openGraph: {
-        title: 'Fondpeace',
-        description: 'Watch trending short videos on Fondpeace.',
-        url: siteUrl,
-        type: 'website',
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: 'Fondpeace',
-        description: 'Watch trending short videos on Fondpeace.',
-      },
+      title: "Watch Video - FondPeace",
+      description: "Watch trending videos on Fondpeace."
     };
   }
 }
 
-// ---------------------------------------------------------------
-// PAGE COMPONENT WITH FULL VIDEO SCHEMA (GOOGLE RANKING REQUIRED)
-// ---------------------------------------------------------------
-
-export default async function Page({ params }) {
-  const id = params.videoid;
-
-  // Fetch exact single post (for schema)
-  const res = await fetch(`https://backendk-z915.onrender.com/post/single/${id}`, {
-    cache: 'no-store',
-  });
-  const post = await res.json();
-
-  const title = post?.title || "Fondpeace Video";
-  const mediaUrl = post?.media || post?.medias?.url || '';
-  const thumbnailUrl =
-    post?.thumbnail ||
-    post?.image ||
-    mediaUrl.replace(/\.(mp4|mov|webm)$/i, '.jpg') ||
-    'https://www.fondpeace.com/og-image.jpg';
-
-  const pageUrl = `https://www.fondpeace.com/short/${id}`;
-  const uploadDate = post?.createdAt || new Date().toISOString();
-
-  // ⭐ GOLDEN VIDEO SCHEMA (Google Video SEO REQUIRED)
-  const videoSchema = {
-    "@context": "https://schema.org",
-    "@type": "VideoObject",
-    name: title,
-    description: title,
-    thumbnailUrl: [thumbnailUrl],
-    uploadDate: new Date(uploadDate).toISOString(),
-    contentUrl: mediaUrl,
-    embedUrl: pageUrl,
-    url: pageUrl,
-    publisher: {
-      "@type": "Organization",
-      name: "Fondpeace",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://www.fondpeace.com/fondpeace.jpg",
-      },
-    },
-  };
-
-  return (
-    <main>
-      {/* ⭐ Required JSON-LD Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
-      />
-
-      <StatusBar />
-
-      <section className="p-4">
-        <h1 className="text-xl font-bold">{title}</h1>
-
-        <video
-          src={mediaUrl}
-          controls
-          poster={thumbnailUrl}
-          className="w-full rounded-xl mt-3"
-        />
-
-        {/* Latest videos section */}
-        <LatestVideo />
-      </section>
-    </main>
-  );
+export default function Page({ params }) {
+  return <LatestVideo videoId={params.videoId} />;
 }
+
+
+
+
+
+
+
+
+
+
+
+// import Link from 'next/link';
+// import StatusBar from '@/components/StatusBar';
+// import LatestVideo from '@/components/LatestVideo';
+
+// export const dynamic = 'force-dynamic';
+
+// const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
+// const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
+
+// export async function generateMetadata({ params }) {
+//   const { videoid: id } = params;
+
+//   const siteUrl = `https://www.fondpeace.com/short/${id}`;
+//   const siteName = 'Fondpeace';
+
+//   try {
+//     // Fetch post
+//     const response = await fetch(`${API_URL}?page=1&limit=20`, { next: { revalidate: 60 } });
+//     const shortsData = await response.json();
+
+//     let post = shortsData?.find(item => item._id === id);
+
+//     if (!post || !post._id) {
+//       const res = await fetch(`${SECOND_API_URL}/single/${id}`);
+//       post = await res.json();
+//     }
+
+//     const content = post?.title?.trim() || 'Watch this short video on Fondpeace';
+//     const description = content.slice(0, 160);
+
+//     const mediaUrl = post?.media || post?.medias?.url;
+//     if (!mediaUrl) throw new Error('No media URL found.');
+
+//     const thumbnailUrl =
+//       post?.thumbnail ||
+//       post?.image ||
+//       mediaUrl.replace(/\.(mp4|mov|webm)$/i, '.jpg') ||
+//       'https://www.fondpeace.com/og-image.jpg';
+
+//     const createdAt = post?.createdAt
+//       ? new Date(post.createdAt).toISOString()
+//       : new Date().toISOString();
+
+//     const updatedAt = post?.updatedAt
+//       ? new Date(post.updatedAt).toISOString()
+//       : createdAt;
+
+//     const username = post?.userId?.username || 'Fondpeace';
+//     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
+
+//     return {
+//       title: content,
+//       description,
+//       keywords: [...tagsArray, 'fondpeace', 'short video', 'entertainment'].join(', '),
+
+//       alternates: { canonical: siteUrl },
+//       metadataBase: new URL('https://www.fondpeace.com'),
+
+//       openGraph: {
+//         title: content,
+//         description,
+//         url: siteUrl,
+//         siteName,
+//         type: 'video.other',
+//         images: [
+//           {
+//             url: thumbnailUrl,
+//             width: 1280,
+//             height: 720,
+//             alt: content,
+//           },
+//         ],
+//         videos: [
+//           {
+//             url: mediaUrl,
+//             secureUrl: mediaUrl,
+//             width: 1280,
+//             height: 720,
+//             type: 'video/mp4',
+//           },
+//         ],
+//         article: {
+//           authors: [username],
+//           publishedTime: createdAt,
+//           modifiedTime: updatedAt,
+//           tags: tagsArray,
+//         },
+//       },
+
+//       twitter: {
+//         card: 'player',
+//         title: content,
+//         description,
+//         site: '@fondpeace',
+//         creator: '@fondpeace',
+//         images: [thumbnailUrl],
+//         player: mediaUrl,
+//         playerWidth: 1280,
+//         playerHeight: 720,
+//       },
+
+//       other: {
+//         'og:video': mediaUrl,
+//         'og:video:type': 'video/mp4',
+//         'og:video:secure_url': mediaUrl,
+//         'twitter:player': mediaUrl,
+//         'video:release_date': createdAt,
+//         'video:modified_date': updatedAt,
+//         'author': username,
+//       },
+//     };
+//   } catch (error) {
+//     console.error('Metadata error:', error);
+
+//     return {
+//       title: 'Fondpeace',
+//       description: 'Watch trending short videos on Fondpeace.',
+//       alternates: { canonical: siteUrl },
+//       metadataBase: new URL('https://www.fondpeace.com'),
+//       openGraph: {
+//         title: 'Fondpeace',
+//         description: 'Watch trending short videos on Fondpeace.',
+//         url: siteUrl,
+//         type: 'website',
+//       },
+//       twitter: {
+//         card: 'summary_large_image',
+//         title: 'Fondpeace',
+//         description: 'Watch trending short videos on Fondpeace.',
+//       },
+//     };
+//   }
+// }
+
+// // ---------------------------------------------------------------
+// // PAGE COMPONENT WITH FULL VIDEO SCHEMA (GOOGLE RANKING REQUIRED)
+// // ---------------------------------------------------------------
+
+// export default async function Page({ params }) {
+//   const id = params.videoid;
+
+//   // Fetch exact single post (for schema)
+//   const res = await fetch(`https://backendk-z915.onrender.com/post/single/${id}`, {
+//     cache: 'no-store',
+//   });
+//   const post = await res.json();
+
+//   const title = post?.title || "Fondpeace Video";
+//   const mediaUrl = post?.media || post?.medias?.url || '';
+//   const thumbnailUrl =
+//     post?.thumbnail ||
+//     post?.image ||
+//     mediaUrl.replace(/\.(mp4|mov|webm)$/i, '.jpg') ||
+//     'https://www.fondpeace.com/og-image.jpg';
+
+//   const pageUrl = `https://www.fondpeace.com/short/${id}`;
+//   const uploadDate = post?.createdAt || new Date().toISOString();
+
+//   // ⭐ GOLDEN VIDEO SCHEMA (Google Video SEO REQUIRED)
+//   const videoSchema = {
+//     "@context": "https://schema.org",
+//     "@type": "VideoObject",
+//     name: title,
+//     description: title,
+//     thumbnailUrl: [thumbnailUrl],
+//     uploadDate: new Date(uploadDate).toISOString(),
+//     contentUrl: mediaUrl,
+//     embedUrl: pageUrl,
+//     url: pageUrl,
+//     publisher: {
+//       "@type": "Organization",
+//       name: "Fondpeace",
+//       logo: {
+//         "@type": "ImageObject",
+//         url: "https://www.fondpeace.com/fondpeace.jpg",
+//       },
+//     },
+//   };
+
+//   return (
+//     <main>
+//       {/* ⭐ Required JSON-LD Schema */}
+//       <script
+//         type="application/ld+json"
+//         dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+//       />
+
+//       <StatusBar />
+
+//       <section className="p-4">
+//         <h1 className="text-xl font-bold">{title}</h1>
+
+//         <video
+//           src={mediaUrl}
+//           controls
+//           poster={thumbnailUrl}
+//           className="w-full rounded-xl mt-3"
+//         />
+
+//         {/* Latest videos section */}
+//         <LatestVideo />
+//       </section>
+//     </main>
+//   );
+// }
 
 
 
