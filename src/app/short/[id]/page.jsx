@@ -9,90 +9,81 @@ const API_URL = "https://backend-k.vercel.app/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
 
-// -------------------------
-//  FIX: Generate Metadata
-// -------------------------
+// ------------------------------------
+//  METADATA (no console.log)
+// ------------------------------------
 export async function generateMetadata({ params }) {
   const id = params?.id;
-  console.log("id ", id);
 
   if (!id) {
     return {
-      title: "Video Not Found",
-      description: "Video ID missing",
+      title: "Invalid Video",
+      description: "ID missing",
     };
   }
 
   let post = null;
-
   try {
     const res = await fetch(`${API_URL}${id}`, { cache: "no-store" });
     post = await res.json();
-  } catch (e) {}
-
-  const title = post?.title || "Watch Video";
-  const desc = post?.description || "Watch trending short videos on Fondpeace";
-  const thumb = post?.thumbnail || DEFAULT_THUMB;
+  } catch {}
 
   return {
-    title,
-    description: desc,
+    title: post?.title || "Watch Video",
+    description: post?.description || "Trending videos",
     alternates: { canonical: `${SITE_ROOT}/short/${id}` },
-
     openGraph: {
-      title,
-      description: desc,
-      url: `${SITE_ROOT}/short/${id}`,
-      images: [thumb],
-      videos: [
-        {
-          url: post?.mediaUrl,
-          width: post?.width || 720,
-          height: post?.height || 1280,
-        },
-      ],
-    },
-
-    twitter: {
-      card: "player",
-      title,
-      description: desc,
-      images: [thumb],
+      title: post?.title,
+      description: post?.description,
+      images: [post?.thumbnail || DEFAULT_THUMB],
     },
   };
 }
 
-// -------------------------
-//  MAIN PAGE COMPONENT
-// -------------------------
+// ------------------------------------
+//  MAIN PAGE
+// ------------------------------------
 export default async function VideoPage({ params }) {
   const id = params?.id;
 
-  // FIX: prevent undefined hitting server
+  // ⭐ ⭐ ⭐
+  // PRINT ID ON BROWSER CONSOLE
+  // ⭐ ⭐ ⭐
+  console.log("PAGE — URL ID RECEIVED:", id);
+
+  // ID MISSING → STOP
   if (!id) {
     return (
       <main className="p-8 text-center">
-        <h2>Invalid Video ID</h2>
+        <h2>Error: Video ID Not Found</h2>
+        <p>URL does not contain a valid id.</p>
       </main>
     );
   }
 
+  // SAFE FETCH
   let post = null;
-
   try {
     const res = await fetch(`${API_URL}${id}`, {
       cache: "no-store",
     });
 
+    console.log("API CALLED:", `${API_URL}${id}`);
+
     post = await res.json();
   } catch (err) {
-    console.error(err);
+    console.error("API ERROR:", err);
   }
 
+  // API RESPONSE PRINT
+  console.log("API RESPONSE POST:", post);
+
+  // INVALID RESPONSE
   if (!post || post?.error) {
     return (
       <main className="p-8 text-center">
         <h2>Video Not Found</h2>
+        <p>Backend did not return the data.</p>
       </main>
     );
   }
@@ -107,7 +98,6 @@ export default async function VideoPage({ params }) {
       <section className="max-w-xl mx-auto px-4 py-6">
         <h1 className="text-xl font-bold mb-3">{post.title}</h1>
 
-        {/* ---- THE MAIN VIDEO ---- */}
         <video
           src={mediaUrl}
           poster={thumb}
@@ -124,7 +114,6 @@ export default async function VideoPage({ params }) {
     </main>
   );
 }
-
 
 
 
