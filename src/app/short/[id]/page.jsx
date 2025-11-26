@@ -128,7 +128,7 @@ export default async function Page({ params }) {
   const related = data?.related || [];
   const mediaUrl = toAbsolute(post.media || post.mediaUrl);
 const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-const pageUrl = ${SITE_ROOT}/short/${post._id};
+const pageUrl = `${SITE_ROOT}/short/${post._id}`;
 const authorName = post?.userId?.username || "FondPeace";
 const isVideo = post.mediaType?.startsWith("video");
 
