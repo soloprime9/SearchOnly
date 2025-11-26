@@ -57,17 +57,22 @@ return [
 { "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) },
 ];
 }
+
 function buildDescription(post) {
-const author = post?.userId?.username || "FondPeace";
-const likes = likesCount(post);
-const comments = commentsCount(post);
-const views = viewsCount(post);
-return 🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${post.title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates;
+  const author = post?.userId?.username || "FondPeace";
+  const likes = likesCount(post);
+  const comments = commentsCount(post);
+  const views = viewsCount(post);
+
+  // SEO-friendly, high-CTR, single flowing paragraph without periods
+  return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${post.title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
 }
+
 function extractKeywords(post) {
-if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
-if (Array.isArray(post.hashtags) && post.hashtags.length) return post.hashtags.map(h => h.replace("#", "")).join(", ");
-return post.title.split(" ").slice(0, 10).join(", ");
+  if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
+  if (Array.isArray(post.hashtags) && post.hashtags.length)
+    return post.hashtags.map(h => h.replace("#", "")).join(", ");
+  return post.title.split(" ").slice(0, 10).join(", ");
 }
 
 /* Server-side metadata: Next will call this for each /short/[id] request */
