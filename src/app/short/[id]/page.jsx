@@ -157,7 +157,7 @@ publisher: {
 "@type": "Organization",
 name: "FondPeace",
 url: SITE_ROOT,
-logo: { "@type": "ImageObject", url: ${SITE_ROOT}/logo.jpg, width: 512, height: 512 },
+logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.jpg`, width: 512, height: 512 },
 },
 author: { "@type": "Person", name: authorName },
 creator: { "@type": "Person", name: authorName },
