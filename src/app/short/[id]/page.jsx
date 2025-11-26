@@ -94,9 +94,9 @@ export default async function Page({ params }) {
 
       <StatusBar />
       <section className="max-w-3xl mx-auto px-4 py-6">
-        <h1 className="text-xl font-bold mb-3">{post.title}</h1>
+        {/* <h1 className="text-xl font-bold mb-3">{post.title}</h1>
 
-        {/* Render server-side video player for first paint */}
+        
         <video
           src={post.media || post.mediaUrl}
           poster={post.thumbnail || DEFAULT_THUMB}
@@ -106,7 +106,7 @@ export default async function Page({ params }) {
           className="w-full rounded-xl"
         />
 
-        <p className="mt-4 text-gray-700">{post.description}</p>
+        <p className="mt-4 text-gray-700">{post.description}</p> */}
 
         {/* Client component: handles infinite scroll, autoplay, and navigation */}
         <ReelsFeed initialPost={post} initialRelated={related} />
