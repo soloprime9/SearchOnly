@@ -31,7 +31,7 @@ export default function SearchFull() {
       {/* 📌 Results */}
       <div className="mt-4 flex flex-col gap-3">
         {results.map((p) => (
-          <Link key={p._id} href={`/post/${p._id}`}>
+          <Link key={p._id} href={`/short/${p._id}`}>
             <div className="flex gap-3 bg-white p-3 rounded-xl shadow cursor-pointer">
 
               <img
