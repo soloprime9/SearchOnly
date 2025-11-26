@@ -1,128 +1,103 @@
 // app/short/[id]/page.jsx
-
+import ReelsFeed from "@/components/ReelsFeed"; // client component (below)
 import StatusBar from "@/components/StatusBar";
-import ReelsFeed from "@/components/ReelsFeed";
 
 export const dynamic = "force-dynamic";
 
-const API_URL = "https://backend-k.vercel.app/post/single/";
+const API_SINGLE = "https://backend-k.vercel.app/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
 
-/* -----------------------------
-   CORRECT METADATA
------------------------------- */
+/* Server-side metadata: Next will call this for each /short/[id] request */
 export async function generateMetadata({ params }) {
   const id = params?.id;
-
-  if (!id) {
-    return {
-      title: "Invalid Video | FondPeace",
-      description: "Video ID missing",
-    };
-  }
+  if (!id) return { title: "Invalid Video" };
 
   try {
-    const res = await fetch(`${API_URL}${id}`, { cache: "no-store" });
+    const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
     const data = await res.json();
-    const post = data?.post; // ⭐ correct
+    const post = data?.post;
 
-    if (!post) {
-      return {
-        title: "Video Not Found | FondPeace",
-        description: "This video does not exist",
-      };
-    }
+    if (!post) return { title: "Video Not Found" };
 
-    const mediaUrl = post.media || post.mediaUrl;
+    const mediaUrl = post.media || post.mediaUrl || null;
+    const img = post.thumbnail || DEFAULT_THUMB;
+    const title = (post.title || "Fondpeace Video").slice(0, 160);
 
     return {
-      title: `${post.title} - FondPeace`,
-      description: post.description || "Watch trending short videos.",
+      title,
+      description: (post.description || title).slice(0, 200),
       alternates: { canonical: `${SITE_ROOT}/short/${id}` },
-
       openGraph: {
-        title: post.title,
+        title,
         description: post.description,
         url: `${SITE_ROOT}/short/${id}`,
-        images: [post.thumbnail || DEFAULT_THUMB],
-        videos: [
-          {
-            url: mediaUrl,
-            width: post.width || 720,
-            height: post.height || 1280,
-          },
-        ],
+        type: "video.other",
+        images: [img],
+        videos: mediaUrl ? [{ url: mediaUrl }] : undefined,
       },
-
       twitter: {
         card: "player",
-        title: post.title,
+        title,
         description: post.description,
-        images: [post.thumbnail || DEFAULT_THUMB],
+        images: [img],
       },
     };
-  } catch (error) {
-    return {
-      title: "Video | FondPeace",
-      description: "Watch trending short videos.",
-    };
+  } catch (e) {
+    return { title: "Fondpeace Video" };
   }
 }
 
-/* -----------------------------
-   MAIN PAGE COMPONENT
------------------------------- */
-export default async function VideoPage({ params }) {
+/* Server component renders initial HTML and passes initial post to client player */
+export default async function Page({ params }) {
   const id = params?.id;
+  if (!id) return <div>Invalid ID</div>;
 
-  console.log("URL PARAM ID:", id);
-
-  if (!id) {
-    return (
-      <main className="p-8 text-center">
-        <h2>Error: Video ID Not Found</h2>
-      </main>
-    );
-  }
-
-  let post = null;
-  let related = [];
-
-  try {
-    const res = await fetch(`${API_URL}${id}`, { cache: "no-store" });
-    const data = await res.json();
-
-    post = data?.post; // ⭐ correct
-    related = data?.related || []; // ⭐ correct
-
-    console.log("POST FOUND:", post);
-  } catch (e) {
-    console.error("API ERROR:", e);
-  }
+  const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
+  const data = await res.json();
+  const post = data?.post || null;
+  const related = data?.related || [];
 
   if (!post) {
-    return (
-      <main className="p-8 text-center">
-        <h2>Video Not Found</h2>
-        <p>Backend did not return a valid post.</p>
-      </main>
-    );
+    return <main className="p-8 text-center">Video not found</main>;
   }
 
-  const mediaUrl = post.media || post.mediaUrl;
-  const thumb = post.thumbnail || DEFAULT_THUMB;
+  // JSON-LD for VideoObject (server-inserted so crawlers see it)
+  const videoSchema = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: post.title,
+    description: post.description || post.title,
+    thumbnailUrl: [post.thumbnail || DEFAULT_THUMB],
+    contentUrl: post.media || post.mediaUrl,
+    uploadDate: post.createdAt || new Date().toISOString(),
+    embedUrl: `${SITE_ROOT}/short/${id}`,
+    url: `${SITE_ROOT}/short/${id}`,
+    publisher: {
+      "@type": "Organization",
+      name: "Fondpeace",
+      logo: { "@type": "ImageObject", url: `${SITE_ROOT}/fondpeace.jpg` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_ROOT}/short/${id}` },
+  };
 
   return (
     <main className="min-h-screen bg-white">
-      <StatusBar />
+      {/* JSON-LD inserted server-side for crawlers */}
+      <script
+        key="video-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+      />
 
-      <section className="max-w-xl mx-auto px-4 py-6">
+      <StatusBar />
+      <section className="max-w-3xl mx-auto px-4 py-6">
         <h1 className="text-xl font-bold mb-3">{post.title}</h1>
 
+        {/* Render server-side video player for first paint */}
         <video
-          src={mediaUrl}
-          poster={thumb}
+          src={post.media || post.mediaUrl}
+          poster={post.thumbnail || DEFAULT_THUMB}
           controls
           playsInline
           preload="metadata"
@@ -131,28 +106,177 @@ export default async function VideoPage({ params }) {
 
         <p className="mt-4 text-gray-700">{post.description}</p>
 
-        {/* SHOW RELATED */}
-        {related.length > 0 && (
-          <div className="mt-6">
-            <h2 className="font-bold text-lg mb-3">Related Videos</h2>
-
-            {related.map((r) => (
-              <div key={r._id} className="mb-4">
-                <video
-                  src={r.media || r.mediaUrl}
-                  poster={r.thumbnail}
-                  className="w-full rounded-xl"
-                  muted
-                />
-                <p className="mt-2">{r.title}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Client component: handles infinite scroll, autoplay, and navigation */}
+        <ReelsFeed initialPost={post} initialRelated={related} />
       </section>
     </main>
   );
 }
+
+
+
+
+
+
+
+
+
+
+// // app/short/[id]/page.jsx
+
+// import StatusBar from "@/components/StatusBar";
+// import ReelsFeed from "@/components/ReelsFeed";
+
+// export const dynamic = "force-dynamic";
+
+// const API_URL = "https://backend-k.vercel.app/post/single/";
+// const SITE_ROOT = "https://www.fondpeace.com";
+// const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
+
+// /* -----------------------------
+//    CORRECT METADATA
+// ------------------------------ */
+// export async function generateMetadata({ params }) {
+//   const id = params?.id;
+
+//   if (!id) {
+//     return {
+//       title: "Invalid Video | FondPeace",
+//       description: "Video ID missing",
+//     };
+//   }
+
+//   try {
+//     const res = await fetch(`${API_URL}${id}`, { cache: "no-store" });
+//     const data = await res.json();
+//     const post = data?.post; // ⭐ correct
+
+//     if (!post) {
+//       return {
+//         title: "Video Not Found | FondPeace",
+//         description: "This video does not exist",
+//       };
+//     }
+
+//     const mediaUrl = post.media || post.mediaUrl;
+
+//     return {
+//       title: `${post.title} - FondPeace`,
+//       description: post.description || "Watch trending short videos.",
+//       alternates: { canonical: `${SITE_ROOT}/short/${id}` },
+
+//       openGraph: {
+//         title: post.title,
+//         description: post.description,
+//         url: `${SITE_ROOT}/short/${id}`,
+//         images: [post.thumbnail || DEFAULT_THUMB],
+//         videos: [
+//           {
+//             url: mediaUrl,
+//             width: post.width || 720,
+//             height: post.height || 1280,
+//           },
+//         ],
+//       },
+
+//       twitter: {
+//         card: "player",
+//         title: post.title,
+//         description: post.description,
+//         images: [post.thumbnail || DEFAULT_THUMB],
+//       },
+//     };
+//   } catch (error) {
+//     return {
+//       title: "Video | FondPeace",
+//       description: "Watch trending short videos.",
+//     };
+//   }
+// }
+
+// /* -----------------------------
+//    MAIN PAGE COMPONENT
+// ------------------------------ */
+// export default async function VideoPage({ params }) {
+//   const id = params?.id;
+
+//   console.log("URL PARAM ID:", id);
+
+//   if (!id) {
+//     return (
+//       <main className="p-8 text-center">
+//         <h2>Error: Video ID Not Found</h2>
+//       </main>
+//     );
+//   }
+
+//   let post = null;
+//   let related = [];
+
+//   try {
+//     const res = await fetch(`${API_URL}${id}`, { cache: "no-store" });
+//     const data = await res.json();
+
+//     post = data?.post; // ⭐ correct
+//     related = data?.related || []; // ⭐ correct
+
+//     console.log("POST FOUND:", post);
+//   } catch (e) {
+//     console.error("API ERROR:", e);
+//   }
+
+//   if (!post) {
+//     return (
+//       <main className="p-8 text-center">
+//         <h2>Video Not Found</h2>
+//         <p>Backend did not return a valid post.</p>
+//       </main>
+//     );
+//   }
+
+//   const mediaUrl = post.media || post.mediaUrl;
+//   const thumb = post.thumbnail || DEFAULT_THUMB;
+
+//   return (
+//     <main className="min-h-screen bg-white">
+//       <StatusBar />
+
+//       <section className="max-w-xl mx-auto px-4 py-6">
+//         <h1 className="text-xl font-bold mb-3">{post.title}</h1>
+
+//         <video
+//           src={mediaUrl}
+//           poster={thumb}
+//           controls
+//           playsInline
+//           preload="metadata"
+//           className="w-full rounded-xl"
+//         />
+
+//         <p className="mt-4 text-gray-700">{post.description}</p>
+
+//         {/* SHOW RELATED */}
+//         {related.length > 0 && (
+//           <div className="mt-6">
+//             <h2 className="font-bold text-lg mb-3">Related Videos</h2>
+
+//             {related.map((r) => (
+//               <div key={r._id} className="mb-4">
+//                 <video
+//                   src={r.media || r.mediaUrl}
+//                   poster={r.thumbnail}
+//                   className="w-full rounded-xl"
+//                   muted
+//                 />
+//                 <p className="mt-2">{r.title}</p>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//       </section>
+//     </main>
+//   );
+// }
 
 
 
