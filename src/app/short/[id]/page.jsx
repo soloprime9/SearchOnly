@@ -9,87 +9,108 @@ const API_URL = "https://backend-k.vercel.app/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
 
-// ------------------------------------
-//  METADATA (no console.log)
-// ------------------------------------
+/* -----------------------------
+   CORRECT METADATA
+------------------------------ */
 export async function generateMetadata({ params }) {
   const id = params?.id;
 
   if (!id) {
     return {
-      title: "Invalid Video",
-      description: "ID missing",
+      title: "Invalid Video | FondPeace",
+      description: "Video ID missing",
     };
   }
 
-  let post = null;
   try {
     const res = await fetch(`${API_URL}${id}`, { cache: "no-store" });
-    data = await res.json();
-    post = data?.post;
-  } catch {}
+    const data = await res.json();
+    const post = data?.post; // ⭐ correct
 
-  return {
-    title: post?.title || "Watch Video",
-    description: post?.description || "Trending videos",
-    alternates: { canonical: `${SITE_ROOT}/short/${id}` },
-    openGraph: {
-      title: post?.title,
-      description: post?.description,
-      images: [post?.thumbnail || DEFAULT_THUMB],
-    },
-  };
+    if (!post) {
+      return {
+        title: "Video Not Found | FondPeace",
+        description: "This video does not exist",
+      };
+    }
+
+    const mediaUrl = post.media || post.mediaUrl;
+
+    return {
+      title: `${post.title} - FondPeace`,
+      description: post.description || "Watch trending short videos.",
+      alternates: { canonical: `${SITE_ROOT}/short/${id}` },
+
+      openGraph: {
+        title: post.title,
+        description: post.description,
+        url: `${SITE_ROOT}/short/${id}`,
+        images: [post.thumbnail || DEFAULT_THUMB],
+        videos: [
+          {
+            url: mediaUrl,
+            width: post.width || 720,
+            height: post.height || 1280,
+          },
+        ],
+      },
+
+      twitter: {
+        card: "player",
+        title: post.title,
+        description: post.description,
+        images: [post.thumbnail || DEFAULT_THUMB],
+      },
+    };
+  } catch (error) {
+    return {
+      title: "Video | FondPeace",
+      description: "Watch trending short videos.",
+    };
+  }
 }
 
-// ------------------------------------
-//  MAIN PAGE
-// ------------------------------------
+/* -----------------------------
+   MAIN PAGE COMPONENT
+------------------------------ */
 export default async function VideoPage({ params }) {
   const id = params?.id;
 
-  // ⭐ ⭐ ⭐
-  // PRINT ID ON BROWSER CONSOLE
-  // ⭐ ⭐ ⭐
-  console.log("PAGE — URL ID RECEIVED:", id);
+  console.log("URL PARAM ID:", id);
 
-  // ID MISSING → STOP
   if (!id) {
     return (
       <main className="p-8 text-center">
         <h2>Error: Video ID Not Found</h2>
-        <p>URL does not contain a valid id.</p>
       </main>
     );
   }
 
-  // SAFE FETCH
   let post = null;
+  let related = [];
+
   try {
-    const res = await fetch(`${API_URL}${id}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_URL}${id}`, { cache: "no-store" });
+    const data = await res.json();
 
-    console.log("API CALLED:", `${API_URL}${id}`);
+    post = data?.post; // ⭐ correct
+    related = data?.related || []; // ⭐ correct
 
-    post = await res.json();
-  } catch (err) {
-    console.error("API ERROR:", err);
+    console.log("POST FOUND:", post);
+  } catch (e) {
+    console.error("API ERROR:", e);
   }
 
-  // API RESPONSE PRINT
-  console.log("API RESPONSE POST:", post);
-
-  // INVALID RESPONSE
-  if (!post || post?.error) {
+  if (!post) {
     return (
       <main className="p-8 text-center">
         <h2>Video Not Found</h2>
-        <p>Backend did not return the data.</p>
+        <p>Backend did not return a valid post.</p>
       </main>
     );
   }
 
-  const mediaUrl = post.mediaUrl;
+  const mediaUrl = post.media || post.mediaUrl;
   const thumb = post.thumbnail || DEFAULT_THUMB;
 
   return (
@@ -110,12 +131,28 @@ export default async function VideoPage({ params }) {
 
         <p className="mt-4 text-gray-700">{post.description}</p>
 
-        {/* <ReelsFeed /> */}
+        {/* SHOW RELATED */}
+        {related.length > 0 && (
+          <div className="mt-6">
+            <h2 className="font-bold text-lg mb-3">Related Videos</h2>
+
+            {related.map((r) => (
+              <div key={r._id} className="mb-4">
+                <video
+                  src={r.media || r.mediaUrl}
+                  poster={r.thumbnail}
+                  className="w-full rounded-xl"
+                  muted
+                />
+                <p className="mt-2">{r.title}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
 }
-
 
 
 
