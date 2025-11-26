@@ -1,176 +1,105 @@
+// components/ReelsPlayer.jsx
 "use client";
-
-import Link from "next/link";
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import StatusBar from "@/components/StatusBar";
-import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
-const API_URL = "https://backend-k.vercel.app/post/shorts";
-const SINGLE_API = "https://backend-k.vercel.app/post/single";
-
-export default function ReelsFeed({ videoId }) {
-  const [videos, setVideos] = useState([]);
-  const [single, setSingle] = useState(null);
-  const [page, setPage] = useState(1);
-  const [expandedId, setExpandedId] = useState(null);
-  const hasMore = useRef(true);
-  const observer = useRef();
+export default function ReelsFeed({ initialPost, initialRelated = [] }) {
+  const router = useRouter();
+  const [posts, setPosts] = useState([initialPost, ...initialRelated]);
   const videoRefs = useRef([]);
+  const ioRef = useRef(null);
 
-  // Fetch single video
+  // prefetch function: optionally prefetch server page for SEO/meta (Next does partial)
+  const prefetchPage = (id) => {
+    // next/navigation router doesn't expose prefetch directly here; you can use <Link prefetch> in list
+    // or let Next prefetch automatically. We'll rely on router.replace to fetch server page.
+  };
+
+  // IntersectionObserver to detect which video is active
   useEffect(() => {
-    const loadSingle = async () => {
-      const res = await fetch(`${SINGLE_API}/${videoId}`);
-      const data = await res.json();
-      setSingle(data);
-    };
-    loadSingle();
-  }, [videoId]);
+    if (ioRef.current) ioRef.current.disconnect();
 
-  // Fetch feed videos
-  const fetchVideos = useCallback(async () => {
-    if (!hasMore.current) return;
-
-    const res = await fetch(`${API_URL}?page=${page}&limit=5`);
-    const data = await res.json();
-
-    setVideos((prev) => {
-      const existing = new Set(prev.map((v) => v._id));
-      const newOnes = data.videos.filter((v) => !existing.has(v._id));
-      return [...prev, ...newOnes];
-    });
-
-    if (page >= data.totalPages) hasMore.current = false;
-  }, [page]);
-
-  useEffect(() => {
-    fetchVideos();
-  }, [fetchVideos]);
-
-  // infinite scroll observer
-  const lastRef = useCallback(
-    (node) => {
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore.current) {
-          setPage((p) => p + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    []
-  );
-
-  // auto play / auto pause + url update
-  useEffect(() => {
-    const io = new IntersectionObserver(
+    ioRef.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const video = entry.target;
+          const el = entry.target;
+          if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
+            // play this video, pause others
+            const id = el.dataset.id;
+            // pause others
+            videoRefs.current.forEach((v) => {
+              if (v && v !== el) {
+                try { v.pause(); } catch {}
+              }
+            });
+            try { el.play().catch(()=>{}); } catch {}
 
-          if (entry.isIntersecting) {
-            video.play().catch(() => {});
-            const id = video.dataset.id;
+            // update URL to server watch page
             if (id) {
-              window.history.replaceState(null, "", `/short/${id}`);
+              // Use replace so back button is less noisy; use push if you want back history
+              router.replace(`/short/${id}`);
+              // prefetchPage(id); // if you add prefetch logic
             }
           } else {
-            video.pause();
+            try { entry.target.pause(); } catch {}
           }
         });
       },
-      { threshold: 0.7 }
+      { threshold: [0.65] }
     );
 
-    videoRefs.current.forEach((v) => v && io.observe(v));
+    videoRefs.current.forEach((v) => v && ioRef.current.observe(v));
 
-    return () => videoRefs.current.forEach((v) => io.unobserve(v));
-  }, [videos, single]);
+    return () => {
+      ioRef.current && ioRef.current.disconnect();
+    };
+  }, [posts, router]);
 
-  const handleShare = (item) => {
-    const text = `${item.title}\n${window.location.origin}/short/${item._id}`;
-    navigator.clipboard.writeText(text);
-    toast.success("Link copied!");
+  // If you want infinite load, fetch more videos from /post/shorts endpoint
+  const fetchMore = useCallback(async (page = 1) => {
+    const res = await fetch(`/post/shorts?page=${page}&limit=6`);
+    if (!res.ok) return;
+    const data = await res.json();
+    setPosts((p) => {
+      const ids = new Set(p.map(x => x._id));
+      const newOnes = data.videos.filter(v => !ids.has(v._id));
+      return [...p, ...newOnes];
+    });
+  }, []);
+
+  // optional: handle onEnded to scroll to next video
+  const handleEnded = (idx) => {
+    const next = videoRefs.current[idx + 1];
+    if (next) next.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
-    <div className="overflow-y-auto snap-y snap-mandatory bg-white">
-      <div className="w-full h-screen overflow-y-auto snap-y snap-mandatory">
-
-        {/* SINGLE VIDEO FIRST */}
-        {single && (
-          <VideoBlock
-            data={single}
-            index={0}
-            expandedId={expandedId}
-            setExpandedId={setExpandedId}
-            handleShare={handleShare}
-            refFn={(el) => (videoRefs.current[0] = el)}
-          />
-        )}
-
-        {/* FEED VIDEOS */}
-        {videos.map((v, idx) => (
-          <VideoBlock
-            key={v._id}
-            data={v}
-            index={idx + 1}
-            expandedId={expandedId}
-            setExpandedId={setExpandedId}
-            handleShare={handleShare}
-            refFn={idx === videos.length - 1 ? lastRef : (el) => (videoRefs.current[idx + 1] = el)}
-          />
-        ))}
-      </div>
-
-      <StatusBar />
-    </div>
-  );
-}
-
-// VIDEO BLOCK COMPONENT
-function VideoBlock({ data, index, expandedId, setExpandedId, handleShare, refFn }) {
-  return (
-    <div className="snap-start w-full h-screen flex justify-center items-center">
-      <div className="relative w-full h-full bg-black">
-        <video
-          ref={refFn}
-          src={data.media}
-          autoPlay
-          playsInline
-          loop
-          controls={false}
-          className="object-contain w-full h-full"
-          data-id={data._id}
-        />
-
-        {/* Left text */}
-        <div className="absolute left-4 bottom-40 text-white">
-          <p className="font-semibold text-lg mb-1">@{data.userId?.username}</p>
-          <p
-            className={`text-sm cursor-pointer ${expandedId === data._id ? "" : "line-clamp-1"}`}
-            onClick={() => setExpandedId(expandedId === data._id ? null : data._id)}
-          >
-            {data.title}
-          </p>
-        </div>
-
-        {/* Right actions */}
-        <div className="absolute right-4 bottom-40 flex flex-col items-center gap-5 text-white">
-          <div onClick={() => handleShare(data)} className="cursor-pointer flex flex-col items-center">
-            <svg width="28" height="28" fill="white">
-              <path d="M4 12v1a9 9 0 009 9h3M20 12v-1a9 9 0 00-9-9H8" />
-            </svg>
-            <span className="text-xs">Share</span>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <svg width="28" height="28" fill="red">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5..." />
-            </svg>
-            <span className="text-xs">{data.likes?.length || 0}</span>
+    <div className="w-full h-screen overflow-y-auto snap-y snap-mandatory">
+      {posts.map((p, idx) => (
+        <div key={p._id} className="snap-start w-full h-screen flex items-center justify-center">
+          <div className="relative w-full h-full bg-black flex items-center justify-center">
+            <video
+              ref={(el) => (videoRefs.current[idx] = el)}
+              src={p.media || p.mediaUrl}
+              poster={p.thumbnail}
+              data-id={p._id}
+              playsInline
+              loop
+              controls={false}
+              className="object-contain w-full h-full"
+              onEnded={() => handleEnded(idx)}
+            />
+            {/* overlay info */}
+            <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
+              <p className="font-semibold">@{p.userId?.username}</p>
+              <p className="text-sm line-clamp-2 mt-1">{p.title}</p>
+            </div>
           </div>
         </div>
+      ))}
+      {/* optionally a "load more" button */}
+      <div className="p-6 text-center">
+        <button onClick={() => fetchMore(2)} className="px-4 py-2 bg-gray-900 text-white rounded">Load more</button>
       </div>
     </div>
   );
