@@ -224,7 +224,7 @@ export default function Feed() {
           
               
                {post.media && (
-  <Link href={`/post/${post._id}`} prefetch>
+  <Link href={`/short/${post._id}`} prefetch>
     <div className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden mx-auto shadow-md cursor-pointer">
 
       {isVideo ? (
