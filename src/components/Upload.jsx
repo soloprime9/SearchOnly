@@ -48,13 +48,28 @@ const UploadPost = () => {
     }
 
     const allowedTypes = [
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-      "video/mp4",
-      "video/webm",
-      "video/x-matroska",
-    ];
+  // Images
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif",
+  "image/svg+xml",
+  "image/bmp",
+  "image/tiff",
+  "image/x-icon",
+
+  // Videos
+  "video/mp4",
+  "video/webm",
+  "video/ogg",
+  "video/x-matroska",
+  "video/quicktime",
+  "video/x-msvideo",
+  "video/x-ms-wmv",
+  "video/mpeg"
+];
+
     if (!allowedTypes.includes(selectedFile.type)) {
       console.error("Invalid file type selected:", selectedFile.type);
       setMessage(
