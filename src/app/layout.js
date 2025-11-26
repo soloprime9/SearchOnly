@@ -31,17 +31,7 @@ export default function RootLayout({ children }) {
 
 
 
-        {/* ===== SEARCH BOX BELOW HEADER ===== */}
-        <div className="pt-20 md:pt-24 px-4 flex justify-center w-full">
-          <div className="w-full max-w-3xl">
-            <Link
-              href="/searchbro"
-              className="block w-full text-gray-500 text-sm md:text-base p-3 rounded-xl border border-gray-300 bg-white shadow hover:shadow-md transition cursor-pointer flex items-center gap-2"
-            >
-              <FaSearch /> Click here to search posts...
-            </Link>
-          </div>
-        </div>
+        
 
         {/* ===== PAGE CONTENT ===== */}
         <div className="pt-8 px-4 md:px-0 max-w-5xl mx-auto">
