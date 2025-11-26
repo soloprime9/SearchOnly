@@ -12,6 +12,7 @@ const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
 export async function generateMetadata({ params }) {
   const id = params?.id;
   if (!id) return { title: "Invalid Video" };
+  console.log("Id is here: ", id);
 
   try {
     const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
