@@ -17,12 +17,11 @@ const API_SINGLE = "https://backend-k.vercel.app/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
 
-// Utility functions
 function toAbsolute(url) {
-if (!url) return null;
-if (url.startsWith("http")) return url;
-if (url.startsWith("/")) return ${SITE_ROOT}${url};
-return ${SITE_ROOT}/${url};
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
+  return `${SITE_ROOT}/${url}`;
 }
 
 function secToISO(sec) {
