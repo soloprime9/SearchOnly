@@ -14,6 +14,7 @@ const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
 // -------------------------
 export async function generateMetadata({ params }) {
   const id = params?.id;
+  console.log("id ", id);
 
   if (!id) {
     return {
