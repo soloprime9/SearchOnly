@@ -25,7 +25,8 @@ export async function generateMetadata({ params }) {
   let post = null;
   try {
     const res = await fetch(`${API_URL}${id}`, { cache: "no-store" });
-    post = await res.json();
+    data = await res.json();
+    post = data?.post;
   } catch {}
 
   return {
