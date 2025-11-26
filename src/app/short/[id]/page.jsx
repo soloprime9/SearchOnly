@@ -1,140 +1,140 @@
-import StatusBar from '@/components/StatusBar';
-import LatestVideo from '@/components/LatestVideo';
-import Script from 'next/script';
 
-export const dynamic = 'force-dynamic';
+// import LatestVideo from '@/components/LatestVideo';
+// import Script from 'next/script';
 
-const SITE_ROOT = "[https://www.fondpeace.com](https://www.fondpeace.com)";
-const DEFAULT_TITLE = 'Watch Trending Short Video on FondPeace';
-const DEFAULT_DESCRIPTION = 'Discover trending short videos and entertainment on Fondpeace.';
-const DEFAULT_THUMBNAIL = `${SITE_ROOT}/fondpeace.jpg`;
+// export const dynamic = 'force-dynamic';
 
-function toAbsolute(url) {
-if (!url) return null;
-if (url.startsWith("http")) return url;
-if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
-return `${SITE_ROOT}/${url}`;
-}
+// const SITE_ROOT = "[https://www.fondpeace.com](https://www.fondpeace.com)";
+// const DEFAULT_TITLE = 'Watch Trending Short Video on FondPeace';
+// const DEFAULT_DESCRIPTION = 'Discover trending short videos and entertainment on Fondpeace.';
+// const DEFAULT_THUMBNAIL = `${SITE_ROOT}/fondpeace.jpg`;
 
-function secToISO(sec) {
-const s = Number(sec);
-if (!Number.isFinite(s) || s <= 0) return undefined;
-const h = Math.floor(s / 3600);
-const m = Math.floor((s % 3600) / 60);
-const secLeft = Math.floor(s % 60);
-let iso = "PT";
-if (h > 0) iso += `${h}H`;
-if (m > 0) iso += `${m}M`;
-if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
-return iso;
-}
+// function toAbsolute(url) {
+// if (!url) return null;
+// if (url.startsWith("http")) return url;
+// if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
+// return `${SITE_ROOT}/${url}`;
+// }
 
-function likesCount(post) {
-return Array.isArray(post.likes) ? post.likes.length : (post.likes || 0);
-}
-function commentsCount(post) {
-return Array.isArray(post.comments) ? post.comments.length : (post.commentCount || 0);
-}
-function viewsCount(post) {
-return typeof post.views === "number" ? post.views : 0;
-}
+// function secToISO(sec) {
+// const s = Number(sec);
+// if (!Number.isFinite(s) || s <= 0) return undefined;
+// const h = Math.floor(s / 3600);
+// const m = Math.floor((s % 3600) / 60);
+// const secLeft = Math.floor(s % 60);
+// let iso = "PT";
+// if (h > 0) iso += `${h}H`;
+// if (m > 0) iso += `${m}M`;
+// if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
+// return iso;
+// }
 
-function buildInteractionSchema(post) {
-return [
-{ "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
-{ "@type": "InteractionCounter", interactionType: { "@type": "CommentAction" }, userInteractionCount: commentsCount(post) },
-{ "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) }
-];
-}
+// function likesCount(post) {
+// return Array.isArray(post.likes) ? post.likes.length : (post.likes || 0);
+// }
+// function commentsCount(post) {
+// return Array.isArray(post.comments) ? post.comments.length : (post.commentCount || 0);
+// }
+// function viewsCount(post) {
+// return typeof post.views === "number" ? post.views : 0;
+// }
 
-function buildDescription(post) {
-const title = post?.title?.trim() || "video";
-const author = post?.userId?.username || "FondPeace";
-const likes = likesCount(post);
-const comments = commentsCount(post);
-const views = viewsCount(post);
-return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${title}" uploaded by ${author} on FondPeace. Join now to watch latest videos and updates.`;
-}
+// function buildInteractionSchema(post) {
+// return [
+// { "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
+// { "@type": "InteractionCounter", interactionType: { "@type": "CommentAction" }, userInteractionCount: commentsCount(post) },
+// { "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) }
+// ];
+// }
 
-async function getPostData(id) {
-let post;
-try {
-const res1 = await fetch(`https://backendk-z915.onrender.com/post/shorts?page=1&limit=5`, { next: { revalidate: 60 } });
-const data = await res1.json();
-post = data?.find?.(v => v._id === id);
-} catch (e) {}
+// function buildDescription(post) {
+// const title = post?.title?.trim() || "video";
+// const author = post?.userId?.username || "FondPeace";
+// const likes = likesCount(post);
+// const comments = commentsCount(post);
+// const views = viewsCount(post);
+// return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${title}" uploaded by ${author} on FondPeace. Join now to watch latest videos and updates.`;
+// }
 
-if (!post?._id) {
-const res2 = await fetch(`https://backendk-z915.onrender.com/post/single/${id}`, { next: { revalidate: 60 } });
-post = await res2.json();
-if (!post?._id) throw new Error("Post not found");
-}
+// async function getPostData(id) {
+// let post;
+// try {
+// const res1 = await fetch(`https://backendk-z915.onrender.com/post/shorts?page=1&limit=5`, { next: { revalidate: 60 } });
+// const data = await res1.json();
+// post = data?.find?.(v => v._id === id);
+// } catch (e) {}
 
-const pageUrl = `${SITE_ROOT}/short/${id}`;
-const mediaUrl = toAbsolute(post.media || post.medias?.url);
-const thumb = toAbsolute(post.thumbnail || post.image || mediaUrl.replace(/.(mp4|mov|webm)$/i, ".jpg")) || DEFAULT_THUMBNAIL;
-const authorName = post.userId?.username || "FondPeace";
-const titleTag = post?.title?.trim() || DEFAULT_TITLE;
-const description = buildDescription(post);
-const createdAt = post?.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
-const updatedAt = post?.updatedAt ? new Date(post.updatedAt).toISOString() : createdAt;
-const genreValue = (Array.isArray(post.tags) && post.tags.length) ? post.tags[0].trim() : "Entertainment";
+// if (!post?._id) {
+// const res2 = await fetch(`https://backendk-z915.onrender.com/post/single/${id}`, { next: { revalidate: 60 } });
+// post = await res2.json();
+// if (!post?._id) throw new Error("Post not found");
+// }
 
-return { post, mediaUrl, thumb, authorName, titleTag, description, createdAt, updatedAt, genreValue, pageUrl };
-}
+// const pageUrl = `${SITE_ROOT}/short/${id}`;
+// const mediaUrl = toAbsolute(post.media || post.medias?.url);
+// const thumb = toAbsolute(post.thumbnail || post.image || mediaUrl.replace(/.(mp4|mov|webm)$/i, ".jpg")) || DEFAULT_THUMBNAIL;
+// const authorName = post.userId?.username || "FondPeace";
+// const titleTag = post?.title?.trim() || DEFAULT_TITLE;
+// const description = buildDescription(post);
+// const createdAt = post?.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
+// const updatedAt = post?.updatedAt ? new Date(post.updatedAt).toISOString() : createdAt;
+// const genreValue = (Array.isArray(post.tags) && post.tags.length) ? post.tags[0].trim() : "Entertainment";
 
-export default async function Page({ params }) {
-const { videoid } = params;
-let postData = {};
-try {
-postData = await getPostData(videoid);
-} catch (e) {
-console.error(e);
-}
+// return { post, mediaUrl, thumb, authorName, titleTag, description, createdAt, updatedAt, genreValue, pageUrl };
+// }
 
-const { post, mediaUrl, thumb, authorName, titleTag, description, createdAt, updatedAt, genreValue, pageUrl } = postData || {};
-if (!post) return <div className="text-center py-20">Video not found</div>;
+// export default async function Page({ params }) {
+// const { videoid } = params;
+// let postData = {};
+// try {
+// postData = await getPostData(videoid);
+// } catch (e) {
+// console.error(e);
+// }
 
-const videoSchema = {
-"@context": "[https://schema.org](https://schema.org)",
-"@type": "VideoObject",
-name: titleTag || "Video",
-description,
-thumbnailUrl: [thumb],
-contentUrl: mediaUrl,
-embedUrl: pageUrl,
-uploadDate: createdAt,
-datePublished: createdAt,
-dateModified: updatedAt,
-duration: post?.duration ? secToISO(Number(post.duration)) : undefined,
-width: post?.width || 1280,
-height: post?.height || 720,
-encodingFormat: "video/mp4",
-publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.jpg`, width: 512, height: 512 } },
-author: { "@type": "Person", name: authorName },
-interactionStatistic: buildInteractionSchema(post),
-genre: genreValue || "Entertainment",
-isFamilyFriendly: true,
-potentialAction: { "@type": "WatchAction", target: pageUrl },
-mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl }
-};
+// const { post, mediaUrl, thumb, authorName, titleTag, description, createdAt, updatedAt, genreValue, pageUrl } = postData || {};
+// if (!post) return <div className="text-center py-20">Video not found</div>;
 
-return ( <main className="min-h-screen bg-white"> <StatusBar /> <section className="max-w-3xl mx-auto px-4 py-8"> 
+// const videoSchema = {
+// "@context": "[https://schema.org](https://schema.org)",
+// "@type": "VideoObject",
+// name: titleTag || "Video",
+// description,
+// thumbnailUrl: [thumb],
+// contentUrl: mediaUrl,
+// embedUrl: pageUrl,
+// uploadDate: createdAt,
+// datePublished: createdAt,
+// dateModified: updatedAt,
+// duration: post?.duration ? secToISO(Number(post.duration)) : undefined,
+// width: post?.width || 1280,
+// height: post?.height || 720,
+// encodingFormat: "video/mp4",
+// publisher: { "@type": "Organization", name: "FondPeace", url: SITE_ROOT, logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.jpg`, width: 512, height: 512 } },
+// author: { "@type": "Person", name: authorName },
+// interactionStatistic: buildInteractionSchema(post),
+// genre: genreValue || "Entertainment",
+// isFamilyFriendly: true,
+// potentialAction: { "@type": "WatchAction", target: pageUrl },
+// mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl }
+// };
+
+// return ( <main className="min-h-screen bg-white"> <StatusBar /> <section className="max-w-3xl mx-auto px-4 py-8"> 
   
-    {/* ✅ LatestVideo is client-side */}
-    <div className="w-full">
-      <LatestVideo videoId={videoid} />
-    </div>
-  </section>
+//     {/* ✅ LatestVideo is client-side */}
+//     <div className="w-full">
+//       <LatestVideo videoId={videoid} />
+//     </div>
+//   </section>
 
-  <Script id="video-jsonld" type="application/ld+json">
-    {JSON.stringify(videoSchema)}
-  </Script>
-</main>
+//   <Script id="video-jsonld" type="application/ld+json">
+//     {JSON.stringify(videoSchema)}
+//   </Script>
+// </main>
 
 
-);
-}
+// );
+// }
 
 
 
@@ -365,156 +365,156 @@ return ( <main className="min-h-screen bg-white"> <StatusBar /> <section classNa
 
 
 
-// import Link from 'next/link';
-// import StatusBar from '@/components/StatusBar';
-// import LatestVideo from '@/components/LatestVideo';
+import Link from 'next/link';
+import StatusBar from '@/components/StatusBar';
+import LatestVideo from '@/components/LatestVideo';
 
-// export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
-// const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
-// const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
+const API_URL = 'https://backendk-z915.onrender.com/post/shorts';
+const SECOND_API_URL = 'https://backendk-z915.onrender.com/post';
 
-// export async function generateMetadata({ params }) {
-//   const { videoid: id } = params;
+export async function generateMetadata({ params }) {
+  const { videoid: id } = params;
 
-//   const siteUrl = `https://www.fondpeace.com/short/${id}`;
-//   const siteName = 'Fondpeace';
+  const siteUrl = `https://www.fondpeace.com/short/${id}`;
+  const siteName = 'Fondpeace';
 
-//   try {
-//     const response = await fetch(`${API_URL}?page=1&limit=5`, {
-//       next: { revalidate: 60 },
-//     });
-//     const shortsData = await response.json();
+  try {
+    const response = await fetch(`${API_URL}?page=1&limit=5`, {
+      next: { revalidate: 60 },
+    });
+    const shortsData = await response.json();
 
-//     let post = shortsData?.find?.(item => item._id === id);
+    let post = shortsData?.find?.(item => item._id === id);
 
-//     if (!post || !post._id) {
-//       const res = await fetch(`${SECOND_API_URL}/single/${id}`);
-//       post = await res.json();
-//       console.log("Posts: ", post);
-//     }
+    if (!post || !post._id) {
+      const res = await fetch(`${SECOND_API_URL}/single/${id}`);
+      post = await res.json();
+      console.log("Posts: ", post);
+    }
 
-//     const TagsList = ["fondpeace, video, short, entertainment"];
-//     const content = post?.title?.trim() || 'Watch this short video on Fondpeace';
-//     const title = content;
-//     const description = content.slice(0, 160);
-//     const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
-//     const keywords = tagsArray.join(', ') + TagsList.join(', ') || TagsList.join(', ');
+    const TagsList = ["fondpeace, video, short, entertainment"];
+    const content = post?.title?.trim() || 'Watch this short video on Fondpeace';
+    const title = content;
+    const description = content.slice(0, 160);
+    const tagsArray = Array.isArray(post?.tags) ? post.tags : [];
+    const keywords = tagsArray.join(', ') + TagsList.join(', ') || TagsList.join(', ');
 
-//     const mediaUrl = post?.media || post?.medias?.url;
+    const mediaUrl = post?.media || post?.medias?.url;
 
-//     if (!mediaUrl) throw new Error('No media URL found');
+    if (!mediaUrl) throw new Error('No media URL found');
 
-//     const createdAt = post?.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
-//     const updatedAt = post?.updatedAt ? new Date(post.updatedAt).toISOString() : createdAt;
+    const createdAt = post?.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
+    const updatedAt = post?.updatedAt ? new Date(post.updatedAt).toISOString() : createdAt;
 
-//     const username = post?.userId?.username || 'Fondpeace';
-//     const thumbnailUrl = post?.thumbnail || post?.image || mediaUrl.replace(/\.(mp4|mov|webm)$/, '.jpg') || mediaUrl || "https://www.fondpeace.com/og-image.jpg";
+    const username = post?.userId?.username || 'Fondpeace';
+    const thumbnailUrl = post?.thumbnail || post?.image || mediaUrl.replace(/\.(mp4|mov|webm)$/, '.jpg') || mediaUrl || "https://www.fondpeace.com/og-image.jpg";
 
 
-//     return {
-//       title,
-//       description,
-//       keywords,
-//       authors: [{ name: username }],
-//       alternates: {
-//         canonical: siteUrl,
-//       },
-//       metadataBase: new URL('https://www.fondpeace.com'),
-//       openGraph: {
-//         title,
-//         description,
-//         url: siteUrl,
-//         siteName,
-//         type: 'video.other',
-//         locale: 'en_US',
-//         images: [
-//           {
-//             url: thumbnailUrl, // ✅ Using thumbnail URL as thumbnail
-//             width: 1280,
-//             height: 720,
-//             alt: content,
-//           },
-//         ],
-//         videos: [
-//           {
-//             url: mediaUrl,
-//             secureUrl: mediaUrl,
-//             width: 1280,
-//             height: 720,
-//             type: 'video/mp4',
-//           },
-//         ],
-//         article: {
-//           authors: [username],
-//           publishedTime: createdAt,
-//           modifiedTime: updatedAt,
-//           tags: tagsArray,
-//         },
-//       },
-//       twitter: {
-//         card: 'player',
-//         title,
-//         description,
-//         site: '@fondpeace',
-//         creator: '@fondpeace',
-//         images: [thumbnailUrl], // ✅ Again, using thumbnail as image
-//         player: mediaUrl,
-//         playerWidth: 1280,
-//         playerHeight: 720,
-//       },
-//       other: {
-//         'og:video': mediaUrl,
-//         'og:video:type': 'video/mp4',
-//         'og:video:width': '1280',
-//         'og:video:height': '720',
-//         'og:video:secure_url': mediaUrl,
-//         'twitter:player': mediaUrl,
-//         'twitter:player:width': '1280',
-//         'twitter:player:height': '720',
-//         'video:type': 'video/mp4',
-//         'video:release_date': createdAt,
-//         'video:modified_date': updatedAt,
-//         'author': username,
-//       },
-//     };
-//   } catch (error) {
-//     console.error("Metadata generation error:", error);
+    return {
+      title,
+      description,
+      keywords,
+      authors: [{ name: username }],
+      alternates: {
+        canonical: siteUrl,
+      },
+      metadataBase: new URL('https://www.fondpeace.com'),
+      openGraph: {
+        title,
+        description,
+        url: siteUrl,
+        siteName,
+        type: 'video.other',
+        locale: 'en_US',
+        images: [
+          {
+            url: thumbnailUrl, // ✅ Using thumbnail URL as thumbnail
+            width: 1280,
+            height: 720,
+            alt: content,
+          },
+        ],
+        videos: [
+          {
+            url: mediaUrl,
+            secureUrl: mediaUrl,
+            width: 1280,
+            height: 720,
+            type: 'video/mp4',
+          },
+        ],
+        article: {
+          authors: [username],
+          publishedTime: createdAt,
+          modifiedTime: updatedAt,
+          tags: tagsArray,
+        },
+      },
+      twitter: {
+        card: 'player',
+        title,
+        description,
+        site: '@fondpeace',
+        creator: '@fondpeace',
+        images: [thumbnailUrl], // ✅ Again, using thumbnail as image
+        player: mediaUrl,
+        playerWidth: 1280,
+        playerHeight: 720,
+      },
+      other: {
+        'og:video': mediaUrl,
+        'og:video:type': 'video/mp4',
+        'og:video:width': '1280',
+        'og:video:height': '720',
+        'og:video:secure_url': mediaUrl,
+        'twitter:player': mediaUrl,
+        'twitter:player:width': '1280',
+        'twitter:player:height': '720',
+        'video:type': 'video/mp4',
+        'video:release_date': createdAt,
+        'video:modified_date': updatedAt,
+        'author': username,
+      },
+    };
+  } catch (error) {
+    console.error("Metadata generation error:", error);
 
-//     return {
-//       title: 'Fondpeace',
-//       description: 'Watch trending short videos and entertainment on Fondpeace.',
-//       keywords: 'fondpeace, video, short, entertainment',
-//       alternates: {
-//         canonical: siteUrl,
-//       },
-//       metadataBase: new URL('https://www.fondpeace.com'),
-//       openGraph: {
-//         title: 'Fondpeace',
-//         description: 'Discover trending short videos and entertainment.',
-//         type: 'website',
-//         url: siteUrl,
-//         siteName,
-//         images: [],
-//       },
-//       twitter: {
-//         card: 'summary_large_image',
-//         title: 'Fondpeace',
-//         description: 'Discover trending short videos and entertainment.',
-//         images: [],
-//       },
-//     };
-//   }
-// }
+    return {
+      title: 'Fondpeace',
+      description: 'Watch trending short videos and entertainment on Fondpeace.',
+      keywords: 'fondpeace, video, short, entertainment',
+      alternates: {
+        canonical: siteUrl,
+      },
+      metadataBase: new URL('https://www.fondpeace.com'),
+      openGraph: {
+        title: 'Fondpeace',
+        description: 'Discover trending short videos and entertainment.',
+        type: 'website',
+        url: siteUrl,
+        siteName,
+        images: [],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'Fondpeace',
+        description: 'Discover trending short videos and entertainment.',
+        images: [],
+      },
+    };
+  }
+}
 
-// export default function Page() {
-//    return (
-//   <main>
-//   helle dear 
-//   <LatestVideo />
-//   </main>
-// );
-// }
+export default function Page() {
+   return (
+  <main>
+  helle dear 
+  <LatestVideo />
+  </main>
+);
+}
 
 
 
