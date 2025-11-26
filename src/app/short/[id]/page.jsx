@@ -1,59 +1,128 @@
+// app/short/[id]/page.jsx
+
+import StatusBar from "@/components/StatusBar";
 import ReelsFeed from "@/components/ReelsFeed";
 
 export const dynamic = "force-dynamic";
 
-const API = "https://backend-k.vercel.app/post";
+const API_URL = "https://backend-k.vercel.app/post/single/";
+const SITE_ROOT = "https://www.fondpeace.com";
+const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
 
+// -------------------------
+//  FIX: Generate Metadata
+// -------------------------
 export async function generateMetadata({ params }) {
-  try {
-    const res = await fetch(`${API}/single/${params.videoId}`, {
-      next: { revalidate: 60 }
-    });
-    const video = await res.json();
+  const id = params?.id;
 
-    if (!video || !video.title) {
-      return {
-        title: "Watch Video - FondPeace",
-        description: "Watch trending videos on Fondpeace."
-      };
-    }
-
-    const url = `https://www.fondpeace.com/short/${video._id}`;
-    const thumb = video.thumb || video.media || "";
-
+  if (!id) {
     return {
-      title: `${video.title} - FondPeace Shorts`,
-      description: video.title,
-      alternates: { canonical: url },
-      openGraph: {
-        title: video.title,
-        description: video.title,
-        url,
-        type: "video.other",
-        images: [{ url: thumb }],
-        videos: [{ url: video.media }]
-      },
-      twitter: {
-        card: "player",
-        title: video.title,
-        description: video.title,
-        images: [thumb]
-      }
-    };
-  } catch (e) {
-    return {
-      title: "Watch Video - FondPeace",
-      description: "Watch trending videos on Fondpeace."
+      title: "Video Not Found",
+      description: "Video ID missing",
     };
   }
+
+  let post = null;
+
+  try {
+    const res = await fetch(`${API_URL}${id}`, { cache: "no-store" });
+    post = await res.json();
+  } catch (e) {}
+
+  const title = post?.title || "Watch Video";
+  const desc = post?.description || "Watch trending short videos on Fondpeace";
+  const thumb = post?.thumbnail || DEFAULT_THUMB;
+
+  return {
+    title,
+    description: desc,
+    alternates: { canonical: `${SITE_ROOT}/short/${id}` },
+
+    openGraph: {
+      title,
+      description: desc,
+      url: `${SITE_ROOT}/short/${id}`,
+      images: [thumb],
+      videos: [
+        {
+          url: post?.mediaUrl,
+          width: post?.width || 720,
+          height: post?.height || 1280,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "player",
+      title,
+      description: desc,
+      images: [thumb],
+    },
+  };
 }
 
-export default function Page({ params }) {
-  return <ReelsFeed videoId={params.videoId} />;
+// -------------------------
+//  MAIN PAGE COMPONENT
+// -------------------------
+export default async function VideoPage({ params }) {
+  const id = params?.id;
+
+  // FIX: prevent undefined hitting server
+  if (!id) {
+    return (
+      <main className="p-8 text-center">
+        <h2>Invalid Video ID</h2>
+      </main>
+    );
+  }
+
+  let post = null;
+
+  try {
+    const res = await fetch(`${API_URL}${id}`, {
+      cache: "no-store",
+    });
+
+    post = await res.json();
+  } catch (err) {
+    console.error(err);
+  }
+
+  if (!post || post?.error) {
+    return (
+      <main className="p-8 text-center">
+        <h2>Video Not Found</h2>
+      </main>
+    );
+  }
+
+  const mediaUrl = post.mediaUrl;
+  const thumb = post.thumbnail || DEFAULT_THUMB;
+
+  return (
+    <main className="min-h-screen bg-white">
+      <StatusBar />
+
+      <section className="max-w-xl mx-auto px-4 py-6">
+        <h1 className="text-xl font-bold mb-3">{post.title}</h1>
+
+        {/* ---- THE MAIN VIDEO ---- */}
+        <video
+          src={mediaUrl}
+          poster={thumb}
+          controls
+          playsInline
+          preload="metadata"
+          className="w-full rounded-xl"
+        />
+
+        <p className="mt-4 text-gray-700">{post.description}</p>
+
+        <ReelsFeed />
+      </section>
+    </main>
+  );
 }
-
-
-
 
 
 
