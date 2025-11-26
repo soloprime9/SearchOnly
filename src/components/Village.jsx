@@ -224,14 +224,17 @@ export default function Feed() {
           
               
                {post.media && (
-  <Link href={`/short/${post._id}`} prefetch>
+  <Link
+    href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
+    prefetch
+  >
     <div className="relative w-full max-w-[600px] aspect-square rounded-lg mb-4 overflow-hidden mx-auto shadow-md cursor-pointer">
-
+      
+      {/* VIDEO */}
       {isVideo ? (
         <video
           ref={(ref) => (videoRefs.current[index] = ref)}
           src={post.media}
-          alt={post.title}
           autoPlay
           loop
           playsInline
@@ -240,16 +243,15 @@ export default function Feed() {
           className="w-full h-full object-cover rounded-lg"
         />
       ) : (
+        /* IMAGE */
         <img
           src={post.media}
           alt={post.title}
           className="w-full h-full object-cover rounded-lg"
-          
-          
         />
       )}
 
-      {/* Sound toggle */}
+      {/* Sound toggle for video only */}
       {isVideo && (
         <button
           className="absolute bottom-3 right-3 bg-black/60 text-white rounded-full p-2"
@@ -263,9 +265,11 @@ export default function Feed() {
           🔊
         </button>
       )}
+
     </div>
   </Link>
 )}
+
 
              
 
