@@ -5,7 +5,7 @@ import Script from 'next/script';
 
 export const dynamic = 'force-dynamic';
 
-const SITE_ROOT = "https://www.fondpeace.com";
+const SITE_ROOT = "[https://www.fondpeace.com](https://www.fondpeace.com)";
 const DEFAULT_TITLE = 'Watch Trending Short Video on FondPeace';
 const DEFAULT_DESCRIPTION = 'Discover trending short videos and entertainment on Fondpeace.';
 const DEFAULT_THUMBNAIL = `${SITE_ROOT}/fondpeace.jpg`;
@@ -49,28 +49,29 @@ return [
 }
 
 function buildDescription(post) {
-  const title = post?.title?.trim() || "video";
-  const author = post?.userId?.username || "FondPeace";
-  const likes = likesCount(post);
-  const comments = commentsCount(post);
-  const views = viewsCount(post);
+const title = post?.title?.trim() || "video";
+const author = post?.userId?.username || "FondPeace";
+const likes = likesCount(post);
+const comments = commentsCount(post);
+const views = viewsCount(post);
 
-  // Full paragraph description
-  const desc = `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${post.title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
-
-  return desc;
+return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${title}" uploaded by ${author} on FondPeace. Join now to watch latest videos and updates.`;
 }
-
-
-
-
 
 function extractKeywords(post) {
 const TagsList = ["fondpeace", "video", "short", "entertainment"];
 let keywords = [];
-if (Array.isArray(post.tags) && post.tags.length) keywords = keywords.concat(post.tags.map(k => k.trim()));
-if (Array.isArray(post.tags) && post.tags.length) keywords = keywords.concat(post.tags.map(h => h.replace("#", "").trim()));
-if (keywords.length === 0 && post?.title) keywords = post.title.split(/\s+/).slice(0, 10);
+
+if (Array.isArray(post.tags) && post.tags.length) {
+keywords = keywords.concat(post.tags.map(k => k.trim()));
+}
+if (Array.isArray(post.hashtags) && post.hashtags.length) {
+keywords = keywords.concat(post.hashtags.map(h => h.replace("#", "").trim()));
+}
+if (keywords.length === 0 && post?.title) {
+keywords = post.title.split(/\s+/).slice(0, 10);
+}
+
 const finalKeywords = new Set(keywords.concat(TagsList).map(k => k.trim().toLowerCase()).filter(Boolean));
 return Array.from(finalKeywords).join(', ');
 }
@@ -152,12 +153,14 @@ const { videoid } = params;
 let postData = {};
 try { postData = await getPostData(videoid); } catch (e) { console.error(e); }
 
-const { post, mediaUrl, thumb, authorName, titleTag, description, createdAt, updatedAt, genreValue, pageUrl } = postData;
+const { post, mediaUrl, thumb, authorName, titleTag, description, createdAt, updatedAt, genreValue, pageUrl } = postData || {};
+
+if (!post) return <div className="text-center py-20">Video not found</div>;
 
 const videoSchema = {
 "@context": "[https://schema.org](https://schema.org)",
 "@type": "VideoObject",
-name: titleTag,
+name: titleTag || "Video",
 description,
 thumbnailUrl: [thumb],
 contentUrl: mediaUrl,
@@ -177,31 +180,240 @@ logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.jpg`, width: 512, height
 },
 author: { "@type": "Person", name: authorName },
 interactionStatistic: buildInteractionSchema(post),
-genre: genreValue,
+genre: genreValue || "Entertainment",
 isFamilyFriendly: true,
 potentialAction: { "@type": "WatchAction", target: pageUrl },
 mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl }
 };
 
-return ( 
-  <main className="min-h-screen bg-white"> 
-  
-  <section className="max-w-3xl mx-auto px-4 py-8"> 
-    
-    
-    <LatestVideo />
-  
-  </section>
+return ( <main className="min-h-screen bg-white"> <StatusBar /> <section className="max-w-3xl mx-auto px-4 py-8"> <h1 className="text-2xl font-semibold mb-4">{titleTag}</h1> <p className="text-sm text-gray-600 mb-4">{description}</p> <LatestVideo /> </section>
 
-  {/* JSON-LD Structured Data for Google Video */}
+```
   <Script id="video-jsonld" type="application/ld+json">
     {JSON.stringify(videoSchema)}
   </Script>
 </main>
-
+```
 
 );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import Link from 'next/link';
+// import StatusBar from '@/components/StatusBar';
+// import LatestVideo from '@/components/LatestVideo';
+// import Script from 'next/script';
+
+// export const dynamic = 'force-dynamic';
+
+// const SITE_ROOT = "https://www.fondpeace.com";
+// const DEFAULT_TITLE = 'Watch Trending Short Video on FondPeace';
+// const DEFAULT_DESCRIPTION = 'Discover trending short videos and entertainment on Fondpeace.';
+// const DEFAULT_THUMBNAIL = `${SITE_ROOT}/fondpeace.jpg`;
+
+// function toAbsolute(url) {
+// if (!url) return null;
+// if (url.startsWith("http")) return url;
+// if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
+// return `${SITE_ROOT}/${url}`;
+// }
+
+// function secToISO(sec) {
+// const s = Number(sec);
+// if (!Number.isFinite(s) || s <= 0) return undefined;
+// const h = Math.floor(s / 3600);
+// const m = Math.floor((s % 3600) / 60);
+// const secLeft = Math.floor(s % 60);
+// let iso = "PT";
+// if (h > 0) iso += `${h}H`;
+// if (m > 0) iso += `${m}M`;
+// if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
+// return iso;
+// }
+
+// function likesCount(post) {
+// return Array.isArray(post.likes) ? post.likes.length : (post.likes || 0);
+// }
+// function commentsCount(post) {
+// return Array.isArray(post.comments) ? post.comments.length : (post.commentCount || 0);
+// }
+// function viewsCount(post) {
+// return typeof post.views === "number" ? post.views : 0;
+// }
+
+// function buildInteractionSchema(post) {
+// return [
+// { "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
+// { "@type": "InteractionCounter", interactionType: { "@type": "CommentAction" }, userInteractionCount: commentsCount(post) },
+// { "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) }
+// ];
+// }
+
+// function buildDescription(post) {
+//   const title = post?.title?.trim() || "video";
+//   const author = post?.userId?.username || "FondPeace";
+//   const likes = likesCount(post);
+//   const comments = commentsCount(post);
+//   const views = viewsCount(post);
+
+//   // Full paragraph description
+//   const desc = `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${post.title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
+
+//   return desc;
+// }
+
+
+
+
+
+// function extractKeywords(post) {
+// const TagsList = ["fondpeace", "video", "short", "entertainment"];
+// let keywords = [];
+// if (Array.isArray(post.tags) && post.tags.length) keywords = keywords.concat(post.tags.map(k => k.trim()));
+// if (Array.isArray(post.tags) && post.tags.length) keywords = keywords.concat(post.tags.map(h => h.replace("#", "").trim()));
+// if (keywords.length === 0 && post?.title) keywords = post.title.split(/\s+/).slice(0, 10);
+// const finalKeywords = new Set(keywords.concat(TagsList).map(k => k.trim().toLowerCase()).filter(Boolean));
+// return Array.from(finalKeywords).join(', ');
+// }
+
+// async function getPostData(id) {
+// let post;
+// try {
+// const response = await fetch(`https://backendk-z915.onrender.com/post/shorts?page=1&limit=5`, { next: { revalidate: 60 } });
+// const shortsData = await response.json();
+// post = shortsData?.find?.(v => v._id === id);
+// } catch (e) {}
+
+// if (!post || !post._id) {
+// const r2 = await fetch(`https://backendk-z915.onrender.com/post/single/${id}`, { next: { revalidate: 60 } });
+// post = await r2.json();
+// if (!post || !post._id) throw new Error("Post not found");
+// }
+
+// const pageUrl = `${SITE_ROOT}/short/${id}`;
+// const mediaUrl = toAbsolute(post.media || post.medias?.url);
+// if (!mediaUrl) throw new Error('No media URL found');
+
+// const thumb = toAbsolute(post.thumbnail || post.image || mediaUrl.replace(/.(mp4|mov|webm)$/i, ".jpg")) || DEFAULT_THUMBNAIL;
+// const authorName = post.userId?.username || "FondPeace";
+// const titleTag = post?.title?.trim() || DEFAULT_TITLE;
+// const description = buildDescription(post);
+// const keywords = extractKeywords(post);
+// const createdAt = post?.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString();
+// const updatedAt = post?.updatedAt ? new Date(post.updatedAt).toISOString() : createdAt;
+// const genreValue = (Array.isArray(post.tags) && post.tags.length) ? post.tags[0].trim() : "Entertainment";
+
+// return { post, mediaUrl, thumb, authorName, titleTag, description, keywords, createdAt, updatedAt, genreValue, pageUrl };
+// }
+
+// export async function generateMetadata({ params }) {
+// const { videoid: id } = params;
+// try {
+// const data = await getPostData(id);
+// const { post, mediaUrl, thumb, authorName, titleTag, description, keywords, createdAt, updatedAt, pageUrl } = data;
+// return {
+// title: titleTag,
+// description,
+// keywords,
+// alternates: { canonical: pageUrl },
+// metadataBase: new URL(SITE_ROOT),
+// openGraph: {
+// title: titleTag,
+// description,
+// url: pageUrl,
+// siteName: 'Fondpeace',
+// type: "video.other",
+// images: [{ url: thumb, width: post.width || 1280, height: post.height || 720, alt: titleTag }],
+// videos: [{ url: mediaUrl, type: "video/mp4", width: post.width || 1280, height: post.height || 720 }]
+// },
+// twitter: {
+// card: "player",
+// title: titleTag,
+// description,
+// site: '@fondpeace',
+// creator: '@fondpeace',
+// images: [thumb],
+// player: mediaUrl,
+// playerWidth: post.width || 1280,
+// playerHeight: post.height || 720
+// }
+// };
+// } catch (error) {
+// console.error(error);
+// return {
+// title: DEFAULT_TITLE,
+// description: DEFAULT_DESCRIPTION,
+// keywords: "fondpeace,video,short,entertainment"
+// };
+// }
+// }
+
+// export default async function Page({ params }) {
+// const { videoid } = params;
+// let postData = {};
+// try { postData = await getPostData(videoid); } catch (e) { console.error(e); }
+
+// const { post, mediaUrl, thumb, authorName, titleTag, description, createdAt, updatedAt, genreValue, pageUrl } = postData;
+
+// const videoSchema = {
+// "@context": "[https://schema.org](https://schema.org)",
+// "@type": "VideoObject",
+// name: titleTag,
+// description,
+// thumbnailUrl: [thumb],
+// contentUrl: mediaUrl,
+// embedUrl: pageUrl,
+// uploadDate: createdAt,
+// datePublished: createdAt,
+// dateModified: updatedAt,
+// duration: post?.duration ? secToISO(Number(post.duration)) : undefined,
+// width: post?.width || 1280,
+// height: post?.height || 720,
+// encodingFormat: "video/mp4",
+// publisher: {
+// "@type": "Organization",
+// name: "FondPeace",
+// url: SITE_ROOT,
+// logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.jpg`, width: 512, height: 512 }
+// },
+// author: { "@type": "Person", name: authorName },
+// interactionStatistic: buildInteractionSchema(post),
+// genre: genreValue,
+// isFamilyFriendly: true,
+// potentialAction: { "@type": "WatchAction", target: pageUrl },
+// mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl }
+// };
+
+// return ( 
+//   <main className="min-h-screen bg-white"> 
+  
+//   <section className="max-w-3xl mx-auto px-4 py-8"> 
+    
+    
+//     <LatestVideo />
+  
+//   </section>
+
+//   {/* JSON-LD Structured Data for Google Video */}
+//   <Script id="video-jsonld" type="application/ld+json">
+//     {JSON.stringify(videoSchema)}
+//   </Script>
+// </main>
+
+
+// );
+// }
 
 
 
