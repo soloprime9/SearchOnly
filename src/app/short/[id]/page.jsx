@@ -18,6 +18,7 @@ export async function generateMetadata({ params }) {
     const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
     const data = await res.json();
     const post = data?.post;
+    console.log("Post Data: ", post);
 
     if (!post) return { title: "Video Not Found" };
 
