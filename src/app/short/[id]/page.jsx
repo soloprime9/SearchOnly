@@ -188,12 +188,12 @@ mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl }
 
 return ( <main className="min-h-screen bg-white"> <StatusBar /> <section className="max-w-3xl mx-auto px-4 py-8"> <h1 className="text-2xl font-semibold mb-4">{titleTag}</h1> <p className="text-sm text-gray-600 mb-4">{description}</p> <LatestVideo /> </section>
 
-```
+
   <Script id="video-jsonld" type="application/ld+json">
     {JSON.stringify(videoSchema)}
   </Script>
 </main>
-```
+
 
 );
 }
