@@ -1,3 +1,12 @@
+
+
+
+
+
+
+
+
+
 // app/short/[id]/page.jsx
 import ReelsFeed from "@/components/ReelsFeed"; // client component (below)
 import StatusBar from "@/components/StatusBar";
@@ -7,6 +16,56 @@ export const dynamic = "force-dynamic";
 const API_SINGLE = "https://backend-k.vercel.app/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
+
+// Utility functions
+function toAbsolute(url) {
+if (!url) return null;
+if (url.startsWith("http")) return url;
+if (url.startsWith("/")) return ${SITE_ROOT}${url};
+return ${SITE_ROOT}/${url};
+}
+
+function secToISO(sec) {
+const s = Number(sec);
+if (!Number.isFinite(s) || s <= 0) return undefined;
+const h = Math.floor(s / 3600);
+const m = Math.floor((s % 3600) / 60);
+const secLeft = Math.floor(s % 60);
+let iso = "PT";
+if (h > 0) iso += ${h}H;
+if (m > 0) iso += ${m}M;
+if (secLeft > 0 || (h === 0 && m === 0)) iso += ${secLeft}S;
+return iso;
+}
+
+function likesCount(post) {
+return Array.isArray(post.likes) ? post.likes.length : post.likes || 0;
+}
+function commentsCount(post) {
+return Array.isArray(post.comments) ? post.comments.length : post.commentCount || 0;
+}
+function viewsCount(post) {
+return typeof post.views === "number" ? post.views : 0;
+}
+function buildInteractionSchema(post) {
+return [
+{ "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
+{ "@type": "InteractionCounter", interactionType: { "@type": "CommentAction" }, userInteractionCount: commentsCount(post) },
+{ "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) },
+];
+}
+function buildDescription(post) {
+const author = post?.userId?.username || "FondPeace";
+const likes = likesCount(post);
+const comments = commentsCount(post);
+const views = viewsCount(post);
+return 🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${post.title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates;
+}
+function extractKeywords(post) {
+if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
+if (Array.isArray(post.hashtags) && post.hashtags.length) return post.hashtags.map(h => h.replace("#", "")).join(", ");
+return post.title.split(" ").slice(0, 10).join(", ");
+}
 
 /* Server-side metadata: Next will call this for each /short/[id] request */
 export async function generateMetadata({ params }) {
@@ -59,6 +118,11 @@ export default async function Page({ params }) {
   const data = await res.json();
   const post = data?.post || null;
   const related = data?.related || [];
+  const mediaUrl = toAbsolute(post.media || post.mediaUrl);
+const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+const pageUrl = ${SITE_ROOT}/short/${post._id};
+const authorName = post?.userId?.username || "FondPeace";
+const isVideo = post.mediaType?.startsWith("video");
 
   if (!post) {
     return <main className="p-8 text-center">Video not found</main>;
@@ -69,18 +133,33 @@ export default async function Page({ params }) {
     "@context": "https://schema.org",
     "@type": "VideoObject",
     name: post.title,
-    description: post.description || post.title,
-    thumbnailUrl: [post.thumbnail || DEFAULT_THUMB],
-    contentUrl: post.media || post.mediaUrl,
-    uploadDate: post.createdAt || new Date().toISOString(),
-    embedUrl: `${SITE_ROOT}/short/${id}`,
-    url: `${SITE_ROOT}/short/${id}`,
-    publisher: {
-      "@type": "Organization",
-      name: "Fondpeace",
-      logo: { "@type": "ImageObject", url: `${SITE_ROOT}/fondpeace.jpg` },
-    },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_ROOT}/short/${id}` },
+headline: post.title,
+description: buildDescription(post),
+thumbnailUrl: [thumbnail],
+contentUrl: mediaUrl,
+embedUrl: pageUrl,
+uploadDate: new Date(post.createdAt).toISOString(),
+datePublished: new Date(post.createdAt).toISOString(),
+dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
+width: post.width || 1280,
+height: post.height || 720,
+encodingFormat: "video/mp4",
+publisher: {
+"@type": "Organization",
+name: "FondPeace",
+url: SITE_ROOT,
+logo: { "@type": "ImageObject", url: ${SITE_ROOT}/logo.jpg, width: 512, height: 512 },
+},
+author: { "@type": "Person", name: authorName },
+creator: { "@type": "Person", name: authorName },
+interactionStatistic: buildInteractionSchema(post),
+keywords: extractKeywords(post),
+inLanguage: "hi-IN",
+isFamilyFriendly: true,
+potentialAction: { "@type": "WatchAction", target: pageUrl },
+mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+    
   };
 
   return (
