@@ -1,4 +1,4 @@
-import ReelsFeed from "@/components/LatestVideo";
+import ReelsFeed from "@/components/ReelsFeed";
 
 export const dynamic = "force-dynamic";
 
@@ -49,9 +49,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default function Page({ params }) {
-  return <LatestVideo videoId={params.videoId} />;
+  return <ReelsFeed videoId={params.videoId} />;
 }
-
 
 
 
