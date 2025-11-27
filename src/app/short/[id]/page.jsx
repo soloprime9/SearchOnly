@@ -5,8 +5,7 @@ import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-// client-only Reels feed (no SSR so crawlers see only server HTML)
-const ReelsFeed = dynamic(() => import("@/components/ReelsFeed"), { ssr: false });
+import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
 
 const API_SINGLE = "https://backend-k.vercel.app/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
@@ -226,7 +225,7 @@ export default async function Page({ params }) {
           )}
 
           {/* Client component: loads only on client (no-SSR) to avoid breaking crawler */}
-           <ReelsFeed initialPost={post} initialRelated={related} />
+           <ReelsFeedWrapper initialPost={post} initialRelated={related} />
         </section>
       </main>
     );
