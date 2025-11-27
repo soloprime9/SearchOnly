@@ -363,48 +363,67 @@ export default async function Page({ params }) {
       </article>
     </section>
 
-    {/* Related Posts */}
+
+
+    
     {Array.isArray(related) && related.length > 0 && (
-      <aside className="max-w-5xl mx-auto mt-10 px-4">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900">Related Posts</h2>
+  <aside className="max-w-5xl mx-auto mt-10 px-4">
+    <h2 className="text-xl font-semibold mb-4 text-gray-900">Related Posts</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {related.map((r) => {
-            const thumb = toAbsolute(r.thumbnail || r.media || "");
-            return (
-              <a
-                key={r._id}
-                href={`/short/${r._id}`}
-                className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
-              >
-                <div className="w-full h-40 bg-gray-100">
-                  <img
-                    src={thumb}
-                    alt={r.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+
+      {related
+        .filter((r) => {
+          if (!r.media) return false;
+
+          const ext = r.media.split(".").pop().toLowerCase();
+
+          // SHOW ONLY VIDEOS — NOT IMAGES
+          const videoExt = ["mp4", "mov", "webm", "mkv", "avi", "flv", "wmv"];
+          return videoExt.includes(ext);
+        })
+        .map((r) => {
+          const thumb = toAbsolute(r.thumbnail || r.media || "");
+          return (
+            <a
+              key={r._id}
+              href={`/short/${r._id}`}
+              className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
+            >
+              <div className="w-full h-40 bg-gray-100">
+
+                {/* VIDEO THUMBNAIL / FALLBACK */}
+                <video
+                  src={thumb}
+                  className="w-full h-full object-cover"
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+
+              </div>
+
+              <div className="p-3">
+                <p className="font-medium text-gray-900 line-clamp-2 text-sm">
+                  {r.title}
+                </p>
+
+                <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
+                  <FaHeart className="text-red-500" /> {likesCount(r)}
+                  <span>•</span>
+                  <FaCommentDots /> {commentsCount(r)}
+                  <span>•</span>
+                  <FaEye /> {viewsCount(r) || 0}
                 </div>
+              </div>
+            </a>
+          );
+        })}
 
-                <div className="p-3">
-                  <p className="font-medium text-gray-900 line-clamp-2 text-sm">
-                    {r.title}
-                  </p>
+    </div>
+  </aside>
+)}
 
-                  <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
-                    <FaHeart className="text-red-500" /> {likesCount(r)}
-                    <span>•</span>
-                    <FaCommentDots /> {commentsCount(r)}
-                    <span>•</span>
-                    <FaEye /> {viewsCount(r) || 0}
-                  </div>
-                </div>
-              </a>
-            );
-          })}
-        </div>
-      </aside>
-    )}
 
   </main>
 );
@@ -1946,6 +1965,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
