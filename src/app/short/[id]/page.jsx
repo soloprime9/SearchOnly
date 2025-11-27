@@ -1,5 +1,5 @@
 // app/short/[id]/page.jsx
-import dynamic from "next/dynamic";
+
 import StatusBar from "@/components/StatusBar";
 import { notFound } from "next/navigation";
 
