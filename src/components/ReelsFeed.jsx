@@ -110,127 +110,127 @@
 
 
 
-// src/components/ReelsFeed.jsx
-'use client';
+// // src/components/ReelsFeed.jsx
+// 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
+// import React, { useState, useEffect, useRef, useCallback } from 'react';
+// import { useRouter } from 'next/navigation';
+// import toast from 'react-hot-toast';
 
-const API_URL = "https://backend-k.vercel.app/post/shorts";
-const DEFAULT_THUMB = "/fondpeace.jpg";
+// const API_URL = "https://backend-k.vercel.app/post/shorts";
+// const DEFAULT_THUMB = "/fondpeace.jpg";
 
-// Bot User Agent Detection
-const isBotUserAgent = () => {
-    if (typeof navigator === "undefined") return true;
-    const ua = navigator.userAgent.toLowerCase();
-    return (
-        ua.includes("googlebot") || 
-        ua.includes("adsbot") || 
-        ua.includes("bingbot") ||
-        ua.includes("duckduckbot") || 
-        ua.includes("yandex") || 
-        ua.includes("baiduspider")
-    );
-};
+// // Bot User Agent Detection
+// const isBotUserAgent = () => {
+//     if (typeof navigator === "undefined") return true;
+//     const ua = navigator.userAgent.toLowerCase();
+//     return (
+//         ua.includes("googlebot") || 
+//         ua.includes("adsbot") || 
+//         ua.includes("bingbot") ||
+//         ua.includes("duckduckbot") || 
+//         ua.includes("yandex") || 
+//         ua.includes("baiduspider")
+//     );
+// };
 
-const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
-    const router = useRouter();
-    const bot = isBotUserAgent();
+// const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
+//     const router = useRouter();
+//     const bot = isBotUserAgent();
 
-    const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
-    const [loading, setLoading] = useState(false);
-    const videoRefs = useRef([]);
-    const pageRef = useRef(1);
+//     const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
+//     const [loading, setLoading] = useState(false);
+//     const videoRefs = useRef([]);
+//     const pageRef = useRef(1);
 
-    // --- Core Logic: Autoplay and URL Change ---
-    const handleAutoPlay = useCallback(
-        (entries) => {
-            if (bot) return; // <<-- यही लाइन Google Bot को URL बदलने से रोकती है
+//     // --- Core Logic: Autoplay and URL Change ---
+//     const handleAutoPlay = useCallback(
+//         (entries) => {
+//             if (bot) return; // <<-- यही लाइन Google Bot को URL बदलने से रोकती है
 
-            entries.forEach(entry => {
-                const video = entry.target;
-                const index = parseInt(video.dataset.index, 10);
-                const post = posts[index];
+//             entries.forEach(entry => {
+//                 const video = entry.target;
+//                 const index = parseInt(video.dataset.index, 10);
+//                 const post = posts[index];
 
-                if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
-                    // 1. वीडियो प्ले/पॉज़ लॉजिक
-                    videoRefs.current.forEach(v => v && v !== video && v.pause());
-                    video.play().catch(() => {});
+//                 if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
+//                     // 1. वीडियो प्ले/पॉज़ लॉजिक
+//                     videoRefs.current.forEach(v => v && v !== video && v.pause());
+//                     video.play().catch(() => {});
                     
-                    // 2. Soft Navigation (URL Change)
-                    const id = post._id;
-                    if (id) {
-                        // USER के लिए URL बदलें (पेज रीलोड नहीं होगा)
-                        router.replace(`/short/${id}`, { scroll: false });
+//                     // 2. Soft Navigation (URL Change)
+//                     const id = post._id;
+//                     if (id) {
+//                         // USER के लिए URL बदलें (पेज रीलोड नहीं होगा)
+//                         router.replace(`/short/${id}`, { scroll: false });
                         
-                        // **नोट:** यहाँ आपको JS से ब्राउज़र का टाइटल भी अपडेट करना होगा 
-                        // ताकि यूजर को पता चले कि वे किस वीडियो पर हैं।
-                    }
-                } else {
-                    video.pause();
-                }
-            });
-        },
-        [bot, router, posts]
-    );
+//                         // **नोट:** यहाँ आपको JS से ब्राउज़र का टाइटल भी अपडेट करना होगा 
+//                         // ताकि यूजर को पता चले कि वे किस वीडियो पर हैं।
+//                     }
+//                 } else {
+//                     video.pause();
+//                 }
+//             });
+//         },
+//         [bot, router, posts]
+//     );
 
-    // --- useEffects (unchanged logic, only runs if not bot) ---
-    useEffect(() => {
-        if (bot || posts.length === 0) return;
-        const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
-        videoRefs.current.forEach(v => v && observer.observe(v));
-        return () => observer.disconnect();
-    }, [posts, handleAutoPlay, bot]);
+//     // --- useEffects (unchanged logic, only runs if not bot) ---
+//     useEffect(() => {
+//         if (bot || posts.length === 0) return;
+//         const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
+//         videoRefs.current.forEach(v => v && observer.observe(v));
+//         return () => observer.disconnect();
+//     }, [posts, handleAutoPlay, bot]);
 
-    // ... (rest of loadMorePosts and infinite scroll logic) ...
+//     // ... (rest of loadMorePosts and infinite scroll logic) ...
 
-    if (!posts || posts.length === 0) {
-        return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-    }
+//     if (!posts || posts.length === 0) {
+//         return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
+//     }
 
-    return (
-        <div 
-            className="reels-container w-full h-screen snap-y snap-mandatory" 
-            style={{ overflowY: bot ? "hidden" : "scroll" }} // Bot can't scroll
-        >
-            {posts.map((item, index) => {
-                // ... (video rendering logic) ...
-                const videoUrl = item.media || item.mediaUrl;
-                const isLast = index === posts.length - 1;
+//     return (
+//         <div 
+//             className="reels-container w-full h-screen snap-y snap-mandatory" 
+//             style={{ overflowY: bot ? "hidden" : "scroll" }} // Bot can't scroll
+//         >
+//             {posts.map((item, index) => {
+//                 // ... (video rendering logic) ...
+//                 const videoUrl = item.media || item.mediaUrl;
+//                 const isLast = index === posts.length - 1;
 
-                return (
-                    <div
-                        key={item._id || index}
-                        className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
-                        data-id={item._id}
-                        data-index={index}
-                    >
-                        <video
-                            ref={el => (videoRefs.current[index] = el)}
-                            src={videoUrl}
-                            poster={item.thumbnail || DEFAULT_THUMB}
-                            muted
-                            playsInline
-                            preload="metadata"
-                            loop
-                            className="object-contain w-full h-full bg-black"
-                        />
+//                 return (
+//                     <div
+//                         key={item._id || index}
+//                         className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
+//                         data-id={item._id}
+//                         data-index={index}
+//                     >
+//                         <video
+//                             ref={el => (videoRefs.current[index] = el)}
+//                             src={videoUrl}
+//                             poster={item.thumbnail || DEFAULT_THUMB}
+//                             muted
+//                             playsInline
+//                             preload="metadata"
+//                             loop
+//                             className="object-contain w-full h-full bg-black"
+//                         />
                         
-                        {!bot && (
-                            <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
-                                <p className="font-bold text-lg">@{item.userId?.username}</p>
-                                <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
-                            </div>
-                        )}
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
+//                         {!bot && (
+//                             <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
+//                                 <p className="font-bold text-lg">@{item.userId?.username}</p>
+//                                 <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
+//                             </div>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
 
-export default ReelsFeed;
+// export default ReelsFeed;
 
 
 
@@ -761,113 +761,113 @@ export default ReelsFeed;
 
 
 
-// // components/ReelsFeed.jsx (client)
-// "use client";
-// import React, { useEffect, useRef, useState, useCallback } from "react";
-// import { useRouter } from "next/navigation";
+// components/ReelsFeed.jsx (client)
+"use client";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
-// export default function ReelsFeed({ initialPost, initialRelated = [] }) {
-//   const router = useRouter();
-//   // Defensive: if initialPost is null/undefined, start with an empty list and fetch on mount
-//   const [posts, setPosts] = useState(initialPost ? [initialPost, ...initialRelated] : []);
-//   const videoRefs = useRef([]);
-//   const ioRef = useRef(null);
+export default function ReelsFeed({ initialPost, initialRelated = [] }) {
+  const router = useRouter();
+  // Defensive: if initialPost is null/undefined, start with an empty list and fetch on mount
+  const [posts, setPosts] = useState(initialPost ? [initialPost, ...initialRelated] : []);
+  const videoRefs = useRef([]);
+  const ioRef = useRef(null);
 
-//   // If no initial post, attempt to fetch first batch client-side
-//   useEffect(() => {
-//     if (!initialPost) {
-//       (async () => {
-//         try {
-//           const res = await fetch("/post/shorts?page=1&limit=6");
-//           if (!res.ok) return;
-//           const data = await res.json();
-//           setPosts(data.videos || []);
-//         } catch (e) {
-//           console.error("client fetch error:", e);
-//         }
-//       })();
-//     }
-//   }, [initialPost]);
+  // If no initial post, attempt to fetch first batch client-side
+  useEffect(() => {
+    if (!initialPost) {
+      (async () => {
+        try {
+          const res = await fetch("/post/shorts?page=1&limit=6");
+          if (!res.ok) return;
+          const data = await res.json();
+          setPosts(data.videos || []);
+        } catch (e) {
+          console.error("client fetch error:", e);
+        }
+      })();
+    }
+  }, [initialPost]);
 
-//   useEffect(() => {
-//     if (ioRef.current) ioRef.current.disconnect();
-//     ioRef.current = new IntersectionObserver(
-//       (entries) => {
-//         entries.forEach((entry) => {
-//           const el = entry.target;
-//           if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
-//             const id = el.dataset.id;
-//             videoRefs.current.forEach((v) => {
-//               if (v && v !== el) {
-//                 try { v.pause(); } catch {}
-//               }
-//             });
-//             try { el.play().catch(()=>{}); } catch {}
-//             if (id) {
-//               router.replace(`/short/${id}`);
-//             }
-//           } else {
-//             try { entry.target.pause(); } catch {}
-//           }
-//         });
-//       },
-//       { threshold: [0.65] }
-//     );
+  useEffect(() => {
+    if (ioRef.current) ioRef.current.disconnect();
+    ioRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const el = entry.target;
+          if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
+            const id = el.dataset.id;
+            videoRefs.current.forEach((v) => {
+              if (v && v !== el) {
+                try { v.pause(); } catch {}
+              }
+            });
+            try { el.play().catch(()=>{}); } catch {}
+            if (id) {
+              router.replace(`/short/${id}`);
+            }
+          } else {
+            try { entry.target.pause(); } catch {}
+          }
+        });
+      },
+      { threshold: [0.65] }
+    );
 
-//     videoRefs.current.forEach((v) => v && ioRef.current.observe(v));
-//     return () => { ioRef.current && ioRef.current.disconnect(); };
-//   }, [posts, router]);
+    videoRefs.current.forEach((v) => v && ioRef.current.observe(v));
+    return () => { ioRef.current && ioRef.current.disconnect(); };
+  }, [posts, router]);
 
-//   const fetchMore = useCallback(async (page = 1) => {
-//     try {
-//       const res = await fetch(`/post/shorts?page=${page}&limit=6`);
-//       if (!res.ok) return;
-//       const data = await res.json();
-//       setPosts((p) => {
-//         const ids = new Set(p.map(x => x._id));
-//         const newOnes = (data.videos || []).filter(v => !ids.has(v._id));
-//         return [...p, ...newOnes];
-//       });
-//     } catch (e) {
-//       console.error("fetchMore error:", e);
-//     }
-//   }, []);
+  const fetchMore = useCallback(async (page = 1) => {
+    try {
+      const res = await fetch(`/post/shorts?page=${page}&limit=6`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setPosts((p) => {
+        const ids = new Set(p.map(x => x._id));
+        const newOnes = (data.videos || []).filter(v => !ids.has(v._id));
+        return [...p, ...newOnes];
+      });
+    } catch (e) {
+      console.error("fetchMore error:", e);
+    }
+  }, []);
 
-//   const handleEnded = (idx) => {
-//     const next = videoRefs.current[idx + 1];
-//     if (next) next.scrollIntoView({ behavior: "smooth", block: "center" });
-//   };
+  const handleEnded = (idx) => {
+    const next = videoRefs.current[idx + 1];
+    if (next) next.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
-//   if (!posts || posts.length === 0) {
-//     return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-//   }
+  if (!posts || posts.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
+  }
 
-//   return (
-//     <div className="w-full h-screen overflow-y-auto snap-y snap-mandatory">
-//       {posts.map((p, idx) => (
-//         <div key={p._id || idx} className="snap-start w-full h-screen flex items-center justify-center">
-//           <div className="relative w-full h-full bg-black flex items-center justify-center">
-//             <video
-//               ref={(el) => (videoRefs.current[idx] = el)}
-//               src={p.media || p.mediaUrl}
-//               poster={p.thumbnail}
-//               data-id={p._id}
-//               playsInline
-//               loop
-//               controls={false}
-//               className="object-contain w-full h-full"
-//               onEnded={() => handleEnded(idx)}
-//             />
-//             <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
-//               <p className="font-semibold">@{p.userId?.username}</p>
-//               <p className="text-sm line-clamp-2 mt-1">{p.title}</p>
-//             </div>
-//           </div>
-//         </div>
-//       ))}
-//       <div className="p-6 text-center">
-//         <button onClick={() => fetchMore(2)} className="px-4 py-2 bg-gray-900 text-white rounded">Load more</button>
-//       </div>
-//     </div>
-//   );
-// }
+  return (
+    <div className="w-full h-screen overflow-y-auto snap-y snap-mandatory">
+      {posts.map((p, idx) => (
+        <div key={p._id || idx} className="snap-start w-full h-screen flex items-center justify-center">
+          <div className="relative w-full h-full bg-black flex items-center justify-center">
+            <video
+              ref={(el) => (videoRefs.current[idx] = el)}
+              src={p.media || p.mediaUrl}
+              poster={p.thumbnail}
+              data-id={p._id}
+              playsInline
+              loop
+              controls={false}
+              className="object-contain w-full h-full"
+              onEnded={() => handleEnded(idx)}
+            />
+            <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
+              <p className="font-semibold">@{p.userId?.username}</p>
+              <p className="text-sm line-clamp-2 mt-1">{p.title}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+      <div className="p-6 text-center">
+        <button onClick={() => fetchMore(2)} className="px-4 py-2 bg-gray-900 text-white rounded">Load more</button>
+      </div>
+    </div>
+  );
+}
