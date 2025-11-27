@@ -4,179 +4,144 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 
-const API_URL = "[https://backend-k.vercel.app/post/shorts](https://backend-k.vercel.app/post/shorts)";
-const DEFAULT_THUMB = "/fondpeace.jpg"; // fallback thumbnail
+const API_URL = "https://backend-k.vercel.app/post/shorts";
+const DEFAULT_THUMB = "/fondpeace.jpg";
 
 const isBotUserAgent = () => {
-if (typeof navigator === "undefined") return true;
-const ua = navigator.userAgent.toLowerCase();
-return (
-ua.includes("googlebot") ||
-ua.includes("adsbot") ||
-ua.includes("mediapartners-google") ||
-ua.includes("bingbot") ||
-ua.includes("duckduckbot") ||
-ua.includes("yandex") ||
-ua.includes("baiduspider") ||
-ua.includes("semrush") ||
-ua.includes("ahrefs")
-);
+  if (typeof navigator === "undefined") return true;
+  const ua = navigator.userAgent.toLowerCase();
+  return (
+    ua.includes("googlebot") ||
+    ua.includes("adsbot") ||
+    ua.includes("mediapartners-google") ||
+    ua.includes("bingbot") ||
+    ua.includes("duckduckbot") ||
+    ua.includes("yandex") ||
+    ua.includes("baiduspider") ||
+    ua.includes("semrush") ||
+    ua.includes("ahrefs")
+  );
 };
 
 const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
-const router = useRouter();
-const params = useParams();
-const mainId = params?.id;
+  const router = useRouter();
+  const params = useParams();
+  const mainId = params?.id;
+  const bot = isBotUserAgent();
 
-const bot = isBotUserAgent();
+  const [posts, setPosts] = useState(bot ? [initialPost] : [initialPost, ...initialRelated]);
+  const [loading, setLoading] = useState(false);
+  const videoRefs = useRef([]);
+  const pageRef = useRef(1);
 
-// Bot ke liye sirf initial post
-const [posts, setPosts] = useState(bot ? [initialPost] : [initialPost, ...initialRelated]);
-const [loading, setLoading] = useState(false);
-const videoRefs = useRef([]);
-const pageRef = useRef(1);
+  // Autoplay for users only
+  const handleAutoPlay = useCallback(
+    (entries) => {
+      if (bot) return;
+      entries.forEach(entry => {
+        const video = entry.target;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.65) {
+          videoRefs.current.forEach(v => v && v !== video && v.pause());
+          video.play().catch(()=>{});
+          const id = video.dataset.id;
+          if (id) router.replace(`/short/${id}`, { scroll: false });
+        } else {
+          video.pause();
+        }
+      });
+    },
+    [bot, router]
+  );
 
-// ======================================================
-// Autoplay + pause others (only for users)
-// ======================================================
-const handleAutoPlay = useCallback(
-(entries) => {
-if (bot) return;
-entries.forEach(entry => {
-const video = entry.target;
-if (entry.isIntersecting && entry.intersectionRatio >= 0.65) {
-videoRefs.current.forEach(v => v && v !== video && v.pause());
-video.play().catch(()=>{});
-const id = video.dataset.id;
-if (id) router.replace(`/short/${id}`, { scroll: false });
-} else {
-video.pause();
-}
-});
-},
-[bot, router]
-);
+  useEffect(() => {
+    if (bot) return;
+    const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0,0.65] });
+    videoRefs.current.forEach(v => v && observer.observe(v));
+    return () => observer.disconnect();
+  }, [posts, handleAutoPlay, bot]);
 
-useEffect(() => {
-if (bot) return;
-const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0,0.65] });
-videoRefs.current.forEach(v => v && observer.observe(v));
-return () => observer.disconnect();
-}, [posts, handleAutoPlay, bot]);
+  // Infinite scroll for users only
+  const loadMorePosts = async () => {
+    if (loading || bot) return;
+    setLoading(true);
+    try {
+      pageRef.current += 1;
+      const res = await fetch(`${API_URL}?page=${pageRef.current}&limit=6`);
+      const data = await res.json();
+      setPosts(prev => {
+        const ids = new Set(prev.map(x => x._id));
+        const newPosts = (data.videos || data).filter(x => !ids.has(x._id));
+        return [...prev, ...newPosts];
+      });
+    } catch(e) {
+      toast.error("Failed loading more videos");
+    }
+    setLoading(false);
+  };
 
-// ======================================================
-// Infinite scroll (users only)
-// ======================================================
-const loadMorePosts = async () => {
-if (loading || bot) return;
-setLoading(true);
-try {
-pageRef.current += 1;
-const res = await fetch(`${API_URL}?page=${pageRef.current}&limit=6`);
-const data = await res.json();
-setPosts(prev => {
-const ids = new Set(prev.map(x => x._id));
-const newPosts = (data.videos || data).filter(x => !ids.has(x._id));
-return [...prev, ...newPosts];
-});
-} catch(e) {
-toast.error("Failed loading more videos");
-}
-setLoading(false);
-};
+  useEffect(() => {
+    if (bot) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const lastItem = entries[0];
+        if (lastItem.isIntersecting) loadMorePosts();
+      },
+      { threshold: 0.1 }
+    );
+    const lastEl = document.querySelector(".last-feed-item");
+    if (lastEl) observer.observe(lastEl);
+    return () => observer.disconnect();
+  }, [posts, bot]);
 
-useEffect(() => {
-if (bot) return;
-const observer = new IntersectionObserver(
-(entries) => {
-const lastItem = entries[0];
-if (lastItem.isIntersecting) loadMorePosts();
-},
-{ threshold: 0.1 }
-);
-const lastEl = document.querySelector(".last-feed-item");
-if (lastEl) observer.observe(lastEl);
-return () => observer.disconnect();
-}, [posts, bot]);
+  if (!posts || posts.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
+  }
 
-// ======================================================
-// Render UI
-// ======================================================
-if (!posts || posts.length === 0) {
-return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-}
+  return (
+    <div className="reels-container w-full h-screen snap-y snap-mandatory" style={{ overflowY: bot ? "hidden" : "scroll" }}>
+      {posts.map((item, index) => {
+        const videoUrl = item.media || item.mediaUrl;
+        const isLast = index === posts.length - 1;
 
-return (
-<>
-{/* JSON-LD schema for Google */}
-{bot && initialPost && (
-<script type="application/ld+json" dangerouslySetInnerHTML={{
-__html: JSON.stringify({
-"@context": "[https://schema.org](https://schema.org)",
-"@type": "VideoObject",
-"name": initialPost.title,
-"description": initialPost.title,
-"thumbnailUrl": initialPost.thumbnail || DEFAULT_THUMB,
-"uploadDate": initialPost.createdAt,
-"duration": `PT${initialPost.duration}S`,
-"contentUrl": initialPost.media || initialPost.mediaUrl,
-"embedUrl": `https://www.fondpeace.com/short/${initialPost._id}`
-})
-}} />
-)}
+        return (
+          <div
+            key={item._id || index}
+            className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center`}
+            data-id={item._id}
+            style={{ position: "relative" }}
+          >
+            <video
+              ref={el => (videoRefs.current[index] = el)}
+              src={videoUrl}
+              poster={item.thumbnail || DEFAULT_THUMB}
+              muted
+              playsInline
+              preload="metadata"
+              loop
+              className="object-contain w-full h-full"
+            />
+            {!bot && (
+              <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
+                <p className="font-semibold">@{item.userId?.username}</p>
+                <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
+              </div>
+            )}
+          </div>
+        );
+      })}
 
-```
-  <div className="reels-container w-full h-screen snap-y snap-mandatory" style={{ overflowY: bot ? "hidden" : "scroll" }}>
-    {posts.map((item, index) => {
-      const videoUrl = item.media || item.mediaUrl;
-      const isLast = index === posts.length - 1;
-
-      return (
-        <div
-          key={item._id || index}
-          className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center`}
-          data-id={item._id}
-          style={{ position: "relative" }}
-        >
-          <video
-            ref={el => (videoRefs.current[index] = el)}
-            src={videoUrl}
-            poster={item.thumbnail || DEFAULT_THUMB}
-            muted
-            playsInline
-            preload="metadata"
-            loop
-            className="object-contain w-full h-full"
-          />
-          {!bot && (
-            <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
-              <p className="font-semibold">@{item.userId?.username}</p>
-              <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
-            </div>
-          )}
+      {!bot && (
+        <div className="p-6 text-center">
+          <button onClick={loadMorePosts} className="px-4 py-2 bg-gray-900 text-white rounded">
+            Load more
+          </button>
         </div>
-      );
-    })}
-    {!bot && (
-      <div className="p-6 text-center">
-        <button
-          onClick={loadMorePosts}
-          className="px-4 py-2 bg-gray-900 text-white rounded"
-        >
-          Load more
-        </button>
-      </div>
-    )}
-  </div>
-</>
-```
-
-);
+      )}
+    </div>
+  );
 };
 
 export default ReelsFeed;
-
-
 
 
 
