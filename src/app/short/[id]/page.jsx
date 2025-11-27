@@ -5,12 +5,14 @@ import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
+// client-only Reels feed (no SSR so crawlers see only server HTML)
 const ReelsFeed = dynamic(() => import("@/components/ReelsFeed"), { ssr: false });
 
 const API_SINGLE = "https://backend-k.vercel.app/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
 
+/* Make any URL absolute relative to SITE_ROOT; returns null when url falsy */
 function toAbsolute(url) {
   if (!url) return null;
   if (url.startsWith("http")) return url;
@@ -84,12 +86,13 @@ export async function generateMetadata({ params }) {
 
     const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
     const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-    const title = (post.title || "Fondpeace Video").slice(0, 160);
+    const title = (post.title || "FondPeace Video").slice(0, 160);
 
     // robust isVideo detection
     const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("video"));
 
-    return {
+    // Build metadata object (keep it minimal & safe)
+    const metadata = {
       title,
       description: buildDescription(post),
       keywords: extractKeywords(post),
@@ -101,6 +104,7 @@ export async function generateMetadata({ params }) {
         type: isVideo ? "video.other" : "article",
         images: [img],
         ...(isVideo && {
+          // Next/OpenGraph accepts a video array; include only when we have a valid mediaUrl
           video: [
             {
               url: mediaUrl,
@@ -119,6 +123,8 @@ export async function generateMetadata({ params }) {
         ...(isVideo && { player: mediaUrl })
       },
     };
+
+    return metadata;
   } catch (e) {
     console.error("generateMetadata error:", e);
     return { title: "Fondpeace Video" };
@@ -158,9 +164,9 @@ export default async function Page({ params }) {
       name: post.title || "FondPeace Video",
       headline: post.title || "FondPeace Video",
       description: buildDescription(post),
-      thumbnailUrl: [thumbnail],
-      contentUrl: mediaUrl,
-      // ideally provide an embedable player URL if available; fallback to page URL
+      thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+      // include contentUrl only if we have a media URL
+      ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
       embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
       uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
       datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
@@ -169,6 +175,7 @@ export default async function Page({ params }) {
       width: post.width || 1280,
       height: post.height || 720,
       encodingFormat: isVideo ? "video/mp4" : undefined,
+      isAccessibleForFree: true,
       publisher: {
         "@type": "Organization",
         name: "FondPeace",
@@ -229,9 +236,6 @@ export default async function Page({ params }) {
     return notFound();
   }
 }
-
-
-
 
 
 
