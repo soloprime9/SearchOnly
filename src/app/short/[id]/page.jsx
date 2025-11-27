@@ -223,7 +223,7 @@ export default async function Page({ params }) {
           )}
 
           {/* Client component: handles infinite scroll, autoplay, and navigation */}
-          {/* <ReelsFeed initialPost={post} initialRelated={related} /> */}
+           <ReelsFeed initialPost={post} initialRelated={related} /> 
         </section>
       </main>
     );
