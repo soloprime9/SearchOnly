@@ -1,6 +1,6 @@
 // app/short/[id]/page.jsx
 import { notFound } from "next/navigation";
-import dynamic from "next/dynamic"; // Client component को केवल Client Side पर लोड करने के लिए
+
 
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
 
