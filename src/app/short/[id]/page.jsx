@@ -1,240 +1,458 @@
 // app/short/[id]/page.jsx
-
-import StatusBar from "@/components/StatusBar";
 import { notFound } from "next/navigation";
+import dynamic from "next/dynamic"; // Client component को केवल Client Side पर लोड करने के लिए
 
-export const dynamic = "force-dynamic";
+// ReelsFeed को केवल क्लाइंट-साइड पर लोड करें
+const ReelsFeed = dynamic(() => import("@/components/ReelsFeed"), { ssr: false });
 
-import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
-
+// Server-side Constants
 const API_SINGLE = "https://backend-k.vercel.app/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
 
-/* Make any URL absolute relative to SITE_ROOT; returns null when url falsy */
+export const dynamic = "force-dynamic"; // हर बार अनुरोध पर री-रेंडर सुनिश्चित करें
+
+// --- Utility Functions (Same as your original) ---
+
 function toAbsolute(url) {
-  if (!url) return null;
-  if (url.startsWith("http")) return url;
-  if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
-  return `${SITE_ROOT}/${url}`;
+    if (!url) return null;
+    if (url.startsWith("http")) return url;
+    if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
+    return `${SITE_ROOT}/${url}`;
 }
 
 function secToISO(sec) {
-  const s = Number(sec);
-  if (!Number.isFinite(s) || s <= 0) return undefined;
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const secLeft = Math.floor(s % 60);
-  let iso = "PT";
-  if (h > 0) iso += `${h}H`;
-  if (m > 0) iso += `${m}M`;
-  if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
-  return iso;
+    const s = Number(sec);
+    if (!Number.isFinite(s) || s <= 0) return undefined;
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const secLeft = Math.floor(s % 60);
+    let iso = "PT";
+    if (h > 0) iso += `${h}H`;
+    if (m > 0) iso += `${m}M`;
+    if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
+    return iso;
 }
 
 function likesCount(post) {
-  if (!post) return 0;
-  return Array.isArray(post.likes) ? post.likes.length : (post.likes || 0);
+    if (!post) return 0;
+    return Array.isArray(post.likes) ? post.likes.length : (post.likes || 0);
 }
 function commentsCount(post) {
-  if (!post) return 0;
-  return Array.isArray(post.comments) ? post.comments.length : (post.commentCount || 0);
+    if (!post) return 0;
+    return Array.isArray(post.comments) ? post.comments.length : (post.commentCount || 0);
 }
 function viewsCount(post) {
-  if (!post) return 0;
-  return typeof post.views === "number" ? post.views : (post.views || 0);
+    if (!post) return 0;
+    return typeof post.views === "number" ? post.views : (post.views || 0);
 }
 function buildInteractionSchema(post) {
-  return [
-    { "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
-    { "@type": "InteractionCounter", interactionType: { "@type": "CommentAction" }, userInteractionCount: commentsCount(post) },
-    { "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) },
-  ];
+    return [
+        { "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
+        { "@type": "InteractionCounter", interactionType: { "@type": "CommentAction" }, userInteractionCount: commentsCount(post) },
+        { "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) },
+    ];
 }
 
 function buildDescription(post) {
-  const author = post?.userId?.username || "FondPeace";
-  const likes = likesCount(post);
-  const comments = commentsCount(post);
-  const views = viewsCount(post);
-  const title = post?.title || "FondPeace Video";
-  // SEO-friendly single flowing sentence (no periods)
-  return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
+    const author = post?.userId?.username || "FondPeace";
+    const likes = likesCount(post);
+    const comments = commentsCount(post);
+    const views = viewsCount(post);
+    const title = post?.title || "FondPeace Video";
+    return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
 }
 
 function extractKeywords(post) {
-  if (!post) return "";
-  if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
-  if (Array.isArray(post.hashtags) && post.hashtags.length)
-    return post.hashtags.map(h => h.replace("#", "")).join(", ");
-  if (post.title) return post.title.split(" ").slice(0, 10).join(", ");
-  return "fondpeace,shorts,video";
+    if (!post) return "";
+    if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
+    if (Array.isArray(post.hashtags) && post.hashtags.length)
+        return post.hashtags.map(h => h.replace("#", "")).join(", ");
+    if (post.title) return post.title.split(" ").slice(0, 10).join(", ");
+    return "fondpeace,shorts,video,reels";
 }
 
-/* Server-side metadata: Next will call this for each /short/[id] request */
+// --- Metadata Generator (Google Indexing Focus) ---
 export async function generateMetadata({ params }) {
-  const id = params?.id;
-  if (!id) return { title: "Invalid Video" };
+    const id = params?.id;
+    if (!id) return { title: "Invalid Video" };
 
-  try {
-    const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
-    if (!res.ok) return { title: "Fondpeace Video" };
-    const data = await res.json();
-    const post = data?.post;
-    if (!post) return { title: "Video Not Found" };
+    try {
+        const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
+        if (!res.ok) return { title: "Fondpeace Video" };
+        const data = await res.json();
+        const post = data?.post;
+        if (!post) return { title: "Video Not Found" };
 
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
-    const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-    const title = (post.title || "FondPeace Video").slice(0, 160);
+        const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
+        const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+        const title = (post.title || "FondPeace Video").slice(0, 160);
+        const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("video"));
 
-    // robust isVideo detection
-    const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("video"));
+        const metadata = {
+            title,
+            description: buildDescription(post),
+            keywords: extractKeywords(post),
+            alternates: { canonical: `${SITE_ROOT}/short/${id}` },
+            openGraph: {
+                title,
+                description: buildDescription(post),
+                url: `${SITE_ROOT}/short/${id}`,
+                type: isVideo ? "video.other" : "article",
+                images: [img],
+                ...(isVideo && {
+                    video: [{
+                        url: mediaUrl,
+                        type: "video/mp4",
+                        width: 1280,
+                        height: 720
+                    }]
+                })
+            },
+            twitter: {
+                card: isVideo ? "player" : "summary_large_image",
+                title,
+                description: buildDescription(post),
+                image: img,
+                ...(isVideo && { player: mediaUrl })
+            },
+        };
 
-    // Build metadata object (keep it minimal & safe)
-    const metadata = {
-      title,
-      description: buildDescription(post),
-      keywords: extractKeywords(post),
-      alternates: { canonical: `${SITE_ROOT}/short/${id}` },
-      openGraph: {
-        title,
-        description: buildDescription(post),
-        url: `${SITE_ROOT}/short/${id}`,
-        type: isVideo ? "video.other" : "article",
-        images: [img],
-        ...(isVideo && {
-          // Next/OpenGraph accepts a video array; include only when we have a valid mediaUrl
-          video: [
-            {
-              url: mediaUrl,
-              type: "video/mp4",
-              width: 1280,
-              height: 720
-            }
-          ]
-        })
-      },
-      twitter: {
-        card: isVideo ? "player" : "summary_large_image",
-        title,
-        description: buildDescription(post),
-        image: img,
-        ...(isVideo && { player: mediaUrl })
-      },
-    };
-
-    return metadata;
-  } catch (e) {
-    console.error("generateMetadata error:", e);
-    return { title: "Fondpeace Video" };
-  }
+        return metadata;
+    } catch (e) {
+        console.error("generateMetadata error:", e);
+        return { title: "Fondpeace Video" };
+    }
 }
 
-/* Server component renders initial HTML and passes initial post to client player */
+// --- Page Component (Server Component) ---
 export default async function Page({ params }) {
-  const id = params?.id;
-  if (!id) return <div>Invalid ID</div>;
+    const id = params?.id;
+    if (!id) return <div>Invalid ID</div>;
 
-  try {
-    const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
-    if (!res.ok) {
-      // backend failed: show 404 for crawlers
-      return notFound();
+    try {
+        // Fetch post and related videos
+        const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
+        if (!res.ok) {
+            return notFound();
+        }
+        const data = await res.json();
+        const post = data?.post || null;
+        const related = data?.related || [];
+
+        if (!post) {
+            return notFound();
+        }
+
+        const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
+        const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+        const pageUrl = `${SITE_ROOT}/short/${post._id || id}`;
+        const authorName = post?.userId?.username || "FondPeace";
+        const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || (post.mediaType && String(post.mediaType).startsWith("video")));
+
+        // JSON-LD (Only for the initial/current video: post)
+        const videoSchema = {
+            "@context": "https://schema.org",
+            "@type": "VideoObject",
+            name: post.title || "FondPeace Video",
+            headline: post.title || "FondPeace Video",
+            description: buildDescription(post),
+            thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+            ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
+            embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
+            uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+            // ... (rest of the schema properties)
+            duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
+            author: { "@type": "Person", name: authorName },
+            interactionStatistic: buildInteractionSchema(post),
+            keywords: extractKeywords(post),
+            inLanguage: "hi-IN",
+            potentialAction: { "@type": "WatchAction", target: pageUrl },
+            mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+        };
+
+        return (
+            <main className="min-h-screen bg-white">
+                {/* JSON-LD: क्रॉलर को इंडेक्स करने के लिए केवल वर्तमान वीडियो का डेटा देता है */}
+                <script
+                    key="video-jsonld"
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+                />
+
+                {/* Status Bar, etc. */}
+                {/* <StatusBar /> */}
+                
+                {/* Server-rendered hidden <video> (Crucial for video indexing) */}
+                {mediaUrl && (
+                    <video
+                        src={mediaUrl}
+                        poster={thumbnail}
+                        preload="metadata"
+                        // स्टाइल: क्रॉलर को यह वीडियो दिखाने के लिए ज़रूरी है, पर उपयोगकर्ता से छुपाए
+                        style={{ position: "absolute", zIndex: -1, opacity: 0, pointerEvents: "none" }} 
+                    />
+                )}
+
+                {/* ReelsFeed: Client Component */}
+                {/* initialPost में केवल वह वीडियो है जिसे हम चाहते हैं कि Google इंडेक्स करे। */}
+                <ReelsFeed initialPost={post} initialRelated={related} />
+                
+            </main>
+        );
+    } catch (e) {
+        console.error("Page component error:", e);
+        return notFound();
     }
-    const data = await res.json();
-    const post = data?.post || null;
-    const related = data?.related || [];
-
-    if (!post) {
-      // return real 404 so GSC doesn't treat the page as broken HTML
-      return notFound();
-    }
-
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
-    const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-    const pageUrl = `${SITE_ROOT}/short/${post._id || id}`;
-    const authorName = post?.userId?.username || "FondPeace";
-    const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || (post.mediaType && String(post.mediaType).startsWith("video")));
-
-    // JSON-LD for VideoObject (server-inserted so crawlers see it)
-    const videoSchema = {
-      "@context": "https://schema.org",
-      "@type": "VideoObject",
-      name: post.title || "FondPeace Video",
-      headline: post.title || "FondPeace Video",
-      description: buildDescription(post),
-      thumbnailUrl: [thumbnail || DEFAULT_THUMB],
-      // include contentUrl only if we have a media URL
-      ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
-      embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
-      uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-      datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-      dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : (post.createdAt ? new Date(post.createdAt).toISOString() : undefined),
-      duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
-      width: post.width || 1280,
-      height: post.height || 720,
-      encodingFormat: isVideo ? "video/mp4" : undefined,
-      isAccessibleForFree: true,
-      publisher: {
-        "@type": "Organization",
-        name: "FondPeace",
-        url: SITE_ROOT,
-        logo: { "@type": "ImageObject", url: `${SITE_ROOT}/fondpeace.jpg`, width: 512, height: 512 },
-      },
-      author: { "@type": "Person", name: authorName },
-      creator: { "@type": "Person", name: authorName },
-      interactionStatistic: buildInteractionSchema(post),
-      keywords: extractKeywords(post),
-      inLanguage: "hi-IN",
-      isFamilyFriendly: true,
-      potentialAction: { "@type": "WatchAction", target: pageUrl },
-      mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
-      genre: [
-        "Entertainment",
-        "Short Video",
-        "Funny",
-        "Viral",
-        "Dance",
-        "Music",
-        "Comedy",
-        "Lifestyle",
-        "News",
-        "Motivation"
-      ],
-    };
-
-    return (
-      <main className="min-h-screen bg-white">
-        {/* JSON-LD inserted server-side for crawlers */}
-        <script
-          key="video-jsonld"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
-        />
-
-        <StatusBar />
-        <section className="max-w-3xl mx-auto px-4 py-6">
-          {/* Server-rendered hidden <video> so crawlers detect video content even though player is client */}
-          {mediaUrl && (
-            <video
-              src={mediaUrl}
-              poster={thumbnail}
-              preload="metadata"
-              style={{ display: "none" }}
-            />
-          )}
-
-          {/* Client component: loads only on client (no-SSR) to avoid breaking crawler */}
-           <ReelsFeedWrapper initialPost={post} initialRelated={related} />
-        </section>
-      </main>
-    );
-  } catch (e) {
-    console.error("Page component error:", e);
-    // If anything goes wrong, return a 404 so indexing doesn't get invalid HTML
-    return notFound();
-  }
 }
+
+
+
+
+
+
+
+
+
+
+
+// // app/short/[id]/page.jsx
+
+// import StatusBar from "@/components/StatusBar";
+// import { notFound } from "next/navigation";
+
+// export const dynamic = "force-dynamic";
+
+// import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
+
+// const API_SINGLE = "https://backend-k.vercel.app/post/single/";
+// const SITE_ROOT = "https://www.fondpeace.com";
+// const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
+
+// /* Make any URL absolute relative to SITE_ROOT; returns null when url falsy */
+// function toAbsolute(url) {
+//   if (!url) return null;
+//   if (url.startsWith("http")) return url;
+//   if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
+//   return `${SITE_ROOT}/${url}`;
+// }
+
+// function secToISO(sec) {
+//   const s = Number(sec);
+//   if (!Number.isFinite(s) || s <= 0) return undefined;
+//   const h = Math.floor(s / 3600);
+//   const m = Math.floor((s % 3600) / 60);
+//   const secLeft = Math.floor(s % 60);
+//   let iso = "PT";
+//   if (h > 0) iso += `${h}H`;
+//   if (m > 0) iso += `${m}M`;
+//   if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
+//   return iso;
+// }
+
+// function likesCount(post) {
+//   if (!post) return 0;
+//   return Array.isArray(post.likes) ? post.likes.length : (post.likes || 0);
+// }
+// function commentsCount(post) {
+//   if (!post) return 0;
+//   return Array.isArray(post.comments) ? post.comments.length : (post.commentCount || 0);
+// }
+// function viewsCount(post) {
+//   if (!post) return 0;
+//   return typeof post.views === "number" ? post.views : (post.views || 0);
+// }
+// function buildInteractionSchema(post) {
+//   return [
+//     { "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
+//     { "@type": "InteractionCounter", interactionType: { "@type": "CommentAction" }, userInteractionCount: commentsCount(post) },
+//     { "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) },
+//   ];
+// }
+
+// function buildDescription(post) {
+//   const author = post?.userId?.username || "FondPeace";
+//   const likes = likesCount(post);
+//   const comments = commentsCount(post);
+//   const views = viewsCount(post);
+//   const title = post?.title || "FondPeace Video";
+//   // SEO-friendly single flowing sentence (no periods)
+//   return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
+// }
+
+// function extractKeywords(post) {
+//   if (!post) return "";
+//   if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
+//   if (Array.isArray(post.hashtags) && post.hashtags.length)
+//     return post.hashtags.map(h => h.replace("#", "")).join(", ");
+//   if (post.title) return post.title.split(" ").slice(0, 10).join(", ");
+//   return "fondpeace,shorts,video";
+// }
+
+// /* Server-side metadata: Next will call this for each /short/[id] request */
+// export async function generateMetadata({ params }) {
+//   const id = params?.id;
+//   if (!id) return { title: "Invalid Video" };
+
+//   try {
+//     const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
+//     if (!res.ok) return { title: "Fondpeace Video" };
+//     const data = await res.json();
+//     const post = data?.post;
+//     if (!post) return { title: "Video Not Found" };
+
+//     const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
+//     const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+//     const title = (post.title || "FondPeace Video").slice(0, 160);
+
+//     // robust isVideo detection
+//     const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("video"));
+
+//     // Build metadata object (keep it minimal & safe)
+//     const metadata = {
+//       title,
+//       description: buildDescription(post),
+//       keywords: extractKeywords(post),
+//       alternates: { canonical: `${SITE_ROOT}/short/${id}` },
+//       openGraph: {
+//         title,
+//         description: buildDescription(post),
+//         url: `${SITE_ROOT}/short/${id}`,
+//         type: isVideo ? "video.other" : "article",
+//         images: [img],
+//         ...(isVideo && {
+//           // Next/OpenGraph accepts a video array; include only when we have a valid mediaUrl
+//           video: [
+//             {
+//               url: mediaUrl,
+//               type: "video/mp4",
+//               width: 1280,
+//               height: 720
+//             }
+//           ]
+//         })
+//       },
+//       twitter: {
+//         card: isVideo ? "player" : "summary_large_image",
+//         title,
+//         description: buildDescription(post),
+//         image: img,
+//         ...(isVideo && { player: mediaUrl })
+//       },
+//     };
+
+//     return metadata;
+//   } catch (e) {
+//     console.error("generateMetadata error:", e);
+//     return { title: "Fondpeace Video" };
+//   }
+// }
+
+// /* Server component renders initial HTML and passes initial post to client player */
+// export default async function Page({ params }) {
+//   const id = params?.id;
+//   if (!id) return <div>Invalid ID</div>;
+
+//   try {
+//     const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
+//     if (!res.ok) {
+//       // backend failed: show 404 for crawlers
+//       return notFound();
+//     }
+//     const data = await res.json();
+//     const post = data?.post || null;
+//     const related = data?.related || [];
+
+//     if (!post) {
+//       // return real 404 so GSC doesn't treat the page as broken HTML
+//       return notFound();
+//     }
+
+//     const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
+//     const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+//     const pageUrl = `${SITE_ROOT}/short/${post._id || id}`;
+//     const authorName = post?.userId?.username || "FondPeace";
+//     const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || (post.mediaType && String(post.mediaType).startsWith("video")));
+
+//     // JSON-LD for VideoObject (server-inserted so crawlers see it)
+//     const videoSchema = {
+//       "@context": "https://schema.org",
+//       "@type": "VideoObject",
+//       name: post.title || "FondPeace Video",
+//       headline: post.title || "FondPeace Video",
+//       description: buildDescription(post),
+//       thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+//       // include contentUrl only if we have a media URL
+//       ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
+//       embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
+//       uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+//       datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+//       dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : (post.createdAt ? new Date(post.createdAt).toISOString() : undefined),
+//       duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
+//       width: post.width || 1280,
+//       height: post.height || 720,
+//       encodingFormat: isVideo ? "video/mp4" : undefined,
+//       isAccessibleForFree: true,
+//       publisher: {
+//         "@type": "Organization",
+//         name: "FondPeace",
+//         url: SITE_ROOT,
+//         logo: { "@type": "ImageObject", url: `${SITE_ROOT}/fondpeace.jpg`, width: 512, height: 512 },
+//       },
+//       author: { "@type": "Person", name: authorName },
+//       creator: { "@type": "Person", name: authorName },
+//       interactionStatistic: buildInteractionSchema(post),
+//       keywords: extractKeywords(post),
+//       inLanguage: "hi-IN",
+//       isFamilyFriendly: true,
+//       potentialAction: { "@type": "WatchAction", target: pageUrl },
+//       mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+//       genre: [
+//         "Entertainment",
+//         "Short Video",
+//         "Funny",
+//         "Viral",
+//         "Dance",
+//         "Music",
+//         "Comedy",
+//         "Lifestyle",
+//         "News",
+//         "Motivation"
+//       ],
+//     };
+
+//     return (
+//       <main className="min-h-screen bg-white">
+//         {/* JSON-LD inserted server-side for crawlers */}
+//         <script
+//           key="video-jsonld"
+//           type="application/ld+json"
+//           dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+//         />
+
+//         <StatusBar />
+//         <section className="max-w-3xl mx-auto px-4 py-6">
+//           {/* Server-rendered hidden <video> so crawlers detect video content even though player is client */}
+//           {mediaUrl && (
+//             <video
+//               src={mediaUrl}
+//               poster={thumbnail}
+//               preload="metadata"
+//               style={{ display: "none" }}
+//             />
+//           )}
+
+//           {/* Client component: loads only on client (no-SSR) to avoid breaking crawler */}
+//            <ReelsFeedWrapper initialPost={post} initialRelated={related} />
+//         </section>
+//       </main>
+//     );
+//   } catch (e) {
+//     console.error("Page component error:", e);
+//     // If anything goes wrong, return a 404 so indexing doesn't get invalid HTML
+//     return notFound();
+//   }
+// }
 
 
 
