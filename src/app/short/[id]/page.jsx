@@ -2,8 +2,7 @@
 import { notFound } from "next/navigation";
 import dynamic from "next/dynamic"; // Client component को केवल Client Side पर लोड करने के लिए
 
-// ReelsFeed को केवल क्लाइंट-साइड पर लोड करें
-const ReelsFeed = dynamic(() => import("@/components/ReelsFeed"), { ssr: false });
+import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
 
 // Server-side Constants
 const API_SINGLE = "https://backend-k.vercel.app/post/single/";
@@ -196,7 +195,7 @@ export default async function Page({ params }) {
 
                 {/* ReelsFeed: Client Component */}
                 {/* initialPost में केवल वह वीडियो है जिसे हम चाहते हैं कि Google इंडेक्स करे। */}
-                <ReelsFeed initialPost={post} initialRelated={related} />
+                <ReelsFeedWrapper initialPost={post} initialRelated={related} />
                 
             </main>
         );
