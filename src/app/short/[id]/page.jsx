@@ -188,8 +188,7 @@ export default async function Page({ params }) {
                         src={mediaUrl}
                         poster={thumbnail}
                         preload="metadata"
-                        // स्टाइल: क्रॉलर को यह वीडियो दिखाने के लिए ज़रूरी है, पर उपयोगकर्ता से छुपाए
-                        style={{ position: "absolute", zIndex: -1, opacity: 0, pointerEvents: "none" }} 
+                        style={{ display: "none" }} 
                     />
                 )}
 
