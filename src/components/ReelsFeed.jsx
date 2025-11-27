@@ -1,59 +1,59 @@
+// src/components/ReelsFeed.jsx
 'use client';
- 
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
-// Constants
 const API_URL = "https://backend-k.vercel.app/post/shorts";
 const DEFAULT_THUMB = "/fondpeace.jpg";
 
-// Utility: Bot User Agent Detection
-// यह फंक्शन सर्वर कंपोनेंट में RENDER नहीं होता है, इसलिए यह केवल क्लाइंट साइड पर चलता है।
+// Bot User Agent Detection
 const isBotUserAgent = () => {
     if (typeof navigator === "undefined") return true;
     const ua = navigator.userAgent.toLowerCase();
-    // महत्वपूर्ण: Googlebot/Bingbot/etc. के लिए सभी क्लाइंट-साइड इंटरेक्शन को अक्षम करें
     return (
-        ua.includes("googlebot") ||
-        ua.includes("adsbot") ||
+        ua.includes("googlebot") || 
+        ua.includes("adsbot") || 
         ua.includes("bingbot") ||
-        ua.includes("duckduckbot") ||
-        ua.includes("yandex") ||
+        ua.includes("duckduckbot") || 
+        ua.includes("yandex") || 
         ua.includes("baiduspider")
     );
 };
 
-// ReelsFeed Component
 const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
     const router = useRouter();
     const bot = isBotUserAgent();
 
-    // क्रॉलर के लिए, posts एरे में केवल initialPost होगा।
     const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
     const [loading, setLoading] = useState(false);
     const videoRefs = useRef([]);
     const pageRef = useRef(1);
 
-    // 1. Autoplay and URL Update Logic (Only for Users, not Bots)
+    // --- Core Logic: Autoplay and URL Change ---
     const handleAutoPlay = useCallback(
         (entries) => {
-            if (bot) return; // BOT को ऑटोप्ले और URL बदलने की अनुमति नहीं है
+            if (bot) return; // <<-- यही लाइन Google Bot को URL बदलने से रोकती है
+
             entries.forEach(entry => {
                 const video = entry.target;
                 const index = parseInt(video.dataset.index, 10);
                 const post = posts[index];
 
                 if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
-                    // 1. केवल वर्तमान वीडियो को चलाएं और बाकी को रोकें
+                    // 1. वीडियो प्ले/पॉज़ लॉजिक
                     videoRefs.current.forEach(v => v && v !== video && v.pause());
                     video.play().catch(() => {});
-
-                    // 2. URL को चुपचाप बदलें (Soft Navigation) - यह मुख्य UX/Sharing ट्रिक है।
+                    
+                    // 2. Soft Navigation (URL Change)
                     const id = post._id;
                     if (id) {
-                        // URL बदलता है, लेकिन पेज रीलोड नहीं होता
+                        // USER के लिए URL बदलें (पेज रीलोड नहीं होगा)
                         router.replace(`/short/${id}`, { scroll: false });
+                        
+                        // **नोट:** यहाँ आपको JS से ब्राउज़र का टाइटल भी अपडेट करना होगा 
+                        // ताकि यूजर को पता चले कि वे किस वीडियो पर हैं।
                     }
                 } else {
                     video.pause();
@@ -63,7 +63,7 @@ const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
         [bot, router, posts]
     );
 
-    // Autoplay Intersection Observer Setup
+    // --- useEffects (unchanged logic, only runs if not bot) ---
     useEffect(() => {
         if (bot || posts.length === 0) return;
         const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
@@ -71,115 +71,246 @@ const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
         return () => observer.disconnect();
     }, [posts, handleAutoPlay, bot]);
 
+    // ... (rest of loadMorePosts and infinite scroll logic) ...
 
-    // 2. Infinite Scroll Logic (Only for Users, not Bots)
-    const loadMorePosts = async () => {
-        if (loading || bot) return;
-        setLoading(true);
-        try {
-            pageRef.current += 1;
-            const res = await fetch(`${API_URL}?page=${pageRef.current}&limit=6`);
-            const data = await res.json();
-
-            setPosts(prev => {
-                const ids = new Set(prev.map(x => x._id));
-                // डुप्लिकेट हटाएँ
-                const newPosts = (data.videos || data).filter(x => x && x._id && !ids.has(x._id));
-                return [...prev, ...newPosts];
-            });
-
-        } catch(e) {
-            toast.error("Failed loading more videos");
-        }
-        setLoading(false);
-    };
-
-    // Infinite Scroll Observer Setup
-    useEffect(() => {
-        if (bot || posts.length === 0) return;
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const lastItem = entries[0];
-                // जब अंतिम आइटम दिखाई देता है, तो अधिक वीडियो लोड करें
-                if (lastItem.isIntersecting) loadMorePosts();
-            },
-            { threshold: 0.1 }
-        );
-
-        // केवल अंतिम आइटम को ऑब्जर्व करें
-        const lastEl = document.querySelector(".last-feed-item");
-        if (lastEl) observer.observe(lastEl);
-        return () => observer.disconnect();
-    }, [posts, bot]);
-
-    // Handle initial state/loading
     if (!posts || posts.length === 0) {
-        return <div className="min-h-screen flex items-center justify-center text-gray-800">No videos yet</div>;
+        return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
     }
 
     return (
         <div 
             className="reels-container w-full h-screen snap-y snap-mandatory" 
-            // क्रॉलर के लिए, ओवरफ़्लो hidden है ताकि वह स्क्रॉल न कर सके।
-            style={{ overflowY: bot ? "hidden" : "scroll" }}
+            style={{ overflowY: bot ? "hidden" : "scroll" }} // Bot can't scroll
         >
             {posts.map((item, index) => {
-                // Ensure post item is valid
-                if (!item || !item._id) return null;
-
+                // ... (video rendering logic) ...
                 const videoUrl = item.media || item.mediaUrl;
                 const isLast = index === posts.length - 1;
 
                 return (
                     <div
-                        key={item._id}
+                        key={item._id || index}
                         className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
                         data-id={item._id}
-                        data-index={index} // Intersection Observer के लिए इंडेक्स ज़रूरी
+                        data-index={index}
                     >
-                        {/* Video Player */}
                         <video
                             ref={el => (videoRefs.current[index] = el)}
                             src={videoUrl}
                             poster={item.thumbnail || DEFAULT_THUMB}
-                            muted // Reels/Shorts/TikTok हमेशा म्यूट से शुरू होता है
+                            muted
                             playsInline
                             preload="metadata"
                             loop
                             className="object-contain w-full h-full bg-black"
                         />
                         
-                        {/* Video Details (Only for Users, not Bots) */}
                         {!bot && (
                             <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
-                                <p className="font-bold text-lg">@{item.userId?.username || 'FondPeaceUser'}</p>
-                                <p className="text-sm line-clamp-2 mt-1">{item.title || 'Viral Short Video'}</p>
+                                <p className="font-bold text-lg">@{item.userId?.username}</p>
+                                <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
                             </div>
                         )}
-                        
-                        {/* Add interaction icons, etc., here for users */}
-                        
                     </div>
                 );
             })}
-
-            {/* Load More Button/Indicator (Only for Users, not Bots) */}
-            {!bot && (
-                <div className="p-6 text-center">
-                    {loading ? (
-                         <p className="text-gray-600">Loading...</p>
-                    ) : (
-                        <button onClick={loadMorePosts} className="px-4 py-2 bg-gray-900 text-white rounded">
-                            Load more
-                        </button>
-                    )}
-                </div>
-            )}
         </div>
     );
 };
 
 export default ReelsFeed;
+
+
+
+
+
+
+
+
+
+
+// 'use client';
+ 
+// import React, { useState, useEffect, useRef, useCallback } from 'react';
+// import { useRouter, useParams } from 'next/navigation';
+// import toast from 'react-hot-toast';
+
+// // Constants
+// const API_URL = "https://backend-k.vercel.app/post/shorts";
+// const DEFAULT_THUMB = "/fondpeace.jpg";
+
+// // Utility: Bot User Agent Detection
+// // यह फंक्शन सर्वर कंपोनेंट में RENDER नहीं होता है, इसलिए यह केवल क्लाइंट साइड पर चलता है।
+// const isBotUserAgent = () => {
+//     if (typeof navigator === "undefined") return true;
+//     const ua = navigator.userAgent.toLowerCase();
+//     // महत्वपूर्ण: Googlebot/Bingbot/etc. के लिए सभी क्लाइंट-साइड इंटरेक्शन को अक्षम करें
+//     return (
+//         ua.includes("googlebot") ||
+//         ua.includes("adsbot") ||
+//         ua.includes("bingbot") ||
+//         ua.includes("duckduckbot") ||
+//         ua.includes("yandex") ||
+//         ua.includes("baiduspider")
+//     );
+// };
+
+// // ReelsFeed Component
+// const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
+//     const router = useRouter();
+//     const bot = isBotUserAgent();
+
+//     // क्रॉलर के लिए, posts एरे में केवल initialPost होगा।
+//     const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
+//     const [loading, setLoading] = useState(false);
+//     const videoRefs = useRef([]);
+//     const pageRef = useRef(1);
+
+//     // 1. Autoplay and URL Update Logic (Only for Users, not Bots)
+//     const handleAutoPlay = useCallback(
+//         (entries) => {
+//             if (bot) return; // BOT को ऑटोप्ले और URL बदलने की अनुमति नहीं है
+//             entries.forEach(entry => {
+//                 const video = entry.target;
+//                 const index = parseInt(video.dataset.index, 10);
+//                 const post = posts[index];
+
+//                 if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
+//                     // 1. केवल वर्तमान वीडियो को चलाएं और बाकी को रोकें
+//                     videoRefs.current.forEach(v => v && v !== video && v.pause());
+//                     video.play().catch(() => {});
+
+//                     // 2. URL को चुपचाप बदलें (Soft Navigation) - यह मुख्य UX/Sharing ट्रिक है।
+//                     const id = post._id;
+//                     if (id) {
+//                         // URL बदलता है, लेकिन पेज रीलोड नहीं होता
+//                         router.replace(`/short/${id}`, { scroll: false });
+//                     }
+//                 } else {
+//                     video.pause();
+//                 }
+//             });
+//         },
+//         [bot, router, posts]
+//     );
+
+//     // Autoplay Intersection Observer Setup
+//     useEffect(() => {
+//         if (bot || posts.length === 0) return;
+//         const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
+//         videoRefs.current.forEach(v => v && observer.observe(v));
+//         return () => observer.disconnect();
+//     }, [posts, handleAutoPlay, bot]);
+
+
+//     // 2. Infinite Scroll Logic (Only for Users, not Bots)
+//     const loadMorePosts = async () => {
+//         if (loading || bot) return;
+//         setLoading(true);
+//         try {
+//             pageRef.current += 1;
+//             const res = await fetch(`${API_URL}?page=${pageRef.current}&limit=6`);
+//             const data = await res.json();
+
+//             setPosts(prev => {
+//                 const ids = new Set(prev.map(x => x._id));
+//                 // डुप्लिकेट हटाएँ
+//                 const newPosts = (data.videos || data).filter(x => x && x._id && !ids.has(x._id));
+//                 return [...prev, ...newPosts];
+//             });
+
+//         } catch(e) {
+//             toast.error("Failed loading more videos");
+//         }
+//         setLoading(false);
+//     };
+
+//     // Infinite Scroll Observer Setup
+//     useEffect(() => {
+//         if (bot || posts.length === 0) return;
+//         const observer = new IntersectionObserver(
+//             (entries) => {
+//                 const lastItem = entries[0];
+//                 // जब अंतिम आइटम दिखाई देता है, तो अधिक वीडियो लोड करें
+//                 if (lastItem.isIntersecting) loadMorePosts();
+//             },
+//             { threshold: 0.1 }
+//         );
+
+//         // केवल अंतिम आइटम को ऑब्जर्व करें
+//         const lastEl = document.querySelector(".last-feed-item");
+//         if (lastEl) observer.observe(lastEl);
+//         return () => observer.disconnect();
+//     }, [posts, bot]);
+
+//     // Handle initial state/loading
+//     if (!posts || posts.length === 0) {
+//         return <div className="min-h-screen flex items-center justify-center text-gray-800">No videos yet</div>;
+//     }
+
+//     return (
+//         <div 
+//             className="reels-container w-full h-screen snap-y snap-mandatory" 
+//             // क्रॉलर के लिए, ओवरफ़्लो hidden है ताकि वह स्क्रॉल न कर सके।
+//             style={{ overflowY: bot ? "hidden" : "scroll" }}
+//         >
+//             {posts.map((item, index) => {
+//                 // Ensure post item is valid
+//                 if (!item || !item._id) return null;
+
+//                 const videoUrl = item.media || item.mediaUrl;
+//                 const isLast = index === posts.length - 1;
+
+//                 return (
+//                     <div
+//                         key={item._id}
+//                         className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
+//                         data-id={item._id}
+//                         data-index={index} // Intersection Observer के लिए इंडेक्स ज़रूरी
+//                     >
+//                         {/* Video Player */}
+//                         <video
+//                             ref={el => (videoRefs.current[index] = el)}
+//                             src={videoUrl}
+//                             poster={item.thumbnail || DEFAULT_THUMB}
+//                             muted // Reels/Shorts/TikTok हमेशा म्यूट से शुरू होता है
+//                             playsInline
+//                             preload="metadata"
+//                             loop
+//                             className="object-contain w-full h-full bg-black"
+//                         />
+                        
+//                         {/* Video Details (Only for Users, not Bots) */}
+//                         {!bot && (
+//                             <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
+//                                 <p className="font-bold text-lg">@{item.userId?.username || 'FondPeaceUser'}</p>
+//                                 <p className="text-sm line-clamp-2 mt-1">{item.title || 'Viral Short Video'}</p>
+//                             </div>
+//                         )}
+                        
+//                         {/* Add interaction icons, etc., here for users */}
+                        
+//                     </div>
+//                 );
+//             })}
+
+//             {/* Load More Button/Indicator (Only for Users, not Bots) */}
+//             {!bot && (
+//                 <div className="p-6 text-center">
+//                     {loading ? (
+//                          <p className="text-gray-600">Loading...</p>
+//                     ) : (
+//                         <button onClick={loadMorePosts} className="px-4 py-2 bg-gray-900 text-white rounded">
+//                             Load more
+//                         </button>
+//                     )}
+//                 </div>
+//             )}
+//         </div>
+//     );
+// };
+
+// export default ReelsFeed;
 
 
 
