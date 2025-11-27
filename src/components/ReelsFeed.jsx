@@ -1,124 +1,253 @@
-// src/components/ReelsFeed.jsx
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
-const API_URL = "https://backend-k.vercel.app/post/shorts";
+const API_URL = "[https://backend-k.vercel.app/post/shorts](https://backend-k.vercel.app/post/shorts)";
 const DEFAULT_THUMB = "/fondpeace.jpg";
 
 // Bot User Agent Detection
 const isBotUserAgent = () => {
-    if (typeof navigator === "undefined") return true;
-    const ua = navigator.userAgent.toLowerCase();
-    return (
-        ua.includes("googlebot") || 
-        ua.includes("adsbot") || 
-        ua.includes("bingbot") ||
-        ua.includes("duckduckbot") || 
-        ua.includes("yandex") || 
-        ua.includes("baiduspider")
-    );
+if (typeof navigator === "undefined") return true;
+const ua = navigator.userAgent.toLowerCase();
+return (
+ua.includes("googlebot") ||
+ua.includes("adsbot") ||
+ua.includes("bingbot") ||
+ua.includes("duckduckbot") ||
+ua.includes("yandex") ||
+ua.includes("baiduspider")
+);
 };
 
 const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
-    const router = useRouter();
-    const bot = isBotUserAgent();
+const router = useRouter();
+const bot = isBotUserAgent();
 
-    const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
-    const [loading, setLoading] = useState(false);
-    const videoRefs = useRef([]);
-    const pageRef = useRef(1);
+```
+const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
+const [activeIndex, setActiveIndex] = useState(0);
+const videoRefs = useRef([]);
+const pageRef = useRef(1);
 
-    // --- Core Logic: Autoplay and URL Change ---
-    const handleAutoPlay = useCallback(
-        (entries) => {
-            if (bot) return; // <<-- यही लाइन Google Bot को URL बदलने से रोकती है
+// --- Handle autoplay + URL change ---
+const handleAutoPlay = useCallback(
+    (entries) => {
+        if (bot) return;
 
-            entries.forEach(entry => {
-                const video = entry.target;
-                const index = parseInt(video.dataset.index, 10);
-                const post = posts[index];
+        entries.forEach(entry => {
+            const video = entry.target;
+            const index = parseInt(video.dataset.index, 10);
+            const post = posts[index];
 
-                if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
-                    // 1. वीडियो प्ले/पॉज़ लॉजिक
-                    videoRefs.current.forEach(v => v && v !== video && v.pause());
-                    video.play().catch(() => {});
-                    
-                    // 2. Soft Navigation (URL Change)
-                    const id = post._id;
-                    if (id) {
-                        // USER के लिए URL बदलें (पेज रीलोड नहीं होगा)
-                        router.replace(`/short/${id}`, { scroll: false });
-                        
-                        // **नोट:** यहाँ आपको JS से ब्राउज़र का टाइटल भी अपडेट करना होगा 
-                        // ताकि यूजर को पता चले कि वे किस वीडियो पर हैं।
-                    }
-                } else {
-                    video.pause();
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
+                setActiveIndex(index);
+                videoRefs.current.forEach(v => v && v !== video && v.pause());
+                video.play().catch(() => {});
+
+                // URL change for user
+                if (window.location.pathname !== `/short/${post._id}`) {
+                    router.replace(`/short/${post._id}`, { scroll: false });
+                    document.title = post.title || "FondPeace Short Video";
                 }
-            });
-        },
-        [bot, router, posts]
-    );
+            } else {
+                video.pause();
+            }
+        });
+    },
+    [bot, router, posts]
+);
 
-    // --- useEffects (unchanged logic, only runs if not bot) ---
-    useEffect(() => {
-        if (bot || posts.length === 0) return;
-        const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
-        videoRefs.current.forEach(v => v && observer.observe(v));
-        return () => observer.disconnect();
-    }, [posts, handleAutoPlay, bot]);
+// --- IntersectionObserver for scrolling ---
+useEffect(() => {
+    if (bot || posts.length === 0) return;
+    const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
+    videoRefs.current.forEach(v => v && observer.observe(v));
+    return () => observer.disconnect();
+}, [posts, handleAutoPlay, bot]);
 
-    // ... (rest of loadMorePosts and infinite scroll logic) ...
+// --- Render fallback if no videos ---
+if (!posts || posts.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
+}
 
-    if (!posts || posts.length === 0) {
-        return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-    }
+return (
+    <div 
+        className="reels-container w-full h-screen snap-y snap-mandatory" 
+        style={{ overflowY: bot ? "hidden" : "scroll" }}
+    >
+        {posts.map((item, index) => {
+            const videoUrl = item.media || item.mediaUrl;
+            const isLast = index === posts.length - 1;
 
-    return (
-        <div 
-            className="reels-container w-full h-screen snap-y snap-mandatory" 
-            style={{ overflowY: bot ? "hidden" : "scroll" }} // Bot can't scroll
-        >
-            {posts.map((item, index) => {
-                // ... (video rendering logic) ...
-                const videoUrl = item.media || item.mediaUrl;
-                const isLast = index === posts.length - 1;
+            return (
+                <div
+                    key={item._id || index}
+                    className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
+                    data-id={item._id}
+                    data-index={index}
+                >
+                    <video
+                        ref={el => (videoRefs.current[index] = el)}
+                        src={videoUrl}
+                        poster={item.thumbnail || DEFAULT_THUMB}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        loop
+                        className="object-contain w-full h-full bg-black"
+                    />
+                    
+                    {!bot && (
+                        <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
+                            <p className="font-bold text-lg">@{item.userId?.username}</p>
+                            <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
+                        </div>
+                    )}
+                </div>
+            );
+        })}
+    </div>
+);
+```
 
-                return (
-                    <div
-                        key={item._id || index}
-                        className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
-                        data-id={item._id}
-                        data-index={index}
-                    >
-                        <video
-                            ref={el => (videoRefs.current[index] = el)}
-                            src={videoUrl}
-                            poster={item.thumbnail || DEFAULT_THUMB}
-                            muted
-                            playsInline
-                            preload="metadata"
-                            loop
-                            className="object-contain w-full h-full bg-black"
-                        />
-                        
-                        {!bot && (
-                            <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
-                                <p className="font-bold text-lg">@{item.userId?.username}</p>
-                                <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
-                            </div>
-                        )}
-                    </div>
-                );
-            })}
-        </div>
-    );
 };
 
 export default ReelsFeed;
+
+
+
+
+
+
+
+
+
+
+
+
+// // src/components/ReelsFeed.jsx
+// 'use client';
+
+// import React, { useState, useEffect, useRef, useCallback } from 'react';
+// import { useRouter } from 'next/navigation';
+// import toast from 'react-hot-toast';
+
+// const API_URL = "https://backend-k.vercel.app/post/shorts";
+// const DEFAULT_THUMB = "/fondpeace.jpg";
+
+// // Bot User Agent Detection
+// const isBotUserAgent = () => {
+//     if (typeof navigator === "undefined") return true;
+//     const ua = navigator.userAgent.toLowerCase();
+//     return (
+//         ua.includes("googlebot") || 
+//         ua.includes("adsbot") || 
+//         ua.includes("bingbot") ||
+//         ua.includes("duckduckbot") || 
+//         ua.includes("yandex") || 
+//         ua.includes("baiduspider")
+//     );
+// };
+
+// const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
+//     const router = useRouter();
+//     const bot = isBotUserAgent();
+
+//     const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
+//     const [loading, setLoading] = useState(false);
+//     const videoRefs = useRef([]);
+//     const pageRef = useRef(1);
+
+//     // --- Core Logic: Autoplay and URL Change ---
+//     const handleAutoPlay = useCallback(
+//         (entries) => {
+//             if (bot) return; // <<-- यही लाइन Google Bot को URL बदलने से रोकती है
+
+//             entries.forEach(entry => {
+//                 const video = entry.target;
+//                 const index = parseInt(video.dataset.index, 10);
+//                 const post = posts[index];
+
+//                 if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
+//                     // 1. वीडियो प्ले/पॉज़ लॉजिक
+//                     videoRefs.current.forEach(v => v && v !== video && v.pause());
+//                     video.play().catch(() => {});
+                    
+//                     // 2. Soft Navigation (URL Change)
+//                     const id = post._id;
+//                     if (id) {
+//                         // USER के लिए URL बदलें (पेज रीलोड नहीं होगा)
+//                         router.replace(`/short/${id}`, { scroll: false });
+                        
+//                         // **नोट:** यहाँ आपको JS से ब्राउज़र का टाइटल भी अपडेट करना होगा 
+//                         // ताकि यूजर को पता चले कि वे किस वीडियो पर हैं।
+//                     }
+//                 } else {
+//                     video.pause();
+//                 }
+//             });
+//         },
+//         [bot, router, posts]
+//     );
+
+//     // --- useEffects (unchanged logic, only runs if not bot) ---
+//     useEffect(() => {
+//         if (bot || posts.length === 0) return;
+//         const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
+//         videoRefs.current.forEach(v => v && observer.observe(v));
+//         return () => observer.disconnect();
+//     }, [posts, handleAutoPlay, bot]);
+
+//     // ... (rest of loadMorePosts and infinite scroll logic) ...
+
+//     if (!posts || posts.length === 0) {
+//         return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
+//     }
+
+//     return (
+//         <div 
+//             className="reels-container w-full h-screen snap-y snap-mandatory" 
+//             style={{ overflowY: bot ? "hidden" : "scroll" }} // Bot can't scroll
+//         >
+//             {posts.map((item, index) => {
+//                 // ... (video rendering logic) ...
+//                 const videoUrl = item.media || item.mediaUrl;
+//                 const isLast = index === posts.length - 1;
+
+//                 return (
+//                     <div
+//                         key={item._id || index}
+//                         className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
+//                         data-id={item._id}
+//                         data-index={index}
+//                     >
+//                         <video
+//                             ref={el => (videoRefs.current[index] = el)}
+//                             src={videoUrl}
+//                             poster={item.thumbnail || DEFAULT_THUMB}
+//                             muted
+//                             playsInline
+//                             preload="metadata"
+//                             loop
+//                             className="object-contain w-full h-full bg-black"
+//                         />
+                        
+//                         {!bot && (
+//                             <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
+//                                 <p className="font-bold text-lg">@{item.userId?.username}</p>
+//                                 <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
+//                             </div>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
+// export default ReelsFeed;
 
 
 
