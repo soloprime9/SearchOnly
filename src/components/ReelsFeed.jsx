@@ -1,105 +1,105 @@
-// 'use client';
+'use client';
 
-// import React, { useState, useEffect, useRef, useCallback } from 'react';
-// import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
-// const DEFAULT_THUMB = "/fondpeace.jpg";
+const DEFAULT_THUMB = "/fondpeace.jpg";
 
-// // Bot detection
-// const isBotUserAgent = () => {
-//     if (typeof navigator === "undefined") return true;
-//     const ua = navigator.userAgent.toLowerCase();
-//     return (
-//         ua.includes("googlebot") || 
-//         ua.includes("adsbot") || 
-//         ua.includes("bingbot") ||
-//         ua.includes("duckduckbot") || 
-//         ua.includes("yandex") || 
-//         ua.includes("baiduspider")
-//     );
-// };
+// Bot detection
+const isBotUserAgent = () => {
+    if (typeof navigator === "undefined") return true;
+    const ua = navigator.userAgent.toLowerCase();
+    return (
+        ua.includes("googlebot") || 
+        ua.includes("adsbot") || 
+        ua.includes("bingbot") ||
+        ua.includes("duckduckbot") || 
+        ua.includes("yandex") || 
+        ua.includes("baiduspider")
+    );
+};
 
-// const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
-//     const router = useRouter();
-//     const bot = isBotUserAgent();
+const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
+    const router = useRouter();
+    const bot = isBotUserAgent();
 
-//     const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
-//     const [activeIndex, setActiveIndex] = useState(0);
-//     const [currentUrl, setCurrentUrl] = useState(typeof window !== "undefined" ? window.location.pathname : "");
-//     const videoRefs = useRef([]);
+    const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [currentUrl, setCurrentUrl] = useState(typeof window !== "undefined" ? window.location.pathname : "");
+    const videoRefs = useRef([]);
 
-//     const handleAutoPlay = useCallback((entries) => {
-//         if (bot) return; // Bot ko URL change na ho
+    const handleAutoPlay = useCallback((entries) => {
+        if (bot) return; // Bot ko URL change na ho
 
-//         entries.forEach(entry => {
-//             const video = entry.target;
-//             const index = parseInt(video.dataset.index, 10);
-//             const post = posts[index];
+        entries.forEach(entry => {
+            const video = entry.target;
+            const index = parseInt(video.dataset.index, 10);
+            const post = posts[index];
 
-//             if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
-//                 setActiveIndex(index);
-//                 videoRefs.current.forEach(v => v && v !== video && v.pause());
-//                 video.play().catch(() => {});
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
+                setActiveIndex(index);
+                videoRefs.current.forEach(v => v && v !== video && v.pause());
+                video.play().catch(() => {});
 
-//                 const newPath = `/short/${post._id}`;
-//                 if (currentUrl !== newPath) {
-//                     router.replace(newPath, { scroll: false, shallow: true });
-//                     setCurrentUrl(newPath);
-//                     document.title = post.title || "FondPeace Short Video";
-//                 }
-//             } else {
-//                 video.pause();
-//             }
-//         });
-//     }, [bot, posts, router, currentUrl]);
+                const newPath = `/short/${post._id}`;
+                if (currentUrl !== newPath) {
+                    router.replace(newPath, { scroll: false, shallow: true });
+                    setCurrentUrl(newPath);
+                    document.title = post.title || "FondPeace Short Video";
+                }
+            } else {
+                video.pause();
+            }
+        });
+    }, [bot, posts, router, currentUrl]);
 
-//     useEffect(() => {
-//         if (bot || posts.length === 0) return;
-//         const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
-//         videoRefs.current.forEach(v => v && observer.observe(v));
-//         return () => observer.disconnect();
-//     }, [posts, handleAutoPlay, bot]);
+    useEffect(() => {
+        if (bot || posts.length === 0) return;
+        const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
+        videoRefs.current.forEach(v => v && observer.observe(v));
+        return () => observer.disconnect();
+    }, [posts, handleAutoPlay, bot]);
 
-//     if (!posts || posts.length === 0) {
-//         return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-//     }
+    if (!posts || posts.length === 0) {
+        return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
+    }
 
-//     return (
-//         <div className="reels-container w-full h-screen snap-y snap-mandatory" style={{ overflowY: bot ? "hidden" : "scroll" }}>
-//             {posts.map((item, index) => {
-//                 const videoUrl = item.media || item.mediaUrl;
+    return (
+        <div className="reels-container w-full h-screen snap-y snap-mandatory" style={{ overflowY: bot ? "hidden" : "scroll" }}>
+            {posts.map((item, index) => {
+                const videoUrl = item.media || item.mediaUrl;
 
-//                 return (
-//                     <div
-//                         key={item._id || index}
-//                         className="video-wrapper snap-start w-full h-screen flex items-center justify-center relative"
-//                         data-id={item._id}
-//                         data-index={index}
-//                     >
-//                         <video
-//                             ref={el => (videoRefs.current[index] = el)}
-//                             src={videoUrl}
-//                             poster={item.thumbnail || DEFAULT_THUMB}
-//                             muted
-//                             playsInline
-//                             preload="metadata"
-//                             loop
-//                             className="object-contain w-full h-full bg-black"
-//                         />
-//                         {!bot && (
-//                             <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
-//                                 <p className="font-bold text-lg">@{item.userId?.username}</p>
-//                                 <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
-//                             </div>
-//                         )}
-//                     </div>
-//                 );
-//             })}
-//         </div>
-//     );
-// };
+                return (
+                    <div
+                        key={item._id || index}
+                        className="video-wrapper snap-start w-full h-screen flex items-center justify-center relative"
+                        data-id={item._id}
+                        data-index={index}
+                    >
+                        <video
+                            ref={el => (videoRefs.current[index] = el)}
+                            src={videoUrl}
+                            poster={item.thumbnail || DEFAULT_THUMB}
+                            muted
+                            playsInline
+                            preload="metadata"
+                            loop
+                            className="object-contain w-full h-full bg-black"
+                        />
+                        {!bot && (
+                            <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
+                                <p className="font-bold text-lg">@{item.userId?.username}</p>
+                                <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
 
-// export default ReelsFeed;
+export default ReelsFeed;
 
 
 
@@ -761,113 +761,113 @@
 
 
 
-// components/ReelsFeed.jsx (client)
-"use client";
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+// // components/ReelsFeed.jsx (client)
+// "use client";
+// import React, { useEffect, useRef, useState, useCallback } from "react";
+// import { useRouter } from "next/navigation";
 
-export default function ReelsFeed({ initialPost, initialRelated = [] }) {
-  const router = useRouter();
-  // Defensive: if initialPost is null/undefined, start with an empty list and fetch on mount
-  const [posts, setPosts] = useState(initialPost ? [initialPost, ...initialRelated] : []);
-  const videoRefs = useRef([]);
-  const ioRef = useRef(null);
+// export default function ReelsFeed({ initialPost, initialRelated = [] }) {
+//   const router = useRouter();
+//   // Defensive: if initialPost is null/undefined, start with an empty list and fetch on mount
+//   const [posts, setPosts] = useState(initialPost ? [initialPost, ...initialRelated] : []);
+//   const videoRefs = useRef([]);
+//   const ioRef = useRef(null);
 
-  // If no initial post, attempt to fetch first batch client-side
-  useEffect(() => {
-    if (!initialPost) {
-      (async () => {
-        try {
-          const res = await fetch("/post/shorts?page=1&limit=6");
-          if (!res.ok) return;
-          const data = await res.json();
-          setPosts(data.videos || []);
-        } catch (e) {
-          console.error("client fetch error:", e);
-        }
-      })();
-    }
-  }, [initialPost]);
+//   // If no initial post, attempt to fetch first batch client-side
+//   useEffect(() => {
+//     if (!initialPost) {
+//       (async () => {
+//         try {
+//           const res = await fetch("/post/shorts?page=1&limit=6");
+//           if (!res.ok) return;
+//           const data = await res.json();
+//           setPosts(data.videos || []);
+//         } catch (e) {
+//           console.error("client fetch error:", e);
+//         }
+//       })();
+//     }
+//   }, [initialPost]);
 
-  useEffect(() => {
-    if (ioRef.current) ioRef.current.disconnect();
-    ioRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const el = entry.target;
-          if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
-            const id = el.dataset.id;
-            videoRefs.current.forEach((v) => {
-              if (v && v !== el) {
-                try { v.pause(); } catch {}
-              }
-            });
-            try { el.play().catch(()=>{}); } catch {}
-            if (id) {
-              router.replace(`/short/${id}`);
-            }
-          } else {
-            try { entry.target.pause(); } catch {}
-          }
-        });
-      },
-      { threshold: [0.65] }
-    );
+//   useEffect(() => {
+//     if (ioRef.current) ioRef.current.disconnect();
+//     ioRef.current = new IntersectionObserver(
+//       (entries) => {
+//         entries.forEach((entry) => {
+//           const el = entry.target;
+//           if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
+//             const id = el.dataset.id;
+//             videoRefs.current.forEach((v) => {
+//               if (v && v !== el) {
+//                 try { v.pause(); } catch {}
+//               }
+//             });
+//             try { el.play().catch(()=>{}); } catch {}
+//             if (id) {
+//               router.replace(`/short/${id}`);
+//             }
+//           } else {
+//             try { entry.target.pause(); } catch {}
+//           }
+//         });
+//       },
+//       { threshold: [0.65] }
+//     );
 
-    videoRefs.current.forEach((v) => v && ioRef.current.observe(v));
-    return () => { ioRef.current && ioRef.current.disconnect(); };
-  }, [posts, router]);
+//     videoRefs.current.forEach((v) => v && ioRef.current.observe(v));
+//     return () => { ioRef.current && ioRef.current.disconnect(); };
+//   }, [posts, router]);
 
-  const fetchMore = useCallback(async (page = 1) => {
-    try {
-      const res = await fetch(`/post/shorts?page=${page}&limit=6`);
-      if (!res.ok) return;
-      const data = await res.json();
-      setPosts((p) => {
-        const ids = new Set(p.map(x => x._id));
-        const newOnes = (data.videos || []).filter(v => !ids.has(v._id));
-        return [...p, ...newOnes];
-      });
-    } catch (e) {
-      console.error("fetchMore error:", e);
-    }
-  }, []);
+//   const fetchMore = useCallback(async (page = 1) => {
+//     try {
+//       const res = await fetch(`/post/shorts?page=${page}&limit=6`);
+//       if (!res.ok) return;
+//       const data = await res.json();
+//       setPosts((p) => {
+//         const ids = new Set(p.map(x => x._id));
+//         const newOnes = (data.videos || []).filter(v => !ids.has(v._id));
+//         return [...p, ...newOnes];
+//       });
+//     } catch (e) {
+//       console.error("fetchMore error:", e);
+//     }
+//   }, []);
 
-  const handleEnded = (idx) => {
-    const next = videoRefs.current[idx + 1];
-    if (next) next.scrollIntoView({ behavior: "smooth", block: "center" });
-  };
+//   const handleEnded = (idx) => {
+//     const next = videoRefs.current[idx + 1];
+//     if (next) next.scrollIntoView({ behavior: "smooth", block: "center" });
+//   };
 
-  if (!posts || posts.length === 0) {
-    return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-  }
+//   if (!posts || posts.length === 0) {
+//     return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
+//   }
 
-  return (
-    <div className="w-full h-screen overflow-y-auto snap-y snap-mandatory">
-      {posts.map((p, idx) => (
-        <div key={p._id || idx} className="snap-start w-full h-screen flex items-center justify-center">
-          <div className="relative w-full h-full bg-black flex items-center justify-center">
-            <video
-              ref={(el) => (videoRefs.current[idx] = el)}
-              src={p.media || p.mediaUrl}
-              poster={p.thumbnail}
-              data-id={p._id}
-              playsInline
-              loop
-              controls={false}
-              className="object-contain w-full h-full"
-              onEnded={() => handleEnded(idx)}
-            />
-            <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
-              <p className="font-semibold">@{p.userId?.username}</p>
-              <p className="text-sm line-clamp-2 mt-1">{p.title}</p>
-            </div>
-          </div>
-        </div>
-      ))}
-      <div className="p-6 text-center">
-        <button onClick={() => fetchMore(2)} className="px-4 py-2 bg-gray-900 text-white rounded">Load more</button>
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className="w-full h-screen overflow-y-auto snap-y snap-mandatory">
+//       {posts.map((p, idx) => (
+//         <div key={p._id || idx} className="snap-start w-full h-screen flex items-center justify-center">
+//           <div className="relative w-full h-full bg-black flex items-center justify-center">
+//             <video
+//               ref={(el) => (videoRefs.current[idx] = el)}
+//               src={p.media || p.mediaUrl}
+//               poster={p.thumbnail}
+//               data-id={p._id}
+//               playsInline
+//               loop
+//               controls={false}
+//               className="object-contain w-full h-full"
+//               onEnded={() => handleEnded(idx)}
+//             />
+//             <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
+//               <p className="font-semibold">@{p.userId?.username}</p>
+//               <p className="text-sm line-clamp-2 mt-1">{p.title}</p>
+//             </div>
+//           </div>
+//         </div>
+//       ))}
+//       <div className="p-6 text-center">
+//         <button onClick={() => fetchMore(2)} className="px-4 py-2 bg-gray-900 text-white rounded">Load more</button>
+//       </div>
+//     </div>
+//   );
+// }
