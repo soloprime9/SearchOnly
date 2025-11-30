@@ -113,7 +113,7 @@ const Profile = () => {
       <div className="relative h-20 bg-[#0e0e0f]">
         <div className="absolute left-1/2 bottom-0 translate-y-1/2 -translate-x-1/2">
           <img
-            src={user.profilePicture || "/default-pic.png"}
+            src={user.profilePicture || "/Fondpeace.jpg"}
             className="w-28 h-28 rounded-full border-4 border-white shadow-lg object-cover"
           />
         </div>
@@ -163,7 +163,7 @@ const Profile = () => {
       <div className=" md:px-2 lg:px-4 mt-10 pb-10">
         <h2 className="text-xl font-semibold mb-4">Posts</h2>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 ">
 
           {posts.length > 0 ? (
             posts.map((post) => (
