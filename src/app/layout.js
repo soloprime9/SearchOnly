@@ -34,7 +34,7 @@ export default function RootLayout({ children }) {
         
 
         {/* ===== PAGE CONTENT ===== */}
-        <div className="pt-8 px-4 md:px-0 max-w-5xl mx-auto">
+        <div className="pt-8 md:px-0 max-w-5xl mx-auto">
           {children}
         </div>
 
