@@ -371,11 +371,6 @@ export default async function Page({ params }) {
     <h2 className="text-xl font-semibold mb-4 text-gray-900">Related Posts</h2>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-
-      {Array.isArray(related) && related.length > 0 && (
-  <aside className="max-w-5xl mx-auto mt-10 px-4">
-    <h2 className="text-xl font-semibold mb-4 text-gray-900">Related Posts</h2>
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
       {related.map((r) => {
         const thumb = toAbsolute(r.thumbnail || "");
         return (
@@ -392,13 +387,17 @@ export default async function Page({ params }) {
                 loading="lazy"
               />
             </div>
+
             <div className="p-3">
               <p className="font-medium text-gray-900 line-clamp-2 text-sm">
                 {r.title}
               </p>
+
               <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
-                <FaHeart className="text-red-500" /> {likesCount(r)} <span>•</span>{" "}
-                <FaCommentDots /> {commentsCount(r)} <span>•</span>{" "}
+                <FaHeart className="text-red-500" /> {likesCount(r)} 
+                <span>•</span>
+                <FaCommentDots /> {commentsCount(r)} 
+                <span>•</span>
                 <FaEye /> {viewsCount(r) || 0}
               </div>
             </div>
@@ -408,6 +407,7 @@ export default async function Page({ params }) {
     </div>
   </aside>
 )}
+
 
     </div>
   </aside>
@@ -1954,6 +1954,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
