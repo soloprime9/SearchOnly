@@ -181,6 +181,10 @@ export default function Feed() {
           <div className="flex items-center justify-between mb-4">
   {/* Left side → Avatar + Username */}
   <div className="flex items-center gap-3">
+   <Link
+        href={`/profile/${post.userId?.username}`}
+        className="flex items-center gap-3"
+    >
     <img
       src={"https://www.fondpeace.com/og-image.jpg"}
       alt="profile"
@@ -189,6 +193,7 @@ export default function Feed() {
     <span className="font-semibold text-gray-900">
       {post.userId?.username || "Unknown"}
     </span>
+   </Link>
   </div>
 
   {/* Right side → 3 dots menu */}
