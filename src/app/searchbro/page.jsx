@@ -1,17 +1,20 @@
-"use client";
-
+// ✅ SERVER COMPONENT (do NOT add "use client")
 import SearchFull from "@/components/SearchBox";
 
+// ===========================
+//     FULL GOOGLE SEO METADATA
+// ===========================
 export const metadata = {
   title: "FondPeace Search — Explore News, Images & Video Stories",
   description:
     "Search trending news, images, short videos, AI tools, entertainment, sports and global stories — instantly on FondPeace Search.",
-  
+
   keywords: [
     "FondPeace Search",
+    "search engine",
     "trending news",
     "viral videos",
-    "images",
+    "HD images",
     "short videos",
     "AI tools",
     "tech updates",
@@ -59,7 +62,9 @@ export const metadata = {
   },
 };
 
-// JSON-LD component always below imports
+// ===========================
+//     JSON-LD SCHEMAS (SEO)
+// ===========================
 function JsonLD() {
   const now = new Date().toISOString();
 
@@ -94,7 +99,8 @@ function JsonLD() {
     "@type": "WebPage",
     name: "FondPeace Search",
     url: "https://www.fondpeace.com/searchbro",
-    description: metadata.description,
+    description:
+      "Search trending news, images, short videos, AI tools, entertainment, sports and global stories — instantly on FondPeace Search.",
     inLanguage: "en",
     datePublished: "2024-01-01T00:00:00+00:00",
     dateModified: now,
@@ -131,16 +137,54 @@ function JsonLD() {
     ],
   };
 
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://www.fondpeace.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Search",
+        item: "https://www.fondpeace.com/searchbro",
+      },
+    ],
+  };
+
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(page) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(page) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
     </>
   );
 }
 
+// ===========================
+//       FINAL PAGE
+// ===========================
 export default function SearchPage() {
   return (
     <div className="pt-24 p-4 max-w-4xl mx-auto">
