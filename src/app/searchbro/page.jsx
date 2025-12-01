@@ -5,22 +5,21 @@ import SearchFull from "@/components/SearchBox";
 //     FULL GOOGLE SEO METADATA
 // ===========================
 export const metadata = {
-  title: "FondPeace Search — Explore News, Images & Video Stories",
-  description:
-    "Search trending news, images, short videos, AI tools, entertainment, sports and global stories — instantly on FondPeace Search.",
-
+  title: "FondPeace Search — Explore News, sofik sonali 2nd video, desihub,xhamster, Images & Video Stories",
+   description:
+    "Sofik SK is a Bengali content creator with over half a million followers on social media. He often makes videos featuring his partner and fellow content creator, Dustu Sonali. The Palli Gram TV creator has nearly 45 videos on Instagram, most of which show him dancing and lip-syncing to songs.",
+  // Keywords: Use sparingly, focus on Title/Description instead
   keywords: [
-    "FondPeace Search",
-    "search engine",
+    "FondPeace search",
+    "desihub", "19 minute viral video original link","video original link telegram","sofik sonali 2nd video","xhamster",
     "trending news",
     "viral videos",
-    "HD images",
-    "short videos",
     "AI tools",
-    "tech updates",
-    "entertainment news",
+    "tech news",
+    "serial updates",
     "sports highlights",
-    "global news",
+    "global stories",
+    "breaking news",
   ],
 
   alternates: {
@@ -36,7 +35,7 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "FondPeace Search — Find News, Images & Videos Instantly",
+    title: "FondPeace Search — Find News, sofik sonali 2nd video, desihub,xhamster, Images & Videos Instantly",
     description:
       "Use FondPeace Search to explore trending news, images, short videos, entertainment and AI updates — fast & accurate.",
     url: "https://www.fondpeace.com/searchbro",
@@ -120,10 +119,26 @@ function JsonLD() {
       },
       {
         "@type": "Question",
+        name: "Who are Sofik and Sonali?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Sofik SK is a Bengali content creator with over half a million followers on social media. He often makes videos featuring his partner and fellow content creator, Dustu Sonali. The Palli Gram TV creator has nearly 45 videos on Instagram, most of which show him dancing and lip-syncing to songs. Watch. Sofik SK is a Bengali content creator with over half a million followers on social media. He often makes videos featuring his partner and fellow content creator, Dustu Sonali. The Palli Gram TV creator has nearly 45 videos on Instagram, most of which show him dancing and lip-syncing to songs. ",
+        },
+      },
+      {
+        "@type": "Question",
         name: "Is FondPeace free?",
         acceptedAnswer: {
           "@type": "Answer",
           text: "Yes, FondPeace Search is completely free to use.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Are Leaked or Viral Videos available on FondPeace?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes, FondPeace Search is completely free to use and also you can find any Trending or Leaked Videos or News here",
         },
       },
       {
