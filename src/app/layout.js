@@ -5,6 +5,7 @@ import StatusBar from "@/components/StatusBar";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/react";
 import { FaSearch } from "react-icons/fa";
+import Script from "next/script";
 
 const inter = Inter({
   variable: "--font-inter",
