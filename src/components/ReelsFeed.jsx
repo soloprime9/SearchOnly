@@ -119,10 +119,10 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
               src={videoUrl}
               loop
               playsInline
-              muted
+              
               preload={index === 0 ? "metadata" : "none"} // Massive lag fix!
               poster={item.thumbnail || DEFAULT_THUMB}
-              className="w-full h-full object-cover bg-black"
+              className="w-full h-full bg-black"
             />
 
             <div className="absolute bottom-24 left-4 text-white z-20 max-w-[70%]">
