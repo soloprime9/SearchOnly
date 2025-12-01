@@ -1,3 +1,7 @@
+"use client";
+
+import SearchFull from "@/components/SearchBox";
+
 export const metadata = {
   title: "FondPeace Search — Explore News, Images & Video Stories",
   description:
@@ -55,10 +59,7 @@ export const metadata = {
   },
 };
 
-// ===============================================================
-// JSON-LD Structured Data
-// ===============================================================
-
+// JSON-LD component always below imports
 function JsonLD() {
   const now = new Date().toISOString();
 
@@ -97,11 +98,6 @@ function JsonLD() {
     inLanguage: "en",
     datePublished: "2024-01-01T00:00:00+00:00",
     dateModified: now,
-    isPartOf: {
-      "@type": "WebSite",
-      url: "https://www.fondpeace.com",
-      name: "FondPeace",
-    }
   };
 
   const faq = {
@@ -144,10 +140,6 @@ function JsonLD() {
     </>
   );
 }
-
-"use client";
-
-import SearchFull from "@/components/SearchBox";
 
 export default function SearchPage() {
   return (
