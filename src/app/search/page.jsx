@@ -11,11 +11,11 @@ import { Metadata } from "next";
 
 export const metadata = {
   // Primary Title: Keep it concise and keyword-rich
-  title: "FondPeace Search — Trending News, Viral Videos, AI, Tech & Global Stories",
+  title: "FondPeace Search — Trending News, sofik sonali 2nd video, desihub,xhamster, AI, Tech & Global Stories",
   
   // Primary Description: Detailed, compelling, and keyword-inclusive
   description:
-    "Search trending news, viral videos, AI tools, tech updates, serial written updates, sports highlights & global stories on FondPeace.",
+    "sofik sonali 2nd Viral video 19 minute link full video download, desihub, xhamster, AI, anime 19 minute viral video link download free,19 minutes viral video download, 19 minute viral video original link, All viral video link website, Viral video link original, 19 minute viral, video original link telegram, 19 minute viral video telegram link on FondPeace.",
   // Keywords: Use sparingly, focus on Title/Description instead
   keywords: [
     "FondPeace search",
