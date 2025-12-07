@@ -6,7 +6,7 @@ export default async function Page({ params }) {
   console.log("Hello : ", slug);
 
   try {
-    const res = await fetch(`https://gas-back.vercel.app/hello/${slug}`, {
+    const res = await fetch(`https://list-back-nine.vercel.app/hello/${slug}`, {
       cache: "no-store",
     });
 
