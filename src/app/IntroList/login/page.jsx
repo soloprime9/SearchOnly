@@ -22,15 +22,12 @@ export default function LoginPage() {
         password,
       });
 
-      // TOKEN SAVE
       localStorage.setItem("token", res.data.token);
-
-      // SAVE USER DATA
       localStorage.setItem("user", JSON.stringify(res.data.user));
+      console.log("Saved user:", res.data.user);
 
-      alert("Login Success!");
 
-      router.push("/"); // Home page
+      // router.push("/"); // Home page
     } catch (err) {
       alert(err.response?.data?.message || "Login failed");
       
