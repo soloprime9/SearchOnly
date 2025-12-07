@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const API = "https://backend-k.vercel.app/user";
+  const API = "https://gas-back.vercel.app/user";
 
   const handleLogin = async (e) => {
     e.preventDefault();
