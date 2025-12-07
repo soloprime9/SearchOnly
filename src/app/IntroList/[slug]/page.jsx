@@ -5,7 +5,7 @@ export default async function Page({ params }) {
   console.log("Hello : ", slug);
 
   const res = await fetch(
-    `https://backendk-z915.onrender.com/product/hello/${slug}`,
+    `https://gas-back.vercel.app/product/hello/${slug}`,
     { cache: "no-store" }
   );
 
