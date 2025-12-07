@@ -132,17 +132,25 @@ export default async function Page({ params }) {
   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
 
   if (!res.ok) {
-  console.log("API error", await res.text());
-  return { notFound: true };
-}
+    console.log("API error", await res.text());
+    return (
+      <div className="p-20 text-center text-xl text-red-600">
+        Post Not Found
+      </div>
+    );
+  }
 
-const data = await res.json();
-
-  
+  const data = await res.json();
   const post = data?.post;
   const related = data?.related ?? [];
 
-  if (!post) return <div>Post not found</div>;
+  if (!post) {
+    return (
+      <div className="p-20 text-center text-xl text-red-600">
+        Post Not Found
+      </div>
+    );
+  }
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
   const mediaUrl = toAbsolute(post.media || post.mediaUrl);
@@ -1957,6 +1965,7 @@ const data = await res.json();
 // //     </main>
 // //   );
 // // }
+
 
 
 
