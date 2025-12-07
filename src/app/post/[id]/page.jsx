@@ -131,17 +131,8 @@ export default async function Page({ params }) {
   const id = params?.id;
   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
 
-  if(!res.ok){
-  return { title: "Post Not Found" };
-}
-
-let data = null;
-try{
   data = await res.json();
-}catch(e){
-  console.log("Bad JSON", await res.text());
-  return { title: "Post Not Found" };
-}
+
   
   const post = data?.post;
   const related = data?.related ?? [];
@@ -1961,6 +1952,7 @@ try{
 // //     </main>
 // //   );
 // // }
+
 
 
 
