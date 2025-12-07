@@ -34,7 +34,7 @@ export default function SubmitProductForm() {
   const [token, setToken] = useState(null);
 
   const router = useRouter();
-  const API_BASE = "https://gas-back.vercel.app/product";
+  const API_BASE = "https://list-back-nine.vercel.app";
 
   useEffect(() => {
     const t = localStorage.getItem("token");
