@@ -5,7 +5,7 @@ export default async function Page({ params }) {
   console.log("Hello : ", slug);
 
   const res = await fetch(
-    `https://gas-back.vercel.app/product/hello/${slug}`,
+    `https://gas-back.vercel.app/hello/${slug}`,
     { cache: "no-store" }
   );
 
