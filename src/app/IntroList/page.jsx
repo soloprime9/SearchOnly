@@ -34,7 +34,7 @@ export default function SubmitProductForm() {
   const [token, setToken] = useState(null);
 
   const router = useRouter();
-  const API_BASE = "https://backend-k.vercel.app/product";
+  const API_BASE = "https://gas-back.vercel.app/product";
 
   useEffect(() => {
     const t = localStorage.getItem("token");
@@ -89,7 +89,7 @@ export default function SubmitProductForm() {
     });
 
     alert("Product Created!");
-    // router.push(`/product/${res.data.product.slug}`);
+    // router.push(`/IntroList/product/${res.data.product.slug}`);
 
   };
 
