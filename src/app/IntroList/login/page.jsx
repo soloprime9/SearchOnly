@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const API = "https://backendk-z915.onrender.com/user";
+  const API = "https://backend-k.vercel.app/user";
 
   const handleLogin = async (e) => {
     e.preventDefault();
