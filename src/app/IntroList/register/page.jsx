@@ -11,7 +11,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const API = "https://backendk-z915.onrender.com/user";
+  const API = "https://gas-back.vercel.app/user";
 
   const handleRegister = async (e) => {
     e.preventDefault();
