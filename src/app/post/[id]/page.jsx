@@ -131,7 +131,12 @@ export default async function Page({ params }) {
   const id = params?.id;
   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
 
-  data = await res.json();
+  if (!res.ok) {
+  console.log("API error", await res.text());
+  return { notFound: true };
+}
+
+const data = await res.json();
 
   
   const post = data?.post;
@@ -1952,6 +1957,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
