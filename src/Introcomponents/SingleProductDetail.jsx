@@ -104,81 +104,84 @@ export default function ProductPageView({ data }) {
       </p>
 
       {/* Important Links */}
-      <div className="mt-10 flex flex-col gap-4 items-center">
 
-        {product.websiteUrl && (
-          <Link href={product.websiteUrl} target="_blank" className="flex items-center gap-2 text-lg font-semibold text-blue-600 hover:underline">
-            <FaGlobe /> Website <FaExternalLinkAlt />
-          </Link>
-        )}
+      <div className="mt-10 flex flex-wrap gap-4 justify-center">
 
-        {product.playStoreLink && (
-          <a href={product.playStoreLink} target="_blank" className="flex items-center gap-2 text-green-600 hover:underline">
-            <FaGooglePlay /> Play Store
-          </a>
-        )}
+  {product.websiteUrl && (
+    <Link href={product.websiteUrl} target="_blank" className="flex items-center gap-2 text-lg font-semibold text-blue-600 hover:underline">
+      <FaGlobe /> Website <FaExternalLinkAlt />
+    </Link>
+  )}
 
-        {product.appStoreLink && (
-          <a href={product.appStoreLink} target="_blank" className="flex items-center gap-2 text-gray-600 hover:underline">
-            <FaApple /> App Store
-          </a>
-        )}
+  {product.playStoreLink && (
+    <a href={product.playStoreLink} target="_blank" className="flex items-center gap-2 text-green-600 hover:underline">
+      <FaGooglePlay /> Play Store
+    </a>
+  )}
 
-        {product.chromeExtension && (
-          <a href={product.chromeExtension} target="_blank" className="flex items-center gap-2 text-purple-600 hover:underline">
-            <FaChrome /> Chrome Extension
-          </a>
-        )}
+  {product.appStoreLink && (
+    <a href={product.appStoreLink} target="_blank" className="flex items-center gap-2 text-gray-600 hover:underline">
+      <FaApple /> App Store
+    </a>
+  )}
 
-      </div>
+  {product.chromeExtension && (
+    <a href={product.chromeExtension} target="_blank" className="flex items-center gap-2 text-purple-600 hover:underline">
+      <FaChrome /> Chrome Extension
+    </a>
+  )}
 
+</div>
+
+      
       {/* Social */}
-      <div className="mt-10 flex flex-col gap-3 items-center">
+      <div className="mt-10 flex flex-wrap gap-4 justify-center">
 
-        {product.social?.twitter && (
-          <a href={product.social.twitter} target="_blank" className="flex items-center gap-2 text-blue-400 hover:underline">
-            <FaTwitter /> Twitter
-          </a>
-        )}
+  {product.social?.twitter && (
+    <a href={product.social.twitter} target="_blank" className="flex items-center gap-2 text-blue-400 hover:underline">
+      <FaTwitter /> Twitter
+    </a>
+  )}
 
-        {product.social?.github && (
-          <a href={product.social.github} target="_blank" className="flex items-center gap-2 hover:underline">
-            <FaGithub /> Github
-          </a>
-        )}
+  {product.social?.github && (
+    <a href={product.social.github} target="_blank" className="flex items-center gap-2 hover:underline">
+      <FaGithub /> Github
+    </a>
+  )}
 
-        {product.social?.linkedin && (
-          <a href={product.social.linkedin} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
-            <FaLinkedin /> LinkedIn
-          </a>
-        )}
+  {product.social?.linkedin && (
+    <a href={product.social.linkedin} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
+      <FaLinkedin /> LinkedIn
+    </a>
+  )}
 
-        {product.social?.instagram && (
-          <a href={product.social.instagram} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
-            <FaInstagram /> Instagram
-          </a>
-        )}
+  {product.social?.instagram && (
+    <a href={product.social.instagram} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
+      <FaInstagram /> Instagram
+    </a>
+  )}
 
-        {product.social?.facebook && (
-          <a href={product.social.facebook} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
-            <FaFacebook /> Facebook
-          </a>
-        )}
+  {product.social?.facebook && (
+    <a href={product.social.facebook} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
+      <FaFacebook /> Facebook
+    </a>
+  )}
 
-        {product.social?.youtube && (
-          <a href={product.social.youtube} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
-            <FaYoutube /> Youtube
-          </a>
-        )}
+  {product.social?.youtube && (
+    <a href={product.social.youtube} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
+      <FaYoutube /> Youtube
+    </a>
+  )}
 
-        {product.social?.discord && (
-          <a href={product.social.discord} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
-            <FaDiscord /> Discord
-          </a>
-        )}
+  {product.social?.discord && (
+    <a href={product.social.discord} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
+      <FaDiscord /> Discord
+    </a>
+  )}
 
-      </div>
+</div>
 
+      
       {/* Author */}
       <p className="mt-10 flex justify-center items-center gap-2 text-gray-700">
         <FaRegUser /> Added by <span className="font-semibold">{product.createdBy?.username}</span>
