@@ -75,6 +75,26 @@ export default function ProductPageView({ data }) {
         {product.longDescription}
       </p>
 
+      <div>
+          <h4 className="font-semibold">{product.websiteUrl}</h4>
+          <h4 className="font-semibold">{product.appStoreLink}</h4>
+          <h4 className="font-semibold">{product.playStoreLink}</h4>
+          <h4 className="font-semibold">{product.chromeExtension}</h4>
+          
+          
+        </div>
+
+      <div>
+          <h4 className="font-semibold">{product.social.twitter}</h4>
+          <h4 className="font-semibold">{product.social.github}</h4>
+          <h4 className="font-semibold">{product.social.linkedin}</h4>
+          
+        </div>
+
+      <div>
+          <p className="fond-semibold">{product.createdBy.username}</p>
+      </div>
+
       {/* Related */}
       {related?.length > 0 && (
         <div className="mt-14">
