@@ -199,7 +199,8 @@ export default function ProductPageView({ data }) {
                 </div>
 
                 <div className="p-4 text-center">
-                  <h3 className="font-semibold text-lg">{r.title}</h3>
+                  <h3 className="font-semibold text-md">{r.title}</h3>
+                  <p className="fond-semibold text-sm">{r.description}</p>
 
                   <div className="flex justify-center items-center gap-2 mt-2 text-sm text-gray-700">
                     <FaRegUser /> {r.createdBy?.username}
