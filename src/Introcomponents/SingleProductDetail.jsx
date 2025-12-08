@@ -12,7 +12,11 @@ import {
   FaLinkedin, 
   FaGlobe, 
   FaGooglePlay, 
-  FaApple, 
+  FaApple,
+  FaInstagram,
+  FaDiscord,
+  FaYoutube,
+  FaFacebook,
   FaChrome 
 } from "react-icons/fa";
 
@@ -146,6 +150,30 @@ export default function ProductPageView({ data }) {
         {product.social?.linkedin && (
           <a href={product.social.linkedin} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
             <FaLinkedin /> LinkedIn
+          </a>
+        )}
+
+        {product.social?.instagram && (
+          <a href={product.social.instagram} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
+            <FaInstagram /> Instagram
+          </a>
+        )}
+
+        {product.social?.facebook && (
+          <a href={product.social.facebook} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
+            <FaFacebook /> Facebook
+          </a>
+        )}
+
+        {product.social?.youtube && (
+          <a href={product.social.youtube} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
+            <FaYoutube /> Youtube
+          </a>
+        )}
+
+        {product.social?.discord && (
+          <a href={product.social.discord} target="_blank" className="flex items-center gap-2 text-blue-700 hover:underline">
+            <FaDiscord /> Discord
           </a>
         )}
 
