@@ -11,30 +11,38 @@ export default function SubmitProductForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [longDescription, setLongDescription] = useState("");
-
   const [tags, setTags] = useState("");
-  const [plans, setPlans] = useState([]);
 
   const [location, setLocation] = useState({ city: "", country: "" });
-  const [videoUrl, setVideoUrl] = useState("");
-
-  const [thumbnail, setThumbnail] = useState(null);
-  const [gallery, setGallery] = useState(null);
 
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [appStoreLink, setAppStoreLink] = useState("");
   const [playStoreLink, setPlayStoreLink] = useState("");
   const [chromeExtension, setChromeExtension] = useState("");
 
-  const [social, setSocial] = useState({ twitter: "", github: "", linkedin: "" });
+  const [social, setSocial] = useState({
+    twitter: "",
+    facebook: "",
+    linkedin: "",
+    youtube: "",
+    instagram: "",
+    discord: "",
+    github: ""
+  });
+
+  const [thumbnail, setThumbnail] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState("");
+
+  const [videoUrl, setVideoUrl] = useState("");
 
   const [launchDate, setLaunchDate] = useState("");
   const [launchStatus, setLaunchStatus] = useState("live");
+  const [progress, setProgress] = useState(0);
 
   const [token, setToken] = useState(null);
 
   const router = useRouter();
-  const API_BASE = "https://backend-k.vercel.app/product";
+  const API_BASE = "https://list-back-nine.vercel.app";
 
   useEffect(() => {
     const t = localStorage.getItem("token");
@@ -43,10 +51,19 @@ export default function SubmitProductForm() {
   }, []);
 
   useEffect(() => {
-    axios.get(`${API_BASE}/categories/all`)
-      .then(res => setCategories(res.data.categories))
+    axios
+      .get(`${API_BASE}/categories/all`)
+      .then((res) => setCategories(res.data.categories))
       .catch(console.error);
   }, []);
+
+  const handleThumbnail = (e) => {
+    const file = e.target.files[0];
+    setThumbnail(file);
+
+    const url = URL.createObjectURL(file);
+    setThumbnailPreview(url);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,7 +76,10 @@ export default function SubmitProductForm() {
     fd.append("longDescription", longDescription);
 
     if (tags)
-      fd.append("tags", JSON.stringify(tags.split(",").map(t => ({ name: t.trim() }))));
+      fd.append(
+        "tags",
+        JSON.stringify(tags.split(",").map((t) => ({ name: t.trim() })))
+      );
 
     fd.append("videoUrl", videoUrl);
 
@@ -79,131 +99,180 @@ export default function SubmitProductForm() {
     if (newCategory) fd.append("newCategory", newCategory);
 
     if (thumbnail) fd.append("thumbnail", thumbnail);
-    if (gallery) fd.append("gallery", gallery);
 
     const res = await axios.post(`${API_BASE}/create`, fd, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "multipart/form-data"
+      },
+      onUploadProgress: (ev) => {
+        const percent = Math.round((ev.loaded * 100) / ev.total);
+        setProgress(percent);
       }
     });
 
     alert("Product Created!");
     // router.push(`/product/${res.data.product.slug}`);
-
   };
 
   return (
     <div className="max-w-3xl mx-auto p-5">
       <h1 className="text-2xl font-bold mb-6">Submit Product</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-
-        {/* Title */}
-        <div>
-          <label className="block font-semibold">Product Title</label>
-          <input type="text" className="w-full border p-2" 
-            value={title} onChange={e => setTitle(e.target.value)} required />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block font-semibold">Short Description</label>
-          <textarea className="w-full border p-2"
-            value={description} onChange={e => setDescription(e.target.value)} required />
-        </div>
-
-        {/* Long Description */}
-        <div>
-          <label className="block font-semibold">Long Description</label>
-          <textarea className="w-full border p-2"
-            value={longDescription} onChange={e => setLongDescription(e.target.value)} />
-        </div>
-
-        {/* Category */}
-        <div>
-          <label className="block font-semibold">Category</label>
-          <select className="w-full border p-2"
-            value={selectedCategory}
-            onChange={e => setSelectedCategory(e.target.value)}>
-            <option value="">-- Select Category --</option>
-            {categories.map(c => (
-              <option key={c._id} value={c._id}>{c.name}</option>
-            ))}
-          </select>
-
-          <input
-            type="text"
-            className="w-full border p-2 mt-2"
-            placeholder="Or create new category"
-            value={newCategory}
-            onChange={e => setNewCategory(e.target.value)}
+      {progress > 0 && (
+        <div className="w-full bg-gray-300 rounded-full h-3 mb-4">
+          <div
+            className="bg-blue-600 h-3 rounded-full"
+            style={{ width: `${progress}%` }}
           />
         </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Title */}
+        <input
+          type="text"
+          placeholder="Product title"
+          className="w-full border p-2"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+
+        {/* Description */}
+        <textarea
+          className="w-full border p-2"
+          placeholder="Short Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+
+        {/* Long Description */}
+        <textarea
+          className="w-full border p-2"
+          placeholder="Long detailed description"
+          value={longDescription}
+          onChange={(e) => setLongDescription(e.target.value)}
+        />
+
+        {/* Category */}
+        <select
+          className="w-full border p-2"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="">
+            -- Select Category --
+          </option>
+          {categories.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="text"
+          placeholder="Or create new category"
+          className="w-full border p-2"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+        />
 
         {/* Tags */}
-        <div>
-          <label className="block font-semibold">Tags (comma separated)</label>
-          <input className="w-full border p-2"
-            value={tags} onChange={e => setTags(e.target.value)} />
-        </div>
-
-        {/* Video URL */}
-        <div>
-          <label className="block font-semibold">Video URL</label>
-          <input className="w-full border p-2"
-            value={videoUrl} onChange={e => setVideoUrl(e.target.value)} />
-        </div>
+        <input
+          className="w-full border p-2"
+          value={tags}
+          placeholder="Tags (comma)"
+          onChange={(e) => setTags(e.target.value)}
+        />
 
         {/* Thumbnail */}
         <div>
-          <label className="block font-semibold">Thumbnail Image</label>
-          <input type="file" accept="image/*"
-            onChange={e => setThumbnail(e.target.files[0])} />
+          <label>Thumbnail</label>
+          <input type="file" accept="image/*" onChange={handleThumbnail} />
+
+          {thumbnailPreview && (
+            <img
+              src={thumbnailPreview}
+              className="w-full max-h-64 object-cover mt-3 rounded-lg"
+            />
+          )}
         </div>
 
-        {/* Gallery */}
-        <div>
-          <label className="block font-semibold">Gallery Image</label>
-          <input type="file" accept="image/*"
-            onChange={e => setGallery(e.target.files[0])} />
-        </div>
+        {/* Links */}
+        <input
+          className="w-full border p-2"
+          placeholder="Website"
+          value={websiteUrl}
+          onChange={(e) => setWebsiteUrl(e.target.value)}
+        />
 
-        {/* Website URLs */}
-        <div>
-          <label className="block font-semibold">Website URL</label>
-          <input className="w-full border p-2"
-            value={websiteUrl} onChange={e => setWebsiteUrl(e.target.value)} />
-        </div>
+        <input
+          className="w-full border p-2"
+          placeholder="Play Store"
+          value={playStoreLink}
+          onChange={(e) => setPlayStoreLink(e.target.value)}
+        />
+
+        <input
+          className="w-full border p-2"
+          placeholder="App Store"
+          value={appStoreLink}
+          onChange={(e) => setAppStoreLink(e.target.value)}
+        />
+
+        <input
+          className="w-full border p-2"
+          placeholder="Chrome Extension"
+          value={chromeExtension}
+          onChange={(e) => setChromeExtension(e.target.value)}
+        />
+
+        {/* Social */}
+        {Object.keys(social).map((key) => (
+          <input
+            key={key}
+            className="w-full border p-2"
+            placeholder={key}
+            value={social[key]}
+            onChange={(e) =>
+              setSocial({ ...social, [key]: e.target.value })
+            }
+          />
+        ))}
 
         {/* Location */}
-        <div>
-          <label className="block font-semibold">Location</label>
-          <input className="w-full border p-2 mb-2"
-            placeholder="City"
-            value={location.city}
-            onChange={(e) => setLocation({ ...location, city: e.target.value })} />
+        <input
+          className="w-full border p-2"
+          placeholder="City"
+          value={location.city}
+          onChange={(e) => setLocation({ ...location, city: e.target.value })}
+        />
 
-          <input className="w-full border p-2"
-            placeholder="Country"
-            value={location.country}
-            onChange={(e) => setLocation({ ...location, country: e.target.value })} />
-        </div>
+        <input
+          className="w-full border p-2"
+          placeholder="Country"
+          value={location.country}
+          onChange={(e) =>
+            setLocation({ ...location, country: e.target.value })
+          }
+        />
 
-        {/* Launch Date */}
-        <div>
-          <label className="block font-semibold">Launch Date</label>
-          <input type="date" className="w-full border p-2"
-            value={launchDate} onChange={e => setLaunchDate(e.target.value)} />
-        </div>
+        <input
+          type="date"
+          className="w-full border p-2"
+          value={launchDate}
+          onChange={(e) => setLaunchDate(e.target.value)}
+        />
 
-        {/* Submit */}
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+        >
           Submit Product
         </button>
-
       </form>
     </div>
   );
