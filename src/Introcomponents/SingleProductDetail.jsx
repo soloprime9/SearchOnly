@@ -194,7 +194,7 @@ export default function ProductPageView({ data }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {related.map(r => (
-              <Link key={r._id} href={`/product/${r.slug}`} 
+              <Link key={r._id} href={`/IntroList/${r.slug}`} 
                 className="bg-white rounded-xl shadow hover:shadow-xl hover:-translate-y-1 transition overflow-hidden">
                   
                 <div className="h-44 w-full overflow-hidden">
