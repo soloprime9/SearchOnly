@@ -55,10 +55,11 @@ export default function RootLayout({ children }) {
           {children}
         </div>
 
-        // {/* ===== STATUS BAR ===== */}
-        // <div className="mt-8 px-4 md:px-0">
-        //   <StatusBar />
-        // </div>
+        {/* ===== STATUS BAR ===== 
+        <div className="mt-8 px-4 md:px-0">
+          <StatusBar />
+        </div>
+        */}
 
         <Analytics />
       </body>
