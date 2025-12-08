@@ -198,7 +198,7 @@ export default function ProductPageView({ data }) {
                   <img src={r.thumbnail} className="h-full w-full object-cover" />
                 </div>
 
-                <div className="p-4 text-center">
+                <div className="p-4 ">
                   <h3 className="font-semibold text-md">{r.title}</h3>
                   <p className="fond-semibold text-sm">{r.description}</p>
 
