@@ -30,13 +30,14 @@ export default function ProductPageView({ data }) {
     <div className="max-w-4xl mx-auto p-5 md:p-10">
 
       {/* Thumbnail */}
-      <div className="w-full h-56 md:h-80 rounded-xl overflow-hidden shadow-lg">
-        <img
-          src={product.thumbnail}
-          alt={product.title}
-          className="w-full h-full object-cover"
-        />
-      </div>
+      <div className="w-full h-56 md:h-80 rounded-xl overflow-hidden shadow-lg border border-gray-300">
+  <img
+    src={product.thumbnail}
+    alt={product.title}
+    className="w-full h-full object-cover border border-red-400"
+  />
+</div>
+
 
       {/* Title */}
       <h1 className="mt-6 text-center text-3xl md:text-4xl font-bold leading-tight">
@@ -48,29 +49,32 @@ export default function ProductPageView({ data }) {
       </p>
 
       {/* Stats */}
-      <div className="grid md:grid-cols-3 gap-8 bg-white shadow-md p-6 rounded-xl mt-10">
 
-        <div className="text-center">
-          <h4 className="font-semibold">Launched</h4>
-          <p className="text-gray-600 flex justify-center items-center gap-2">
-            <FaCalendar /> {new Date(product.launchDate).toDateString()}
-          </p>
-        </div>
+      {/* Stats */}
+<div className="flex flex-wrap justify-center gap-10 bg-white shadow-md p-6 rounded-xl mt-10 text-center">
 
-        <div className="text-center">
-          <h4 className="font-semibold">Location</h4>
-          <p className="flex justify-center items-center gap-2 text-gray-600">
-            <FaMapMarkerAlt />
-            {product.location?.city}, {product.location?.country}
-          </p>
-        </div>
+  <div>
+    <h4 className="font-semibold">Launched</h4>
+    <p className="text-gray-600 flex justify-center items-center gap-2">
+      <FaCalendar /> {new Date(product.launchDate).toDateString()}
+    </p>
+  </div>
 
-        <div className="text-center">
-          <h4 className="font-semibold">Category</h4>
-          <p className="text-gray-600">{product.category?.name}</p>
-        </div>
+  <div>
+    <h4 className="font-semibold">Location</h4>
+    <p className="text-gray-600 flex justify-center items-center gap-2">
+      <FaMapMarkerAlt />
+      {product.location?.city}, {product.location?.country}
+    </p>
+  </div>
 
-      </div>
+  <div>
+    <h4 className="font-semibold">Category</h4>
+    <p className="text-gray-600">{product.category?.name}</p>
+  </div>
+
+</div>
+
 
       {/* Tags */}
       {product.tags?.length > 0 && (
