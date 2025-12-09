@@ -1,5 +1,6 @@
 // app/IntroList/[slug]/page.js
 import ProductPageView from "@/Introcomponents/SingleProductDetail";
+import Footer from "@/Introcomponents/Footer";
 import Link from "next/link";
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }) {
@@ -86,6 +87,7 @@ export default async function Page({ params }) {
 </header>
 
     <ProductPageView data={data} />
+    <Footer />
   </>
 );
 
