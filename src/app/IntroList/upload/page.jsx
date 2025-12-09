@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function SubmitProductForm() {
@@ -116,7 +117,7 @@ export default function SubmitProductForm() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-5">
+    <div>
 
       {/* ===== HEADER ===== */}
        <header className="w-full top-0 left-0 pb-2 z-50 bg-white shadow-md">
@@ -130,6 +131,8 @@ export default function SubmitProductForm() {
 
   </div>
 </header>
+
+    <div className="max-w-3xl mx-auto p-5">
       <h1 className="text-2xl font-bold mb-6">Submit Product</h1>
 
       {progress > 0 && (
@@ -287,6 +290,7 @@ export default function SubmitProductForm() {
           Submit Product
         </button>
       </form>
+    </div>
     </div>
   );
 }
