@@ -1,6 +1,6 @@
 // app/IntroList/[slug]/page.js
 import ProductPageView from "@/Introcomponents/SingleProductDetail";
-
+import Link from "next/link";
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }) {
   const slug = params.slug;
