@@ -11,7 +11,8 @@ export default function IntroListView({ list = [] }) {
   const [hasMore, setHasMore] = useState(true);
 
   const loadMore = async () => {
-    const res = await fetch(`/api/get/IntroList?page=${page}`);
+    const res = await fetch(`https://list-back-nine.vercel.app/get/mango?page=${page}`);
+
     const json = await res.json();
 
     // API must return {products:[], hasMore:true}
