@@ -118,7 +118,7 @@ export default async function Page() {
        <header className="w-full top-0 left-0 z-50 bg-white shadow-md">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-6">
     
-    <h1 className="font-extrabold text-blue-600 text-lg sm:text-xl md:text-2xl">
+    <h1 className="font-extrabold px-4 text-blue-600 text-lg sm:text-xl md:text-2xl">
       <Link href="/IntroList" className="hover:text-blue-700 transition-colors duration-300">
         IntroList
       </Link>
