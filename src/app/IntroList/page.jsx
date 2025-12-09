@@ -114,6 +114,18 @@ export default async function Page() {
           }),
         }}
       />
+{/* ===== HEADER ===== */}
+       <header className="w-full fixed top-0 left-0 z-50 flex justify-center items-center px-4 py-3 md:py-4 border-b border-gray-200 bg-white shadow-md backdrop-blur-sm">
+
+  
+  <h1 className="font-bold text-lg sm:text-xl md:text-2xl text-blue-600 ">
+    <Link href="/IntroList" className="hover:text-blue-700 transition">
+      IntroList
+    </Link>
+  </h1>
+
+</header>
+
 
       <IntroListView list={list} />
     </>
