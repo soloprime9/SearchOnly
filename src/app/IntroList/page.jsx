@@ -2,6 +2,7 @@
 import Script from "next/script";
 import Link from "next/link";
 import IntroListView from "@/Introcomponents/IntroListView"; 
+import Footer from "@/Introcomponents/Footer";
 // this is your component that shows list
 
 // ---------- SEO Metadata ----------
@@ -130,6 +131,7 @@ export default async function Page() {
 
 
       <IntroListView list={list} />
+    <Footer />
     </>
   );
 }
