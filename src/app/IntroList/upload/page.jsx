@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Footer from "@/Introcomponents/Footer";
 
 export default function SubmitProductForm() {
   const [categories, setCategories] = useState([]);
@@ -291,6 +292,8 @@ export default function SubmitProductForm() {
         </button>
       </form>
     </div>
+
+      <Footer />
     </div>
   );
 }
