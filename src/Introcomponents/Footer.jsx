@@ -4,7 +4,7 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="footer footer-horizontal footer-center bg-primary text-primary-content p-10">
+    <footer className="footer footer-horizontal footer-center bg-yellow-500 text-primary-content p-10">
       <aside className="text-center space-y-2">
         <svg
           width="50"
