@@ -70,23 +70,23 @@ export default async function Page({ params }) {
 
   const data = await res.json();
 
-  return
-  <> 
+  return (
+  <>
     {/* ===== HEADER ===== */}
-       <header className="w-full top-0 left-0 pb-2 z-50 bg-white shadow-md">
-  <div className="max-w-7xl mx-auto px-2 sm:px-2 lg:px-4 flex items-center justify-between h-6">
-    
-    <h1 className="font-extrabold px-2 text-blue-600 text-lg sm:text-xl md:text-2xl">
-      <Link href="/IntroList" className="hover:text-blue-700 transition-colors duration-300">
-        IntroList
-      </Link>
-    </h1>
+    <header className="w-full top-0 left-0 pb-2 z-50 bg-white shadow-md sticky">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+        <h1 className="font-extrabold text-blue-600 text-lg sm:text-xl md:text-2xl">
+          <Link href="/IntroList" className="hover:text-blue-700 transition-colors duration-300">
+            IntroList
+          </Link>
+        </h1>
+      </div>
+    </header>
 
-  </div>
-</header>
-  <ProductPageView data={data} />;
-
+    <ProductPageView data={data} />
   </>
+);
+
 }
 
 
