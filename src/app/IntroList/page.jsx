@@ -1,6 +1,6 @@
 // app/IntroList/page.jsx
 import Script from "next/script";
-
+import Link from "next/link";
 import IntroListView from "@/Introcomponents/IntroListView"; 
 // this is your component that shows list
 
