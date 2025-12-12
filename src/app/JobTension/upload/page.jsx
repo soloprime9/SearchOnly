@@ -26,7 +26,7 @@ export default function AddJob() {
       skillsKeywords: formData.skillsKeywords.split(","),
     };
 
-    await fetch("https://your-backend.com/job/add", {
+    await fetch("https://list-back-nine.vercel.app/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
