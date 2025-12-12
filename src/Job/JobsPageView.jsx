@@ -8,13 +8,13 @@ export default function JobsPageView({ jobs }) {
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-2 flex items-center justify-between">
 
-          <Link href="/" className="text-2xl font-bold text-blue-600">
+          <Link href="/JobTension" className="text-2xl font-bold text-blue-600">
             Job Tension
           </Link>
 
           <nav className="flex items-center gap-6 text-blue-700 font-semibold text-lg">
-            <Link href="/" className="hover:underline">Home</Link>
-            <Link href="/JobTension" className="hover:underline">JobTension</Link>
+            <Link href="/" className="hover:underline">FondPeace</Link>
+            
             <Link href="/IntroList" className="hover:underline">IntroList</Link>
           </nav>
 
@@ -68,32 +68,32 @@ export default function JobsPageView({ jobs }) {
                 )}
 
                 {/* TAGS */}
-                <div className="flex flex-wrap items-center gap-2 mt-4 text-xs">
+                <div className="flex flex-wrap items-center gap-2 mt-4 text-sm">
 
                   {/* Job Type */}
                   {job.jobType && (
-                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full">
+                    <span className="px-3 py-1 bg-blue-50 text-blue-800 rounded-full">
                       {job.jobType}
                     </span>
                   )}
 
                   {/* Experience */}
                   {job.experienceLevel && (
-                    <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full">
+                    <span className="px-3 py-1 bg-green-50 text-red-800 rounded-full">
                       {job.experienceLevel}
                     </span>
                   )}
 
                   {/* Salary Type */}
                   {job.salaryType && (
-                    <span className="px-3 py-1 bg-yellow-50 text-yellow-600 rounded-full">
+                    <span className="px-3 py-1 bg-yellow-50 text-yellow-800 rounded-full">
                       {job.salaryType}
                     </span>
                   )}
 
                   {/* Salary Range */}
                   {job.salaryRange && (
-                    <span className="px-3 py-1 bg-orange-50 text-orange-600 rounded-full">
+                    <span className="px-3 py-1 bg-blue-800 text-white rounded-full">
                       {job.salaryRange}
                     </span>
                   )}
