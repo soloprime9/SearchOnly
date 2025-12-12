@@ -1,13 +1,33 @@
+import Link from "next/link";
 // components/JobsPageView.jsx  
 export default function JobsPageView({ jobs }) {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Website Header */}
+
       <header className="bg-white shadow">
-        <div className="max-w-5xl mx-auto px-6 py-4">
-          <h1 className="text-3xl font-bold text-blue-600">Job Tension</h1>
-        </div>
-      </header>
+  <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    
+    {/* LEFT SIDE */}
+    <h1 className="text-3xl font-bold text-blue-600">
+      Job Tension
+    </h1>
+
+    {/* RIGHT SIDE */}
+    <div className="text-right space-y-0 leading-tight hidden sm:block">
+      <p className="text-xl font-bold text-blue-700">FondPeace</p>
+      <p className="text-xl font-bold text-blue-700">Intro List</p>
+    </div>
+
+    {/* Mobile Layout */}
+    <div className="sm:hidden text-right">
+      <p className="text-lg font-bold text-blue-700">FondPeace</p>
+      <p className="text-lg font-bold text-blue-700">Intro List</p>
+    </div>
+
+  </div>
+</header>
+
 
       {/* Content */}
       <main className="max-w-5xl mx-auto px-6 py-10">
@@ -21,7 +41,7 @@ export default function JobsPageView({ jobs }) {
         {/* Job List */}
         <div className="space-y-6">
           {jobs?.map((job) => (
-            <a
+            <Link
               key={job._id}
               href={`/jobs/${job._id}`}
               className="block border bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
@@ -52,7 +72,7 @@ export default function JobsPageView({ jobs }) {
                   </span>
                 )}
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </main>
