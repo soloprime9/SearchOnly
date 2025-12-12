@@ -43,7 +43,7 @@ export default function JobsPageView({ jobs }) {
           {jobs?.map((job) => (
             <Link
               key={job._id}
-              href={`/jobs/${job._id}`}
+              href={`/JobTension/${job._id}`}
               className="block border bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
             >
               <h3 className="text-xl font-semibold text-gray-900">
