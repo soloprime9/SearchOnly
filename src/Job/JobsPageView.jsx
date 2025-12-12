@@ -6,10 +6,10 @@ export default function JobsPageView({ jobs }) {
       {/* Website Header */}
 
       <header className="bg-white shadow">
-  <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+  <div className="max-w-6xl mx-auto px-6 py-2 flex items-center justify-between">
 
     {/* LEFT */}
-    <h1 className="text-3xl font-bold text-blue-600">
+    <h1 className="text-2xl font-bold text-blue-600">
       Job Tension
     </h1>
 
