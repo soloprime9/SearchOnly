@@ -1,5 +1,5 @@
 // app/jobs/page.js
-import JobsPageView from "@/components/JobsPageView";
+import JobsPageView from "@/Job/JobsPageView";
 
 export default async function JobsPage() {
   const res = await fetch("https://list-back-nine.vercel.app/job/all", {
