@@ -2,7 +2,7 @@
 import JobsPageView from "@/components/JobsPageView";
 
 export default async function JobsPage() {
-  const res = await fetch("https://your-backend.com/job/all", {
+  const res = await fetch("https://list-back-nine.vercel.app/job/all", {
     cache: "no-store",
   });
 
