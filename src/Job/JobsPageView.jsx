@@ -1,4 +1,4 @@
-// components/JobsPageView.jsx 
+// components/JobsPageView.jsx  
 export default function JobsPageView({ jobs }) {
   return (
     <div className="min-h-screen bg-gray-100">
