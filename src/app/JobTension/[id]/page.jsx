@@ -1,4 +1,5 @@
 import JobDetailComponent from "@/Job/JobDetailComponent";
+import Link from "next/link";
 
 export default async function JobDetailPage({ params }) {
   const { id } = params;
