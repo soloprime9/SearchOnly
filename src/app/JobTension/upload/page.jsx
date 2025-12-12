@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import JobPreview from "@/Job/JobPreview"; // import preview
 
 export default function AddJob() {
   const router = useRouter();
+  
   const [formData, setFormData] = useState({
     companyName: "",
     jobTitle: "",
@@ -23,31 +25,22 @@ export default function AddJob() {
   const [errors, setErrors] = useState({});
   const [showPreview, setShowPreview] = useState(false);
 
-  // Handle input change
+  // Handle change
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+    setFormData(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // Validate required fields
+  // Validate fields
   const validate = () => {
     const newErrors = {};
     const requiredFields = [
-      "companyName",
-      "jobTitle",
-      "aboutJob",
-      "requirements",
-      "salaryType",
-      "salaryRange",
-      "applyLink",
-      "jobLocation",
-      "jobType",
-      "experienceLevel",
-      "category",
-      "skillsKeywords",
+      "companyName", "jobTitle", "aboutJob", "requirements",
+      "salaryType", "salaryRange", "applyLink", "jobLocation",
+      "jobType", "experienceLevel", "category", "skillsKeywords"
     ];
 
-    requiredFields.forEach((field) => {
+    requiredFields.forEach(field => {
       if (!formData[field] || formData[field].trim() === "") {
         newErrors[field] = "This field is required";
       }
@@ -60,38 +53,31 @@ export default function AddJob() {
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validate()) {
-      alert("Please fill all required fields!");
-      return;
-    }
+    if (!validate()) return;
 
     const payload = {
       ...formData,
-      requirements: formData.requirements.split(",").map((r) => r.trim()),
-      skillsKeywords: formData.skillsKeywords.split(",").map((r) => r.trim()),
+      requirements: formData.requirements.split(",").map(r => r.trim()),
+      skillsKeywords: formData.skillsKeywords.split(",").map(r => r.trim())
     };
 
-    const res = await fetch("https://list-back-nine.vercel.app/job/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch("https://list-back-nine.vercel.app/job/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-    if (!res.ok) {
-      alert("Failed to add job!");
-      return;
+      if (!res.ok) throw new Error("Failed to add job!");
+
+      const data = await res.json();
+      router.push(`/JobTension/${data.job._id}`);
+    } catch (err) {
+      alert(err.message);
     }
-
-    const data = await res.json();
-  const jobId = data.job._id; // Get the newly created job ID
-
-  // Redirect to the newly created Job Detail page
-  router.push(`/JobTension/${jobId}`);
-    
   };
 
-  // Simple Input component
+  // Input component
   const Input = ({ name, ...props }) => (
     <div>
       <input
@@ -105,7 +91,7 @@ export default function AddJob() {
     </div>
   );
 
-  // Simple Select component
+  // Select component
   const Select = ({ name, children }) => (
     <div>
       <select
@@ -120,11 +106,17 @@ export default function AddJob() {
     </div>
   );
 
+  // Split values for preview to match JobDetail
+  const previewData = {
+    ...formData,
+    requirements: formData.requirements ? formData.requirements.split(",").map(r => r.trim()) : [],
+    skillsKeywords: formData.skillsKeywords ? formData.skillsKeywords.split(",").map(r => r.trim()) : []
+  };
+
   return (
     <div className="max-w-2xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md space-y-6">
       <h1 className="text-3xl font-bold mb-4">Add New Job</h1>
 
-      {/* FORM */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input name="companyName" placeholder="Company Name" />
         <Input name="jobTitle" placeholder="Job Title" />
@@ -166,7 +158,6 @@ export default function AddJob() {
         <Input name="category" placeholder="Category (e.g. IT, Finance)" />
         <Input name="skillsKeywords" placeholder="Skills Keywords (comma separated)" />
 
-        {/* Remote */}
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -195,39 +186,7 @@ export default function AddJob() {
       </form>
 
       {/* LIVE PREVIEW */}
-      {showPreview && (
-        <div className="mt-6 p-4 bg-white rounded-lg shadow space-y-2">
-          <h2 className="text-2xl font-bold">{formData.jobTitle || "Job Title"}</h2>
-          <p className="text-gray-600">{formData.companyName || "Company Name"}</p>
-          <p>{formData.aboutJob}</p>
-          <p>
-            <strong>Requirements:</strong> {formData.requirements}
-          </p>
-          <p>
-            <strong>Salary:</strong> {formData.salaryType} — {formData.salaryRange}
-          </p>
-          <p>
-            <strong>Job Type / Experience:</strong> {formData.jobType} / {formData.experienceLevel}
-          </p>
-          <p>
-            <strong>Category:</strong> {formData.category}
-          </p>
-          <p>
-            <strong>Skills:</strong> {formData.skillsKeywords}
-          </p>
-          <p>
-            <strong>Location:</strong> {formData.jobLocation}
-          </p>
-          {formData.isRemote && <p className="text-green-700">Remote Job Available</p>}
-          <a
-            href={formData.applyLink || "#"}
-            target="_blank"
-            className="inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Apply Link
-          </a>
-        </div>
-      )}
+      {showPreview && <JobPreview job={previewData} />}
     </div>
   );
 }
