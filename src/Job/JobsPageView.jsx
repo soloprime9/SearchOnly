@@ -7,26 +7,22 @@ export default function JobsPageView({ jobs }) {
 
       <header className="bg-white shadow">
   <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    
-    {/* LEFT SIDE */}
+
+    {/* LEFT */}
     <h1 className="text-3xl font-bold text-blue-600">
       Job Tension
     </h1>
 
-    {/* RIGHT SIDE */}
-    <div className="text-right space-y-0 leading-tight hidden sm:block">
-      <p className="text-xl font-bold text-blue-700">FondPeace</p>
-      <p className="text-xl font-bold text-blue-700">Intro List</p>
-    </div>
-
-    {/* Mobile Layout */}
-    <div className="sm:hidden text-right">
-      <p className="text-lg font-bold text-blue-700">FondPeace</p>
-      <p className="text-lg font-bold text-blue-700">Intro List</p>
+    {/* RIGHT INLINE */}
+    <div className="flex items-center gap-4 text-blue-700 font-bold text-xl flex-wrap justify-end">
+      <span>FondPeace</span>
+      <span className="hidden sm:inline">|</span>
+      <span>Intro List</span>
     </div>
 
   </div>
 </header>
+
 
 
       {/* Content */}
