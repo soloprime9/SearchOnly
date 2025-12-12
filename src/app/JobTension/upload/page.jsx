@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import JobPreview from "@/Job/JobPreview"; // import preview
 
 export default function AddJob() {
   const router = useRouter();
-  
+
   const [formData, setFormData] = useState({
     companyName: "",
     jobTitle: "",
@@ -25,13 +25,13 @@ export default function AddJob() {
   const [errors, setErrors] = useState({});
   const [showPreview, setShowPreview] = useState(false);
 
-  // Handle change
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // Validate fields
+  // Validate form fields
   const validate = () => {
     const newErrors = {};
     const requiredFields = [
@@ -69,7 +69,6 @@ export default function AddJob() {
       });
 
       if (!res.ok) throw new Error("Failed to add job!");
-
       const data = await res.json();
       router.push(`/JobTension/${data.job._id}`);
     } catch (err) {
@@ -77,7 +76,14 @@ export default function AddJob() {
     }
   };
 
-  // Input component
+  // Memoized preview data to prevent re-render flicker
+  const previewData = useMemo(() => ({
+    ...formData,
+    requirements: formData.requirements ? formData.requirements.split(",").map(r => r.trim()) : [],
+    skillsKeywords: formData.skillsKeywords ? formData.skillsKeywords.split(",").map(r => r.trim()) : []
+  }), [formData]);
+
+  // Input Component
   const Input = ({ name, ...props }) => (
     <div>
       <input
@@ -91,7 +97,7 @@ export default function AddJob() {
     </div>
   );
 
-  // Select component
+  // Select Component
   const Select = ({ name, children }) => (
     <div>
       <select
@@ -105,13 +111,6 @@ export default function AddJob() {
       {errors[name] && <p className="text-red-600 text-sm mt-1">{errors[name]}</p>}
     </div>
   );
-
-  // Split values for preview to match JobDetail
-  const previewData = {
-    ...formData,
-    requirements: formData.requirements ? formData.requirements.split(",").map(r => r.trim()) : [],
-    skillsKeywords: formData.skillsKeywords ? formData.skillsKeywords.split(",").map(r => r.trim()) : []
-  };
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md space-y-6">
