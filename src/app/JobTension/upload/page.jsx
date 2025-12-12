@@ -1,7 +1,7 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import JobPreview from "@/Job/JobPreview"; // import preview
+import JobPreview from "@/Job/JobPreview";
 
 export default function AddJob() {
   const router = useRouter();
@@ -25,13 +25,33 @@ export default function AddJob() {
   const [errors, setErrors] = useState({});
   const [showPreview, setShowPreview] = useState(false);
 
+  // Separate state for preview to avoid input flicker
+  const [previewData, setPreviewData] = useState({
+    ...formData,
+    requirements: [],
+    skillsKeywords: []
+  });
+
+  // Update previewData only when formData changes
+  useEffect(() => {
+    setPreviewData({
+      ...formData,
+      requirements: formData.requirements
+        ? formData.requirements.split(",").map(r => r.trim())
+        : [],
+      skillsKeywords: formData.skillsKeywords
+        ? formData.skillsKeywords.split(",").map(r => r.trim())
+        : []
+    });
+  }, [formData]);
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // Validate form fields
+  // Validate form
   const validate = () => {
     const newErrors = {};
     const requiredFields = [
@@ -76,14 +96,7 @@ export default function AddJob() {
     }
   };
 
-  // Memoized preview data to prevent re-render flicker
-  const previewData = useMemo(() => ({
-    ...formData,
-    requirements: formData.requirements ? formData.requirements.split(",").map(r => r.trim()) : [],
-    skillsKeywords: formData.skillsKeywords ? formData.skillsKeywords.split(",").map(r => r.trim()) : []
-  }), [formData]);
-
-  // Input Component
+  // Input component
   const Input = ({ name, ...props }) => (
     <div>
       <input
@@ -97,7 +110,7 @@ export default function AddJob() {
     </div>
   );
 
-  // Select Component
+  // Select component
   const Select = ({ name, children }) => (
     <div>
       <select
