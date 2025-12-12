@@ -16,28 +16,22 @@ export default async function JobDetailPage({ params }) {
 
   return (
     <div>
-      <header className="bg-white shadow">
-  <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    
-    {/* LEFT SIDE */}
-    <h1 className="text-3xl font-bold text-blue-600">
-      Job Tension
-    </h1>
+      {/* HEADER */}
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-2 flex items-center justify-between">
 
-    {/* RIGHT SIDE */}
-    <div className="text-right space-y-0 leading-tight hidden sm:block">
-      <p className="text-xl font-bold text-blue-700">FondPeace</p>
-      <p className="text-xl font-bold text-blue-700">Intro List</p>
-    </div>
+          <Link href="/JobTension" className="text-2xl font-bold text-blue-600">
+            Job Tension
+          </Link>
 
-    {/* Mobile Layout */}
-    <div className="sm:hidden text-right">
-      <p className="text-lg font-bold text-blue-700">FondPeace</p>
-      <p className="text-lg font-bold text-blue-700">Intro List</p>
-    </div>
+          <nav className="flex items-center gap-6 text-blue-700 font-semibold text-lg">
+            <Link href="/" className="hover:underline">FondPeace</Link>
+            
+            <Link href="/IntroList" className="hover:underline">IntroList</Link>
+          </nav>
 
-  </div>
-</header>
+        </div>
+      </header>
     <div className="py-6">
 
       <JobDetailComponent job={job} />
