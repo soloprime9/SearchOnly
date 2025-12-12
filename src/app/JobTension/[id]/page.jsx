@@ -15,8 +15,33 @@ export default async function JobDetailPage({ params }) {
   const { job } = await res.json();
 
   return (
-    <div className="py-10">
+    <div>
+      <header className="bg-white shadow">
+  <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    
+    {/* LEFT SIDE */}
+    <h1 className="text-3xl font-bold text-blue-600">
+      Job Tension
+    </h1>
+
+    {/* RIGHT SIDE */}
+    <div className="text-right space-y-0 leading-tight hidden sm:block">
+      <p className="text-xl font-bold text-blue-700">FondPeace</p>
+      <p className="text-xl font-bold text-blue-700">Intro List</p>
+    </div>
+
+    {/* Mobile Layout */}
+    <div className="sm:hidden text-right">
+      <p className="text-lg font-bold text-blue-700">FondPeace</p>
+      <p className="text-lg font-bold text-blue-700">Intro List</p>
+    </div>
+
+  </div>
+</header>
+    <div className="py-6">
+
       <JobDetailComponent job={job} />
+    </div>
     </div>
   );
 }
