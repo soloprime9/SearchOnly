@@ -13,39 +13,12 @@ export async function generateMetadata({ params }) {
   );
 
   if (!res.ok) {
-  return (
-    <>
-      {/* HEADER */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-2 flex items-center justify-between">
-          <Link href="/JobTension" className="text-2xl font-bold text-blue-600">
-            Job Tension
-          </Link>
-
-          <nav className="flex items-center gap-6 text-blue-700 font-semibold text-lg">
-            <Link href="/" className="hover:underline">
-              FondPeace
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      {/* JOB NOT FOUND MESSAGE */}
-      <div className="max-w-4xl mx-auto mt-20 p-6 text-center border rounded-lg bg-red-50 border-red-200">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">Job Not Found</h2>
-        <p className="text-red-600 mb-4">
-          The job you are looking for does not exist or has been removed.
-        </p>
-        <Link
-          href="/JobTension"
-          className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
-        >
-          Browse Other Jobs
-        </Link>
-      </div>
-    </>
-  );
+  return {
+    title: "Job not found – Job Tension",
+    description: "The job you are looking for does not exist.",
+  };
 }
+
 
 
   const { job } = await res.json();
@@ -139,8 +112,37 @@ export default async function JobDetailPage({ params }) {
   );
 
   if (!res.ok) {
-    return <div className="p-6 text-red-600">Job not found.</div>;
+    return (
+      <>
+        {/* HEADER */}
+        <header className="bg-white shadow-sm sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-6 py-2 flex items-center justify-between">
+            <Link href="/JobTension" className="text-2xl font-bold text-blue-600">
+              Job Tension
+            </Link>
+            <nav className="flex items-center gap-6 text-blue-700 font-semibold text-lg">
+              <Link href="/" className="hover:underline">FondPeace</Link>
+            </nav>
+          </div>
+        </header>
+
+        {/* JOB NOT FOUND MESSAGE */}
+        <div className="max-w-4xl mx-auto mt-20 p-6 text-center border rounded-lg bg-red-50 border-red-200">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Job Not Found</h2>
+          <p className="text-red-600 mb-4">
+            The job you are looking for does not exist or has been removed.
+          </p>
+          <Link
+            href="/JobTension"
+            className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
+          >
+            Browse Other Jobs
+          </Link>
+        </div>
+      </>
+    );
   }
+
 
   const { job } = await res.json();
   const schema = await getJobSchema(id);
