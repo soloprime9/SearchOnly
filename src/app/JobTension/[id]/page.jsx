@@ -28,13 +28,13 @@ export async function generateMetadata({ params }) {
     title,
     description,
     alternates: {
-      canonical: `https://yourdomain.com/JobTension/${job._id}`,
+      canonical: `https://www.fondpeace.com/JobTension/${job._id}`,
     },
     openGraph: {
       title,
       description,
       type: "article",
-      url: `https://yourdomain.com/JobTension/${job._id}`,
+      url: `https://www.fondpeace.com/JobTension/${job._id}`,
       siteName: "Job Tension",
     },
     twitter: {
