@@ -15,7 +15,7 @@ export default function JobsPageView({ jobs }) {
           <nav className="flex items-center gap-6 text-blue-700 font-semibold text-lg">
             <Link href="/" className="hover:underline">FondPeace</Link>
             
-            <Link href="/IntroList" className="hover:underline">IntroList</Link>
+            
           </nav>
 
         </div>
