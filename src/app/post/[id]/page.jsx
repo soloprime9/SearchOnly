@@ -142,6 +142,7 @@ export default async function Page({ params }) {
 
   const data = await res.json();
   const post = data?.post;
+  console.log("Post: ", post);
   const related = data?.related ?? [];
 
   if (!post) {
@@ -1965,6 +1966,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
