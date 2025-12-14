@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import Link from "next/link";
 const DEFAULT_THUMB = "/fondpeace.jpg";
 
 // Detect Googlebot / Bingbot / crawler
@@ -126,7 +126,10 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
             />
 
             <div className="absolute bottom-24 left-4 text-white z-20 max-w-[70%]">
+
+              <Link href=`/profile/${item.userId?.username}`>
               <p className="font-bold text-lg">@{item.userId?.username}</p>
+              </Link>
               <p className="mt-1 opacity-80 line-clamp-2">{item.title}</p>
             </div>
           </div>
