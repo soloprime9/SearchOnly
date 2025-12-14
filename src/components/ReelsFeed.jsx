@@ -127,7 +127,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
             <div className="absolute bottom-24 left-4 text-white z-20 max-w-[70%]">
 
-              <Link href=`/profile/${item.userId?.username}`>
+              <Link href={`/profile/${item.userId?.username}`}>
               <p className="font-bold text-lg">@{item.userId?.username}</p>
               </Link>
               <p className="mt-1 opacity-80 line-clamp-2">{item.title}</p>
