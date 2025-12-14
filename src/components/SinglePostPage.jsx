@@ -147,7 +147,7 @@ export default function SinglePostInteractions({ initialPost }) {
             {post.comments.map((cmt, i) => (
               <div key={i} className="bg-gray-100 p-3 rounded-md">
                 <p className="font-semibold text-gray-800">
-                  {cmt.userId?.username || hello}
+                  {cmt.userId?.username || "User"}
                 </p>
                 <p className="text-gray-700">{cmt.CommentText}</p>
               </div>
