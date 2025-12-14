@@ -37,7 +37,7 @@ const Profile = () => {
 
       try {
         const result = await axios.get(
-          `https://backend-k.vercel.app/user/${username}`,
+          `https://backend-k.vercel.app/user/profile/${username}`,
           { headers: { "x-auth-token": token } }
         );
 
