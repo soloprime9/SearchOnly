@@ -36,7 +36,7 @@ export default function IntroListView({ list = [] }) {
 
             <div className="h-52 w-full overflow-hidden">
               <img
-                src={p.thumbnail}
+                src={p.thumbnail || "/Fondpeace.jpg"}
                 alt={p.title}
                 className="w-full h-full object-cover"
               />
