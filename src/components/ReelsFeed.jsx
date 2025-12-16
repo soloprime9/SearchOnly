@@ -11,26 +11,25 @@ import {
   FaShareAlt,
   FaEye,
   FaEllipsisH,
+  FaPlay,
 } from "react-icons/fa";
 import { IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
-import { FaPlay, FaPause } from "react-icons/fa";
-
 
 const API_BASE = "https://backend-k.vercel.app";
 const DEFAULT_THUMB = "/Fondpeace.jpg";
+const DEFAULT_AVATAR = "/avatar.png";
 
 export default function ReelsFeed({ initialPost }) {
   const videoRef = useRef(null);
   const commentRef = useRef(null);
 
   const [post, setPost] = useState(initialPost);
+  const [userId, setUserId] = useState(null);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
-  const [userId, setUserId] = useState(null);
   const [muted, setMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
-
 
   /* USER */
   useEffect(() => {
@@ -47,7 +46,7 @@ export default function ReelsFeed({ initialPost }) {
 
   /* CLOSE COMMENTS ON OUTSIDE CLICK */
   useEffect(() => {
-    function handleClickOutside(e) {
+    function handleOutside(e) {
       if (
         showComments &&
         commentRef.current &&
@@ -56,12 +55,16 @@ export default function ReelsFeed({ initialPost }) {
         setShowComments(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
   }, [showComments]);
 
   if (!post) {
-    return <div className="h-screen flex items-center justify-center">Not found</div>;
+    return (
+      <div className="h-screen flex items-center justify-center">
+        Video not found
+      </div>
+    );
   }
 
   const hasLiked = post.likes?.some(
@@ -85,6 +88,7 @@ export default function ReelsFeed({ initialPost }) {
   /* COMMENT */
   const handleComment = async () => {
     if (!comment.trim()) return;
+
     const token = localStorage.getItem("token");
     if (!token) return alert("Please login");
 
@@ -98,146 +102,154 @@ export default function ReelsFeed({ initialPost }) {
     setComment("");
   };
 
-  const toggleMute = (e) => {
-  e.stopPropagation(); // play/pause se alag
-  if (!videoRef.current) return;
-
-  videoRef.current.muted = !muted;
-  setMuted(!muted);
-  };
-
-
+  /* PLAY / PAUSE */
   const togglePlayPause = () => {
-  if (!videoRef.current) return;
+    if (!videoRef.current) return;
 
-  if (videoRef.current.paused) {
-    videoRef.current.play();
-    setIsPlaying(true);
-  } else {
-    videoRef.current.pause();
-    setIsPlaying(false);
-    setShowPlayIcon(true);
-    setTimeout(() => setShowPlayIcon(false), 800);
-  }
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+      setShowPlayIcon(true);
+      setTimeout(() => setShowPlayIcon(false), 700);
+    }
   };
 
-  
+  /* MUTE */
+  const toggleMute = (e) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    videoRef.current.muted = !muted;
+    setMuted(!muted);
+  };
+
   return (
     <div className="min-h-screen bg-white flex justify-center">
-      {/* CONTAINER */}
       <div className="w-full max-w-[480px] md:max-w-[520px]">
 
         {/* HEADER */}
         <div className="flex items-center justify-between px-4 py-3">
-          <Link href={`/profile/${post.userId?.username}`}>
+          <Link
+            href={`/profile/${post.userId?.username}`}
+            className="flex items-center gap-3"
+          >
+            <img
+              src={post.userId?.avatar || DEFAULT_AVATAR}
+              alt="profile"
+              className="w-9 h-9 rounded-full object-cover border"
+            />
             <p className="font-semibold text-sm">
-              @{post.userId?.username || "fondpeace"}
+              {post.userId?.username || "fondpeace"}
             </p>
           </Link>
-          <FaEllipsisH />
+          <FaEllipsisH className="text-gray-600" />
         </div>
 
-        {/* VIDEO AREA */}
-            <div
-  className="relative bg-black aspect-[9/16]"
-  onClick={togglePlayPause}
->
-  {/* VIDEO */}
-  <video
-    ref={videoRef}
-    src={post.media}
-    poster={post.thumbnail || DEFAULT_THUMB}
-    autoPlay
-    loop
-    playsInline
-    preload="auto"
-    muted={muted}
-    controls={false}
-    className="w-full h-full object-contain"
-  />
+        {/* VIDEO */}
+        <div
+          className="relative bg-black aspect-[9/16]"
+          onClick={togglePlayPause}
+        >
+          <video
+            ref={videoRef}
+            src={post.media}
+            poster={post.thumbnail || DEFAULT_THUMB}
+            autoPlay
+            loop
+            playsInline
+            preload="auto"
+            muted={muted}
+            controls={false}
+            className="w-full h-full object-contain"
+          />
 
-  {/* PLAY / PAUSE ICON */}
-  {!isPlaying && showPlayIcon && (
-    <FaPlay className="absolute inset-0 m-auto text-white text-6xl opacity-90" />
-  )}
+          {!isPlaying && showPlayIcon && (
+            <FaPlay className="absolute inset-0 m-auto text-white text-6xl opacity-90" />
+          )}
 
-  {/* MUTE / UNMUTE ICON */}
-  <button
-    onClick={toggleMute}
-    className="absolute top-4 right-4 bg-black/60 p-2 rounded-full text-white"
-  >
-    {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
-  </button>
-</div>
+          <button
+            onClick={toggleMute}
+            className="absolute top-4 right-4 bg-black/60 p-2 rounded-full text-white"
+          >
+            {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
+          </button>
+        </div>
 
-
-          {/* ACTIONS */}
-          <div className="absolute right-3 bottom-4 flex flex-col gap-5 text-white items-center">
-            <button onClick={handleLike}>
+        {/* ACTIONS */}
+        <div className="flex justify-between items-center px-4 py-3">
+          <div className="flex items-center gap-5">
+            <button onClick={handleLike} className="flex items-center gap-1">
               {hasLiked ? (
-                <FaHeart className="text-red-600 text-2xl" />
+                <FaHeart className="text-red-600 text-xl" />
               ) : (
-                <FaRegHeart className="text-2xl" />
+                <FaRegHeart className="text-xl" />
               )}
-              <p className="text-xs">{post.likes?.length || 0}</p>
+              <span className="text-sm">{post.likes?.length || 0}</span>
             </button>
 
-            <button onClick={() => setShowComments(true)}>
-              <FaCommentDots className="text-2xl" />
-              <p className="text-xs">{post.comments?.length || 0}</p>
+            <button
+              onClick={() => setShowComments(true)}
+              className="flex items-center gap-1"
+            >
+              <FaCommentDots className="text-xl" />
+              <span className="text-sm">{post.comments?.length || 0}</span>
             </button>
 
-            <div>
+            <div className="flex items-center gap-1 text-sm">
               <FaEye />
-              <p className="text-xs text-center">{post.views || 0}</p>
+              {post.views || 0}
             </div>
-
-            <FaShareAlt />
           </div>
+
+          <FaShareAlt className="text-xl cursor-pointer" />
         </div>
 
-        {/* TITLE BELOW */}
-        <div className="px-4 py-3 text-sm">
+        {/* CAPTION */}
+        <div className="px-4 pb-4 text-sm">
+          <span className="font-semibold mr-1">
+            {post.userId?.username || "fondpeace"}
+          </span>
           {post.title}
         </div>
-
-        {/* COMMENTS PANEL */}
-        {showComments && (
-          <div className="fixed inset-0 bg-black/40 z-50 flex items-end">
-            <div
-              ref={commentRef}
-              className="bg-white w-full rounded-t-2xl p-4 max-h-[65%] overflow-y-auto"
-            >
-              <p className="font-semibold mb-3">Comments</p>
-
-              <div className="flex gap-2 mb-4">
-                <input
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="flex-1 border px-3 py-2 rounded-md"
-                />
-                <button
-                  onClick={handleComment}
-                  className="bg-blue-600 text-white px-4 rounded-md"
-                >
-                  Post
-                </button>
-              </div>
-
-              {post.comments?.map((cmt, i) => (
-                <div key={i} className="mb-2">
-                  <p className="font-semibold text-xs">
-                    {cmt.userId?.username || "User"}
-                  </p>
-                  <p className="text-sm">{cmt.CommentText}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
       </div>
+
+      {/* COMMENTS */}
+      {showComments && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end">
+          <div
+            ref={commentRef}
+            className="bg-white w-full rounded-t-2xl p-4 max-h-[65%] overflow-y-auto"
+          >
+            <p className="font-semibold mb-3">Comments</p>
+
+            <div className="flex gap-2 mb-4">
+              <input
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="flex-1 border px-3 py-2 rounded-md"
+              />
+              <button
+                onClick={handleComment}
+                className="bg-blue-600 text-white px-4 rounded-md"
+              >
+                Post
+              </button>
+            </div>
+
+            {post.comments?.map((cmt, i) => (
+              <div key={i} className="mb-2">
+                <p className="font-semibold text-xs">
+                  {cmt.userId?.username || "User"}
+                </p>
+                <p className="text-sm">{cmt.CommentText}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
