@@ -12,6 +12,9 @@ import {
   FaEye,
   FaEllipsisH,
 } from "react-icons/fa";
+import { IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
+import { FaPlay, FaPause } from "react-icons/fa";
+
 
 const API_BASE = "https://backend-k.vercel.app";
 const DEFAULT_THUMB = "/Fondpeace.jpg";
@@ -24,6 +27,10 @@ export default function ReelsFeed({ initialPost }) {
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
   const [userId, setUserId] = useState(null);
+  const [muted, setMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [showPlayIcon, setShowPlayIcon] = useState(false);
+
 
   /* USER */
   useEffect(() => {
@@ -91,6 +98,30 @@ export default function ReelsFeed({ initialPost }) {
     setComment("");
   };
 
+  const toggleMute = (e) => {
+  e.stopPropagation(); // play/pause se alag
+  if (!videoRef.current) return;
+
+  videoRef.current.muted = !muted;
+  setMuted(!muted);
+  };
+
+
+  const togglePlayPause = () => {
+  if (!videoRef.current) return;
+
+  if (videoRef.current.paused) {
+    videoRef.current.play();
+    setIsPlaying(true);
+  } else {
+    videoRef.current.pause();
+    setIsPlaying(false);
+    setShowPlayIcon(true);
+    setTimeout(() => setShowPlayIcon(false), 800);
+  }
+  };
+
+  
   return (
     <div className="min-h-screen bg-white flex justify-center">
       {/* CONTAINER */}
@@ -107,19 +138,38 @@ export default function ReelsFeed({ initialPost }) {
         </div>
 
         {/* VIDEO AREA */}
-        <div className="relative bg-black aspect-[9/16]">
-          <video
-            ref={videoRef}
-            src={post.media}
-            poster={post.thumbnail || DEFAULT_THUMB}
-            autoPlay
-            loop
-            playsInline
-            preload="auto"
-            muted
-            controls={false}
-            className="w-full h-full object-contain"
-          />
+            <div
+  className="relative bg-black aspect-[9/16]"
+  onClick={togglePlayPause}
+>
+  {/* VIDEO */}
+  <video
+    ref={videoRef}
+    src={post.media}
+    poster={post.thumbnail || DEFAULT_THUMB}
+    autoPlay
+    loop
+    playsInline
+    preload="auto"
+    muted={muted}
+    controls={false}
+    className="w-full h-full object-contain"
+  />
+
+  {/* PLAY / PAUSE ICON */}
+  {!isPlaying && showPlayIcon && (
+    <FaPlay className="absolute inset-0 m-auto text-white text-6xl opacity-90" />
+  )}
+
+  {/* MUTE / UNMUTE ICON */}
+  <button
+    onClick={toggleMute}
+    className="absolute top-4 right-4 bg-black/60 p-2 rounded-full text-white"
+  >
+    {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
+  </button>
+</div>
+
 
           {/* ACTIONS */}
           <div className="absolute right-3 bottom-4 flex flex-col gap-5 text-white items-center">
