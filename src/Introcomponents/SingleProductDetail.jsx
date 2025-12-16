@@ -36,7 +36,7 @@ export default function ProductPageView({ data }) {
       {/* Thumbnail */}
       <div className="w-full h-56 md:h-80 rounded-xl overflow-hidden shadow-lg border border-gray-300">
   <img
-    src={product.thumbnail}
+    src={product.thumbnail || "/Fondpeace.jpg"}
     alt={product.title}
     className="w-full h-full object-cover border border-red-400"
   />
