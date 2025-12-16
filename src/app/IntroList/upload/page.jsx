@@ -208,7 +208,7 @@ export default function SubmitProductForm() {
         {/* Thumbnail */}
         <div>
           <label>Thumbnail</label>
-          <input type="file" accept="image/*" onChange={handleThumbnail} />
+          <input type="file" accept="image/*" onChange={handleThumbnail} required />
 
           {thumbnailPreview && (
             <img
