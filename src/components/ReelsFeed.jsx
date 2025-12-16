@@ -89,7 +89,7 @@ export default function ReelsFeed({ initialPost }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black flex justify-center items-center">
+    <div className="fixed inset-0 bg-white flex justify-center items-center">
       {/* VIDEO WRAPPER */}
       <div className="relative w-full h-full max-w-[480px] md:max-w-[520px]">
 
@@ -98,11 +98,13 @@ export default function ReelsFeed({ initialPost }) {
           ref={videoRef}
           src={post.media}
           poster={post.thumbnail || DEFAULT_THUMB}
+          autoplay
+          loop
           playsInline
-          preload="none"
+          preload="auto"
           muted
           controls={false}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-contain bg-black"
         />
 
         {/* USER + CAPTION */}
