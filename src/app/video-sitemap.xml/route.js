@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const API_URL = "https://backend-k.vercel.app/post/mango/getall";
+const API_URL = "https://backend-k.vercel.app/post/video/getall";
 const SITE_URL = "https://www.fondpeace.com";
 
 export async function GET() {
