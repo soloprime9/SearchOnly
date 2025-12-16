@@ -33,7 +33,7 @@ export async function generateMetadata({ params }) {
 
   const title = `${product.title}: ${product.description} | IntroList`;
   const desc = product.longDescription?.slice(0, 160) || product.description;
-  const image = product.thumbnail;
+  const image = product.thumbnail || "/Fondpeace.jpg";
   const url = `https://www.fondpeace.com/IntroList/${slug}`;
   const keywords = product.tags?.map(t => t.name).join(", ") || "";
 
