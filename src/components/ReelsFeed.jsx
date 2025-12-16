@@ -20,7 +20,7 @@ const API_BASE = "https://backend-k.vercel.app";
 const DEFAULT_THUMB = "/Fondpeace.jpg";
 const DEFAULT_AVATAR = "/Fondpeace.jpg";
 
-export default function ReelsFeed({ initialPost }) {
+export default function SingleReel({ initialPost }) {
   const videoRef = useRef(null);
   const commentRef = useRef(null);
 
@@ -32,7 +32,7 @@ export default function ReelsFeed({ initialPost }) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
 
-  /* USER */
+  /* ---------------- USER ---------------- */
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -40,37 +40,38 @@ export default function ReelsFeed({ initialPost }) {
     if (decoded?.UserId) setUserId(decoded.UserId);
   }, []);
 
-  /* AUTOPLAY */
+  /* ---------------- AUTOPLAY ---------------- */
   useEffect(() => {
-    videoRef.current?.play().catch(() => {});
-  }, []);
+    if (videoRef.current) {
+      videoRef.current.muted = muted;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [muted]);
+
+  /* ---------------- CLOSE COMMENTS ON OUTSIDE CLICK ---------------- */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        showComments &&
+        commentRef.current &&
+        !commentRef.current.contains(e.target)
+      ) {
+        setShowComments(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showComments]);
+
+  if (!post) {
+    return <div className="h-screen flex items-center justify-center">Video not found</div>;
+  }
 
   const hasLiked = post.likes?.some(
     (id) => id?.toString() === userId?.toString()
   );
 
-  /* PLAY / PAUSE */
-  const togglePlayPause = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPlaying(true);
-    } else {
-      videoRef.current.pause();
-      setIsPlaying(false);
-      setShowPlayIcon(true);
-      setTimeout(() => setShowPlayIcon(false), 700);
-    }
-  };
-
-  /* MUTE */
-  const toggleMute = (e) => {
-    e.stopPropagation();
-    videoRef.current.muted = !muted;
-    setMuted(!muted);
-  };
-
-  /* LIKE */
+  /* ---------------- LIKE ---------------- */
   const handleLike = async () => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Please login");
@@ -83,22 +84,59 @@ export default function ReelsFeed({ initialPost }) {
     setPost((p) => ({ ...p, likes: res.data.likes }));
   };
 
-  /* SHARE */
+  /* ---------------- COMMENT ---------------- */
+  const handleComment = async () => {
+    if (!comment.trim()) return;
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Please login");
+
+    const res = await axios.post(
+      `${API_BASE}/post/comment/${post._id}`,
+      { CommentText: comment, userId },
+      { headers: { "x-auth-token": token } }
+    );
+    setPost((p) => ({ ...p, comments: res.data.comments }));
+    setComment("");
+  };
+
+  /* ---------------- SHARE ---------------- */
   const handleShare = async () => {
     await navigator.clipboard.writeText(window.location.href);
     alert("Link copied");
   };
 
-  return (
-    <div className="h-screen w-screen overflow-hidden bg-white flex justify-center">
-      <div className="w-full max-w-[480px] flex flex-col h-full">
+  /* ---------------- PLAY / PAUSE ---------------- */
+  const togglePlayPause = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+    setShowPlayIcon(true);
+    setTimeout(() => setShowPlayIcon(false), 700);
+  };
 
-        {/* HEADER */}
-        <div className="flex items-center justify-between px-4 py-3">
+  /* ---------------- MUTE ---------------- */
+  const toggleMute = (e) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    videoRef.current.muted = !muted;
+    setMuted(!muted);
+  };
+
+  return (
+    <div className="h-screen w-screen bg-white flex justify-center items-start overflow-y-auto">
+      <div className="w-full max-w-[480px] flex flex-col">
+
+        {/* ---------------- HEADER ---------------- */}
+        <div className="flex items-center justify-between px-4 py-3 sticky top-0 bg-white z-10">
           <Link href={`/profile/${post.userId?.username}`} className="flex items-center gap-3">
             <img
               src={post.userId?.avatar || DEFAULT_AVATAR}
-              className="w-9 h-9 rounded-full object-cover"
+              className="w-10 h-10 rounded-full object-cover"
             />
             <p className="font-semibold text-sm">
               {post.userId?.username || "fondpeace"}
@@ -107,11 +145,8 @@ export default function ReelsFeed({ initialPost }) {
           <FaEllipsisH />
         </div>
 
-        {/* VIDEO (FLEX AREA) */}
-        <div
-          className="relative flex-1 bg-black"
-          onClick={togglePlayPause}
-        >
+        {/* ---------------- VIDEO ---------------- */}
+        <div className="relative w-full bg-black aspect-[9/16]" onClick={togglePlayPause}>
           <video
             ref={videoRef}
             src={post.media}
@@ -122,21 +157,21 @@ export default function ReelsFeed({ initialPost }) {
             preload="auto"
             muted={muted}
             controls={false}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
 
-           {/* PLAY / PAUSE ICON */}
-  {showPlayIcon && (
-    <div className="absolute inset-0 flex items-center justify-center">
-      {isPlaying ? (
-        <FaPause className="text-white text-6xl opacity-90 animate-pulse" />
-      ) : (
-        <FaPlay className="text-white text-6xl opacity-90 animate-pulse" />
-      )}
-    </div>
-  )}
+          {/* ---------------- PLAY / PAUSE ICON CENTER ---------------- */}
+          {showPlayIcon && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              {isPlaying ? (
+                <FaPause className="text-white text-6xl opacity-90 animate-pulse" />
+              ) : (
+                <FaPlay className="text-white text-6xl opacity-90 animate-pulse" />
+              )}
+            </div>
+          )}
 
-          {/* VOLUME INSIDE VIDEO */}
+          {/* ---------------- MUTE BUTTON ---------------- */}
           <button
             onClick={toggleMute}
             className="absolute bottom-4 right-4 bg-black/60 p-2 rounded-full text-white"
@@ -145,7 +180,7 @@ export default function ReelsFeed({ initialPost }) {
           </button>
         </div>
 
-        {/* ACTIONS (SAME ROW) */}
+        {/* ---------------- INTERACTIONS ---------------- */}
         <div className="flex justify-between items-center px-4 py-2">
           <div className="flex gap-5 items-center">
             <button onClick={handleLike} className="flex items-center gap-1">
@@ -179,19 +214,54 @@ export default function ReelsFeed({ initialPost }) {
           </div>
         </div>
 
-        {/* CAPTION */}
-        <div className="px-4 pb-3 text-sm">
+        {/* ---------------- CAPTION ---------------- */}
+        <div className="px-4 py-2 text-sm">
           <span className="font-semibold mr-1">
             {post.userId?.username || "fondpeace"}
           </span>
           {post.title}
         </div>
+
+        {/* ---------------- COMMENTS PANEL ---------------- */}
+        {showComments && (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-end">
+            <div
+              ref={commentRef}
+              className="bg-white w-full rounded-t-2xl p-4 max-h-[65%] overflow-y-auto"
+            >
+              <p className="font-semibold mb-3">Comments</p>
+
+              <div className="flex gap-2 mb-4">
+                <input
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  className="flex-1 border px-3 py-2 rounded-md"
+                />
+                <button
+                  onClick={handleComment}
+                  className="bg-blue-600 text-white px-4 rounded-md"
+                >
+                  Post
+                </button>
+              </div>
+
+              {post.comments?.map((cmt, i) => (
+                <div key={i} className="mb-2">
+                  <p className="font-semibold text-xs">
+                    {cmt.userId?.username || "User"}
+                  </p>
+                  <p className="text-sm">{cmt.CommentText}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
-
-
 
 
 
