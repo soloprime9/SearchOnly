@@ -10,6 +10,7 @@ import {
   FaCommentDots,
   FaShareAlt,
   FaEye,
+  FaEllipsisH,
 } from "react-icons/fa";
 
 const API_BASE = "https://backend-k.vercel.app";
@@ -17,6 +18,7 @@ const DEFAULT_THUMB = "/Fondpeace.jpg";
 
 export default function ReelsFeed({ initialPost }) {
   const videoRef = useRef(null);
+  const commentRef = useRef(null);
 
   const [post, setPost] = useState(initialPost);
   const [showComments, setShowComments] = useState(false);
@@ -27,24 +29,32 @@ export default function ReelsFeed({ initialPost }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-
     const decoded = jwt.decode(token);
     if (decoded?.UserId) setUserId(decoded.UserId);
   }, []);
 
   /* AUTOPLAY */
   useEffect(() => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = true;
-    videoRef.current.play().catch(() => {});
+    videoRef.current?.play().catch(() => {});
   }, []);
 
+  /* CLOSE COMMENTS ON OUTSIDE CLICK */
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (
+        showComments &&
+        commentRef.current &&
+        !commentRef.current.contains(e.target)
+      ) {
+        setShowComments(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showComments]);
+
   if (!post) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        Video not found
-      </div>
-    );
+    return <div className="h-screen flex items-center justify-center">Not found</div>;
   }
 
   const hasLiked = post.likes?.some(
@@ -68,7 +78,6 @@ export default function ReelsFeed({ initialPost }) {
   /* COMMENT */
   const handleComment = async () => {
     if (!comment.trim()) return;
-
     const token = localStorage.getItem("token");
     if (!token) return alert("Please login");
 
@@ -82,100 +91,93 @@ export default function ReelsFeed({ initialPost }) {
     setComment("");
   };
 
-  /* SHARE */
-  const handleShare = async () => {
-    await navigator.clipboard.writeText(window.location.href);
-    alert("Link copied");
-  };
-
   return (
-    <div className="fixed inset-0 bg-white flex justify-center items-center">
-      {/* VIDEO WRAPPER */}
-      <div className="relative w-full h-full max-w-[480px] md:max-w-[520px]">
+    <div className="min-h-screen bg-white flex justify-center">
+      {/* CONTAINER */}
+      <div className="w-full max-w-[480px] md:max-w-[520px]">
 
-        {/* VIDEO */}
-        <video
-          ref={videoRef}
-          src={post.media}
-          poster={post.thumbnail || DEFAULT_THUMB}
-          autoplay
-          loop
-          playsInline
-          preload="auto"
-          muted
-          controls={false}
-          className="w-full h-full object-contain bg-black"
-        />
-
-        {/* USER + CAPTION */}
-        <div className="absolute bottom-24 left-4 text-white max-w-[75%]">
+        {/* HEADER */}
+        <div className="flex items-center justify-between px-4 py-3">
           <Link href={`/profile/${post.userId?.username}`}>
-            <p className="font-semibold text-base md:text-lg">
+            <p className="font-semibold text-sm">
               @{post.userId?.username || "fondpeace"}
             </p>
           </Link>
-          <p className="text-sm opacity-90 line-clamp-2">
-            {post.title}
-          </p>
+          <FaEllipsisH />
         </div>
 
-        {/* ACTIONS */}
-        <div className="absolute right-4 bottom-24 flex flex-col items-center gap-6 text-white">
+        {/* VIDEO AREA */}
+        <div className="relative bg-black aspect-[9/16]">
+          <video
+            ref={videoRef}
+            src={post.media}
+            poster={post.thumbnail || DEFAULT_THUMB}
+            autoPlay
+            loop
+            playsInline
+            preload="auto"
+            muted
+            controls={false}
+            className="w-full h-full object-contain"
+          />
 
-          <button onClick={handleLike} className="flex flex-col items-center">
-            {hasLiked ? (
-              <FaHeart className="text-red-600 text-2xl" />
-            ) : (
-              <FaRegHeart className="text-2xl" />
-            )}
-            <span className="text-xs">{post.likes?.length || 0}</span>
-          </button>
+          {/* ACTIONS */}
+          <div className="absolute right-3 bottom-4 flex flex-col gap-5 text-white items-center">
+            <button onClick={handleLike}>
+              {hasLiked ? (
+                <FaHeart className="text-red-600 text-2xl" />
+              ) : (
+                <FaRegHeart className="text-2xl" />
+              )}
+              <p className="text-xs">{post.likes?.length || 0}</p>
+            </button>
 
-          <button
-            onClick={() => setShowComments(true)}
-            className="flex flex-col items-center"
-          >
-            <FaCommentDots className="text-2xl" />
-            <span className="text-xs">{post.comments?.length || 0}</span>
-          </button>
+            <button onClick={() => setShowComments(true)}>
+              <FaCommentDots className="text-2xl" />
+              <p className="text-xs">{post.comments?.length || 0}</p>
+            </button>
 
-          <div className="flex flex-col items-center text-xs">
-            <FaEye className="text-lg" />
-            {post.views || 0}
+            <div>
+              <FaEye />
+              <p className="text-xs text-center">{post.views || 0}</p>
+            </div>
+
+            <FaShareAlt />
           </div>
+        </div>
 
-          <button onClick={handleShare}>
-            <FaShareAlt className="text-xl" />
-          </button>
+        {/* TITLE BELOW */}
+        <div className="px-4 py-3 text-sm">
+          {post.title}
         </div>
 
         {/* COMMENTS PANEL */}
         {showComments && (
-          <div className="absolute bottom-0 left-0 w-full bg-white rounded-t-2xl p-4 max-h-[60%] overflow-y-auto">
-            <div className="flex justify-between mb-3">
-              <p className="font-semibold">Comments</p>
-              <button onClick={() => setShowComments(false)}>✕</button>
-            </div>
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-end">
+            <div
+              ref={commentRef}
+              className="bg-white w-full rounded-t-2xl p-4 max-h-[65%] overflow-y-auto"
+            >
+              <p className="font-semibold mb-3">Comments</p>
 
-            <div className="flex gap-2 mb-3">
-              <input
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Add a comment..."
-                className="flex-1 border px-3 py-2 rounded-md"
-              />
-              <button
-                onClick={handleComment}
-                className="bg-blue-600 text-white px-4 rounded-md"
-              >
-                Post
-              </button>
-            </div>
+              <div className="flex gap-2 mb-4">
+                <input
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  className="flex-1 border px-3 py-2 rounded-md"
+                />
+                <button
+                  onClick={handleComment}
+                  className="bg-blue-600 text-white px-4 rounded-md"
+                >
+                  Post
+                </button>
+              </div>
 
-            <div className="space-y-2">
               {post.comments?.map((cmt, i) => (
-                <div key={i}>
-                  <p className="font-semibold text-sm">
+                <div key={i} className="mb-2">
+                  <p className="font-semibold text-xs">
                     {cmt.userId?.username || "User"}
                   </p>
                   <p className="text-sm">{cmt.CommentText}</p>
@@ -184,11 +186,11 @@ export default function ReelsFeed({ initialPost }) {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
 }
-
 
 
 
