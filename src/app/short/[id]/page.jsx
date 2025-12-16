@@ -182,15 +182,20 @@ export default async function Page({ params }) {
                 {/* Status Bar, etc. */}
                 {/* <StatusBar /> */}
                 
-                {/* Server-rendered hidden <video> (Crucial for video indexing) */}
-                {mediaUrl && (
-                    <video
-                        src={mediaUrl}
-                        poster={thumbnail}
-                        preload="metadata"
-                        style={{ display: "none" }} 
-                    />
-                )}
+                            {/* HEADER */}
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-2 flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold text-blue-600">
+            FondPeace.com
+          </Link>
+
+          {/* <nav className="flex items-center gap-6 text-blue-700 font-semibold text-lg">
+            <Link href="/" className="hover:underline">
+              FondPeace
+            </Link>
+          </nav> */}
+        </div>
+      </header>
 
                 {/* ReelsFeed: Client Component */}
                 {/* initialPost में केवल वह वीडियो है जिसे हम चाहते हैं कि Google इंडेक्स करे। */}
