@@ -1,5 +1,6 @@
 // app/short/[id]/page.jsx
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
