@@ -1,81 +1,335 @@
-import { Metadata } from 'next';
-import HomeLatestPosts from '@/components/HomeLatestPosts';
-import CreatePage from "@/components/CreatePage";
-import SearchGo from "@/components/SearchGo";
-import OnlyFeed from "@/components/OnlyFeed";
-import Upload from "@/components/Upload";
+import Link from "next/link";
+import { FaSearch } from "react-icons/fa";
 import Village from "@/components/Village";
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
-import {FaSearch} from "react-icons/fa";
-import Link from "next/link";
 
-
-
-
+/* =========================
+   METADATA (ADVANCED + SAFE)
+========================= */
 export const metadata = {
-  title: "Fond Peace",
+  title: "FondPeace | Indian Social Platform for Posts, Videos & Discussions",
   description:
-    "Fondpeace.com is a free and modern all-in-one social platform that combines powerful web search and community features in one place. Whether you're looking to connect with friends, explore trending news, or search the internet like you would with Google or Bing, Fondpeace offers a seamless experience. Stay updated with what's happening around you, watch and share videos, chat with others, create posts, join communities, and explore the web—all from one easy-to-use platform. Built for speed, simplicity, and social engagement, Fondpeace.com is designed to be your go-to digital hub for information and interaction.",
-  keywords:
-    "free social media platform, trending news and videos, all-in-one search and social platform, Online Chatting, Xhamster, blacked.com, jav.guru, jav guru, perplexity ai, macrumors, today written update, instagram, youtube, brazzer, angela white, alyx star, how to, Fond Peace AI, free AI tools, AI search engine, AI assistant, AI automation, AI content generator, AI-powered search, AI chatbot, AI-driven solutions, AI-powered research, AI discovery, AI-powered learning, AI innovation, AI productivity, AI-powered applications, AI-powered insights, AI-powered recommendations, AI for everyone, next-gen AI, best free AI tools, AI-powered knowledge base, AI-driven search engine, AI-powered decision-making, AI-powered problem-solving, AI assistant for work and study, AI-powered writing tools, AI-powered creative solutions, chatgpt, openai, Claude AI, Grok AI, Elon Musk AI, search engine alternatives, written updates, Telly updates, Anupama, YRKKH, Bhagya Lakshmi, Dhruv Rathee, MacRumors, 9to5Mac, Apple Insider, Apple rumors, iPhone news, AI SEO optimization, 2025 Google SEO, AI-powered blogging, real-time AI answers, best AI tools 2025, AI automation for business, SEO AI tools, AI-driven marketing, Google core update 2025, AI-enhanced productivity, AI-generated content, machine learning trends 2025, AI-powered analytics, AI for digital marketing, AI SEO ranking strategies, how to rank on Google with AI, best AI-powered research tools,youtube thumbnail tester, thumbnail preview, youtube seo, preview thumbnail youtube,Google-like search engine,chat and connect online,post, share, explore content,modern social network,discover local and global news,video sharing platform,free community platform",
+    "FondPeace is a community-driven Indian social platform where users share posts, videos, ideas, and participate in meaningful discussions. Discover trending topics, connect with communities, and explore fresh content.",
+  keywords: [
+    "FondPeace",
+    "Indian social platform",
+    "community discussions",
+    "share posts online",
+    "trending topics India",
+    "online communities",
+    "social discussions",
+    "FondPeace.com",
+  ],
+  applicationName: "FondPeace",
+  other: {
+    "apple-mobile-web-app-title": "FondPeace",
+    "theme-color": "#ffffff",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://fondpeace.com",
+    languages: {
+      "en-IN": "https://fondpeace.com",
+      en: "https://fondpeace.com",
+      "x-default": "https://fondpeace.com",
+    },
+  },
   openGraph: {
-    title: "Fond Peace",
+    type: "website",
+    siteName: "FondPeace",
+    title: "FondPeace – Community Driven Social Platform",
     description:
-      "Fondpeace.com is a free social platform where you can search the web, share posts and videos, discover trending news, chat, and stay connected—all in one place.",
+      "Join FondPeace to share posts, explore trending discussions, and connect with people across India.",
     url: "https://fondpeace.com",
     images: [
       {
         url: "https://www.fondpeace.com/Fondpeace.jpg",
         width: 1200,
         height: 630,
+        alt: "FondPeace community platform",
       },
     ],
-    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fond Peace",
+    title: "FondPeace – Community Driven Platform",
     description:
-      "Fondpeace.com is a free social platform where you can search the web, share posts and videos, discover trending news, chat, and stay connected—all in one place.",
+      "FondPeace is an Indian community platform for posts, videos, and discussions.",
     images: ["https://www.fondpeace.com/Fondpeace.jpg"],
-    site: "@Gayatrisingho",
-  },
-  alternates: {
-    canonical: "https://fondpeace.com",
   },
 };
 
-export default function Page() {
+/* =========================
+   STRUCTURED DATA (ENTITY)
+========================= */
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://fondpeace.com/#organization",
+      name: "FondPeace",
+      url: "https://fondpeace.com",
+      logo: "https://www.fondpeace.com/Fondpeace.jpg",
+      foundingDate: "2024",
+      sameAs: [
+        "https://twitter.com/yourhandle",
+        "https://www.youtube.com/@DhakadKhabar",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://fondpeace.com/#website",
+      url: "https://fondpeace.com",
+      name: "FondPeace",
+      publisher: {
+        "@id": "https://fondpeace.com/#organization",
+      },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "https://fondpeace.com/searchbro?q={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://fondpeace.com/#breadcrumb",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: "https://fondpeace.com",
+        },
+      ],
+    },
+  ],
+};
+
+/* =========================
+   HOMEPAGE
+========================= */
+export default function HomePage() {
+  return (
+    <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
+      {/* Performance */}
+      <link rel="preconnect" href="https://backend-k.vercel.app" />
+      <link rel="dns-prefetch" href="https://backend-k.vercel.app" />
+
+      {/* Client Utility */}
+      <WhatsAppClientUI />
+
+      <main className="flex flex-col items-center px-4 pb-16">
+        <div className="w-full max-w-6xl">
+
+          {/* ===== HERO / IDENTITY ===== */}
+          <header className="pt-24 md:pt-28 max-w-4xl mx-auto text-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+              FondPeace – Community Discussions & Trending Topics
+            </h1>
+            <p className="mt-4 text-gray-700 text-lg">
+              FondPeace is an Indian social platform where people share posts,
+              videos, ideas, and participate in meaningful discussions.
+            </p>
+            <p className="mt-2 text-gray-600">
+              Built for real conversations, transparency, and community trust.
+            </p>
+          </header>
+
+          {/* ===== SEARCH ===== */}
+          <section className="mt-10 flex justify-center">
+            <div className="w-full max-w-3xl">
+              <Link
+                href="/searchbro"
+                aria-label="Search FondPeace"
+                className="flex items-center gap-2 w-full p-4 border border-gray-300 rounded-xl bg-white text-gray-600 shadow hover:shadow-md transition"
+              >
+                <FaSearch />
+                <span>Search posts, topics, and discussions…</span>
+              </Link>
+            </div>
+          </section>
+
+          {/* ===== PURPOSE / E-E-A-T ===== */}
+          <section className="mt-14 max-w-4xl mx-auto text-gray-700">
+            <h2 className="text-xl font-semibold mb-2">Why FondPeace Exists</h2>
+            <p>
+              FondPeace was created to provide a responsible space for open
+              discussions, knowledge sharing, and discovery of trending topics.
+              The platform focuses on transparency, user safety, and meaningful
+              engagement instead of algorithmic noise.
+            </p>
+
+            <h2 className="text-xl font-semibold mt-6 mb-2">
+              Who Should Use FondPeace
+            </h2>
+            <p>
+              FondPeace is for readers, creators, and communities who want to
+              share ideas, follow discussions, and explore diverse viewpoints in
+              a respectful environment.
+            </p>
+          </section>
+
+          {/* ===== INTERNAL NAV (CRAWL PATH) ===== */}
+          <nav className="sr-only" aria-label="Primary Navigation">
+            <Link href="/latest">Latest Posts</Link>
+            <Link href="/trending">Trending Topics</Link>
+            <Link href="/about">About FondPeace</Link>
+            <Link href="/contact">Contact</Link>
+            <Link href="/privacy-policy">Privacy Policy</Link>
+          </nav>
+
+          {/* ===== FEED ===== */}
+          <section className="mt-14">
+            <h2 className="sr-only">Latest Community Posts</h2>
+            <Village />
+          </section>
+
+          {/* ===== FOOTER / TRUST ===== */}
+          <footer className="border-t mt-16 pt-8 text-sm text-gray-600">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div>
+                <h4 className="font-semibold">Platform</h4>
+                <Link href="/about">About</Link><br />
+                <Link href="/contact">Contact</Link><br />
+                <Link href="/trending">Trending</Link>
+              </div>
+              <div>
+                <h4 className="font-semibold">Legal</h4>
+                <Link href="/privacy-policy">Privacy Policy</Link><br />
+                <Link href="/terms">Terms</Link><br />
+                <Link href="/disclaimer">Disclaimer</Link>
+              </div>
+              <div>
+                <h4 className="font-semibold">Community</h4>
+                <Link href="/guidelines">Guidelines</Link><br />
+                <Link href="/report">Report Content</Link>
+              </div>
+              <div>
+                <h4 className="font-semibold">Follow</h4>
+                <a href="https://www.ambitionbox.com/overview/fond-peace-overview">AmbitionBox</a><br />
+                <a href="https://www.linkedin.com/company/108773259/admin/dashboard/">Linkedin</a>
+              </div>
+            </div>
+
+            <p className="mt-6 text-center">
+              FondPeace is a community platform focused on responsible
+              discussions and transparent content sharing.
+            </p>
+            <p className="mt-2 text-center">
+              © {new Date().getFullYear()} FondPeace. All rights reserved.
+            </p>
+          </footer>
+
+        </div>
+      </main>
+    </>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+// import { Metadata } from 'next';
+// import HomeLatestPosts from '@/components/HomeLatestPosts';
+// import CreatePage from "@/components/CreatePage";
+// import SearchGo from "@/components/SearchGo";
+// import OnlyFeed from "@/components/OnlyFeed";
+// import Upload from "@/components/Upload";
+// import Village from "@/components/Village";
+// import WhatsAppClientUI from "@/components/WhatsAppClientUI";
+// import {FaSearch} from "react-icons/fa";
+// import Link from "next/link";
+
+
+
+
+// export const metadata = {
+//   title: "Fond Peace",
+//   description:
+//     "Fondpeace.com is a free and modern all-in-one social platform that combines powerful web search and community features in one place. Whether you're looking to connect with friends, explore trending news, or search the internet like you would with Google or Bing, Fondpeace offers a seamless experience. Stay updated with what's happening around you, watch and share videos, chat with others, create posts, join communities, and explore the web—all from one easy-to-use platform. Built for speed, simplicity, and social engagement, Fondpeace.com is designed to be your go-to digital hub for information and interaction.",
+//   keywords:
+//     "free social media platform, trending news and videos, all-in-one search and social platform, Online Chatting, Xhamster, blacked.com, jav.guru, jav guru, perplexity ai, macrumors, today written update, instagram, youtube, brazzer, angela white, alyx star, how to, Fond Peace AI, free AI tools, AI search engine, AI assistant, AI automation, AI content generator, AI-powered search, AI chatbot, AI-driven solutions, AI-powered research, AI discovery, AI-powered learning, AI innovation, AI productivity, AI-powered applications, AI-powered insights, AI-powered recommendations, AI for everyone, next-gen AI, best free AI tools, AI-powered knowledge base, AI-driven search engine, AI-powered decision-making, AI-powered problem-solving, AI assistant for work and study, AI-powered writing tools, AI-powered creative solutions, chatgpt, openai, Claude AI, Grok AI, Elon Musk AI, search engine alternatives, written updates, Telly updates, Anupama, YRKKH, Bhagya Lakshmi, Dhruv Rathee, MacRumors, 9to5Mac, Apple Insider, Apple rumors, iPhone news, AI SEO optimization, 2025 Google SEO, AI-powered blogging, real-time AI answers, best AI tools 2025, AI automation for business, SEO AI tools, AI-driven marketing, Google core update 2025, AI-enhanced productivity, AI-generated content, machine learning trends 2025, AI-powered analytics, AI for digital marketing, AI SEO ranking strategies, how to rank on Google with AI, best AI-powered research tools,youtube thumbnail tester, thumbnail preview, youtube seo, preview thumbnail youtube,Google-like search engine,chat and connect online,post, share, explore content,modern social network,discover local and global news,video sharing platform,free community platform",
+//   openGraph: {
+//     title: "Fond Peace",
+//     description:
+//       "Fondpeace.com is a free social platform where you can search the web, share posts and videos, discover trending news, chat, and stay connected—all in one place.",
+//     url: "https://fondpeace.com",
+//     images: [
+//       {
+//         url: "https://www.fondpeace.com/Fondpeace.jpg",
+//         width: 1200,
+//         height: 630,
+//       },
+//     ],
+//     type: "website",
+//   },
+//   twitter: {
+//     card: "summary_large_image",
+//     title: "Fond Peace",
+//     description:
+//       "Fondpeace.com is a free social platform where you can search the web, share posts and videos, discover trending news, chat, and stay connected—all in one place.",
+//     images: ["https://www.fondpeace.com/Fondpeace.jpg"],
+//     site: "@Gayatrisingho",
+//   },
+//   alternates: {
+//     canonical: "https://fondpeace.com",
+//   },
+// };
+
+// export default function Page() {
 
  
-  return (
+//   return (
     
-      <>
-    <WhatsAppClientUI />
-    <div className="flex flex-col items-center p-4">
+//       <>
+//     <WhatsAppClientUI />
+//     <div className="flex flex-col items-center p-4">
       
 
-      <div className="w-full max-w-6xl">
-    {/* ===== SEARCH BOX BELOW HEADER ===== */}
-        <div className="pt-20 md:pt-24 px-4 flex justify-center w-full">
-          <div className="w-full max-w-3xl">
-            <Link
-              href="/searchbro"
-              className="block w-full text-gray-500 text-sm md:text-base p-3 rounded-xl border border-gray-300 bg-white shadow hover:shadow-md transition cursor-pointer flex items-center gap-2"
-            >
-              <FaSearch /> Click here to search posts...
-            </Link>
-          </div>
-        </div> 
+//       <div className="w-full max-w-6xl">
+//     {/* ===== SEARCH BOX BELOW HEADER ===== */}
+//         <div className="pt-20 md:pt-24 px-4 flex justify-center w-full">
+//           <div className="w-full max-w-3xl">
+//             <Link
+//               href="/searchbro"
+//               className="block w-full text-gray-500 text-sm md:text-base p-3 rounded-xl border border-gray-300 bg-white shadow hover:shadow-md transition cursor-pointer flex items-center gap-2"
+//             >
+//               <FaSearch /> Click here to search posts...
+//             </Link>
+//           </div>
+//         </div> 
                 
-         <Village />
-      </div>
-    </div>
+//          <Village />
+//       </div>
+//     </div>
         
-        </>
-  )
+//         </>
+//   )
 
-};
+// };
 
 
 
