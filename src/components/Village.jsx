@@ -8,8 +8,9 @@ import jwt from "jsonwebtoken";
 import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye } from "react-icons/fa";
   
 
-export default function Feed() {
-  const [posts, setPosts] = useState([]);
+export default function Village({ initialPosts = [] }) {
+
+  const [posts, setPosts] = useState(initialPosts);
   const [commentTextMap, setCommentTextMap] = useState({});
   const [commentBoxOpen, setCommentBoxOpen] = useState({});
   const [loading, setLoading] = useState(true);
@@ -19,17 +20,7 @@ export default function Feed() {
   const router = useRouter();
   const API_BASE = "https://backend-k.vercel.app";
 
-  const fetchPosts = async () => {
-    setLoading(true);
-    try {
-      const { data } = await axios.get(`${API_BASE}/post/mango/getall`);
-      setPosts(data);
-    } catch {
-      alert("Failed to fetch posts");
-    } finally {
-      setLoading(false);
-    }
-  };
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -43,7 +34,7 @@ export default function Feed() {
 
     let timer;
 
-    fetchPosts();
+    
 
     if (!token) {
       timer = startRedirectTimer();
