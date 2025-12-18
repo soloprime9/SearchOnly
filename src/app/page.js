@@ -127,7 +127,7 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-
+ 
       {/* Performance */}
       <link rel="preconnect" href="https://backend-k.vercel.app" />
       <link rel="dns-prefetch" href="https://backend-k.vercel.app" />
