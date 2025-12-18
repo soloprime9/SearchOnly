@@ -1,30 +1,24 @@
-import Link from "next/link"; 
+import Link from "next/link";
 import { FaSearch } from "react-icons/fa";
 import VillageServer from "@/components/VillageServer";
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
 
 /* =========================
-   METADATA (ADVANCED + SAFE)
+   METADATA (GOOGLE SAFE)
 ========================= */
 export const metadata = {
-  title: "FondPeace | Indian Social Platform for Posts, Videos & Discussions",
+  title: "FondPeace | Trusted Community Platform for Open Conversations",
   description:
-    "FondPeace is a community-driven Indian social platform where users share posts, videos, ideas, and participate in meaningful discussions. Discover trending topics, connect with communities, and explore fresh content.",
+    "FondPeace is an independent community platform for thoughtful discussions, idea sharing, and meaningful conversations built on trust and transparency.",
   keywords: [
     "FondPeace",
-    "Indian social platform",
-    "community discussions",
-    "share posts online",
-    "trending topics India",
-    "online communities",
-    "social discussions",
-    "FondPeace.com",
+    "community platform",
+    "online discussions",
+    "open conversations",
+    "share ideas",
+    "Indian community platform",
   ],
   applicationName: "FondPeace",
-  other: {
-    "apple-mobile-web-app-title": "FondPeace",
-    "theme-color": "#ffffff",
-  },
   robots: {
     index: true,
     follow: true,
@@ -47,9 +41,9 @@ export const metadata = {
   openGraph: {
     type: "website",
     siteName: "FondPeace",
-    title: "FondPeace – Community Driven Social Platform",
+    title: "FondPeace – A Trusted Community Platform",
     description:
-      "Join FondPeace to share posts, explore trending discussions, and connect with people across India.",
+      "Join FondPeace to discover meaningful discussions and participate in respectful community conversations.",
     url: "https://fondpeace.com",
     images: [
       {
@@ -62,19 +56,30 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FondPeace – Community Driven Platform",
+    title: "FondPeace – Community Platform",
     description:
-      "FondPeace is an Indian community platform for posts, videos, and discussions.",
+      "FondPeace is a trusted platform for discussions, ideas, and transparent conversations.",
     images: ["https://www.fondpeace.com/Fondpeace.jpg"],
   },
 };
 
 /* =========================
-   STRUCTURED DATA (ENTITY)
+   STRUCTURED DATA (E-E-A-T)
 ========================= */
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://fondpeace.com/#author",
+      name: "Aman Kumar",
+      url: "https://fondpeace.com/about",
+      jobTitle: "Founder & Platform Editor",
+      sameAs: [
+        "https://www.youtube.com/@DhakadKhabar",
+        "https://www.linkedin.com/in/aman-kumar"
+      ]
+    },
     {
       "@type": "Organization",
       "@id": "https://fondpeace.com/#organization",
@@ -82,10 +87,13 @@ const structuredData = {
       url: "https://fondpeace.com",
       logo: "https://www.fondpeace.com/Fondpeace.jpg",
       foundingDate: "2024",
+      founder: {
+        "@id": "https://fondpeace.com/#author"
+      },
       sameAs: [
-        "https://twitter.com/yourhandle",
         "https://www.youtube.com/@DhakadKhabar",
-      ],
+        "https://www.linkedin.com/company/108773259/"
+      ]
     },
     {
       "@type": "WebSite",
@@ -93,27 +101,15 @@ const structuredData = {
       url: "https://fondpeace.com",
       name: "FondPeace",
       publisher: {
-        "@id": "https://fondpeace.com/#organization",
+        "@id": "https://fondpeace.com/#organization"
       },
       potentialAction: {
         "@type": "SearchAction",
         target: "https://fondpeace.com/searchbro?q={search_term_string}",
-        "query-input": "required name=search_term_string",
-      },
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "https://fondpeace.com/#breadcrumb",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: "https://fondpeace.com",
-        },
-      ],
-    },
-  ],
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ]
 };
 
 /* =========================
@@ -127,111 +123,139 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
- 
+
       {/* Performance */}
       <link rel="preconnect" href="https://backend-k.vercel.app" />
       <link rel="dns-prefetch" href="https://backend-k.vercel.app" />
 
-      {/* Client Utility */}
-      <WhatsAppClientUI />
-
       <main className="flex flex-col items-center px-4 pb-16">
         <div className="w-full max-w-6xl">
 
-          {/* ===== HERO / IDENTITY ===== */}
-          <header className="pt-24 md:pt-28 max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-              FondPeace – Community Discussions & Trending Topics
-            </h1>
-            <p className="mt-4 text-gray-700 text-lg">
-              FondPeace is an Indian social platform where people share posts,
-              videos, ideas, and participate in meaningful discussions.
+          {/* ===== FOUNDER & TRUST ===== */}
+          <section className="pt-20 text-center text-sm text-gray-600 max-w-3xl mx-auto">
+            <p>
+              Founded in 2024 by <strong>Aman Kumar</strong>, FondPeace is an
+              independent platform created to support transparent, responsible,
+              and community-first conversations.
             </p>
-            <p className="mt-2 text-gray-600">
-              Built for real conversations, transparency, and community trust.
+          </section>
+
+          {/* ===== HERO ===== */}
+          <header className="pt-8 max-w-4xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+              FondPeace
+            </h1>
+
+            <p className="mt-3 text-xl text-gray-700">
+              A trusted community platform for open conversations.
+            </p>
+
+            <p className="mt-2 text-gray-600 max-w-2xl mx-auto">
+              Discover thoughtful discussions, explore ideas, and participate in
+              respectful conversations without noise or manipulation.
+            </p>
+
+            <p className="mt-2 text-sm text-gray-500">
+              Independent · Community-first · Transparent
             </p>
           </header>
 
           {/* ===== SEARCH ===== */}
-          <section className="mt-10 flex justify-center">
-            <div className="w-full max-w-3xl">
-              <Link
-                href="/searchbro"
-                aria-label="Search FondPeace"
-                className="flex items-center gap-2 w-full p-4 border border-gray-300 rounded-xl bg-white text-gray-600 shadow hover:shadow-md transition"
-              >
-                <FaSearch />
-                <span>Search posts, topics, and discussions…</span>
-              </Link>
+          <section className="mt-8 flex justify-center">
+            <Link
+              href="/searchbro"
+              aria-label="Search FondPeace"
+              className="flex items-center gap-3 w-full max-w-3xl p-4 border border-gray-300 rounded-xl bg-white text-gray-600 shadow-sm hover:shadow-md transition"
+            >
+              <FaSearch />
+              <span>Search discussions, posts, and topics…</span>
+            </Link>
+          </section>
+
+          {/* ===== CLIENT UI ===== */}
+          <div className="mt-6 flex justify-center">
+            <WhatsAppClientUI />
+          </div>
+
+          {/* ===== PURPOSE ===== */}
+          <section className="mt-16 max-w-4xl mx-auto text-gray-700 space-y-10">
+            <div>
+              <h2 className="text-2xl font-semibold mb-2">
+                Why FondPeace Exists
+              </h2>
+              <p>
+                FondPeace was created to offer a balanced, human-driven space for
+                open discussions without algorithmic bias or misinformation.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-semibold mb-2">
+                Who It’s For
+              </h2>
+              <p>
+                Readers, creators, and communities who value respectful dialogue,
+                independent thinking, and meaningful engagement.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-semibold mb-2">
+                Trust & Transparency
+              </h2>
+              <p>
+                Clear guidelines, real authorship, and responsible moderation
+                ensure reliability and long-term trust.
+              </p>
             </div>
           </section>
 
-          {/* ===== PURPOSE / E-E-A-T ===== */}
-          <section className="mt-14 max-w-4xl mx-auto text-gray-700">
-            <h2 className="text-xl font-semibold mb-2">Why FondPeace Exists</h2>
-            <p>
-              FondPeace was created to provide a responsible space for open
-              discussions, knowledge sharing, and discovery of trending topics.
-              The platform focuses on transparency, user safety, and meaningful
-              engagement instead of algorithmic noise.
-            </p>
-
-            <h2 className="text-xl font-semibold mt-6 mb-2">
-              Who Should Use FondPeace
-            </h2>
-            <p>
-              FondPeace is for readers, creators, and communities who want to
-              share ideas, follow discussions, and explore diverse viewpoints in
-              a respectful environment.
-            </p>
-          </section>
-
-          {/* ===== INTERNAL NAV (CRAWL PATH) ===== */}
-          <nav className="sr-only" aria-label="Primary Navigation">
-            <Link href="/latest">Latest Posts</Link>
-            <Link href="/trending">Trending Topics</Link>
-            <Link href="/about">About FondPeace</Link>
-            <Link href="/contact">Contact</Link>
-            <Link href="/privacy-policy">Privacy Policy</Link>
+          {/* ===== INTERNAL NAV ===== */}
+          <nav className="sr-only">
+            <Link href="/JobTension">Job Tension</Link>
+            <Link href="/IntroList">Intro List</Link>
+            <Link href="/aboutus">About FondPeace</Link>
+            <Link href="/contactus">Contact</Link>
+            <Link href="/privacypolicy">Privacy Policy</Link>
           </nav>
 
           {/* ===== FEED ===== */}
-          <section className="mt-14">
-            <h2 className="sr-only">Latest Community Posts</h2>
+          <section className="mt-16">
+            <h2 className="sr-only">Latest Community Discussions</h2>
             <VillageServer />
           </section>
 
-          {/* ===== FOOTER / TRUST ===== */}
+          {/* ===== FOOTER ===== */}
           <footer className="border-t mt-16 pt-8 text-sm text-gray-600">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div>
                 <h4 className="font-semibold">Platform</h4>
-                <Link href="/about">About</Link><br />
-                <Link href="/contact">Contact</Link><br />
-                <Link href="/trending">Trending</Link>
+                <Link href="/aboutus">About</Link><br />
+                <Link href="/contactus">Contact</Link><br />
+                <Link href="/blog">Blog</Link>
               </div>
               <div>
                 <h4 className="font-semibold">Legal</h4>
-                <Link href="/privacy-policy">Privacy Policy</Link><br />
-                <Link href="/terms">Terms</Link><br />
+                <Link href="/privacypolicy">Privacy Policy</Link><br />
+                <Link href="/termcondition">Terms & Conditions</Link><br />
                 <Link href="/disclaimer">Disclaimer</Link>
               </div>
               <div>
-                <h4 className="font-semibold">Community</h4>
-                <Link href="/guidelines">Guidelines</Link><br />
-                <Link href="/report">Report Content</Link>
+                <h4 className="font-semibold">Join with us</h4>
+                <Link href="/signup">Signup</Link><br />
+                <Link href="/login">Login</Link>
               </div>
               <div>
                 <h4 className="font-semibold">Follow</h4>
-                <a href="https://www.ambitionbox.com/overview/fond-peace-overview">AmbitionBox</a><br />
-                <a href="https://www.linkedin.com/company/108773259/admin/dashboard/">Linkedin</a>
+                <a href="https://www.linkedin.com/company/108773259/">LinkedIn</a><br />
+                <a href="https://www.youtube.com/@DhakadKhabar">YouTube</a>
               </div>
             </div>
 
-            <p className="mt-6 text-center">
-              FondPeace is a community platform focused on responsible
-              discussions and transparent content sharing.
+            <p className="mt-6 text-center text-xs text-gray-500">
+              Operated independently by FondPeace · Built with transparency and trust
             </p>
+
             <p className="mt-2 text-center">
               © {new Date().getFullYear()} FondPeace. All rights reserved.
             </p>
@@ -242,10 +266,6 @@ export default function HomePage() {
     </>
   );
 }
-
-
-
-
 
 
 
