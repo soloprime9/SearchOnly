@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FaSearch } from "react-icons/fa";
-import Village from "@/components/Village";
+import VillageServer from "@/components/VillageServer";
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
 
 /* =========================
@@ -198,7 +198,7 @@ export default function HomePage() {
           {/* ===== FEED ===== */}
           <section className="mt-14">
             <h2 className="sr-only">Latest Community Posts</h2>
-            <Village />
+            <VillageServer />
           </section>
 
           {/* ===== FOOTER / TRUST ===== */}
