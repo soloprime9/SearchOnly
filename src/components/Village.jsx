@@ -1,31 +1,26 @@
 'use client';
-
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import jwt from "jsonwebtoken";
-
 import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye } from "react-icons/fa";
 
 export default function Village({ initialPosts = [] }) {
   const [posts, setPosts] = useState(initialPosts);
   const [commentTextMap, setCommentTextMap] = useState({});
   const [commentBoxOpen, setCommentBoxOpen] = useState({});
-  const [loading, setLoading] = useState(false); // ✅ start as false
+  const [loading, setLoading] = useState(true);
   const [expandedPosts, setExpandedPosts] = useState({});
   const [userId, setUserId] = useState(null);
   const videoRefs = useRef([]);
   const router = useRouter();
   const API_BASE = "https://backend-k.vercel.app";
 
-  useEffect(() => {
-    setLoading(posts.length === 0); // ✅ set loading true only if no posts
-  }, [posts]);
-
-  // User token / authentication
+  // Set userId from token
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     const startRedirectTimer = () => {
       const timer = setTimeout(() => {
         window.location.href = "/login";
@@ -57,7 +52,7 @@ export default function Village({ initialPosts = [] }) {
     }
   }, []);
 
-  // IntersectionObserver for autoplay
+  // IntersectionObserver for autoplay videos
   useEffect(() => {
     if (!posts.length) return;
 
@@ -82,8 +77,9 @@ export default function Village({ initialPosts = [] }) {
     return () => observer.disconnect();
   }, [posts]);
 
+  // Safe check for likes
   const hasLikedPost = (post) =>
-    post.likes?.some((id) => id.toString() === userId?.toString());
+    (post.likes || []).some((id) => id && userId && id.toString() === userId.toString());
 
   const handleLikePost = async (postId) => {
     const token = localStorage.getItem("token");
@@ -118,9 +114,7 @@ export default function Village({ initialPosts = [] }) {
       setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
       setPosts((prev) =>
         prev.map((p) =>
-          p._id === postId
-            ? { ...p, comments: res.data.comments }
-            : p
+          p._id === postId ? { ...p, comments: res.data.comments } : p
         )
       );
     } catch {
@@ -159,13 +153,10 @@ export default function Village({ initialPosts = [] }) {
 
       return (
         <div key={post._id} className="bg-white shadow rounded-lg p-4 mb-6">
-          {/* Header */}
+          {/* Post Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <Link
-                href={`/profile/${post.userId?.username}`}
-                className="flex items-center gap-3"
-              >
+              <Link href={`/profile/${post.userId?.username}`} className="flex items-center gap-3">
                 <img
                   src={"https://www.fondpeace.com/og-image.jpg"}
                   alt="profile"
@@ -180,7 +171,7 @@ export default function Village({ initialPosts = [] }) {
               className="text-gray-600 hover:text-gray-900 text-2xl px-2"
               onClick={(e) => {
                 e.stopPropagation();
-                alert("Show post options menu here");
+                alert("Show post options menu here (Report, Save, Share etc.)");
               }}
             >
               ⋮
@@ -242,7 +233,11 @@ export default function Village({ initialPosts = [] }) {
           {/* Actions */}
           <div className="flex items-center justify-between text-gray-700 mb-4 text-sm">
             <button onClick={() => handleLikePost(post._id)} className="flex items-center gap-1">
-              {hasLikedPost(post) ? <FaHeart className="text-red-600 text-lg" /> : <FaRegHeart className="text-lg" />}
+              {hasLikedPost(post) ? (
+                <FaHeart className="text-red-600 text-lg" />
+              ) : (
+                <FaRegHeart className="text-lg" />
+              )}
               <span>{post.likes?.length || 0}</span>
             </button>
             <button onClick={() => toggleCommentBox(post._id)} className="flex items-center gap-1">
@@ -258,7 +253,7 @@ export default function Village({ initialPosts = [] }) {
             </button>
           </div>
 
-          {/* Comments */}
+          {/* Comment Box */}
           {commentsVisible && (
             <div className="mt-4">
               <input
@@ -266,10 +261,7 @@ export default function Village({ initialPosts = [] }) {
                 placeholder="Write a comment..."
                 value={commentText}
                 onChange={(e) =>
-                  setCommentTextMap((prev) => ({
-                    ...prev,
-                    [post._id]: e.target.value,
-                  }))
+                  setCommentTextMap((prev) => ({ ...prev, [post._id]: e.target.value }))
                 }
                 className="w-full border border-gray-300 rounded-md px-3 py-2 mb-2 focus:outline-none focus:border-blue-500"
               />
@@ -281,7 +273,7 @@ export default function Village({ initialPosts = [] }) {
               </button>
 
               <div className="mt-4 space-y-2">
-                {post.comments.map((cmt, i) => (
+                {post.comments?.map((cmt, i) => (
                   <div key={i} className="bg-gray-100 p-3 rounded-md">
                     <p className="font-semibold text-gray-800">{cmt.userId?.username || "User"}</p>
                     <p className="text-gray-700">{cmt.CommentText}</p>
@@ -296,13 +288,19 @@ export default function Village({ initialPosts = [] }) {
     [commentTextMap, commentBoxOpen, expandedPosts, userId]
   );
 
+  // Set loading to false after initialPosts are loaded
+  useEffect(() => {
+    setLoading(false);
+  }, [initialPosts]);
+
   if (loading) return <div className="text-center p-6">Loading feed...</div>;
 
-  return <div className="max-w-2xl mx-auto space-y-8 px-2 sm:px-0">{posts.map((post, idx) => renderPost(post, idx))}</div>;
+  return (
+    <div className="max-w-2xl mx-auto space-y-8 px-2 sm:px-0">
+      {posts.map((post, idx) => renderPost(post, idx))}
+    </div>
+  );
 }
-
-
-
 
 
 
