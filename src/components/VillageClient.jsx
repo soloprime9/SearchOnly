@@ -1,6 +1,6 @@
 "use client";
 
-import Feed from "./Village";
+import Village from "./Village";
 
 export default function VillageClient({ initialPosts }) {
   return <Village initialPosts={initialPosts} />;
