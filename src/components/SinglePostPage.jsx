@@ -22,7 +22,16 @@ export default function SinglePostInteractions({ initialPost }) {
     }
   }, []);
 
-  const hasLiked = post.likes.some((id) => id.toString() === userId?.toString());
+  const hasLiked =
+  Array.isArray(post?.likes) &&
+  userId &&
+  post.likes.some(
+    (id) =>
+      id &&
+      id.toString &&
+      id.toString() === userId.toString()
+  );
+
 
   // LIKE
   const handleLike = async () => {
@@ -96,7 +105,7 @@ export default function SinglePostInteractions({ initialPost }) {
           ) : (
             <FaRegHeart className="text-lg" />
           )}
-          <span>{post.likes.length}</span>
+          <span>{Array.isArray(post.likes) ? post.likes.length : 0}</span>
         </button>
 
         {/* COMMENT */}
