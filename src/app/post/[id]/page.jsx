@@ -354,9 +354,9 @@ export default async function Page({ params }) {
         </div>
 
         {/* Post Title */}
-        <p className="text-gray-800 mb-4">
+        <h1 className="text-gray-800 mb-4">
           {post.title}
-        </p>
+        </h1>
 
         {/* Media Section */}
         {isVideo ? (
@@ -385,7 +385,7 @@ export default async function Page({ params }) {
     
     {Array.isArray(related) && related.length > 0 && (
   <aside className="max-w-5xl mx-auto mt-10 px-4">
-    <h2 className="text-xl font-semibold mb-4 text-gray-900">Related Posts</h2>
+    <h3 className="text-xl font-semibold mb-4 text-gray-900">Related Posts</h3>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
       {related.map((r) => {
@@ -1966,6 +1966,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
