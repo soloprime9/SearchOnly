@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import jwt from "jsonwebtoken";
+import toast from "react-hot-toast";
+
  
 import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye } from "react-icons/fa";
   
@@ -84,7 +86,7 @@ export default function Village({ initialPosts = [] }) {
   }, [posts]);
 
   const hasLikedPost = (post) => {
-  if (!userId || !Array.isArray(post.likes)) return alert("You must be logged in to like this post");
+  if (!userId || !Array.isArray(post.likes)) return false;
 
   return post.likes.some(
     (id) => id && id.toString() === userId.toString()
@@ -92,14 +94,17 @@ export default function Village({ initialPosts = [] }) {
 };
 
 
-  const handleLikePost = async (postId) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      if (typeof window !== "undefined") window.alert("Please login"); // ✅ safe
-      return;
-    }
 
+  const handleLikePost = async (postId) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    toast.error("Please login to like this post");
+    router.push("/login");
+    return;
+  }
+
+  try {
     const res = await axios.post(
       `${API_BASE}/post/like/${postId}`,
       {},
@@ -108,46 +113,54 @@ export default function Village({ initialPosts = [] }) {
 
     setPosts((prev) =>
       prev.map((p) =>
-        p._id === postId
-          ? { ...p, likes: res.data.likes } // ✅ SAME AS SINGLE POST
-          : p
+        p._id === postId ? { ...p, likes: res.data.likes } : p
       )
     );
   } catch (err) {
     console.error("Like failed", err);
+    toast.error("Failed to like post");
   }
 };
 
 
+
   const handleComment = async (postId) => {
-    const token = localStorage.getItem("token");
-    const comment = commentTextMap[postId]?.trim();
-    if (!token || !userId) {
-  alert("Not authenticated");
-  router.push("/login"); // 👈 redirect to login page
-  return;
-}
+  const token = localStorage.getItem("token");
+  const comment = commentTextMap[postId]?.trim();
 
-    if (!comment) return alert("Comment cannot be empty");
+  if (!token || !userId) {
+    toast.error("Login required to comment");
+    router.push("/login");
+    return;
+  }
 
-    try {
-      const res = await axios.post(
-        `${API_BASE}/post/comment/${postId}`,
-        { CommentText: comment, userId },
-        { headers: { "x-auth-token": token } }
-      );
-      setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
-      setPosts((prev) =>
-        prev.map((p) =>
-          p._id === postId
-            ? { ...p, comments: res.data.comments }
-            : p
-        )
-      );
-    } catch {
-      alert("Failed to post comment");
-    }
-  };
+  if (!comment) {
+    toast.error("Comment cannot be empty");
+    return;
+  }
+
+  try {
+    const res = await axios.post(
+      `${API_BASE}/post/comment/${postId}`,
+      { CommentText: comment, userId },
+      { headers: { "x-auth-token": token } }
+    );
+
+    setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
+    setPosts((prev) =>
+      prev.map((p) =>
+        p._id === postId
+          ? { ...p, comments: res.data.comments }
+          : p
+      )
+    );
+
+    toast.success("Comment added");
+  } catch {
+    toast.error("Failed to post comment");
+  }
+};
+
 
   const toggleCommentBox = (postId) => {
     setCommentBoxOpen((prev) => ({ ...prev, [postId]: !prev[postId] }));
@@ -160,14 +173,14 @@ export default function Village({ initialPosts = [] }) {
   const handleShare = async (post) => {
   try {
     const shareText = `${post.title}\n${window.location.origin}/post/${post._id}`;
-
     await navigator.clipboard.writeText(shareText);
-
-    alert("Copied: Title + URL");
+    toast.success("Link copied to clipboard");
   } catch (error) {
     console.error("Share failed:", error);
+    toast.error("Share failed");
   }
 };
+
 
 
 
@@ -212,7 +225,8 @@ export default function Village({ initialPosts = [] }) {
     className="text-gray-600 hover:text-gray-900 text-2xl px-2"
     onClick={(e) => {
       e.stopPropagation(); // prevent opening post when clicked
-      alert("Show post options menu here (Report, Save, Share etc.)");
+      toast("Options coming soon 🚀");
+
     }}
   >
     ⋮
