@@ -95,7 +95,10 @@ export default function Village({ initialPosts = [] }) {
   const handleLikePost = async (postId) => {
   try {
     const token = localStorage.getItem("token");
-    if (!token) return alert("Please login");
+    if (!token) {
+      if (typeof window !== "undefined") window.alert("Please login"); // ✅ safe
+      return;
+    }
 
     const res = await axios.post(
       `${API_BASE}/post/like/${postId}`,
