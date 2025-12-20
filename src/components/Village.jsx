@@ -93,22 +93,28 @@ export default function Village({ initialPosts = [] }) {
 
 
   const handleLikePost = async (postId) => {
+  try {
     const token = localStorage.getItem("token");
-    if (!token) return alert("You must be logged in to like");
+    if (!token) return alert("Please login");
 
-    try {
-      const res = await axios.post(
-        `${API_BASE}/post/like/${postId}`,
-        {},
-        { headers: { "x-auth-token": token } }
-      );
-      setPosts((prev) =>
-        prev.map((p) => (p._id === postId ? res.data : p))
-      );
-    } catch {
-      alert("Failed to toggle like");
-    }
-  };
+    const res = await axios.post(
+      `${API_BASE}/post/like/${postId}`,
+      {},
+      { headers: { "x-auth-token": token } }
+    );
+
+    setPosts((prev) =>
+      prev.map((p) =>
+        p._id === postId
+          ? { ...p, likes: res.data.likes } // ✅ SAME AS SINGLE POST
+          : p
+      )
+    );
+  } catch (err) {
+    console.error("Like failed", err);
+  }
+};
+
 
   const handleComment = async (postId) => {
     const token = localStorage.getItem("token");
