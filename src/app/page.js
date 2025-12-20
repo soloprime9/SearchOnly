@@ -128,17 +128,10 @@ export default function HomePage() {
       <link rel="preconnect" href="https://backend-k.vercel.app" />
       <link rel="dns-prefetch" href="https://backend-k.vercel.app" />
 
-      <main className="flex flex-col items-center px-4 pb-16">
+      <main className="flex flex-col items-center px-2 pb-16">
         <div className="w-full max-w-6xl">
 
-          // {/* ===== FOUNDER & TRUST ===== */}
-          // <section className="pt-20 text-center text-sm text-gray-600 max-w-3xl mx-auto">
-          //   <p>
-          //     Founded in 2024 by <strong>Aman Kumar</strong>, FondPeace is an
-          //     independent platform created to support transparent, responsible,
-          //     and community-first conversations.
-          //   </p>
-          // </section>
+          
 
           {/* ===== HERO ===== */}
           <header className="pt-8 max-w-4xl mx-auto text-center">
