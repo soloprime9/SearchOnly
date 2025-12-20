@@ -84,7 +84,7 @@ export default function Village({ initialPosts = [] }) {
   }, [posts]);
 
   const hasLikedPost = (post) => {
-  if (!userId || !Array.isArray(post.likes)) return false;
+  if (!userId || !Array.isArray(post.likes)) return alert("You must be logged in to like this post");
 
   return post.likes.some(
     (id) => id && id.toString() === userId.toString()
@@ -119,7 +119,12 @@ export default function Village({ initialPosts = [] }) {
   const handleComment = async (postId) => {
     const token = localStorage.getItem("token");
     const comment = commentTextMap[postId]?.trim();
-    if (!token || !userId) return alert("Not authenticated");
+    if (!token || !userId) {
+  alert("Not authenticated");
+  router.push("/login"); // 👈 redirect to login page
+  return;
+}
+
     if (!comment) return alert("Comment cannot be empty");
 
     try {
