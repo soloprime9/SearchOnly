@@ -324,7 +324,6 @@ export default function Village({ initialPosts = [] }) {
   const [posts, setPosts] = useState(initialPosts);
   const [commentTextMap, setCommentTextMap] = useState({});
   const [commentBoxOpen, setCommentBoxOpen] = useState({});
-  const [loading, setLoading] = useState(true);
   const [expandedPosts, setExpandedPosts] = useState({});
   const [userId, setUserId] = useState(null);
   const videoRefs = useRef([]);
@@ -661,7 +660,7 @@ export default function Village({ initialPosts = [] }) {
     [commentTextMap, commentBoxOpen, expandedPosts, userId]
   );
 
-  if (loading) return <div className="text-center p-6">Loading feed...</div>;
+  
 
   return (
   <div className="max-w-2xl mx-auto space-y-8 px-2 sm:px-0">
