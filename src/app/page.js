@@ -128,18 +128,18 @@ export default function HomePage() {
       <link rel="preconnect" href="https://backend-k.vercel.app" />
       <link rel="dns-prefetch" href="https://backend-k.vercel.app" />
 
-      <main className="flex flex-col items-center px-2 pb-16">
+      <main className="flex flex-col items-center px-4 pb-8">
         <div className="w-full max-w-6xl">
 
           
 
           {/* ===== HERO ===== */}
-          <header className="pt-8 max-w-4xl mx-auto text-center">
+          <header className="pt-4 max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
               FondPeace
             </h1>
 
-            <p className="mt-3 text-xl text-gray-700">
+            <p className="mt-2 text-xl text-gray-700">
               A trusted community platform for open conversations.
             </p>
 
@@ -154,7 +154,7 @@ export default function HomePage() {
           </header>
 
           {/* ===== SEARCH ===== */}
-          <section className="mt-8 flex justify-center">
+          <section className="mt-4 flex justify-center">
             <Link
               href="/searchbro"
               aria-label="Search FondPeace"
@@ -166,12 +166,12 @@ export default function HomePage() {
           </section>
 
           {/* ===== CLIENT UI ===== */}
-          <div className="mt-6 flex justify-center">
+          <div className="mt-2 flex justify-center">
             <WhatsAppClientUI />
           </div>
 
           {/* ===== PURPOSE ===== */}
-          <section className="mt-16 max-w-4xl mx-auto text-gray-700 space-y-10">
+          <section className="mt-4 max-w-4xl mx-auto text-gray-700 space-y-10">
             <div>
               <h2 className="text-2xl font-semibold mb-2">
                 Why FondPeace Exists
@@ -213,13 +213,13 @@ export default function HomePage() {
           </nav>
 
           {/* ===== FEED ===== */}
-          <section className="mt-16">
+          <section className="mt-4">
             <h2 className="sr-only">Latest Community Discussions</h2>
             <VillageServer />
           </section>
 
           {/* ===== FOOTER ===== */}
-          <footer className="border-t mt-16 pt-8 text-sm text-gray-600">
+          <footer className="border-t mt-8 pt-8 text-sm text-gray-600">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div>
                 <h4 className="font-semibold">Platform</h4>
