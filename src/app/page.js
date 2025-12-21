@@ -116,7 +116,7 @@ const structuredData = {
 /* =========================
    HOMEPAGE
 ========================= */
-export default function HomePage() {
+export default async function HomePage() {
 
    let posts = [];
 
