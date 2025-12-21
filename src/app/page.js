@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FaSearch } from "react-icons/fa";
-import VillageServer from "@/components/VillageServer";
+import VillageClient from "@/components/VillageClient";
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
 
 
@@ -117,6 +117,18 @@ const structuredData = {
    HOMEPAGE
 ========================= */
 export default function HomePage() {
+
+   let posts = [];
+
+  try {
+    const res = await fetch(`${API_BASE}/post/mango/getall`, {
+      cache: "no-store",
+    });
+    posts = await res.json();
+  } catch (err) {
+    console.error("Homepage feed fetch failed", err);
+  }
+   
   return (
     <>
       {/* Structured Data */}
@@ -216,7 +228,7 @@ export default function HomePage() {
           {/* ===== FEED ===== */}
           <section className="mt-4">
             <h2 className="sr-only">Latest Community Discussions</h2>
-            <VillageServer />
+            <VillageClient initialPosts={posts} />
           </section>
 
           {/* ===== FOOTER ===== */}
