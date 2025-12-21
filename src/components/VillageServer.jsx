@@ -1,6 +1,9 @@
 import axios from "axios";
 import VillageClient from "./VillageClient";
 
+export const dynamic = "force-dynamic"; // ✅ CRITICAL
+export const revalidate = 0;             // ✅ CRITICAL
+
 const API_BASE = "https://backend-k.vercel.app";
 
 export default async function VillageServer() {
@@ -8,7 +11,7 @@ export default async function VillageServer() {
 
   try {
     const res = await axios.get(`${API_BASE}/post/mango/getall`, {
-      timeout: 8000,
+      headers: { "Cache-Control": "no-store" },
     });
     posts = res.data || [];
   } catch (err) {
