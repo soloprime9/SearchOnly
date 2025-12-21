@@ -1,7 +1,5 @@
 import VillageClient from "./VillageClient";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 const API_BASE = "https://backend-k.vercel.app";
 
