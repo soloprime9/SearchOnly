@@ -2,6 +2,8 @@ import Link from "next/link";
 import { FaSearch } from "react-icons/fa";
 import VillageServer from "@/components/VillageServer";
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 /* =========================
    METADATA (GOOGLE SAFE)
