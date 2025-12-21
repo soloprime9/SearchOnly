@@ -385,7 +385,7 @@ export default async function Page({ params }) {
     
     {Array.isArray(related) && related.length > 0 && (
   <aside className="max-w-5xl mx-auto mt-10 px-4">
-    <h3 className="text-xl font-semibold mb-4 text-gray-900">Related Posts</h3>
+    <p className="text-xl font-semibold mb-4 text-gray-900">Related Posts</p>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
       {related.map((r) => {
@@ -1966,6 +1966,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
