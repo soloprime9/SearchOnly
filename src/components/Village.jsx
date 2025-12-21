@@ -85,13 +85,19 @@ export default function Village({ initialPosts = [] }) {
     return () => observer.disconnect();
   }, [posts]);
 
-  const hasLikedPost = (post) => {
-  if (!userId || !Array.isArray(post.likes)) return false;
+  
 
-  return post.likes.some(
-    (id) => id && id.toString() === userId.toString()
-  );
-};
+ const hasLikedPost = useCallback(
+  (post) => {
+    if (!userId) return false;
+    if (!Array.isArray(post.likes)) return false;
+
+    return post.likes.some(
+      (id) => id?.toString() === userId.toString()
+    );
+  },
+  [userId]
+);
 
 
 
