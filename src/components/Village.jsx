@@ -104,7 +104,7 @@ export default function Village({ initialPosts = [] }) {
   const handleLikePost = async (postId) => {
   const token = localStorage.getItem("token");
 
-  if (!token) {
+  if (!token || !userId) {
     toast.error("Please login to like this post");
     router.push("/login");
     return;
@@ -119,14 +119,16 @@ export default function Village({ initialPosts = [] }) {
 
     setPosts((prev) =>
       prev.map((p) =>
-        p._id === postId ? { ...p, likes: res.data.likes } : p
+        p._id === postId
+          ? { ...p, likes: res.data.likes }
+          : p
       )
     );
   } catch (err) {
-    console.error("Like failed", err);
     toast.error("Failed to like post");
   }
 };
+
 
 
 
