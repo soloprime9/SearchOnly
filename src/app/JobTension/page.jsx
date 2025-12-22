@@ -40,7 +40,7 @@ export default async function JobsPage() {
   /* ---------- AUTH CHECK ---------- */
   const token = cookies().get("token")?.value;
 
-  if (!token) redirect("/login");
+  if (!token) redirect("/JobTension/register");
 
   try {
     jwt.verify(token, process.env.JWT_SECRET);
