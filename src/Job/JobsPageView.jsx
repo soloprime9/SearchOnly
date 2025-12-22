@@ -1,5 +1,5 @@
 "use client";
-
+import JobsFAQ from "./JobsFAQ";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -183,16 +183,9 @@ export default function JobsPageView({ jobs }) {
         </section>
 
         {/* ================= FAQ ================= */}
-        <section className="mt-16 bg-white p-6 rounded-xl shadow">
-          <h2 className="text-xl font-bold mb-4">FondPeace Jobs – FAQ</h2>
 
-          <ul className="space-y-3 text-gray-700 text-sm">
-            <li><strong>Is FondPeace Jobs free?</strong> Yes, 100% free.</li>
-            <li><strong>Who can post jobs?</strong> Any company or recruiter.</li>
-            <li><strong>Are jobs verified?</strong> Yes, moderation is applied.</li>
-            <li><strong>Login required?</strong> Yes, to apply for jobs.</li>
-          </ul>
-        </section>
+        <JobsFAQ />
+        
       </main>
 
       {/* ================= FOOTER ================= */}
