@@ -32,7 +32,7 @@ export default function JobsPageView({ jobs }) {
             <Link href="/JobTension/login" className="hover:text-blue-600">Login</Link>
             <Link href="/JobTension/register" className="hover:text-blue-600">Signup</Link>
             <Link
-              href="/JobTension/post-job"
+              href="/JobTension/upload"
               className="bg-blue-600 text-white px-4 py-2 rounded-lg"
             >
               Post Job Free
@@ -210,7 +210,7 @@ export default function JobsPageView({ jobs }) {
           <div>
             <h4 className="font-semibold text-white">For Employers</h4>
             <ul className="mt-2 space-y-1 text-sm">
-              <li><Link href="/JobTension/post-job">Post Job Free</Link></li>
+              <li><Link href="/JobTension/upload">Post Job Free</Link></li>
             </ul>
           </div>
 
