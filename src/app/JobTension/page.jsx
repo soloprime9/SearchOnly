@@ -1,4 +1,5 @@
 import JobsPageView from "@/Job/JobsPageView";
+import JobAuthGate from "@/Job/JobAuthGate";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import jwt from "jsonwebtoken";
@@ -167,8 +168,9 @@ export default async function JobsPage() {
           __html: JSON.stringify(jobListSchema),
         }}
       />
-
+      <JobAuthGate>
       <JobsPageView jobs={jobs} />
+      </JobAuthGate>
     </>
   );
 }
