@@ -85,7 +85,7 @@ export default function JobDetailComponent({ job }) {
             Reach real candidates • Zero cost • Fast approval
           </p>
           <Link
-            href="/JobTension/post-job"
+            href="/JobTension/upload"
             className="inline-block bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold shadow hover:scale-105 transition"
           >
             Post Job Free
@@ -219,8 +219,41 @@ export default function JobDetailComponent({ job }) {
       </section>
 
       {/* ================= FOOTER ================= */}
-      <footer className="bg-white border-t py-8 text-center text-sm text-gray-600">
-        © {new Date().getFullYear()} FondPeace.com · Built with trust & transparency
+      <footer className="bg-gray-900 text-gray-300">
+        <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div>
+            <h3 className="font-bold text-white">FondPeace Jobs</h3>
+            <p className="text-sm mt-2">
+              Free job portal for India. Trusted & transparent.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-white">Links</h4>
+            <ul className="mt-2 space-y-1 text-sm">
+              <li><Link href="/">Home</Link></li>
+              <li><Link href="/JobTension/login">Login</Link></li>
+              <li><Link href="/JobTension/register">Signup</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-white">For Employers</h4>
+            <ul className="mt-2 space-y-1 text-sm">
+              <li><Link href="/JobTension/upload">Post Job Free</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-white">Contact</h4>
+            <p className="text-sm mt-2">support@fondpeace.com</p>
+            <p className="text-sm">India</p>
+          </div>
+        </div>
+
+        <div className="text-center text-xs text-gray-500 border-t border-gray-700 py-4">
+          © {new Date().getFullYear()} FondPeace. All rights reserved.
+        </div>
       </footer>
     </div>
   );
