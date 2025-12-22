@@ -166,7 +166,7 @@ export default async function JobDetailPage({ params }) {
 
       
 
-      <div className="py-6">
+      <div className="">
         <JobDetailComponent job={job} />
       </div>
     </div>
