@@ -26,8 +26,8 @@ export default function LoginPage() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
       console.log("Saved user:", res.data.user);
 
-
-      router.push("/JobTension"); // Home page
+      console.log("Loggined Successfully");
+      // router.push("/JobTension"); // Home page
     } catch (err) {
       alert(err.response?.data?.message || "Login failed");
       
