@@ -27,7 +27,7 @@ export default function LoginPage() {
       console.log("Saved user:", res.data.user);
 
       console.log("Loggined Successfully");
-      // router.push("/JobTension"); // Home page
+      router.push("/JobTension"); // Home page
     } catch (err) {
       alert(err.response?.data?.message || "Login failed");
       
