@@ -87,7 +87,7 @@ export default function JobsPageView({ jobs }) {
           </p>
 
           <Link
-            href="/JobTension/post-job"
+            href="/JobTension/upload"
             className="inline-block mt-5 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold"
           >
             Post Job Free
@@ -102,14 +102,14 @@ export default function JobsPageView({ jobs }) {
         {!jobs || jobs.length === 0 ? (
           <p className="text-gray-500">No jobs available.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border-2 gap-6">
             {jobs.map((job) => (
               <Link
                 key={job._id}
                 href={`/JobTension/${job._id}`}
                 className="bg-white rounded-xl p-5 shadow hover:shadow-lg transition"
               >
-                <h3 className="text-lg font-bold text-gray-900">
+                <h3 className="text-lg text-blue-900 font-bold">
                   {job.jobTitle}
                 </h3>
 
