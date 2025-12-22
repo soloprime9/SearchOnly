@@ -2,7 +2,7 @@ import JobsPageView from "@/Job/JobsPageView";
 import JobAuthGate from "@/Job/JobAuthGate";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import jwt from "jsonwebtoken";
+
 
 /* ============================
    SEO METADATA (ENHANCED)
@@ -38,16 +38,7 @@ export async function generateMetadata() {
    PAGE (SERVER AUTH PROTECTED)
 ============================ */
 export default async function JobsPage() {
-  /* ---------- AUTH CHECK ---------- */
-  const token = cookies().get("token")?.value;
-
-  if (!token) redirect("/JobTension/register");
-
-  try {
-    jwt.verify(token, process.env.JWT_SECRET);
-  } catch {
-    redirect("/JobTension/register");
-  }
+ 
 
   /* ---------- FETCH JOBS ---------- */
   const res = await fetch("https://list-back-nine.vercel.app/job/all", {
