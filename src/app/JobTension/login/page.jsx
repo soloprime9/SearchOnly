@@ -87,7 +87,7 @@ export default function LoginPage() {
         <p className="text-sm text-gray-500 text-center mt-6">
           Don’t have an account?{" "}
           <span
-            onClick={() => router.push("/register")}
+            onClick={() => router.push("/JobTension/register")}
             className="text-emerald-600 font-medium cursor-pointer hover:underline"
           >
             Create one
