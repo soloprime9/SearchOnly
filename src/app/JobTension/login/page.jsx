@@ -88,7 +88,7 @@ export default function LoginPage() {
           Don’t have an account?{" "}
           <span
             onClick={() => router.push("/JobTension/register")}
-            className="text-emerald-600 font-medium cursor-pointer hover:underline"
+            className="text-blue-800 font-medium cursor-pointer hover:underline"
           >
             Create one
           </span>
