@@ -123,6 +123,7 @@ export default async function Page({ params }) {
   }
 
   const data = await res.json();
+  console.log("Data: ",data)
 
   return (
     <>
