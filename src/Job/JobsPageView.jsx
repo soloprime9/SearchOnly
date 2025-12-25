@@ -88,6 +88,8 @@ export default function JobsPageView({ jobs }) {
 
           <Link
             href="/JobTension/upload"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block mt-5 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold"
           >
             Post Job Free
@@ -107,6 +109,8 @@ export default function JobsPageView({ jobs }) {
               <Link
                 key={job._id}
                 href={`/JobTension/${job._id}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="bg-white rounded-xl p-5 border-4 shadow hover:shadow-lg transition"
               >
                 <h3 className="text-lg text-blue-900 font-bold">
