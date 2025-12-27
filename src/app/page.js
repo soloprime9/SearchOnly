@@ -157,14 +157,15 @@ export default async function HomePage() {
               A trusted community platform for open conversations.
             </p>
 
-            <p className="mt-2 text-gray-600 max-w-2xl mx-auto">
+            <p className="mt-2 text-gray-600 max-w-2xl mx-auto sr-only">
               Discover thoughtful discussions, explore ideas, and participate in
               respectful conversations without noise or manipulation.
             </p>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 sr-only">
               Independent · Community-first · Transparent
             </p>
+   
           </header>
 
           {/* ===== SEARCH ===== */}
@@ -185,7 +186,7 @@ export default async function HomePage() {
           </div>
 
           {/* ===== PURPOSE ===== */}
-          <section className="mt-4 max-w-4xl mx-auto text-gray-700 space-y-10">
+          <section className="mt-4 max-w-4xl mx-auto text-gray-700 space-y-10 sr-only">
             <div>
               <h2 className="text-2xl font-semibold mb-2">
                 Why FondPeace Exists
