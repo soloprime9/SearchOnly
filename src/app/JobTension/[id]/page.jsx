@@ -13,18 +13,17 @@ export async function generateMetadata({ params }) {
   );
 
   if (!res.ok) {
-  return {
-    title: "Job not found – Job Tension",
-    description: "The job you are looking for does not exist.",
-  };
-}
-
-
+    return {
+      title: "Job not found – Job Tension",
+      description: "The job you are looking for does not exist.",
+    };
+  }
 
   const { job } = await res.json();
 
   const title = `${job.jobTitle} at ${job.companyName} | ${job.jobLocation}`;
   const description = job.aboutJob.slice(0, 160);
+  const imageUrl ="https://www.fondpeace.com/Fondpeace.jpg";
 
   return {
     title,
@@ -35,17 +34,26 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title,
       description,
-      type: "article",
       url: `https://www.fondpeace.com/JobTension/${job._id}`,
       siteName: "Job Tension",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [imageUrl],
     },
   };
 }
+
 
 /* =========================
    JOB SCHEMA (GOOGLE JOBS)
