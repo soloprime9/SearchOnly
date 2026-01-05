@@ -96,7 +96,13 @@ export async function generateMetadata({ params }) {
     const thumb = toAbsolute(post.thumbnail || mediaUrl);
     const pageUrl = `${SITE_ROOT}/short/${id}`;
 
-    const titleTag = `${post.title || "FondPeace Video"} | FondPeace`;
+    // ✅ Shorten title to max 60 chars
+    let rawTitle = post.title || "FondPeace Video";
+    if (rawTitle.length > 60) {
+      rawTitle = rawTitle.slice(0, 57) + "...";
+    }
+    const titleTag = `${rawTitle} | FondPeace`;
+      
     const description = buildDescription(post);
     const keywords = extractKeywords(post);
     const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || post.mediaType?.startsWith("video"));
