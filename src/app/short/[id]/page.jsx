@@ -92,18 +92,10 @@ export async function generateMetadata({ params }) {
     const { post } = await res.json();
     if (!post) return { title: "Video Not Found | FondPeace" };
 
+    // Using your helper functions to handle URLs automatically
+    const mediaUrl = toAbsolute(post.media || post.mediaUrl);
+    const thumb = toAbsolute(post.thumbnail || mediaUrl);
     const pageUrl = `${SITE_ROOT}/short/${id}`;
-    
-    // Constructing the Video and Thumbnail URLs
-    const videoUrl = post.media?.startsWith("http") 
-      ? post.media 
-      : `https://pub-fe2880e50b8a49beb15457c1336be948.r2.dev/${post.media}`;
-
-    const thumb = post.thumbnail
-      ? post.thumbnail.startsWith("http")
-        ? post.thumbnail
-        : `https://pub-fe2880e50b8a49beb15457c1336be948.r2.dev/${post.thumbnail}`
-      : "https://fondpeace.com/og-default.png";
 
     let rawTitle = post.title || "FondPeace Video";
     if (rawTitle.length > 60) rawTitle = rawTitle.slice(0, 57) + "...";
@@ -121,19 +113,12 @@ export async function generateMetadata({ params }) {
         title: titleTag,
         description,
         url: pageUrl,
-        type: "video.other", // Changed from article to video
-        images: [
-          {
-            url: thumb,
-            width: 1200,
-            height: 630,
-            alt: titleTag,
-          },
-        ],
-        // Adding the actual video file for platforms that support it
+        siteName: "FondPeace",
+        type: "video.other", // Essential for WhatsApp video icon
+        images: [{ url: thumb, width: 1200, height: 630 }],
         videos: [
           {
-            url: videoUrl,
+            url: mediaUrl,
             width: 1280,
             height: 720,
             type: "video/mp4",
@@ -142,14 +127,14 @@ export async function generateMetadata({ params }) {
       },
 
       twitter: {
-        card: "player", // Changed from summary_large_image for video posts
+        card: "player", // Required for video playback on X
         title: titleTag,
         description,
         images: [thumb],
         players: [
           {
-            playerUrl: pageUrl, // Or a direct stream link if you have a dedicated player page
-            streamUrl: videoUrl,
+            playerUrl: pageUrl,
+            streamUrl: mediaUrl,
             width: 1280,
             height: 720,
           },
@@ -157,10 +142,12 @@ export async function generateMetadata({ params }) {
       },
     };
   } catch (err) {
-    console.error("generateMetadata error:", err);
     return { title: "FondPeace Video" };
   }
 }
+
+
+
 
 
 // --- Page Component (Server Component) ---
