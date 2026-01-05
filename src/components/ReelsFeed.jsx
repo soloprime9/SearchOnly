@@ -157,7 +157,7 @@ export default function SingleReel({ initialPost }) {
             preload="auto"
             muted={muted}
             controls={false}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
 
           {/* ---------------- PLAY / PAUSE ICON CENTER ---------------- */}
