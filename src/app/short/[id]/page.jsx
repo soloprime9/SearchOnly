@@ -100,42 +100,48 @@ export async function generateMetadata({ params }) {
     const description = buildDescription(post);
 
     return {
-      title,
+      title: titleTag,
       description,
-      keywords: extractKeywords(post),
+      keywords,
       alternates: { canonical: pageUrl },
 
       openGraph: {
-        title,
+        title: titleTag,
         description,
         url: pageUrl,
-        type: "video.other",
-
+        type: isVideo ? "video.other" : "article",
         images: [
           {
             url: thumb,
-            width: 1200,
-            height: 630,
-            type: thumb.endsWith(".png") ? "image/png" : "image/jpeg",
-            alt: title
+            width: 1280,
+            height: 720,
+            alt: titleTag,
+            type: thumb.endsWith(".png") ? "image/png" : "image/jpeg"
           }
         ],
-
-        videos: [
-          {
-            url: mediaUrl,
-            type: "video/mp4",
-            width: 1280,
-            height: 720
-          }
-        ]
+        ...(isVideo && {
+          videos: [
+            {
+              url: mediaUrl,
+              type: "video/mp4",
+              width: 1280,
+              height: 720
+            }
+          ]
+        })
       },
 
       twitter: {
-        card: "summary_large_image",
-        title,
+        card: isVideo ? "player" : "summary_large_image",
+        title: titleTag,
         description,
-        images: [thumb]
+        images: [thumb],
+        ...(isVideo && {
+          player: mediaUrl,
+          playerWidth: 1280,
+          playerHeight: 720,
+          playerStream: mediaUrl
+        })
       }
     };
   } catch (err) {
