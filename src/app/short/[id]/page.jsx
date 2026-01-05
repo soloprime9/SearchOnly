@@ -92,22 +92,22 @@ export async function generateMetadata({ params }) {
     const { post } = await res.json();
     if (!post) return { title: "Video Not Found | FondPeace" };
 
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl, "video");
-    const thumb = toAbsolute(post.thumbnail || mediaUrl);
     const pageUrl = `${SITE_ROOT}/short/${id}`;
 
-    // ✅ Shorten title to max 60 chars
     let rawTitle = post.title || "FondPeace Video";
-    if (rawTitle.length > 60) {
-      rawTitle = rawTitle.slice(0, 57) + "...";
-    }
+    if (rawTitle.length > 60) rawTitle = rawTitle.slice(0, 57) + "...";
     const titleTag = `${rawTitle} | FondPeace`;
-      
+
     const description = buildDescription(post);
     const keywords = extractKeywords(post);
-    const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || post.mediaType?.startsWith("video"));
 
-    // ✅ Correct OpenGraph + Twitter Metadata without embed page
+    // ✅ ONLY REAL IMAGE — NO GUESSING
+    const thumb = post.thumbnail
+      ? post.thumbnail.startsWith("http")
+        ? post.thumbnail
+        : `https://pub-fe2880e50b8a49beb15457c1336be948.r2.dev/${post.thumbnail}`
+      : "https://fondpeace.com/og-default.png";
+
     return {
       title: titleTag,
       description,
@@ -118,31 +118,18 @@ export async function generateMetadata({ params }) {
         title: titleTag,
         description,
         url: pageUrl,
-        type: isVideo ? "video.other" : "article",
+        type: "article",
         images: [
           {
             url: thumb,
-            width: 1280,
-            height: 720,
-            alt: titleTag,
-            type: thumb.endsWith(".png") ? "image/png" : "image/jpeg"
+            width: 1200,
+            height: 630,
+            alt: titleTag
           }
-        ],
-        // Video object included for OG, but not for Twitter player
-        ...(isVideo && {
-          videos: [
-            {
-              url: mediaUrl,
-              type: "video/mp4",
-              width: 1280,
-              height: 720
-            }
-          ]
-        })
+        ]
       },
 
       twitter: {
-        // Use thumbnail only, since no embed page exists
         card: "summary_large_image",
         title: titleTag,
         description,
