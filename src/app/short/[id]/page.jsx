@@ -8,22 +8,24 @@ import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFe
 // Server-side Constants
 const API_SINGLE = "https://backend-k.vercel.app/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
-const DEFAULT_THUMB = `${SITE_ROOT}/fondpeace.jpg`;
+const DEFAULT_THUMB = `${SITE_ROOT}/Fondpeace.jpg`;
 
 export const dynamic = "force-dynamic"; // हर बार अनुरोध पर री-रेंडर सुनिश्चित करें
 
 // --- Utility Functions (Same as your original) ---
 
-function toAbsolute(url) {
-    if (!url) return null;
+// safer toAbsolute
+function toAbsolute(url, type = "image") {
+    if (!url) return type === "video" ? "" : DEFAULT_THUMB;
     if (url.startsWith("http")) return url;
     if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
     return `${SITE_ROOT}/${url}`;
 }
 
+// safer secToISO
 function secToISO(sec) {
     const s = Number(sec);
-    if (!Number.isFinite(s) || s <= 0) return undefined;
+    if (!Number.isFinite(s) || s <= 0) return "PT0M30S";
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
     const secLeft = Math.floor(s % 60);
@@ -33,6 +35,19 @@ function secToISO(sec) {
     if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
     return iso;
 }
+
+// safer keywords
+function extractKeywords(post) {
+    if (!post) return "fondpeace,shorts,video,reels";
+    if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
+    if (Array.isArray(post.hashtags) && post.hashtags.length)
+        return post.hashtags.map(h => h.replace("#", "")).join(", ");
+    if (post.title) return post.title.split(" ").slice(0, 10).join(", ");
+    return "fondpeace,shorts,video,reels";
+}
+
+
+
 
 function likesCount(post) {
     if (!post) return 0;
@@ -63,67 +78,72 @@ function buildDescription(post) {
     return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
 }
 
-function extractKeywords(post) {
-    if (!post) return "";
-    if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
-    if (Array.isArray(post.hashtags) && post.hashtags.length)
-        return post.hashtags.map(h => h.replace("#", "")).join(", ");
-    if (post.title) return post.title.split(" ").slice(0, 10).join(", ");
-    return "fondpeace,shorts,video,reels";
-}
+
 
 // --- Metadata Generator (Google Indexing Focus) ---
 export async function generateMetadata({ params }) {
-    const id = params?.id;
-    if (!id) return { title: "Invalid Video" };
+  const id = params?.id;
+  if (!id) return { title: "Invalid Video | FondPeace" };
 
-    try {
-        const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
-        if (!res.ok) return { title: "Fondpeace Video" };
-        const data = await res.json();
-        const post = data?.post;
-        if (!post) return { title: "Video Not Found" };
+  try {
+    const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
+    if (!res.ok) return { title: "FondPeace Video" };
 
-        const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
-        const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-        const title = (post.title || "FondPeace Video").slice(0, 160);
-        const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("video"));
+    const { post } = await res.json();
+    if (!post) return { title: "Video Not Found | FondPeace" };
 
-        const metadata = {
-            title,
-            description: buildDescription(post),
-            keywords: extractKeywords(post),
-            alternates: { canonical: `${SITE_ROOT}/short/${id}` },
-            openGraph: {
-                title,
-                description: buildDescription(post),
-                url: `${SITE_ROOT}/short/${id}`,
-                type: isVideo ? "video.other" : "article",
-                images: [img],
-                ...(isVideo && {
-                    video: [{
-                        url: mediaUrl,
-                        type: "video/mp4",
-                        width: 1280,
-                        height: 720
-                    }]
-                })
-            },
-            twitter: {
-                card: isVideo ? "player" : "summary_large_image",
-                title,
-                description: buildDescription(post),
-                image: img,
-                ...(isVideo && { player: mediaUrl })
-            },
-        };
+    const mediaUrl = toAbsolute(post.media || post.mediaUrl);
+    const thumb = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+    const pageUrl = `${SITE_ROOT}/short/${id}`;
 
-        return metadata;
-    } catch (e) {
-        console.error("generateMetadata error:", e);
-        return { title: "Fondpeace Video" };
-    }
+    const title = `${post.title || "FondPeace Video"} | FondPeace`;
+    const description = buildDescription(post);
+
+    return {
+      title,
+      description,
+      keywords: extractKeywords(post),
+      alternates: { canonical: pageUrl },
+
+      openGraph: {
+        title,
+        description,
+        url: pageUrl,
+        type: "video.other",
+
+        images: [
+          {
+            url: thumb,
+            width: 1200,
+            height: 630,
+            type: thumb.endsWith(".png") ? "image/png" : "image/jpeg",
+            alt: title
+          }
+        ],
+
+        videos: [
+          {
+            url: mediaUrl,
+            type: "video/mp4",
+            width: 1280,
+            height: 720
+          }
+        ]
+      },
+
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: [thumb]
+      }
+    };
+  } catch (err) {
+    console.error("generateMetadata error:", err);
+    return { title: "FondPeace Video" };
+  }
 }
+
 
 // --- Page Component (Server Component) ---
 export default async function Page({ params }) {
@@ -160,14 +180,29 @@ export default async function Page({ params }) {
             thumbnailUrl: [thumbnail || DEFAULT_THUMB],
             ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
             embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
-            uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+            uploadDate: post.createdAt
+  ? new Date(post.createdAt).toISOString()
+  : new Date().toISOString(),
             // ... (rest of the schema properties)
             duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
             author: { "@type": "Person", name: authorName },
+            publisher: {
+  "@type": "Organization",
+  name: "FondPeace",
+  url: "https://www.fondpeace.com",
+  logo: {
+    "@type": "ImageObject",
+    url: "https://www.fondpeace.com/Fondpeace.jpg",
+    width: 600,
+    height: 60
+  }
+},
+
             interactionStatistic: buildInteractionSchema(post),
             keywords: extractKeywords(post),
             inLanguage: "hi-IN",
             potentialAction: { "@type": "WatchAction", target: pageUrl },
+            isFamilyFriendly: true,
             mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
         };
 
@@ -198,6 +233,63 @@ export default async function Page({ params }) {
         </div>
       </header>
 
+                {/* Hidden HTML VideoObject for SEO (authority-level) */}
+        <section
+          itemScope
+          itemType="https://schema.org/VideoObject"
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            top: 0,
+            width: "1px",
+            height: "1px",
+            overflow: "hidden"
+          }}
+        >
+          <h1 itemProp="name">{post.title}</h1>
+          <p itemProp="description">{buildDescription(post)}</p>
+
+          <video
+            itemProp="contentUrl"
+            src={mediaUrl}
+            poster={thumbnail}
+            preload="metadata"
+            controls
+          >
+            <source src={mediaUrl} type="video/mp4" />
+          </video>
+
+          <meta itemProp="thumbnailUrl" content={thumbnail} />
+          <meta itemProp="uploadDate" content={post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString()} />
+          <meta itemProp="duration" content={post.duration ? (String(post.duration).startsWith("PT") ? post.duration : secToISO(Number(post.duration))) : "PT0M30S"} />
+
+          <div itemProp="interactionStatistic" itemScope itemType="https://schema.org/InteractionCounter">
+            <meta itemProp="interactionType" content="https://schema.org/WatchAction" />
+            <meta itemProp="userInteractionCount" content={viewsCount(post)} />
+          </div>
+
+          <link itemProp="mainEntityOfPage" href={pageUrl} />
+
+          <div itemProp="author" itemScope itemType="https://schema.org/Person">
+            <meta itemProp="name" content={authorName} />
+          </div>
+
+          <div itemProp="publisher" itemScope itemType="https://schema.org/Organization">
+            <meta itemProp="name" content="FondPeace" />
+            <meta itemProp="url" content={SITE_ROOT} />
+            <div itemProp="logo" itemScope itemType="https://schema.org/ImageObject">
+              <meta itemProp="url" content={DEFAULT_THUMB} />
+              <meta itemProp="width" content="600" />
+              <meta itemProp="height" content="60" />
+            </div>
+          </div>
+
+          <meta itemProp="keywords" content={extractKeywords(post)} />
+          <meta itemProp="isFamilyFriendly" content="true" />
+        </section>
+
+
+                
                 {/* ReelsFeed: Client Component */}
                 {/* initialPost में केवल वह वीडियो है जिसे हम चाहते हैं कि Google इंडेक्स करे। */}
                 <ReelsFeedWrapper initialPost={post} initialRelated={related} />
