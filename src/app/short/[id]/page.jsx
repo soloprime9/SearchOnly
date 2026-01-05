@@ -92,13 +92,16 @@ export async function generateMetadata({ params }) {
     const { post } = await res.json();
     if (!post) return { title: "Video Not Found | FondPeace" };
 
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl);
-    const thumb = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+    const mediaUrl = toAbsolute(post.media || post.mediaUrl, "video");
+    const thumb = toAbsolute(post.thumbnail || mediaUrl);
     const pageUrl = `${SITE_ROOT}/short/${id}`;
 
-    const title = `${post.title || "FondPeace Video"} | FondPeace`;
+    const titleTag = `${post.title || "FondPeace Video"} | FondPeace`;
     const description = buildDescription(post);
+    const keywords = extractKeywords(post);
+    const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || post.mediaType?.startsWith("video"));
 
+    // ✅ Correct OpenGraph + Twitter Metadata without embed page
     return {
       title: titleTag,
       description,
@@ -119,6 +122,7 @@ export async function generateMetadata({ params }) {
             type: thumb.endsWith(".png") ? "image/png" : "image/jpeg"
           }
         ],
+        // Video object included for OG, but not for Twitter player
         ...(isVideo && {
           videos: [
             {
@@ -132,16 +136,11 @@ export async function generateMetadata({ params }) {
       },
 
       twitter: {
-        card: isVideo ? "player" : "summary_large_image",
+        // Use thumbnail only, since no embed page exists
+        card: "summary_large_image",
         title: titleTag,
         description,
-        images: [thumb],
-        ...(isVideo && {
-          player: mediaUrl,
-          playerWidth: 1280,
-          playerHeight: 720,
-          playerStream: mediaUrl
-        })
+        images: [thumb]
       }
     };
   } catch (err) {
@@ -149,6 +148,7 @@ export async function generateMetadata({ params }) {
     return { title: "FondPeace Video" };
   }
 }
+
 
 
 // --- Page Component (Server Component) ---
