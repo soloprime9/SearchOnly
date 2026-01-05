@@ -92,7 +92,7 @@ export async function generateMetadata({ params }) {
     const { post } = await res.json();
     if (!post) return { title: "Video Not Found | FondPeace" };
 
-    // Using your helper functions to handle URLs automatically
+    // Apke existing helpers ka use
     const mediaUrl = toAbsolute(post.media || post.mediaUrl);
     const thumb = toAbsolute(post.thumbnail || mediaUrl);
     const pageUrl = `${SITE_ROOT}/short/${id}`;
@@ -114,8 +114,13 @@ export async function generateMetadata({ params }) {
         description,
         url: pageUrl,
         siteName: "FondPeace",
-        type: "video.other", // Essential for WhatsApp video icon
-        images: [{ url: thumb, width: 1200, height: 630 }],
+        type: "video.other", // WhatsApp isi se "Play" icon dikhata hai
+        images: [{ 
+          url: thumb, 
+          width: 1200, 
+          height: 630,
+          alt: titleTag 
+        }],
         videos: [
           {
             url: mediaUrl,
@@ -127,7 +132,7 @@ export async function generateMetadata({ params }) {
       },
 
       twitter: {
-        card: "player", // Required for video playback on X
+        card: "player", // X par video ke liye "player" card zaroori hai
         title: titleTag,
         description,
         images: [thumb],
@@ -142,11 +147,10 @@ export async function generateMetadata({ params }) {
       },
     };
   } catch (err) {
+    console.error("Metadata error:", err);
     return { title: "FondPeace Video" };
   }
 }
-
-
 
 
 
