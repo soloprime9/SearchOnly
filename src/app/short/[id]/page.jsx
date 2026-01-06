@@ -117,8 +117,8 @@ export async function generateMetadata({ params }) {
         type: "video.other", // WhatsApp isi se "Play" icon dikhata hai
         images: [{ 
           url: thumb, 
-          width: 1200, 
-          height: 630,
+          width: 1280, 
+          height: 720,
           alt: titleTag 
         }],
         videos: [
