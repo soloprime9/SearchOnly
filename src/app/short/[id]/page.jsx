@@ -92,15 +92,13 @@ export async function generateMetadata({ params }) {
     const { post } = await res.json();
     if (!post) return { title: "Video Not Found | FondPeace" };
 
-    // Apke existing helpers ka use
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl);
-    const thumb = toAbsolute(post.thumbnail || mediaUrl);
+    const mediaUrl = toAbsolute(post.media || post.mediaUrl); // Fixed syntax
+    const thumb = toAbsolute(post.thumbnail || mediaUrl); // Fallback to media if no thumb
     const pageUrl = `${SITE_ROOT}/short/${id}`;
 
     let rawTitle = post.title || "FondPeace Video";
     if (rawTitle.length > 60) rawTitle = rawTitle.slice(0, 57) + "...";
     const titleTag = `${rawTitle} | FondPeace`;
-
     const description = buildDescription(post);
 
     return {
@@ -108,19 +106,21 @@ export async function generateMetadata({ params }) {
       description,
       keywords: extractKeywords(post),
       alternates: { canonical: pageUrl },
-
       openGraph: {
         title: titleTag,
         description,
         url: pageUrl,
         siteName: "FondPeace",
-        type: "video.other", // WhatsApp isi se "Play" icon dikhata hai
-        images: [{ 
-          url: thumb, 
-          width: 1280, 
-          height: 720,
-          alt: titleTag 
-        }],
+        type: "video.other", // Root level for better support
+        images: [
+          {
+            url: thumb,
+            width: 1280,
+            height: 720,
+            alt: titleTag,
+          },
+        ],
+        // Keep videos for LinkedIn/FB compatibility, but WhatsApp will use images
         videos: [
           {
             url: mediaUrl,
@@ -130,20 +130,18 @@ export async function generateMetadata({ params }) {
           },
         ],
       },
-
       twitter: {
-        card: "player", // X par video ke liye "player" card zaroori hai
+        card: "player", // For embedded player with play button
         title: titleTag,
         description,
-        images: [thumb],
-        players: [
-          {
-            playerUrl: pageUrl,
-            streamUrl: mediaUrl,
-            width: 1280,
-            height: 720,
-          },
-        ],
+        image: thumb, // Fallback static thumbnail (important!)
+        site: "@yourfondpeacehandle", // Optional: Add your X handle if available
+        player: {
+          url: pageUrl, // The page URL (must contain playable video; X embeds the page in iframe)
+          width: 1280,
+          height: 720,
+          // stream: mediaUrl, // Optional: Direct stream URL if supported (for better performance)
+        },
       },
     };
   } catch (err) {
