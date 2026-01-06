@@ -212,6 +212,7 @@ export default async function Page({ params }) {
             inLanguage: "hi-IN",
             potentialAction: { "@type": "WatchAction", target: pageUrl },
             isFamilyFriendly: true,
+            isAccessibleForFree: true,
             mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
         };
 
