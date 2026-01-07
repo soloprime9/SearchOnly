@@ -221,92 +221,33 @@ export default async function Page({ params }) {
     };
   }
 
-  else if (isImage) {
-    jsonLdMain = {
-      "@context": "https://schema.org",
-      "@type": "ImageObject",
-
-      url: pageUrl,
-      name: post.title,
-      headline: post.title,
-      description: buildDescription(post),
-
-      contentUrl: mediaUrl,
-      thumbnailUrl: thumbnail,
-
-      datePublished: new Date(post.createdAt).toISOString(),
-      dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
-
-      publisher: {
-        "@type": "Organization",
-        name: "FondPeace",
-        url: SITE_ROOT,
-        logo: {
-          "@type": "ImageObject",
-          url: `${SITE_ROOT}/logo.png`,
-          width: 512,
-          height: 512,
-        },
-      },
-
-      author: { "@type": "Person", name: authorName },
-
-      interactionStatistic: buildInteractionSchema(post),
-      keywords: extractKeywords(post),
-      inLanguage: "hi-IN",
-      isFamilyFriendly: true,
-
-      potentialAction: { "@type": "ViewAction", target: pageUrl },
-
-      mainEntityOfPage: {
-        "@type": "WebPage",
-        "@id": pageUrl,
-      },
-    };
-  }
-
   else {
-    jsonLdMain = {
-      "@context": "https://schema.org",
-      "@type": "Article",
+  jsonLdMain = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    url: pageUrl,
+    name: post.title,
+    headline: post.title,
+    description: buildDescription(post),
+    image: [thumbnail],
+    datePublished: new Date(post.createdAt).toISOString(),
+    dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+    publisher: {
+      "@type": "Organization",
+      name: "FondPeace",
+      url: SITE_ROOT,
+      logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png`, width: 512, height: 512 }
+    },
+    author: { "@type": "Person", name: authorName },
+    interactionStatistic: buildInteractionSchema(post),
+    keywords: extractKeywords(post),
+    inLanguage: "hi-IN",
+    isFamilyFriendly: true,
+    potentialAction: { "@type": "ReadAction", target: pageUrl },
+    mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+  };
+}
 
-      url: pageUrl,
-      name: post.title,
-      headline: post.title,
-      description: buildDescription(post),
-
-      image: [thumbnail],
-
-      datePublished: new Date(post.createdAt).toISOString(),
-      dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
-
-      publisher: {
-        "@type": "Organization",
-        name: "FondPeace",
-        url: SITE_ROOT,
-        logo: {
-          "@type": "ImageObject",
-          url: `${SITE_ROOT}/logo.png`,
-          width: 512,
-          height: 512,
-        },
-      },
-
-      author: { "@type": "Person", name: authorName },
-
-      interactionStatistic: buildInteractionSchema(post),
-      keywords: extractKeywords(post),
-      inLanguage: "hi-IN",
-      isFamilyFriendly: true,
-
-      potentialAction: { "@type": "ReadAction", target: pageUrl },
-
-      mainEntityOfPage: {
-        "@type": "WebPage",
-        "@id": pageUrl,
-      },
-    };
-  }
 
   const articleSchema = {
   "@context": "https://schema.org",
@@ -2088,6 +2029,7 @@ const discussionSchema = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
