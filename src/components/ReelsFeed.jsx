@@ -123,7 +123,7 @@ export default function SingleReel({ initialPost }) {
 
 
   return (
-    <div className="h-screen w-screen bg-white flex justify-center items-start overflow-y-auto">
+    <div className="flex flex-col h-screen w-screen bg-white justify-start overflow-y-auto">
       <div className="w-full max-w-[480px] flex flex-col">
 
         {/* ---------------- HEADER ---------------- */}
@@ -142,7 +142,7 @@ export default function SingleReel({ initialPost }) {
 
         {/* ---------------- VIDEO ---------------- */}
         <div className="flex flex-col">
-        <div className="relative w-full bg-black aspect-[9/16]" onClick={togglePlayPause}>
+        <div className="relative w-full bg-black h-[70vh]" onClick={togglePlayPause}>
           <video
             ref={videoRef}
             src={post.media}
@@ -227,7 +227,7 @@ export default function SingleReel({ initialPost }) {
 
         {/* ---------------- COMMENTS PANEL ---------------- */}
         {showComments && (
-  <div className="bg-white w-full rounded-t-2xl p-4 max-h-[50vh] overflow-y-auto mt-2">
+  <div className="bg-white w-full rounded-t-2xl p-4 max-h-[30vh] overflow-y-auto mt-2">
     <p className="font-semibold mb-3">Comments</p>
 
     <div className="flex gap-2 mb-4">
