@@ -114,12 +114,7 @@ export default function SingleReel({ initialPost }) {
     setMuted(!muted);
   };
 
-  useEffect(() => {
-  if (commentRef.current) {
-    const input = commentRef.current.querySelector("input");
-    if (input) input.focus();
-  }
-}, []);
+  
 
 
   return (
@@ -188,19 +183,11 @@ export default function SingleReel({ initialPost }) {
               {post.likes?.length || 0}
             </button>
 
-            <button
-  onClick={() => {
-    if (commentRef.current) {
-      commentRef.current.scrollIntoView({ behavior: "smooth" });
-      const input = commentRef.current.querySelector("input");
-      if (input) input.focus();
-    }
-  }}
-  className="flex items-center gap-1"
->
+            <button className="flex items-center gap-1">
   <FaCommentDots className="text-xl" />
   {post.comments?.length || 0}
 </button>
+
 
 
             <button
@@ -227,34 +214,48 @@ export default function SingleReel({ initialPost }) {
 
         {/* ---------------- COMMENTS PANEL ---------------- */}
         {showComments && (
-  <div className="bg-white w-full rounded-t-2xl p-4 max-h-[30vh] overflow-y-auto mt-2">
-    <p className="font-semibold mb-3">Comments</p>
+  <div className="bg-gray-50 w-full border-t border-gray-200 p-4 max-h-[30vh] overflow-y-auto">
 
-    <div className="flex gap-2 mb-4">
+    {/* Comment input */}
+    <div className="flex items-center gap-3 mb-4">
+      <img
+        src={DEFAULT_AVATAR}
+        className="w-8 h-8 rounded-full object-cover"
+      />
       <input
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder="Add a comment..."
-        className="flex-1 border px-3 py-2 rounded-md"
+        className="flex-1 bg-white border rounded-full px-4 py-2 text-sm focus:outline-none"
       />
       <button
         onClick={handleComment}
-        className="bg-blue-600 text-white px-4 rounded-md"
+        className="text-blue-600 font-semibold text-sm"
       >
         Post
       </button>
     </div>
 
+    {/* Comments list */}
     {post.comments?.map((cmt, i) => (
-      <div key={i} className="mb-2">
-        <p className="font-semibold text-xs">
-          {cmt.userId?.username || "User"}
-        </p>
-        <p className="text-sm">{cmt.CommentText}</p>
+      <div key={i} className="flex gap-3 mb-3">
+        <img
+          src={cmt.userId?.avatar || DEFAULT_AVATAR}
+          className="w-8 h-8 rounded-full object-cover"
+        />
+        <div>
+          <p className="text-sm">
+            <span className="font-semibold mr-1">
+              {cmt.userId?.username || "User"}
+            </span>
+            {cmt.CommentText}
+          </p>
+        </div>
       </div>
     ))}
   </div>
 )}
+
         </div>
 
 
