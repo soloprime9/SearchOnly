@@ -117,27 +117,201 @@ export default function SingleReel({ initialPost }) {
   
 
 
-  return (
-    <div className="flex flex-col h-screen w-screen bg-white justify-start overflow-y-auto">
-      <div className="w-full max-w-[480px] flex flex-col">
+//   return (
+//     <div className="flex flex-col h-screen w-screen bg-white justify-start overflow-y-auto">
+//       <div className="w-full max-w-[480px] flex flex-col">
 
-        {/* ---------------- HEADER ---------------- */}
-        <div className="flex items-center justify-between px-4 py-3 sticky top-0 bg-white z-10">
-          <Link href={`/profile/${post.userId?.username}`} className="flex items-center gap-3">
+//         {/* ---------------- HEADER ---------------- */}
+//         <div className="flex items-center justify-between px-4 py-3 sticky top-0 bg-white z-10">
+//           <Link href={`/profile/${post.userId?.username}`} className="flex items-center gap-3">
+//             <img
+//               src={post.userId?.avatar || DEFAULT_AVATAR}
+//               className="w-10 h-10 rounded-full object-cover"
+//             />
+//             <p className="font-semibold text-sm">
+//               {post.userId?.username || "fondpeace"}
+//             </p>
+//           </Link>
+//           <FaEllipsisH />
+//         </div>
+
+//         {/* ---------------- VIDEO ---------------- */}
+//         <div className="flex flex-col">
+//         <div className="relative w-full bg-black h-[70vh]" onClick={togglePlayPause}>
+//           <video
+//             ref={videoRef}
+//             src={post.media}
+//             poster={post.thumbnail || DEFAULT_THUMB}
+//             autoPlay
+//             loop
+//             playsInline
+//             preload="auto"
+//             muted={muted}
+//             controls={false}
+//             className="w-full h-full object-contain"
+//           />
+
+//           {/* ---------------- PLAY / PAUSE ICON CENTER ---------------- */}
+//           {showPlayIcon && (
+//             <div className="absolute inset-0 flex items-center justify-center">
+//               {isPlaying ? (
+//                 <FaPause className="text-white text-6xl opacity-90 animate-pulse" />
+//               ) : (
+//                 <FaPlay className="text-white text-6xl opacity-90 animate-pulse" />
+//               )}
+//             </div>
+//           )}
+
+//           {/* ---------------- MUTE BUTTON ---------------- */}
+//           <button
+//             onClick={toggleMute}
+//             className="absolute bottom-4 right-4 bg-black/60 p-2 rounded-full text-white"
+//           >
+//             {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
+//           </button>
+//         </div>
+
+//         {/* ---------------- INTERACTIONS ---------------- */}
+//         <div className="flex justify-between items-center px-4 py-2">
+//           <div className="flex gap-5 items-center">
+//             <button onClick={handleLike} className="flex items-center gap-1">
+//               {hasLiked ? (
+//                 <FaHeart className="text-red-600 text-xl" />
+//               ) : (
+//                 <FaRegHeart className="text-xl" />
+//               )}
+//               {post.likes?.length || 0}
+//             </button>
+
+//             <button className="flex items-center gap-1">
+//   <FaCommentDots className="text-xl" />
+//   {post.comments?.length || 0}
+// </button>
+
+
+
+//             <button
+//               onClick={handleShare}
+//               className="flex items-center gap-1"
+//             >
+//               <FaShareAlt className="text-xl" />
+//             </button>
+//           </div>
+
+//           <div className="flex items-center gap-1 text-sm">
+//             <FaEye />
+//             {post.views || 0}
+//           </div>
+//         </div>
+
+//         {/* ---------------- CAPTION ---------------- */}
+//         <div className="px-4 py-2 text-sm">
+//           <span className="font-semibold mr-1">
+//             {post.userId?.username || "fondpeace"}
+//           </span>
+//           {post.title}
+//         </div>
+
+//         {/* ---------------- COMMENTS PANEL ---------------- */}
+//         {showComments && (
+//   <div className="bg-gray-50 w-full border-t border-gray-200 p-4 max-h-[30vh] overflow-y-auto">
+
+//     {/* Comment input */}
+//     <div className="flex items-center gap-3 mb-4">
+//       <img
+//         src={DEFAULT_AVATAR}
+//         className="w-8 h-8 rounded-full object-cover"
+//       />
+//       <input
+//         value={comment}
+//         onChange={(e) => setComment(e.target.value)}
+//         placeholder="Add a comment..."
+//         className="flex-1 bg-white border rounded-full px-4 py-2 text-sm focus:outline-none"
+//       />
+//       <button
+//         onClick={handleComment}
+//         className="text-blue-600 font-semibold text-sm"
+//       >
+//         Post
+//       </button>
+//     </div>
+
+//     {/* Comments list */}
+//     {post.comments?.map((cmt, i) => (
+//       <div key={i} className="flex gap-3 mb-3">
+//         <img
+//           src={cmt.userId?.avatar || DEFAULT_AVATAR}
+//           className="w-8 h-8 rounded-full object-cover"
+//         />
+//         <div>
+//           <p className="text-sm">
+//             <span className="font-semibold mr-1">
+//               {cmt.userId?.username || "User"}
+//             </span>
+//             {cmt.CommentText}
+//           </p>
+//         </div>
+//       </div>
+//     ))}
+//   </div>
+// )}
+
+//         </div>
+
+
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+  return (
+  <div className="h-screen w-screen bg-black text-white flex">
+
+    {/* ========== DESKTOP LEFT SIDEBAR ========== */}
+    <aside className="hidden md:flex w-[240px] flex-col border-r border-neutral-800 px-4 py-6">
+      <div className="text-2xl font-semibold mb-8">FondPeace</div>
+
+      <SidebarItem label="Home" />
+      <SidebarItem label="Search" />
+      <SidebarItem label="Explore" />
+      <SidebarItem label="Reels" active />
+      <SidebarItem label="Upload" />
+      <SidebarItem label="Profile" />
+
+      <div className="mt-auto">
+        <SidebarItem label="More" />
+      </div>
+    </aside>
+
+    {/* ========== CENTER CONTENT ========== */}
+    <div className="flex-1 flex justify-center overflow-hidden">
+
+      <div className="w-full max-w-[480px] bg-black flex flex-col">
+
+        {/* HEADER (Mobile + Desktop) */}
+        <div className="flex items-center justify-between px-4 py-3 sticky top-0 bg-black z-20 border-b border-neutral-800">
+          <Link
+            href={`/profile/${post.userId?.username}`}
+            className="flex items-center gap-3"
+          >
             <img
               src={post.userId?.avatar || DEFAULT_AVATAR}
-              className="w-10 h-10 rounded-full object-cover"
+              className="w-9 h-9 rounded-full"
             />
-            <p className="font-semibold text-sm">
+            <span className="font-semibold text-sm">
               {post.userId?.username || "fondpeace"}
-            </p>
+            </span>
           </Link>
           <FaEllipsisH />
         </div>
 
-        {/* ---------------- VIDEO ---------------- */}
-        <div className="flex flex-col">
-        <div className="relative w-full bg-black h-[70vh]" onClick={togglePlayPause}>
+        {/* VIDEO */}
+        <div
+          className="relative flex-1 bg-black"
+          onClick={togglePlayPause}
+        >
           <video
             ref={videoRef}
             src={post.media}
@@ -145,55 +319,46 @@ export default function SingleReel({ initialPost }) {
             autoPlay
             loop
             playsInline
-            preload="auto"
             muted={muted}
-            controls={false}
             className="w-full h-full object-contain"
           />
 
-          {/* ---------------- PLAY / PAUSE ICON CENTER ---------------- */}
           {showPlayIcon && (
             <div className="absolute inset-0 flex items-center justify-center">
               {isPlaying ? (
-                <FaPause className="text-white text-6xl opacity-90 animate-pulse" />
+                <FaPause className="text-white text-6xl" />
               ) : (
-                <FaPlay className="text-white text-6xl opacity-90 animate-pulse" />
+                <FaPlay className="text-white text-6xl" />
               )}
             </div>
           )}
 
-          {/* ---------------- MUTE BUTTON ---------------- */}
           <button
             onClick={toggleMute}
-            className="absolute bottom-4 right-4 bg-black/60 p-2 rounded-full text-white"
+            className="absolute bottom-4 right-4 bg-black/60 p-2 rounded-full"
           >
             {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
           </button>
         </div>
 
-        {/* ---------------- INTERACTIONS ---------------- */}
-        <div className="flex justify-between items-center px-4 py-2">
+        {/* ACTION BAR */}
+        <div className="flex justify-between items-center px-4 py-3">
           <div className="flex gap-5 items-center">
             <button onClick={handleLike} className="flex items-center gap-1">
               {hasLiked ? (
-                <FaHeart className="text-red-600 text-xl" />
+                <FaHeart className="text-red-500 text-xl" />
               ) : (
                 <FaRegHeart className="text-xl" />
               )}
               {post.likes?.length || 0}
             </button>
 
-            <button className="flex items-center gap-1">
-  <FaCommentDots className="text-xl" />
-  {post.comments?.length || 0}
-</button>
+            <div className="flex items-center gap-1">
+              <FaCommentDots className="text-xl" />
+              {post.comments?.length || 0}
+            </div>
 
-
-
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-1"
-            >
+            <button onClick={handleShare}>
               <FaShareAlt className="text-xl" />
             </button>
           </div>
@@ -204,65 +369,79 @@ export default function SingleReel({ initialPost }) {
           </div>
         </div>
 
-        {/* ---------------- CAPTION ---------------- */}
-        <div className="px-4 py-2 text-sm">
+        {/* CAPTION */}
+        <div className="px-4 pb-2 text-sm">
           <span className="font-semibold mr-1">
-            {post.userId?.username || "fondpeace"}
+            {post.userId?.username}
           </span>
           {post.title}
         </div>
 
-        {/* ---------------- COMMENTS PANEL ---------------- */}
+        {/* COMMENTS */}
         {showComments && (
-  <div className="bg-gray-50 w-full border-t border-gray-200 p-4 max-h-[30vh] overflow-y-auto">
+          <div className="border-t border-neutral-800 px-4 py-3 max-h-[28vh] overflow-y-auto bg-black">
+            <div className="flex items-center gap-3 mb-4">
+              <img
+                src={DEFAULT_AVATAR}
+                className="w-8 h-8 rounded-full"
+              />
+              <input
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Add a comment…"
+                className="flex-1 bg-neutral-900 border border-neutral-700 rounded-full px-4 py-2 text-sm outline-none"
+              />
+              <button
+                onClick={handleComment}
+                className="text-blue-500 font-semibold text-sm"
+              >
+                Post
+              </button>
+            </div>
 
-    {/* Comment input */}
-    <div className="flex items-center gap-3 mb-4">
-      <img
-        src={DEFAULT_AVATAR}
-        className="w-8 h-8 rounded-full object-cover"
-      />
-      <input
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        placeholder="Add a comment..."
-        className="flex-1 bg-white border rounded-full px-4 py-2 text-sm focus:outline-none"
-      />
-      <button
-        onClick={handleComment}
-        className="text-blue-600 font-semibold text-sm"
-      >
-        Post
-      </button>
+            {post.comments?.map((cmt, i) => (
+              <div key={i} className="flex gap-3 mb-3">
+                <img
+                  src={cmt.userId?.avatar || DEFAULT_AVATAR}
+                  className="w-8 h-8 rounded-full"
+                />
+                <p className="text-sm">
+                  <span className="font-semibold mr-1">
+                    {cmt.userId?.username}
+                  </span>
+                  {cmt.CommentText}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
 
-    {/* Comments list */}
-    {post.comments?.map((cmt, i) => (
-      <div key={i} className="flex gap-3 mb-3">
-        <img
-          src={cmt.userId?.avatar || DEFAULT_AVATAR}
-          className="w-8 h-8 rounded-full object-cover"
-        />
-        <div>
-          <p className="text-sm">
-            <span className="font-semibold mr-1">
-              {cmt.userId?.username || "User"}
-            </span>
-            {cmt.CommentText}
-          </p>
-        </div>
-      </div>
-    ))}
+    {/* ========== MOBILE BOTTOM NAV ========== */}
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-black border-t border-neutral-800 flex justify-around items-center">
+      <FaPlay />
+      <FaCommentDots />
+      <FaHeart />
+      <FaShareAlt />
+      <FaEllipsisH />
+    </nav>
   </div>
-)}
+);
 
-        </div>
-
-
-      </div>
+/* -------- Sidebar item -------- */
+function SidebarItem({ label, active }) {
+  return (
+    <div
+      className={`px-3 py-3 rounded-lg cursor-pointer ${
+        active ? "bg-neutral-800 font-semibold" : "hover:bg-neutral-900"
+      }`}
+    >
+      {label}
     </div>
   );
 }
+
 
 
 
