@@ -308,14 +308,94 @@ export default async function Page({ params }) {
     };
   }
 
+  const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": post.title,
+  "description": buildDescription(post),
+  "image": [thumbnail],
+  "author": {
+    "@type": "Person",
+    "name": authorName
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "FondPeace",
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${SITE_ROOT}/logo.png`
+    }
+  },
+  "datePublished": new Date(post.createdAt).toISOString(),
+  "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+  "mainEntityOfPage": pageUrl
+};
+
+  const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": SITE_ROOT
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Post",
+      "item": `${SITE_ROOT}/post`
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": post.title,
+      "item": pageUrl
+    }
+  ]
+};
+
+  const discussionSchema = {
+  "@context": "https://schema.org",
+  "@type": "DiscussionForumPosting",
+  "headline": post.title,
+  "author": {
+    "@type": "Person",
+    "name": authorName
+  },
+  "datePublished": new Date(post.createdAt).toISOString(),
+  "commentCount": commentsCount(post),
+  "mainEntityOfPage": pageUrl
+};
+
+
+
   return (
   <main className="w-full min-h-screen bg-gray-50">
 
     {/* JSON-LD */}
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }}
-    />
+    {/* JSON-LD */}
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }}
+/>
+
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+/>
+
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+/>
+
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(discussionSchema) }}
+/>
+
 
     <section className="max-w-3xl mx-auto px-4 py-8">
       <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
@@ -1966,6 +2046,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
