@@ -357,28 +357,32 @@ export default async function Page({ params }) {
   ]
 };
 
-  const discussionSchema = {
+const discussionSchema = {
   "@context": "https://schema.org",
   "@type": "DiscussionForumPosting",
-
   "headline": post.title,
-  "text": buildDescription(post), // ✅ REQUIRED
-
-  "image": isImage ? [mediaUrl] : undefined, // ✅ IMAGE POSTS
-  "video": isVideo ? {
-    "@type": "VideoObject",
-    "contentUrl": mediaUrl
-  } : undefined,
-
+  "text": buildDescription(post),
+  "url": pageUrl, // ✅ Add URL of the post
+  "image": isImage ? [mediaUrl] : undefined,
+  "video": isVideo
+    ? { "@type": "VideoObject", "contentUrl": mediaUrl }
+    : undefined,
   "author": {
     "@type": "Person",
     "name": authorName,
-    "url": `${SITE_ROOT}/@${authorName}` // optional but clean
+    "url": `${SITE_ROOT}/@${authorName}`
   },
-
   "datePublished": new Date(post.createdAt).toISOString(),
   "commentCount": commentsCount(post),
-
+  "comment": post.comments?.map(c => ({
+    "@type": "Comment",
+    "author": {
+      "@type": "Person",
+      "name": c.user?.username || "Anonymous"
+    },
+    "dateCreated": new Date(c.createdAt).toISOString(),
+    "text": c.text
+  })),
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": pageUrl
@@ -2063,6 +2067,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
