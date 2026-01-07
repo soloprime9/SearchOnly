@@ -362,15 +362,13 @@ const discussionSchema = {
   "@type": "DiscussionForumPosting",
   "headline": post.title,
   "text": buildDescription(post),
-  "url": pageUrl, // ✅ Add URL of the post
+  "url": pageUrl, // post URL
   "image": isImage ? [mediaUrl] : undefined,
-  "video": isVideo
-    ? { "@type": "VideoObject", "contentUrl": mediaUrl }
-    : undefined,
+  "video": isVideo ? { "@type": "VideoObject", "contentUrl": mediaUrl } : undefined,
   "author": {
     "@type": "Person",
     "name": authorName,
-    "url": `${SITE_ROOT}/@${authorName}`
+    "url": `${SITE_ROOT}/profile/${authorName}` // ✅ use /profile/username
   },
   "datePublished": new Date(post.createdAt).toISOString(),
   "commentCount": commentsCount(post),
@@ -378,10 +376,33 @@ const discussionSchema = {
     "@type": "Comment",
     "author": {
       "@type": "Person",
-      "name": c.user?.username || "Anonymous"
+      "name": c.userId?.username || "Anonymous",
+      "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}`
     },
     "dateCreated": new Date(c.createdAt).toISOString(),
-    "text": c.text
+    "text": c.CommentText, // ✅ required by Google
+    "url": `${pageUrl}#comment-${c._id}`, // ✅ optional but removes warning
+    "interactionStatistic": {
+      "@type": "InteractionCounter",
+      "interactionType": { "@type": "LikeAction" },
+      "userInteractionCount": c.likes || 0
+    },
+    "reply": c.replies?.map(r => ({
+      "@type": "Comment",
+      "author": {
+        "@type": "Person",
+        "name": r.userId?.username || "Anonymous",
+        "url": `${SITE_ROOT}/profile/${r.userId?.username || "anonymous"}`
+      },
+      "dateCreated": new Date(r.createdAt).toISOString(),
+      "text": r.replyText,
+      "url": `${pageUrl}#reply-${r._id}`,
+      "interactionStatistic": {
+        "@type": "InteractionCounter",
+        "interactionType": { "@type": "LikeAction" },
+        "userInteractionCount": r.likes || 0
+      }
+    }))
   })),
   "mainEntityOfPage": {
     "@type": "WebPage",
@@ -2067,6 +2088,7 @@ const discussionSchema = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
