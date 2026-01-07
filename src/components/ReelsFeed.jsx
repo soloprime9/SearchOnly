@@ -26,7 +26,7 @@ export default function SingleReel({ initialPost }) {
 
   const [post, setPost] = useState(initialPost);
   const [userId, setUserId] = useState(null);
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   const [comment, setComment] = useState("");
   const [muted, setMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -48,20 +48,7 @@ export default function SingleReel({ initialPost }) {
     }
   }, [muted]);
 
-  /* ---------------- CLOSE COMMENTS ON OUTSIDE CLICK ---------------- */
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (
-        showComments &&
-        commentRef.current &&
-        !commentRef.current.contains(e.target)
-      ) {
-        setShowComments(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showComments]);
+
 
   if (!post) {
     return <div className="h-screen flex items-center justify-center">Video not found</div>;
@@ -126,6 +113,14 @@ export default function SingleReel({ initialPost }) {
     videoRef.current.muted = !muted;
     setMuted(!muted);
   };
+
+  useEffect(() => {
+  if (commentRef.current) {
+    const input = commentRef.current.querySelector("input");
+    if (input) input.focus();
+  }
+}, []);
+
 
   return (
     <div className="h-screen w-screen bg-white flex justify-center items-start overflow-y-auto">
@@ -193,12 +188,19 @@ export default function SingleReel({ initialPost }) {
             </button>
 
             <button
-              onClick={() => setShowComments(true)}
-              className="flex items-center gap-1"
-            >
-              <FaCommentDots className="text-xl" />
-              {post.comments?.length || 0}
-            </button>
+  onClick={() => {
+    if (commentRef.current) {
+      commentRef.current.scrollIntoView({ behavior: "smooth" });
+      const input = commentRef.current.querySelector("input");
+      if (input) input.focus();
+    }
+  }}
+  className="flex items-center gap-1"
+>
+  <FaCommentDots className="text-xl" />
+  {post.comments?.length || 0}
+</button>
+
 
             <button
               onClick={handleShare}
