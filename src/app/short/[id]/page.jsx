@@ -215,7 +215,8 @@ export default async function Page({ params }) {
         };
 
         return (
-            <main className="min-h-screen bg-white">
+            <main className="h-screen bg-white overflow-hidden">
+
                 {/* JSON-LD: क्रॉलर को इंडेक्स करने के लिए केवल वर्तमान वीडियो का डेटा देता है */}
                 <script
                     key="video-jsonld"
@@ -229,7 +230,7 @@ export default async function Page({ params }) {
                             {/* HEADER */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-2 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-blue-600">
+          <Link href="/" className="text-xl font-bold text-blue-600">
             FondPeace.com
           </Link>
 
@@ -300,7 +301,10 @@ export default async function Page({ params }) {
                 
                 {/* ReelsFeed: Client Component */}
                 {/* initialPost में केवल वह वीडियो है जिसे हम चाहते हैं कि Google इंडेक्स करे। */}
-                <ReelsFeedWrapper initialPost={post} initialRelated={related} />
+                <div className="pt-[56px] h-screen overflow-hidden">
+  <ReelsFeedWrapper initialPost={post} initialRelated={related} />
+</div>
+
                 
             </main>
         );
