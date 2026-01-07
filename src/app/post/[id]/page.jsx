@@ -311,6 +311,7 @@ export default async function Page({ params }) {
   const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",
+    "url": pageUrl, // ✅ IMPORTANT
   "headline": post.title,
   "description": buildDescription(post),
   "image": [thumbnail],
@@ -359,15 +360,31 @@ export default async function Page({ params }) {
   const discussionSchema = {
   "@context": "https://schema.org",
   "@type": "DiscussionForumPosting",
+
   "headline": post.title,
+  "text": buildDescription(post), // ✅ REQUIRED
+
+  "image": isImage ? [mediaUrl] : undefined, // ✅ IMAGE POSTS
+  "video": isVideo ? {
+    "@type": "VideoObject",
+    "contentUrl": mediaUrl
+  } : undefined,
+
   "author": {
     "@type": "Person",
-    "name": authorName
+    "name": authorName,
+    "url": `${SITE_ROOT}/@${authorName}` // optional but clean
   },
+
   "datePublished": new Date(post.createdAt).toISOString(),
   "commentCount": commentsCount(post),
-  "mainEntityOfPage": pageUrl
+
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": pageUrl
+  }
 };
+
 
 
 
@@ -2046,6 +2063,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
