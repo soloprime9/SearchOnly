@@ -141,6 +141,7 @@ export default function SingleReel({ initialPost }) {
         </div>
 
         {/* ---------------- VIDEO ---------------- */}
+        <div className="flex flex-col">
         <div className="relative w-full bg-black aspect-[9/16]" onClick={togglePlayPause}>
           <video
             ref={videoRef}
@@ -226,39 +227,36 @@ export default function SingleReel({ initialPost }) {
 
         {/* ---------------- COMMENTS PANEL ---------------- */}
         {showComments && (
-          <div className="fixed inset-0 bg-black/40 z-50 flex items-end">
-            <div
-              ref={commentRef}
-              className="bg-white w-full rounded-t-2xl p-4 max-h-[65%] overflow-y-auto"
-            >
-              <p className="font-semibold mb-3">Comments</p>
+  <div className="bg-white w-full rounded-t-2xl p-4 max-h-[50vh] overflow-y-auto mt-2">
+    <p className="font-semibold mb-3">Comments</p>
 
-              <div className="flex gap-2 mb-4">
-                <input
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="flex-1 border px-3 py-2 rounded-md"
-                />
-                <button
-                  onClick={handleComment}
-                  className="bg-blue-600 text-white px-4 rounded-md"
-                >
-                  Post
-                </button>
-              </div>
+    <div className="flex gap-2 mb-4">
+      <input
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        placeholder="Add a comment..."
+        className="flex-1 border px-3 py-2 rounded-md"
+      />
+      <button
+        onClick={handleComment}
+        className="bg-blue-600 text-white px-4 rounded-md"
+      >
+        Post
+      </button>
+    </div>
 
-              {post.comments?.map((cmt, i) => (
-                <div key={i} className="mb-2">
-                  <p className="font-semibold text-xs">
-                    {cmt.userId?.username || "User"}
-                  </p>
-                  <p className="text-sm">{cmt.CommentText}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+    {post.comments?.map((cmt, i) => (
+      <div key={i} className="mb-2">
+        <p className="font-semibold text-xs">
+          {cmt.userId?.username || "User"}
+        </p>
+        <p className="text-sm">{cmt.CommentText}</p>
+      </div>
+    ))}
+  </div>
+)}
+        </div>
+
 
       </div>
     </div>
