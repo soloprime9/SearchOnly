@@ -163,19 +163,24 @@ export default async function Page({ params }) {
 
 
   /* ---------------------- JSON-LD ---------------------- */
-/* ---------------------- JSON-LD for social posts (short text, video/image, comments) ---------------------- */
 const jsonLdOptimized = {
   "@context": "https://schema.org",
   "@graph": [
-    // ----------------- ARTICLE -----------------
+    // ----------------- ARTICLE / POST -----------------
     {
       "@type": "Article",
       "@id": pageUrl,
       "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
       "headline": post.title,
-      "description": buildDescription(post),
+      "articleBody": buildDescription(post), // Instagram uses articleBody for captions
       "url": pageUrl,
-      "image": [thumbnail],
+      "image": {
+        "@type": "ImageObject",
+        "url": thumbnail,
+        "height": post.imageHeight || 1080,
+        "width": post.imageWidth || 1080,
+        "caption": post.title
+      },
       "datePublished": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
       "author": {
@@ -190,7 +195,7 @@ const jsonLdOptimized = {
         "logo": { "@type": "ImageObject", "url": `${SITE_ROOT}/logo.png` }
       },
       ...(isVideo && {
-        "hasPart": {
+        "video": {
           "@type": "VideoObject",
           "name": post.title,
           "description": buildDescription(post),
@@ -224,11 +229,12 @@ const jsonLdOptimized = {
       "@type": "DiscussionForumPosting",
       "@id": `${pageUrl}#discussion`,
       "headline": post.title,
-      "about": { "@type": "Article", "@id": pageUrl },
-      "author": { "@type": "Person", "name": authorName },
+      "articleBody": buildDescription(post),
+      "about": { "@type": "Article", "@id": pageUrl }, // reference to main post
+      "author": { "@type": "Person", "name": authorName, "url": `${SITE_ROOT}/profile/${authorName}` },
       "comment": post.comments.map(c => ({
         "@type": "Comment",
-        "author": { "@type": "Person", "name": c.userId?.username || "Anonymous" },
+        "author": { "@type": "Person", "name": c.userId?.username || "Anonymous", "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}` },
         "dateCreated": new Date(c.createdAt).toISOString(),
         "text": c.CommentText,
         "url": `${pageUrl}#comment-${c._id}`,
@@ -239,7 +245,7 @@ const jsonLdOptimized = {
         },
         "reply": c.replies?.map(r => ({
           "@type": "Comment",
-          "author": { "@type": "Person", "name": r.userId?.username || "Anonymous" },
+          "author": { "@type": "Person", "name": r.userId?.username || "Anonymous", "url": `${SITE_ROOT}/profile/${r.userId?.username || "anonymous"}` },
           "dateCreated": new Date(r.createdAt).toISOString(),
           "text": r.replyText,
           "url": `${pageUrl}#reply-${r._id}`,
@@ -1933,6 +1939,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
