@@ -193,62 +193,62 @@ const jsonLdOptimized = {
   "@graph": [
     {
       "@type": "WebPage",
-      "@id": `${SITE_ROOT}/post/${post._id}`,
+      "@id": `${SITE_ROOT}/post/${post._id}#webpage`,
       "url": `${SITE_ROOT}/post/${post._id}`,
-      "mainEntity": {
-        "@type": "SocialMediaPosting",
-        "@id": `${SITE_ROOT}/post/${post._id}#post`,
-        "url": `${SITE_ROOT}/post/${post._id}`,
-        "headline": post.title || "FondPeace Post",
-        "articleBody": post.title || "",
-
+      "name": post.title || "FondPeace Post",
+      "mainEntity": { "@id": `${SITE_ROOT}/post/${post._id}#post` },
+      "breadcrumb": { "@id": `${SITE_ROOT}/post/${post._id}#breadcrumb` }
+    },
+    {
+      "@type": "SocialMediaPosting",
+      "@id": `${SITE_ROOT}/post/${post._id}#post`,
+      "url": `${SITE_ROOT}/post/${post._id}`,
+      "headline": post.title || "FondPeace Post",
+      "articleBody": post.title || "",
+      "dateCreated": new Date(post.createdAt).toISOString(),
+      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+      "author": {
+        "@type": "Person",
+        "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
+        "name": post.userId?.username || "FondPeace",
+        "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
+        "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR,
+        "identifier": {
+          "@type": "PropertyValue",
+          "propertyID": "Username",
+          "value": post.userId?.username || "FondPeace"
+        }
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": toAbsolute(post.media || post.thumbnail || DEFAULT_AVATAR),
+        "width": 1080,
+        "height": 1350,
+        "caption": post.title || "Post Image",
+        "representativeOfPage": true
+      },
+      "commentCount": commentsCount(post),
+      "interactionStatistic": buildInteractionSchema(post),
+      "comment": (post.comments || []).map((c) => ({
+        "@type": "Comment",
+        "@id": `${SITE_ROOT}/post/${post._id}#comment-${c._id}`,
+        "text": c.CommentText || "",
+        "dateCreated": new Date(c.createdAt).toISOString(),
         "author": {
           "@type": "Person",
-          "name": post.userId?.username || "FondPeace",
-          "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
-          "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR,
-          "identifier": {
-            "@type": "PropertyValue",
-            "propertyID": "username",
-            "value": post.userId?.username || "FondPeace"
-          }
+          "name": c.userId?.username || "User",
+          "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
         },
-
-        "dateCreated": new Date(post.createdAt).toISOString(),
-        "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-
-        "image": {
-          "@type": "ImageObject",
-          "url": toAbsolute(post.thumbnail || post.media),
-          "width": 1080,
-          "height": 1350,
-          "representativeOfPage": true
-        },
-
-        "commentCount": commentsCount(post),
-
-        "interactionStatistic": buildInteractionSchema(post),
-
-        "comment": (post.comments || []).map(c => ({
-          "@type": "Comment",
-          "@id": `${SITE_ROOT}/post/${post._id}#comment-${c._id}`,
-          "text": c.CommentText || "",
-          "dateCreated": new Date(c.createdAt).toISOString(),
-          "author": {
-            "@type": "Person",
-            "name": c.userId?.username || "User",
-            "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
-          },
-          "interactionStatistic": {
-            "@type": "InteractionCounter",
-            "interactionType": { "@type": "LikeAction" },
-            "userInteractionCount": Array.isArray(c.likes) ? c.likes.length : 0
-          }
-        }))
-      }
+        "interactionStatistic": {
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "LikeAction" },
+          "userInteractionCount": Array.isArray(c.likes) ? c.likes.length : 0
+        }
+      }))
     },
     {
       "@type": "BreadcrumbList",
+      "@id": `${SITE_ROOT}/post/${post._id}#breadcrumb`,
       "itemListElement": [
         {
           "@type": "ListItem",
@@ -273,6 +273,8 @@ const jsonLdOptimized = {
   ]
 };
 
+
+  
   return (
   <main className="w-full min-h-screen bg-gray-50">
 
@@ -1939,6 +1941,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
