@@ -7,6 +7,8 @@ import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
 
 const API_BASE = "https://backend-k.vercel.app";
 const SITE_ROOT = "https://fondpeace.com";
+const DEFAULT_AVATAR = "https://fondpeace.com/Fondpeace.jpg";
+
 
 /* ---------------------- HELPERS ---------------------- */
 function toAbsolute(url) {
@@ -169,85 +171,60 @@ const jsonLdOptimized = {
   "@graph": [
     {
       "@type": "SocialMediaPosting",
-      "@id": pageUrl,
-      "url": pageUrl,
-
-      "headline": post.title,
-      "articleBody": post.title,
-
+      "@id": `${SITE_ROOT}/post/${post._id}`,
+      "url": `${SITE_ROOT}/post/${post._id}`,
+      "headline": post.title || "Untitled Post",
+      "articleBody": buildDescription(post),
       "mainEntityOfPage": {
         "@type": "ItemPage",
-        "@id": pageUrl
+        "@id": `${SITE_ROOT}/post/${post._id}`
       },
-
       "author": {
         "@type": "Person",
-        "name": authorName,
-        "alternateName": authorUsername,
-        "url": `${SITE_ROOT}/@${authorUsername}`,
-        "image": post.userId?.profilePic,
+        "name": post.userId?.username || "FondPeace",
+        "alternateName": post.userId?.username || "FondPeace",
+        "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
+        "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR,
         "identifier": {
           "@type": "PropertyValue",
           "propertyID": "Username",
-          "value": authorUsername
+          "value": post.userId?.username || "FondPeace"
         },
-        "sameAs": post.userId?.instagramUrl
+        "sameAs": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
       },
-
       "identifier": {
         "@type": "PropertyValue",
-        "propertyID": "Post Shortcode",
-        "value": post.shortcode
+        "propertyID": "Post ID",
+        "value": post._id
       },
-
       "dateCreated": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-
-      "image": post.images.map(img => ({
-        "@type": "ImageObject",
-        "url": img.url,
-        "width": img.width,
-        "height": img.height,
-        "caption": post.title,
-        "representativeOfPage": true
-      })),
-
-      "commentCount": post.comments.length,
-
-      "interactionStatistic": [
+      "image": [
         {
-          "@type": "InteractionCounter",
-          "interactionType": { "@type": "LikeAction" },
-          "userInteractionCount": post.likesCount
-        },
-        {
-          "@type": "InteractionCounter",
-          "interactionType": { "@type": "CommentAction" },
-          "userInteractionCount": post.comments.length
-        },
-        {
-          "@type": "InteractionCounter",
-          "interactionType": { "@type": "ViewAction" },
-          "userInteractionCount": post.views
+          "@type": "ImageObject",
+          "url": toAbsolute(post.thumbnail || post.media),
+          "caption": post.title || "Post Image",
+          "representativeOfPage": true
         }
       ],
-
-      "comment": post.comments.map(c => ({
+      "commentCount": commentsCount(post),
+      "interactionStatistic": buildInteractionSchema(post),
+      "comment": (post.comments || []).map(c => ({
         "@type": "Comment",
-        "text": c.text,
+        "text": c.CommentText || "",
         "dateCreated": new Date(c.createdAt).toISOString(),
         "author": {
           "@type": "Person",
-          "name": c.user.username,
-          "alternateName": c.user.username,
-          "url": `${SITE_ROOT}/@${c.user.username}`,
-          "image": c.user.profilePic,
+          "name": c.userId?.username || "User",
+          "alternateName": c.userId?.username || "User",
+          "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`,
+          "image": toAbsolute(c.userId?.profilePic) || DEFAULT_AVATAR,
           "identifier": {
             "@type": "PropertyValue",
             "propertyID": "Username",
-            "value": c.user.username
+            "value": c.userId?.username || "User"
           },
-          "sameAs": c.user.instagramUrl
+          "sameAs": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
         },
         "interactionStatistic": {
           "@type": "InteractionCounter",
@@ -256,7 +233,6 @@ const jsonLdOptimized = {
         }
       }))
     },
-
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
@@ -269,18 +245,19 @@ const jsonLdOptimized = {
         {
           "@type": "ListItem",
           "position": 2,
-          "name": `@${authorUsername}`,
-          "item": `${SITE_ROOT}/@${authorUsername}`
+          "name": post.title || "Thread",
+          "item": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
         },
         {
           "@type": "ListItem",
           "position": 3,
-          "name": `${authorName} (@${authorUsername})`
+          "name": post.title || "Thread"
         }
       ]
     }
   ]
 };
+
   
 // {
 //   "@context": "https://schema.org",
@@ -2035,6 +2012,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
