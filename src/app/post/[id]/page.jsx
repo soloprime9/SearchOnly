@@ -212,7 +212,7 @@ const jsonLdOptimized = {
       "commentCount": commentsCount(post),
       "interactionStatistic": buildInteractionSchema(post),
       "comment": (post.comments || []).map(c => ({
-        "@type": "DiscussionForumPosting",
+        "@type": "Comment",
         "text": c.CommentText || "",
         "dateCreated": new Date(c.createdAt).toISOString(),
         "author": {
@@ -2014,6 +2014,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
