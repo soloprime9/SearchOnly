@@ -401,15 +401,15 @@ const discussionSchema = {
   dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }}
 />
 
-<script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-/>
-
 {/* <script
   type="application/ld+json"
-  dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
 /> */}
+
+ <script
+type="application/ld+json"
+   dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+ /> 
 
 <script
   type="application/ld+json"
@@ -2066,6 +2066,7 @@ const discussionSchema = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
