@@ -53,26 +53,47 @@ function viewsCount(post) {
   return 0;
 }
 
+// Build interaction statistics for the post itself
 function buildInteractionSchema(post) {
   return [
     {
       "@type": "InteractionCounter",
-      "interactionType": { "@type": "LikeAction" },
+      "interactionType": "https://schema.org/LikeAction",
       "userInteractionCount": likesCount(post)
     },
     {
       "@type": "InteractionCounter",
-      "interactionType": { "@type": "CommentAction" },
+      "interactionType": "https://schema.org/CommentAction",
       "userInteractionCount": commentsCount(post)
     },
     {
       "@type": "InteractionCounter",
-      "interactionType": { "@type": "ViewAction" },
+      "interactionType": "https://schema.org/ViewAction",
       "userInteractionCount": viewsCount(post)
     }
   ];
 }
 
+// Build interaction statistics for a single comment
+function buildCommentInteractionSchema(comment) {
+  return [
+    {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/LikeAction",
+      "userInteractionCount": Array.isArray(comment.likes) ? comment.likes.length : 0
+    },
+    {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/ReplyAction",
+      "userInteractionCount": Array.isArray(comment.replies) ? comment.replies.length : 0
+    },
+    {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/ViewAction",
+      "userInteractionCount": comment.views || 0
+    }
+  ];
+}
 
 
 function buildDescription(post) {
@@ -195,7 +216,7 @@ const jsonLdOptimized = {
       "@type": "WebPage",
       "@id": `${SITE_ROOT}/post/${post._id}#webpage`,
       "url": `${SITE_ROOT}/post/${post._id}`,
-      "name": post.title || "FondPeace Post",
+      "name": post.title ? post.title.substring(0, 110) : "FondPeace Post",
       "mainEntity": { "@id": `${SITE_ROOT}/post/${post._id}#post` },
       "breadcrumb": { "@id": `${SITE_ROOT}/post/${post._id}#breadcrumb` }
     },
@@ -203,10 +224,11 @@ const jsonLdOptimized = {
       "@type": "SocialMediaPosting",
       "@id": `${SITE_ROOT}/post/${post._id}#post`,
       "url": `${SITE_ROOT}/post/${post._id}`,
-      "headline": post.title || "FondPeace Post",
+      "headline": post.title ? post.title.substring(0, 110) : "FondPeace Post",
       "articleBody": post.title || "",
       "dateCreated": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+      "mainEntityOfPage": { "@id": `${SITE_ROOT}/post/${post._id}#webpage` },
       "author": {
         "@type": "Person",
         "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
@@ -224,7 +246,7 @@ const jsonLdOptimized = {
         "url": toAbsolute(post.media || post.thumbnail || DEFAULT_AVATAR),
         "width": 1080,
         "height": 1350,
-        "caption": post.title || "Post Image",
+        "caption": post.title ? post.title.substring(0, 110) : "Post Image",
         "representativeOfPage": true
       },
       "commentCount": commentsCount(post),
@@ -239,11 +261,7 @@ const jsonLdOptimized = {
           "name": c.userId?.username || "User",
           "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
         },
-        "interactionStatistic": {
-          "@type": "InteractionCounter",
-          "interactionType": { "@type": "LikeAction" },
-          "userInteractionCount": Array.isArray(c.likes) ? c.likes.length : 0
-        }
+        "interactionStatistic": buildCommentInteractionSchema(c)
       }))
     },
     {
@@ -265,7 +283,7 @@ const jsonLdOptimized = {
         {
           "@type": "ListItem",
           "position": 3,
-          "name": post.title || "Post",
+          "name": post.title ? post.title.substring(0, 110) : "Post",
           "item": `${SITE_ROOT}/post/${post._id}`
         }
       ]
@@ -1941,6 +1959,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
