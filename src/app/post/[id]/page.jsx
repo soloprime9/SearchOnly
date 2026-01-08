@@ -163,67 +163,109 @@ export default async function Page({ params }) {
 
 
   /* ---------------------- JSON-LD ---------------------- */
-  const jsonLdOptimized = {
+/* ---------------------- JSON-LD for social posts (short text, video/image, comments) ---------------------- */
+const jsonLdOptimized = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Article",
-      "@id": pageUrl,
+      "@type": "Article", // ✅ Instagram/X style uses Article even for short posts
+      "@id": pageUrl, // Post URL
       "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
-      "headline": post.title,
-      "description": buildDescription(post),
+      "headline": post.title, // Post title or caption
+      "description": buildDescription(post), // Short content like Instagram caption
       "url": pageUrl,
-      "image": [thumbnail],
+      "image": [thumbnail], // Image or thumbnail
       "datePublished": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-      "author": { "@type": "Person", "name": authorName, "url": `${SITE_ROOT}/profile/${authorName}` },
-      "publisher": { 
+      "author": {
+        "@type": "Person",
+        "name": authorName,
+        "url": `${SITE_ROOT}/profile/${authorName}`,
+        "image": post.userId?.profilePic || `${SITE_ROOT}/default-avatar.png`
+      },
+      "publisher": {
         "@type": "Organization",
         "name": "FondPeace",
         "logo": { "@type": "ImageObject", "url": `${SITE_ROOT}/logo.png` }
       },
-      // ✅ Video only once
-      ...(isVideo && { 
+      // ✅ Include video if exists
+      ...(isVideo && {
         "hasPart": {
           "@type": "VideoObject",
+          "name": post.title,
+          "description": buildDescription(post),
           "contentUrl": mediaUrl,
           "thumbnailUrl": thumbnail,
           "uploadDate": new Date(post.createdAt).toISOString(),
           "duration": secToISO(post.duration)
         }
       }),
-      // ✅ Comments inside Article
+      // ✅ Comments included like DiscussionForumPosting inside Article
       ...(post.comments?.length && {
         "comment": post.comments.map(c => ({
           "@type": "Comment",
-          "author": { "@type": "Person", "name": c.userId?.username || "Anonymous", "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}` },
+          "author": {
+            "@type": "Person",
+            "name": c.userId?.username || "Anonymous",
+            "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}`
+          },
           "dateCreated": new Date(c.createdAt).toISOString(),
           "text": c.CommentText,
           "url": `${pageUrl}#comment-${c._id}`,
-          "interactionStatistic": { "@type": "InteractionCounter", "interactionType": { "@type": "LikeAction" }, "userInteractionCount": c.likes || 0 },
+          "interactionStatistic": {
+            "@type": "InteractionCounter",
+            "interactionType": { "@type": "LikeAction" },
+            "userInteractionCount": c.likes || 0
+          },
           "reply": c.replies?.map(r => ({
             "@type": "Comment",
-            "author": { "@type": "Person", "name": r.userId?.username || "Anonymous", "url": `${SITE_ROOT}/profile/${r.userId?.username || "anonymous"}` },
+            "author": {
+              "@type": "Person",
+              "name": r.userId?.username || "Anonymous",
+              "url": `${SITE_ROOT}/profile/${r.userId?.username || "anonymous"}`
+            },
             "dateCreated": new Date(r.createdAt).toISOString(),
             "text": r.replyText,
             "url": `${pageUrl}#reply-${r._id}`,
-            "interactionStatistic": { "@type": "InteractionCounter", "interactionType": { "@type": "LikeAction" }, "userInteractionCount": r.likes || 0 }
+            "interactionStatistic": {
+              "@type": "InteractionCounter",
+              "interactionType": { "@type": "LikeAction" },
+              "userInteractionCount": r.likes || 0
+            }
           }))
         }))
-      })
+      }),
+      // ✅ Interaction stats for likes/comments/views
+      "interactionStatistic": [
+        {
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "LikeAction" },
+          "userInteractionCount": post.likesCount || 0
+        },
+        {
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "CommentAction" },
+          "userInteractionCount": post.comments?.length || 0
+        },
+        {
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "WatchAction" },
+          "userInteractionCount": post.views || 0
+        }
+      ]
     },
-    // ✅ Breadcrumb
+
+    // ✅ Breadcrumbs
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_ROOT },
-        { "@type": "ListItem", "position": 2, "name": "Post", "item": `${SITE_ROOT}/post` },
+        { "@type": "ListItem", "position": 2, "name": isVideo ? "Videos" : "Posts", "item": `${SITE_ROOT}/${isVideo ? "videos" : "posts"}` },
         { "@type": "ListItem", "position": 3, "name": post.title, "item": pageUrl }
       ]
     }
   ]
 };
-
 
 
 
@@ -1894,6 +1936,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
