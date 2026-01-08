@@ -165,101 +165,100 @@ export default async function Page({ params }) {
   /* ---------------------- JSON-LD ---------------------- */
   let jsonLdMain;
 
-  if (isVideo) {
-    jsonLdMain = {
-      "@context": "https://schema.org",
-      "@type": "VideoObject",
+//   if (isVideo) {
+//     jsonLdMain = {
+//       "@context": "https://schema.org",
+//       "@type": "VideoObject",
 
-      url: pageUrl,
-      name: post.title,
-      headline: post.title,
-      description: buildDescription(post),
+//       url: pageUrl,
+//       name: post.title,
+//       headline: post.title,
+//       description: buildDescription(post),
 
-      thumbnailUrl: thumbnail,
-      contentUrl: mediaUrl,
-      embedUrl: `${SITE_ROOT}/post/${post._id}`,
+//       thumbnailUrl: thumbnail,
+//       contentUrl: mediaUrl,
+//       embedUrl: `${SITE_ROOT}/post/${post._id}`,
 
-      uploadDate: new Date(post.createdAt).toISOString(),
-      datePublished: new Date(post.createdAt).toISOString(),
-      dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+//       uploadDate: new Date(post.createdAt).toISOString(),
+//       datePublished: new Date(post.createdAt).toISOString(),
+//       dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
 
-      duration: post.duration
-  ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration)
-  : undefined,
+//       duration: post.duration
+//   ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration)
+//   : undefined,
 
 
-      width: post.width || 1280,
-      height: post.height || 720,
-      encodingFormat: "video/mp4",
+//       width: post.width || 1280,
+//       height: post.height || 720,
+//       encodingFormat: "video/mp4",
 
-      publisher: {
-        "@type": "Organization",
-        name: "FondPeace",
-        url: SITE_ROOT,
-        logo: {
-          "@type": "ImageObject",
-          url: `${SITE_ROOT}/logo.jpg`,
-          width: 512,
-          height: 512,
-        },
-      },
+//       publisher: {
+//         "@type": "Organization",
+//         name: "FondPeace",
+//         url: SITE_ROOT,
+//         logo: {
+//           "@type": "ImageObject",
+//           url: `${SITE_ROOT}/logo.jpg`,
+//           width: 512,
+//           height: 512,
+//         },
+//       },
 
-      author: { "@type": "Person", name: authorName },
-      creator: { "@type": "Person", name: authorName },
+//       author: { "@type": "Person", name: authorName },
+//       creator: { "@type": "Person", name: authorName },
 
-      interactionStatistic: buildInteractionSchema(post),
-      keywords: extractKeywords(post),
-      inLanguage: "hi-IN",
-      isFamilyFriendly: true,
+//       interactionStatistic: buildInteractionSchema(post),
+//       keywords: extractKeywords(post),
+//       inLanguage: "hi-IN",
+//       isFamilyFriendly: true,
 
-      potentialAction: { "@type": "WatchAction", target: pageUrl },
+//       potentialAction: { "@type": "WatchAction", target: pageUrl },
 
-      mainEntityOfPage: {
-        "@type": "WebPage",
-        "@id": pageUrl,
-      },
-    };
-  }
+//       mainEntityOfPage: {
+//         "@type": "WebPage",
+//         "@id": pageUrl,
+//       },
+//     };
+//   }
 
-  else {
+//   else {
+//   jsonLdMain = {
+//     "@context": "https://schema.org",
+//     "@type": "Article",
+//     url: pageUrl,
+//     name: post.title,
+//     headline: post.title,
+//     description: buildDescription(post),
+//     image: [thumbnail],
+//     datePublished: new Date(post.createdAt).toISOString(),
+//     dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+//     publisher: {
+//       "@type": "Organization",
+//       name: "FondPeace",
+//       url: SITE_ROOT,
+//       logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png`, width: 512, height: 512 }
+//     },
+//     author: { "@type": "Person", name: authorName },
+//     interactionStatistic: buildInteractionSchema(post),
+//     keywords: extractKeywords(post),
+//     inLanguage: "hi-IN",
+//     isFamilyFriendly: true,
+//     potentialAction: { "@type": "ReadAction", target: pageUrl },
+//     mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+//   };
+// }
+
+
   jsonLdMain = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    url: pageUrl,
-    name: post.title,
-    headline: post.title,
-    description: buildDescription(post),
-    image: [thumbnail],
-    datePublished: new Date(post.createdAt).toISOString(),
-    dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
-    publisher: {
-      "@type": "Organization",
-      name: "FondPeace",
-      url: SITE_ROOT,
-      logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png`, width: 512, height: 512 }
-    },
-    author: { "@type": "Person", name: authorName },
-    interactionStatistic: buildInteractionSchema(post),
-    keywords: extractKeywords(post),
-    inLanguage: "hi-IN",
-    isFamilyFriendly: true,
-    potentialAction: { "@type": "ReadAction", target: pageUrl },
-    mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
-  };
-}
-
-
-  const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",
-    "url": pageUrl, // ✅ IMPORTANT
+  "url": pageUrl,
   "headline": post.title,
   "description": buildDescription(post),
   "image": [thumbnail],
-  "author": {
-    "@type": "Person",
-    "name": authorName
-  },
+  "datePublished": new Date(post.createdAt).toISOString(),
+  "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+  "author": { "@type": "Person", "name": authorName },
   "publisher": {
     "@type": "Organization",
     "name": "FondPeace",
@@ -268,10 +267,48 @@ export default async function Page({ params }) {
       "url": `${SITE_ROOT}/logo.png`
     }
   },
-  "datePublished": new Date(post.createdAt).toISOString(),
-  "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-  "mainEntityOfPage": pageUrl
+
+  // 👇 VIDEO YAHAN ATTACH KARO (Instagram style)
+  ...(isVideo && {
+    "hasPart": {
+      "@type": "VideoObject",
+      "contentUrl": mediaUrl,
+      "thumbnailUrl": thumbnail,
+      "uploadDate": new Date(post.createdAt).toISOString(),
+      "duration": secToISO(post.duration)
+    }
+  }),
+
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": pageUrl
+  }
 };
+
+
+//   const articleSchema = {
+//   "@context": "https://schema.org",
+//   "@type": "Article",
+//     "url": pageUrl, // ✅ IMPORTANT
+//   "headline": post.title,
+//   "description": buildDescription(post),
+//   "image": [thumbnail],
+//   "author": {
+//     "@type": "Person",
+//     "name": authorName
+//   },
+//   "publisher": {
+//     "@type": "Organization",
+//     "name": "FondPeace",
+//     "logo": {
+//       "@type": "ImageObject",
+//       "url": `${SITE_ROOT}/logo.png`
+//     }
+//   },
+//   "datePublished": new Date(post.createdAt).toISOString(),
+//   "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+//   "mainEntityOfPage": pageUrl
+// };
 
   const breadcrumbSchema = {
   "@context": "https://schema.org",
@@ -369,10 +406,10 @@ const discussionSchema = {
   dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
 />
 
-<script
+{/* <script
   type="application/ld+json"
   dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-/>
+/> */}
 
 <script
   type="application/ld+json"
@@ -2029,6 +2066,7 @@ const discussionSchema = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
