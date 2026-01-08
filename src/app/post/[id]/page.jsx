@@ -163,121 +163,86 @@ export default async function Page({ params }) {
 
 
   /* ---------------------- JSON-LD ---------------------- */
-  let jsonLdMain;
-
-
-  jsonLdMain = {
+  const jsonLdOptimized = {
   "@context": "https://schema.org",
-  "@type": "Article",
-  "url": pageUrl,
-  "headline": post.title,
-  "description": buildDescription(post),
-  "image": [thumbnail],
-  "datePublished": new Date(post.createdAt).toISOString(),
-  "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-  "author": { "@type": "Person", "name": authorName },
-  "publisher": {
-    "@type": "Organization",
-    "name": "FondPeace",
-    "logo": {
-      "@type": "ImageObject",
-      "url": `${SITE_ROOT}/logo.png`
-    }
-  },
-
-  // 👇 VIDEO YAHAN ATTACH KARO (Instagram style)
-  ...(isVideo && {
-    "hasPart": {
-      "@type": "VideoObject",
-      "contentUrl": mediaUrl,
-      "thumbnailUrl": thumbnail,
-      "uploadDate": new Date(post.createdAt).toISOString(),
-      "duration": secToISO(post.duration)
-    }
-  }),
-
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": pageUrl
-  }
-};
-
-
-
-  const breadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
+  "@graph": [
     {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": SITE_ROOT
+      "@type": "Article",
+      "url": pageUrl,
+      "headline": post.title,
+      "description": buildDescription(post),
+      "image": [thumbnail],
+      "datePublished": new Date(post.createdAt).toISOString(),
+      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+      "author": { "@type": "Person", "name": authorName },
+      "publisher": {
+        "@type": "Organization",
+        "name": "FondPeace",
+        "logo": { "@type": "ImageObject", "url": `${SITE_ROOT}/logo.png` }
+      },
+
+      // ✅ Video inside Article
+      ...(isVideo && { 
+        "hasPart": {
+          "@type": "VideoObject",
+          "contentUrl": mediaUrl,
+          "thumbnailUrl": thumbnail,
+          "uploadDate": new Date(post.createdAt).toISOString(),
+          "duration": secToISO(post.duration)
+        }
+      }),
+
+      // ✅ Comments / Discussion inside Article
+      "mainEntity": {
+        "@type": "DiscussionForumPosting",
+        "headline": post.title,
+        "text": buildDescription(post),
+        "url": pageUrl,
+        "image": isImage ? [mediaUrl] : undefined,
+        "video": isVideo ? {
+          "@type": "VideoObject",
+          "contentUrl": mediaUrl,
+          "thumbnailUrl": thumbnail,
+          "uploadDate": new Date(post.createdAt).toISOString(),
+          "duration": secToISO(post.duration),
+          "isPartOf": { "@type": "Article", "@id": pageUrl }
+        } : undefined,
+        "author": { "@type": "Person", "name": authorName, "url": `${SITE_ROOT}/profile/${authorName}` },
+        "datePublished": new Date(post.createdAt).toISOString(),
+        "commentCount": commentsCount(post),
+        "comment": post.comments?.map(c => ({
+          "@type": "Comment",
+          "author": { "@type": "Person", "name": c.userId?.username || "Anonymous", "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}` },
+          "dateCreated": new Date(c.createdAt).toISOString(),
+          "text": c.CommentText,
+          "url": `${pageUrl}#comment-${c._id}`,
+          "interactionStatistic": { "@type": "InteractionCounter", "interactionType": { "@type": "LikeAction" }, "userInteractionCount": c.likes || 0 },
+          "reply": c.replies?.map(r => ({
+            "@type": "Comment",
+            "author": { "@type": "Person", "name": r.userId?.username || "Anonymous", "url": `${SITE_ROOT}/profile/${r.userId?.username || "anonymous"}` },
+            "dateCreated": new Date(r.createdAt).toISOString(),
+            "text": r.replyText,
+            "url": `${pageUrl}#reply-${r._id}`,
+            "interactionStatistic": { "@type": "InteractionCounter", "interactionType": { "@type": "LikeAction" }, "userInteractionCount": r.likes || 0 }
+          }))
+        }))
+      },
+
+      "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl }
     },
+
+    // ✅ BreadcrumbList
     {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "Post",
-      "item": `${SITE_ROOT}/post`
-    },
-    {
-      "@type": "ListItem",
-      "position": 3,
-      "name": post.title,
-      "item": pageUrl
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_ROOT },
+        { "@type": "ListItem", "position": 2, "name": "Post", "item": `${SITE_ROOT}/post` },
+        { "@type": "ListItem", "position": 3, "name": post.title, "item": pageUrl }
+      ]
     }
   ]
 };
 
-const discussionSchema = {
-  "@context": "https://schema.org",
-  "@type": "DiscussionForumPosting",
-  "url": pageUrl,
-  "author": {
-    "@type": "Person",
-    "name": authorName,
-    "url": `${SITE_ROOT}/profile/${authorName}`
-  },
-  "datePublished": new Date(post.createdAt).toISOString(),
-  "commentCount": commentsCount(post),
-  "interactionStatistic": buildInteractionSchema(post),  // optional but good for likes/comments/views
-  "comment": post.comments?.map(c => ({
-    "@type": "Comment",
-    "author": {
-      "@type": "Person",
-      "name": c.userId?.username || "Anonymous",
-      "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}`
-    },
-    "dateCreated": new Date(c.createdAt).toISOString(),
-    "text": c.CommentText,
-    "url": `${pageUrl}#comment-${c._id}`,
-    "interactionStatistic": {
-      "@type": "InteractionCounter",
-      "interactionType": { "@type": "LikeAction" },
-      "userInteractionCount": c.likes || 0
-    },
-    "reply": c.replies?.map(r => ({
-      "@type": "Comment",
-      "author": {
-        "@type": "Person",
-        "name": r.userId?.username || "Anonymous",
-        "url": `${SITE_ROOT}/profile/${r.userId?.username || "anonymous"}`
-      },
-      "dateCreated": new Date(r.createdAt).toISOString(),
-      "text": r.replyText,
-      "url": `${pageUrl}#reply-${r._id}`,
-      "interactionStatistic": {
-        "@type": "InteractionCounter",
-        "interactionType": { "@type": "LikeAction" },
-        "userInteractionCount": r.likes || 0
-      }
-    }))
-  })),
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": pageUrl
-  }
-};
 
 
 
@@ -286,20 +251,14 @@ const discussionSchema = {
   <main className="w-full min-h-screen bg-gray-50">
 
     {/* JSON-LD */}
-    {/* JSON-LD */}
+   
 <script
   type="application/ld+json"
   dangerouslySetInnerHTML={{
-    __html: JSON.stringify({
-      "@context": "https://schema.org",
-      "@graph": [
-        jsonLdMain,
-        breadcrumbSchema,
-        discussionSchema
-      ]
-    })
+    __html: JSON.stringify(jsonLdOptimized)
   }}
 />
+
 
 
 
@@ -1954,6 +1913,7 @@ const discussionSchema = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
