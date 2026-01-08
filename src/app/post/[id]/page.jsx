@@ -168,20 +168,21 @@ export default async function Page({ params }) {
   "@graph": [
     {
       "@type": "Article",
-      "url": pageUrl,
+      "@id": pageUrl,
+      "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
       "headline": post.title,
       "description": buildDescription(post),
+      "url": pageUrl,
       "image": [thumbnail],
       "datePublished": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-      "author": { "@type": "Person", "name": authorName },
-      "publisher": {
+      "author": { "@type": "Person", "name": authorName, "url": `${SITE_ROOT}/profile/${authorName}` },
+      "publisher": { 
         "@type": "Organization",
         "name": "FondPeace",
         "logo": { "@type": "ImageObject", "url": `${SITE_ROOT}/logo.png` }
       },
-
-      // ✅ Video inside Article
+      // ✅ Video only once
       ...(isVideo && { 
         "hasPart": {
           "@type": "VideoObject",
@@ -191,26 +192,9 @@ export default async function Page({ params }) {
           "duration": secToISO(post.duration)
         }
       }),
-
-      // ✅ Comments / Discussion inside Article
-      "mainEntity": {
-        "@type": "DiscussionForumPosting",
-        "headline": post.title,
-        "text": buildDescription(post),
-        "url": pageUrl,
-        "image": isImage ? [mediaUrl] : undefined,
-        "video": isVideo ? {
-          "@type": "VideoObject",
-          "contentUrl": mediaUrl,
-          "thumbnailUrl": thumbnail,
-          "uploadDate": new Date(post.createdAt).toISOString(),
-          "duration": secToISO(post.duration),
-          "isPartOf": { "@type": "Article", "@id": pageUrl }
-        } : undefined,
-        "author": { "@type": "Person", "name": authorName, "url": `${SITE_ROOT}/profile/${authorName}` },
-        "datePublished": new Date(post.createdAt).toISOString(),
-        "commentCount": commentsCount(post),
-        "comment": post.comments?.map(c => ({
+      // ✅ Comments inside Article
+      ...(post.comments?.length && {
+        "comment": post.comments.map(c => ({
           "@type": "Comment",
           "author": { "@type": "Person", "name": c.userId?.username || "Anonymous", "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}` },
           "dateCreated": new Date(c.createdAt).toISOString(),
@@ -226,12 +210,9 @@ export default async function Page({ params }) {
             "interactionStatistic": { "@type": "InteractionCounter", "interactionType": { "@type": "LikeAction" }, "userInteractionCount": r.likes || 0 }
           }))
         }))
-      },
-
-      "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl }
+      })
     },
-
-    // ✅ BreadcrumbList
+    // ✅ Breadcrumb
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
@@ -1913,6 +1894,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
