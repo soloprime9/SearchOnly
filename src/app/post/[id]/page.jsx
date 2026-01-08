@@ -167,14 +167,15 @@ export default async function Page({ params }) {
 const jsonLdOptimized = {
   "@context": "https://schema.org",
   "@graph": [
+    // ----------------- ARTICLE -----------------
     {
-      "@type": "Article", // ✅ Instagram/X style uses Article even for short posts
-      "@id": pageUrl, // Post URL
+      "@type": "Article",
+      "@id": pageUrl,
       "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
-      "headline": post.title, // Post title or caption
-      "description": buildDescription(post), // Short content like Instagram caption
+      "headline": post.title,
+      "description": buildDescription(post),
       "url": pageUrl,
-      "image": [thumbnail], // Image or thumbnail
+      "image": [thumbnail],
       "datePublished": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
       "author": {
@@ -188,7 +189,6 @@ const jsonLdOptimized = {
         "name": "FondPeace",
         "logo": { "@type": "ImageObject", "url": `${SITE_ROOT}/logo.png` }
       },
-      // ✅ Include video if exists
       ...(isVideo && {
         "hasPart": {
           "@type": "VideoObject",
@@ -200,42 +200,6 @@ const jsonLdOptimized = {
           "duration": secToISO(post.duration)
         }
       }),
-      // ✅ Comments included like DiscussionForumPosting inside Article
-      ...(post.comments?.length && {
-        "comment": post.comments.map(c => ({
-          "@type": "Comment",
-          "author": {
-            "@type": "Person",
-            "name": c.userId?.username || "Anonymous",
-            "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}`
-          },
-          "dateCreated": new Date(c.createdAt).toISOString(),
-          "text": c.CommentText,
-          "url": `${pageUrl}#comment-${c._id}`,
-          "interactionStatistic": {
-            "@type": "InteractionCounter",
-            "interactionType": { "@type": "LikeAction" },
-            "userInteractionCount": c.likes || 0
-          },
-          "reply": c.replies?.map(r => ({
-            "@type": "Comment",
-            "author": {
-              "@type": "Person",
-              "name": r.userId?.username || "Anonymous",
-              "url": `${SITE_ROOT}/profile/${r.userId?.username || "anonymous"}`
-            },
-            "dateCreated": new Date(r.createdAt).toISOString(),
-            "text": r.replyText,
-            "url": `${pageUrl}#reply-${r._id}`,
-            "interactionStatistic": {
-              "@type": "InteractionCounter",
-              "interactionType": { "@type": "LikeAction" },
-              "userInteractionCount": r.likes || 0
-            }
-          }))
-        }))
-      }),
-      // ✅ Interaction stats for likes/comments/views
       "interactionStatistic": [
         {
           "@type": "InteractionCounter",
@@ -255,7 +219,40 @@ const jsonLdOptimized = {
       ]
     },
 
-    // ✅ Breadcrumbs
+    // ----------------- DISCUSSION FORUM -----------------
+    ...(post.comments?.length ? [{
+      "@type": "DiscussionForumPosting",
+      "@id": `${pageUrl}#discussion`,
+      "headline": post.title,
+      "about": { "@type": "Article", "@id": pageUrl },
+      "author": { "@type": "Person", "name": authorName },
+      "comment": post.comments.map(c => ({
+        "@type": "Comment",
+        "author": { "@type": "Person", "name": c.userId?.username || "Anonymous" },
+        "dateCreated": new Date(c.createdAt).toISOString(),
+        "text": c.CommentText,
+        "url": `${pageUrl}#comment-${c._id}`,
+        "interactionStatistic": {
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "LikeAction" },
+          "userInteractionCount": c.likes || 0
+        },
+        "reply": c.replies?.map(r => ({
+          "@type": "Comment",
+          "author": { "@type": "Person", "name": r.userId?.username || "Anonymous" },
+          "dateCreated": new Date(r.createdAt).toISOString(),
+          "text": r.replyText,
+          "url": `${pageUrl}#reply-${r._id}`,
+          "interactionStatistic": {
+            "@type": "InteractionCounter",
+            "interactionType": { "@type": "LikeAction" },
+            "userInteractionCount": r.likes || 0
+          }
+        }))
+      }))
+    }] : []),
+
+    // ----------------- BREADCRUMBS -----------------
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
@@ -267,7 +264,7 @@ const jsonLdOptimized = {
   ]
 };
 
-
+  
 
 
   return (
@@ -1936,6 +1933,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
