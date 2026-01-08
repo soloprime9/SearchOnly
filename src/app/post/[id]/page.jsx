@@ -398,27 +398,23 @@ const discussionSchema = {
     {/* JSON-LD */}
 <script
   type="application/ld+json"
-  dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdMain) }}
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        jsonLdMain,
+        breadcrumbSchema,
+        discussionSchema
+      ]
+    })
+  }}
 />
 
-{/* <script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-/> */}
-
- <script
-type="application/ld+json"
-   dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
- /> 
-
-<script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{ __html: JSON.stringify(discussionSchema) }}
-/>
 
 
     <section className="max-w-3xl mx-auto px-4 py-8">
-      <div className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
+      <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
+
 
 
         {/* User Profile */}
@@ -478,7 +474,7 @@ type="application/ld+json"
 
         {/* Post Content */}
         <SinglePostPage initialPost={post} />
-      </div>
+      </article>>
     </section>
 
 
@@ -2067,6 +2063,7 @@ type="application/ld+json"
 // //     </main>
 // //   );
 // // }
+
 
 
 
