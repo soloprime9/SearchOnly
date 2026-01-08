@@ -192,42 +192,7 @@ export default async function Page({ params }) {
         const authorName = post?.userId?.username || "FondPeace";
         const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || (post.mediaType && String(post.mediaType).startsWith("video")));
 
-        // JSON-LD (Only for the initial/current video: post)
-//         const videoSchema = {
-//             "@context": "https://schema.org",
-//             "@type": "VideoObject",
-//             name: post.title || "FondPeace Video",
-//             headline: post.title || "FondPeace Video",
-//             description: buildDescription(post),
-//             thumbnailUrl: [thumbnail || DEFAULT_THUMB],
-//             ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
-//             embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
-//             uploadDate: post.createdAt
-//   ? new Date(post.createdAt).toISOString()
-//   : new Date().toISOString(),
-//             // ... (rest of the schema properties)
-//             duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
-//             author: { "@type": "Person", name: authorName },
-//             publisher: {
-//   "@type": "Organization",
-//   name: "FondPeace",
-//   url: "https://www.fondpeace.com",
-//   logo: {
-//     "@type": "ImageObject",
-//     url: "https://www.fondpeace.com/Fondpeace.jpg",
-//     width: 600,
-//     height: 60
-//   }
-// },
 
-//             interactionStatistic: buildInteractionSchema(post),
-//             keywords: extractKeywords(post),
-//             inLanguage: "hi-IN",
-//             potentialAction: { "@type": "WatchAction", target: pageUrl },
-//             isFamilyFriendly: true,
-//             isAccessibleForFree: true,
-//             mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
-//         };
 
 
 
@@ -275,11 +240,24 @@ export default async function Page({ params }) {
       "potentialAction": { "@type": "WatchAction", "target": `${SITE_ROOT}/short/${post._id}` },
       "isFamilyFriendly": true,
       "isAccessibleForFree": true,
-      "mainEntityOfPage": { "@type": "WebPage", "@id": `${SITE_ROOT}/short/${post._id}#webpage` },
+      "mainEntityOfPage": { "@type": "WebPage", "@id": `${SITE_ROOT}/short/${post._id}#webpage` }
+    },
 
-      // 3️⃣ Comments
+    // 3️⃣ SocialMediaPosting (the post itself)
+    {
+      "@type": "SocialMediaPosting",
+      "@id": `${SITE_ROOT}/short/${post._id}#post`,
+      "url": `${SITE_ROOT}/short/${post._id}`,
+      "headline": post.title || "FondPeace Video",
+      "articleBody": post.title || "",
+      "dateCreated": post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
+      "dateModified": post.updatedAt ? new Date(post.updatedAt).toISOString() : new Date(post.createdAt).toISOString(),
+      "author": { "@type": "Person", "name": post.userId?.username || "FondPeace", "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}` },
+      "mainEntityOfPage": { "@id": `${SITE_ROOT}/short/${post._id}#webpage` },
+      
+      // 3a️⃣ DiscussionForumPosting for comments
       "comment": (post.comments || []).map((c) => ({
-        "@type": "Comment",
+        "@type": "DiscussionForumPosting",
         "@id": `${SITE_ROOT}/short/${post._id}#comment-${c._id}`,
         "text": c.CommentText || "",
         "dateCreated": new Date(c.createdAt).toISOString(),
@@ -319,6 +297,7 @@ export default async function Page({ params }) {
     }
   ]
 };
+
 
 
         
@@ -2114,3 +2093,44 @@ export default async function Page({ params }) {
 //     </main>
 //   );
 // }
+
+
+
+
+
+        // JSON-LD (Only for the initial/current video: post)
+//         const videoSchema = {
+//             "@context": "https://schema.org",
+//             "@type": "VideoObject",
+//             name: post.title || "FondPeace Video",
+//             headline: post.title || "FondPeace Video",
+//             description: buildDescription(post),
+//             thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+//             ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
+//             embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
+//             uploadDate: post.createdAt
+//   ? new Date(post.createdAt).toISOString()
+//   : new Date().toISOString(),
+//             // ... (rest of the schema properties)
+//             duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
+//             author: { "@type": "Person", name: authorName },
+//             publisher: {
+//   "@type": "Organization",
+//   name: "FondPeace",
+//   url: "https://www.fondpeace.com",
+//   logo: {
+//     "@type": "ImageObject",
+//     url: "https://www.fondpeace.com/Fondpeace.jpg",
+//     width: 600,
+//     height: 60
+//   }
+// },
+
+//             interactionStatistic: buildInteractionSchema(post),
+//             keywords: extractKeywords(post),
+//             inLanguage: "hi-IN",
+//             potentialAction: { "@type": "WatchAction", target: pageUrl },
+//             isFamilyFriendly: true,
+//             isAccessibleForFree: true,
+//             mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+//         };
