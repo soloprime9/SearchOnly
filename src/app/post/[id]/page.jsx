@@ -168,69 +168,86 @@ const jsonLdOptimized = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": ["SocialMediaPosting", "DiscussionForumPosting"], // ✅ Combined types
+      "@type": "SocialMediaPosting",
       "@id": pageUrl,
-      "mainEntityOfPage": { "@type": "ItemPage", "@id": pageUrl },
-      "headline": post.title,
-      "articleBody": buildDescription(post), // ✅ Prevents 'Article' errors
-      "text": buildDescription(post),
       "url": pageUrl,
-      "dateCreated": new Date(post.createdAt).toISOString(),
-      "datePublished": new Date(post.createdAt).toISOString(),
-      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+
+      "headline": post.title,
+      "articleBody": post.title,
+
+      "mainEntityOfPage": {
+        "@type": "ItemPage",
+        "@id": pageUrl
+      },
+
       "author": {
         "@type": "Person",
         "name": authorName,
-        "url": `${SITE_ROOT}/profile/${authorName}`,
-        "image": post.userId?.profilePic || `${SITE_ROOT}/default-avatar.png`,
+        "alternateName": authorUsername,
+        "url": `${SITE_ROOT}/@${authorUsername}`,
+        "image": post.userId?.profilePic,
         "identifier": {
           "@type": "PropertyValue",
           "propertyID": "Username",
-          "value": authorName
-        }
+          "value": authorUsername
+        },
+        "sameAs": post.userId?.instagramUrl
       },
-      // ✅ VIDEO SECTION (Matches Instagram's Reels structure)
-      ...(isVideo && {
-        "video": {
-          "@type": "VideoObject",
-          "name": post.title,
-          "description": buildDescription(post),
-          "contentUrl": mediaUrl,
-          "thumbnailUrl": thumbnail,
-          "uploadDate": new Date(post.createdAt).toISOString(),
-          "duration": secToISO(post.duration),
-          "transcript": post.transcript || "" // Highly recommended for Reels SEO
-        }
-      }),
-      // ✅ INTERACTION STATS
+
+      "identifier": {
+        "@type": "PropertyValue",
+        "propertyID": "Post Shortcode",
+        "value": post.shortcode
+      },
+
+      "dateCreated": new Date(post.createdAt).toISOString(),
+      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+
+      "image": post.images.map(img => ({
+        "@type": "ImageObject",
+        "url": img.url,
+        "width": img.width,
+        "height": img.height,
+        "caption": post.title,
+        "representativeOfPage": true
+      })),
+
+      "commentCount": post.comments.length,
+
       "interactionStatistic": [
         {
           "@type": "InteractionCounter",
           "interactionType": { "@type": "LikeAction" },
-          "userInteractionCount": post.likesCount || 0
+          "userInteractionCount": post.likesCount
         },
         {
           "@type": "InteractionCounter",
           "interactionType": { "@type": "CommentAction" },
-          "userInteractionCount": post.comments?.length || 0
+          "userInteractionCount": post.comments.length
         },
         {
           "@type": "InteractionCounter",
-          "interactionType": { "@type": "WatchAction" },
-          "userInteractionCount": post.views || 0
+          "interactionType": { "@type": "ViewAction" },
+          "userInteractionCount": post.views
         }
       ],
-      // ✅ NESTED DISCUSSION (Correct way for Social platforms)
-      "commentCount": post.comments?.length || 0,
-      "comment": post.comments?.map(c => ({
+
+      "comment": post.comments.map(c => ({
         "@type": "Comment",
-        "@id": `${pageUrl}#comment-${c._id}`,
-        "text": c.CommentText,
+        "text": c.text,
         "dateCreated": new Date(c.createdAt).toISOString(),
         "author": {
           "@type": "Person",
-          "name": c.userId?.username || "User",
-          "url": `${SITE_ROOT}/profile/${c.userId?.username}`
+          "name": c.user.username,
+          "alternateName": c.user.username,
+          "url": `${SITE_ROOT}/@${c.user.username}`,
+          "image": c.user.profilePic,
+          "identifier": {
+            "@type": "PropertyValue",
+            "propertyID": "Username",
+            "value": c.user.username
+          },
+          "sameAs": c.user.instagramUrl
         },
         "interactionStatistic": {
           "@type": "InteractionCounter",
@@ -239,17 +256,118 @@ const jsonLdOptimized = {
         }
       }))
     },
-    // ✅ BREADCRUMBS
+
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_ROOT },
-        { "@type": "ListItem", "position": 2, "name": isVideo ? "Reels" : "Posts", "item": `${SITE_ROOT}/${isVideo ? "videos" : "posts"}` },
-        { "@type": "ListItem", "position": 3, "name": post.title }
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Threads",
+          "item": SITE_ROOT
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": `@${authorUsername}`,
+          "item": `${SITE_ROOT}/@${authorUsername}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": `${authorName} (@${authorUsername})`
+        }
       ]
     }
   ]
 };
+  
+// {
+//   "@context": "https://schema.org",
+//   "@graph": [
+//     {
+//       "@type": ["SocialMediaPosting", "DiscussionForumPosting"], // ✅ Combined types
+//       "@id": pageUrl,
+//       "mainEntityOfPage": { "@type": "ItemPage", "@id": pageUrl },
+//       "headline": post.title,
+//       "articleBody": buildDescription(post), // ✅ Prevents 'Article' errors
+//       "text": buildDescription(post),
+//       "url": pageUrl,
+//       "dateCreated": new Date(post.createdAt).toISOString(),
+//       "datePublished": new Date(post.createdAt).toISOString(),
+//       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+//       "author": {
+//         "@type": "Person",
+//         "name": authorName,
+//         "url": `${SITE_ROOT}/profile/${authorName}`,
+//         "image": post.userId?.profilePic || `${SITE_ROOT}/default-avatar.png`,
+//         "identifier": {
+//           "@type": "PropertyValue",
+//           "propertyID": "Username",
+//           "value": authorName
+//         }
+//       },
+//       // ✅ VIDEO SECTION (Matches Instagram's Reels structure)
+//       ...(isVideo && {
+//         "video": {
+//           "@type": "VideoObject",
+//           "name": post.title,
+//           "description": buildDescription(post),
+//           "contentUrl": mediaUrl,
+//           "thumbnailUrl": thumbnail,
+//           "uploadDate": new Date(post.createdAt).toISOString(),
+//           "duration": secToISO(post.duration),
+//           "transcript": post.transcript || "" // Highly recommended for Reels SEO
+//         }
+//       }),
+//       // ✅ INTERACTION STATS
+//       "interactionStatistic": [
+//         {
+//           "@type": "InteractionCounter",
+//           "interactionType": { "@type": "LikeAction" },
+//           "userInteractionCount": post.likesCount || 0
+//         },
+//         {
+//           "@type": "InteractionCounter",
+//           "interactionType": { "@type": "CommentAction" },
+//           "userInteractionCount": post.comments?.length || 0
+//         },
+//         {
+//           "@type": "InteractionCounter",
+//           "interactionType": { "@type": "WatchAction" },
+//           "userInteractionCount": post.views || 0
+//         }
+//       ],
+//       // ✅ NESTED DISCUSSION (Correct way for Social platforms)
+//       "commentCount": post.comments?.length || 0,
+//       "comment": post.comments?.map(c => ({
+//         "@type": "Comment",
+//         "@id": `${pageUrl}#comment-${c._id}`,
+//         "text": c.CommentText,
+//         "dateCreated": new Date(c.createdAt).toISOString(),
+//         "author": {
+//           "@type": "Person",
+//           "name": c.userId?.username || "User",
+//           "url": `${SITE_ROOT}/profile/${c.userId?.username}`
+//         },
+//         "interactionStatistic": {
+//           "@type": "InteractionCounter",
+//           "interactionType": { "@type": "LikeAction" },
+//           "userInteractionCount": c.likes || 0
+//         }
+//       }))
+//     },
+//     // ✅ BREADCRUMBS
+//     {
+//       "@type": "BreadcrumbList",
+//       "itemListElement": [
+//         { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_ROOT },
+//         { "@type": "ListItem", "position": 2, "name": isVideo ? "Reels" : "Posts", "item": `${SITE_ROOT}/${isVideo ? "videos" : "posts"}` },
+//         { "@type": "ListItem", "position": 3, "name": post.title }
+//       ]
+//     }
+//   ]
+// };
 
   return (
   <main className="w-full min-h-screen bg-gray-50">
@@ -1917,6 +2035,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
