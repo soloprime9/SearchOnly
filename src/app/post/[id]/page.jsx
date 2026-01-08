@@ -173,8 +173,8 @@ const jsonLdOptimized = {
       "@type": "SocialMediaPosting",
       "@id": `${SITE_ROOT}/post/${post._id}`,
       "url": `${SITE_ROOT}/post/${post._id}`,
-      "headline": post.title || "Untitled Post",
-      "articleBody": buildDescription(post),
+      "headline": post.title || "FondPeace Post",
+      "articleBody": post.title,
       "mainEntityOfPage": {
         "@type": "ItemPage",
         "@id": `${SITE_ROOT}/post/${post._id}`
@@ -190,7 +190,7 @@ const jsonLdOptimized = {
           "propertyID": "Username",
           "value": post.userId?.username || "FondPeace"
         },
-        "sameAs": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
+        
       },
       "identifier": {
         "@type": "PropertyValue",
@@ -204,13 +204,15 @@ const jsonLdOptimized = {
           "@type": "ImageObject",
           "url": toAbsolute(post.thumbnail || post.media),
           "caption": post.title || "Post Image",
+          "width": 1280,
+          "height": 720,
           "representativeOfPage": true
         }
       ],
       "commentCount": commentsCount(post),
       "interactionStatistic": buildInteractionSchema(post),
       "comment": (post.comments || []).map(c => ({
-        "@type": "Comment",
+        "@type": "DiscussionForumPosting",
         "text": c.CommentText || "",
         "dateCreated": new Date(c.createdAt).toISOString(),
         "author": {
@@ -239,19 +241,19 @@ const jsonLdOptimized = {
         {
           "@type": "ListItem",
           "position": 1,
-          "name": "Threads",
+          "name": "FondPeace",
           "item": SITE_ROOT
         },
         {
           "@type": "ListItem",
           "position": 2,
-          "name": post.title || "Thread",
+          "name": post.userId?.username || "Thread",
           "item": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
         },
         {
           "@type": "ListItem",
           "position": 3,
-          "name": post.title || "Thread"
+          "name": post.title || "FondPeace Viral Post"
         }
       ]
     }
@@ -2012,6 +2014,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
