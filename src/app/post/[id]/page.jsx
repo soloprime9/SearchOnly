@@ -166,13 +166,13 @@ export default async function Page({ params }) {
 const jsonLdOptimized = {
   "@context": "https://schema.org",
   "@graph": [
-    // ----------------- ARTICLE / POST -----------------
+    // ----------------- ARTICLE (Post / Caption) -----------------
     {
-      "@type": "Article",
+      "@type": "SocialMediaPosting",
       "@id": pageUrl,
-      "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
+      "mainEntityOfPage": { "@type": "ItemPage", "@id": pageUrl },
       "headline": post.title,
-      "articleBody": buildDescription(post), // Instagram uses articleBody for captions
+      "articleBody": buildDescription(post), // caption/text of the post
       "url": pageUrl,
       "image": {
         "@type": "ImageObject",
@@ -181,18 +181,13 @@ const jsonLdOptimized = {
         "width": post.imageWidth || 1080,
         "caption": post.title
       },
-      "datePublished": new Date(post.createdAt).toISOString(),
+      "dateCreated": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
       "author": {
         "@type": "Person",
         "name": authorName,
         "url": `${SITE_ROOT}/profile/${authorName}`,
         "image": post.userId?.profilePic || `${SITE_ROOT}/default-avatar.png`
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "FondPeace",
-        "logo": { "@type": "ImageObject", "url": `${SITE_ROOT}/logo.png` }
       },
       ...(isVideo && {
         "video": {
@@ -230,11 +225,20 @@ const jsonLdOptimized = {
       "@id": `${pageUrl}#discussion`,
       "headline": post.title,
       "articleBody": buildDescription(post),
-      "about": { "@type": "Article", "@id": pageUrl }, // reference to main post
-      "author": { "@type": "Person", "name": authorName, "url": `${SITE_ROOT}/profile/${authorName}` },
+      "about": { "@type": "SocialMediaPosting", "@id": pageUrl },
+      "author": {
+        "@type": "Person",
+        "name": authorName,
+        "url": `${SITE_ROOT}/profile/${authorName}`
+      },
+      "commentCount": post.comments.length,
       "comment": post.comments.map(c => ({
         "@type": "Comment",
-        "author": { "@type": "Person", "name": c.userId?.username || "Anonymous", "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}` },
+        "author": {
+          "@type": "Person",
+          "name": c.userId?.username || "Anonymous",
+          "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}`
+        },
         "dateCreated": new Date(c.createdAt).toISOString(),
         "text": c.CommentText,
         "url": `${pageUrl}#comment-${c._id}`,
@@ -243,9 +247,14 @@ const jsonLdOptimized = {
           "interactionType": { "@type": "LikeAction" },
           "userInteractionCount": c.likes || 0
         },
+        "replyCount": c.replies?.length || 0,
         "reply": c.replies?.map(r => ({
           "@type": "Comment",
-          "author": { "@type": "Person", "name": r.userId?.username || "Anonymous", "url": `${SITE_ROOT}/profile/${r.userId?.username || "anonymous"}` },
+          "author": {
+            "@type": "Person",
+            "name": r.userId?.username || "Anonymous",
+            "url": `${SITE_ROOT}/profile/${r.userId?.username || "anonymous"}`
+          },
           "dateCreated": new Date(r.createdAt).toISOString(),
           "text": r.replyText,
           "url": `${pageUrl}#reply-${r._id}`,
@@ -269,8 +278,6 @@ const jsonLdOptimized = {
     }
   ]
 };
-
-  
 
 
   return (
@@ -1939,6 +1946,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
