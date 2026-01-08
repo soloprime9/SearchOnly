@@ -37,21 +37,44 @@ function secToISO(sec) {
 
 
 function likesCount(post) {
-  return Array.isArray(post.likes) ? post.likes.length : post.likes || 0;
+  if (Array.isArray(post.likes)) return post.likes.length;
+  if (typeof post.likes === "number") return post.likes;
+  return 0;
 }
+
 function commentsCount(post) {
-  return Array.isArray(post.comments) ? post.comments.length : post.commentCount || 0;
+  if (Array.isArray(post.comments)) return post.comments.length;
+  if (typeof post.commentCount === "number") return post.commentCount;
+  return 0;
 }
+
 function viewsCount(post) {
-  return typeof post.views === "number" ? post.views : 0;
+  if (typeof post.views === "number") return post.views;
+  return 0;
 }
+
 function buildInteractionSchema(post) {
   return [
-    { "@type": "InteractionCounter", interactionType: { "@type": "LikeAction" }, userInteractionCount: likesCount(post) },
-    { "@type": "InteractionCounter", interactionType: { "@type": "CommentAction" }, userInteractionCount: commentsCount(post) },
-    { "@type": "InteractionCounter", interactionType: { "@type": "WatchAction" }, userInteractionCount: viewsCount(post) },
+    {
+      "@type": "InteractionCounter",
+      "interactionType": { "@type": "LikeAction" },
+      "userInteractionCount": likesCount(post)
+    },
+    {
+      "@type": "InteractionCounter",
+      "interactionType": { "@type": "CommentAction" },
+      "userInteractionCount": commentsCount(post)
+    },
+    {
+      "@type": "InteractionCounter",
+      "interactionType": { "@type": "ViewAction" },
+      "userInteractionCount": viewsCount(post)
+    }
   ];
 }
+
+
+
 function buildDescription(post) {
   const author = post?.userId?.username || "FondPeace";
   const likes = likesCount(post);
@@ -165,75 +188,64 @@ export default async function Page({ params }) {
 
 
   /* ---------------------- JSON-LD ---------------------- */
-/* ---------------------- JSON-LD (REFRESHED) ---------------------- */
 const jsonLdOptimized = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "SocialMediaPosting",
+      "@type": "WebPage",
       "@id": `${SITE_ROOT}/post/${post._id}`,
       "url": `${SITE_ROOT}/post/${post._id}`,
-      "headline": post.title || "FondPeace Post",
-      "articleBody": post.title,
-      "mainEntityOfPage": {
-        "@type": "ItemPage",
-        "@id": `${SITE_ROOT}/post/${post._id}`
-      },
-      "author": {
-        "@type": "Person",
-        "name": post.userId?.username || "FondPeace",
-        "alternateName": post.userId?.username || "FondPeace",
-        "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
-        "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR,
-        "identifier": {
-          "@type": "PropertyValue",
-          "propertyID": "Username",
-          "value": post.userId?.username || "FondPeace"
-        },
-        
-      },
-      "identifier": {
-        "@type": "PropertyValue",
-        "propertyID": "Post ID",
-        "value": post._id
-      },
-      "dateCreated": new Date(post.createdAt).toISOString(),
-      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-      "image": [
-        {
-          "@type": "ImageObject",
-          "url": toAbsolute(post.thumbnail || post.media),
-          "caption": post.title || "Post Image",
-          "width": 1280,
-          "height": 720,
-          "representativeOfPage": true
-        }
-      ],
-      "commentCount": commentsCount(post),
-      "interactionStatistic": buildInteractionSchema(post),
-      "comment": (post.comments || []).map(c => ({
-        "@type": "Comment",
-        "text": c.CommentText || "",
-        "dateCreated": new Date(c.createdAt).toISOString(),
+      "mainEntity": {
+        "@type": "SocialMediaPosting",
+        "@id": `${SITE_ROOT}/post/${post._id}#post`,
+        "url": `${SITE_ROOT}/post/${post._id}`,
+        "headline": post.title || "FondPeace Post",
+        "articleBody": post.title || "",
+
         "author": {
           "@type": "Person",
-          "name": c.userId?.username || "User",
-          "alternateName": c.userId?.username || "User",
-          "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`,
-          "image": toAbsolute(c.userId?.profilePic) || DEFAULT_AVATAR,
+          "name": post.userId?.username || "FondPeace",
+          "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
+          "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR,
           "identifier": {
             "@type": "PropertyValue",
-            "propertyID": "Username",
-            "value": c.userId?.username || "User"
-          },
-          "sameAs": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+            "propertyID": "username",
+            "value": post.userId?.username || "FondPeace"
+          }
         },
-        "interactionStatistic": {
-          "@type": "InteractionCounter",
-          "interactionType": { "@type": "LikeAction" },
-          "userInteractionCount": c.likes || 0
-        }
-      }))
+
+        "dateCreated": new Date(post.createdAt).toISOString(),
+        "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+
+        "image": {
+          "@type": "ImageObject",
+          "url": toAbsolute(post.thumbnail || post.media),
+          "width": 1080,
+          "height": 1350,
+          "representativeOfPage": true
+        },
+
+        "commentCount": commentsCount(post),
+
+        "interactionStatistic": buildInteractionSchema(post),
+
+        "comment": (post.comments || []).map(c => ({
+          "@type": "Comment",
+          "@id": `${SITE_ROOT}/post/${post._id}#comment-${c._id}`,
+          "text": c.CommentText || "",
+          "dateCreated": new Date(c.createdAt).toISOString(),
+          "author": {
+            "@type": "Person",
+            "name": c.userId?.username || "User",
+            "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+          },
+          "interactionStatistic": {
+            "@type": "InteractionCounter",
+            "interactionType": { "@type": "LikeAction" },
+            "userInteractionCount": Array.isArray(c.likes) ? c.likes.length : 0
+          }
+        }))
+      }
     },
     {
       "@type": "BreadcrumbList",
@@ -247,106 +259,19 @@ const jsonLdOptimized = {
         {
           "@type": "ListItem",
           "position": 2,
-          "name": post.userId?.username || "Thread",
+          "name": post.userId?.username || "User",
           "item": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
         },
         {
           "@type": "ListItem",
           "position": 3,
-          "name": post.title || "FondPeace Viral Post"
+          "name": post.title || "Post",
+          "item": `${SITE_ROOT}/post/${post._id}`
         }
       ]
     }
   ]
 };
-
-  
-// {
-//   "@context": "https://schema.org",
-//   "@graph": [
-//     {
-//       "@type": ["SocialMediaPosting", "DiscussionForumPosting"], // ✅ Combined types
-//       "@id": pageUrl,
-//       "mainEntityOfPage": { "@type": "ItemPage", "@id": pageUrl },
-//       "headline": post.title,
-//       "articleBody": buildDescription(post), // ✅ Prevents 'Article' errors
-//       "text": buildDescription(post),
-//       "url": pageUrl,
-//       "dateCreated": new Date(post.createdAt).toISOString(),
-//       "datePublished": new Date(post.createdAt).toISOString(),
-//       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-//       "author": {
-//         "@type": "Person",
-//         "name": authorName,
-//         "url": `${SITE_ROOT}/profile/${authorName}`,
-//         "image": post.userId?.profilePic || `${SITE_ROOT}/default-avatar.png`,
-//         "identifier": {
-//           "@type": "PropertyValue",
-//           "propertyID": "Username",
-//           "value": authorName
-//         }
-//       },
-//       // ✅ VIDEO SECTION (Matches Instagram's Reels structure)
-//       ...(isVideo && {
-//         "video": {
-//           "@type": "VideoObject",
-//           "name": post.title,
-//           "description": buildDescription(post),
-//           "contentUrl": mediaUrl,
-//           "thumbnailUrl": thumbnail,
-//           "uploadDate": new Date(post.createdAt).toISOString(),
-//           "duration": secToISO(post.duration),
-//           "transcript": post.transcript || "" // Highly recommended for Reels SEO
-//         }
-//       }),
-//       // ✅ INTERACTION STATS
-//       "interactionStatistic": [
-//         {
-//           "@type": "InteractionCounter",
-//           "interactionType": { "@type": "LikeAction" },
-//           "userInteractionCount": post.likesCount || 0
-//         },
-//         {
-//           "@type": "InteractionCounter",
-//           "interactionType": { "@type": "CommentAction" },
-//           "userInteractionCount": post.comments?.length || 0
-//         },
-//         {
-//           "@type": "InteractionCounter",
-//           "interactionType": { "@type": "WatchAction" },
-//           "userInteractionCount": post.views || 0
-//         }
-//       ],
-//       // ✅ NESTED DISCUSSION (Correct way for Social platforms)
-//       "commentCount": post.comments?.length || 0,
-//       "comment": post.comments?.map(c => ({
-//         "@type": "Comment",
-//         "@id": `${pageUrl}#comment-${c._id}`,
-//         "text": c.CommentText,
-//         "dateCreated": new Date(c.createdAt).toISOString(),
-//         "author": {
-//           "@type": "Person",
-//           "name": c.userId?.username || "User",
-//           "url": `${SITE_ROOT}/profile/${c.userId?.username}`
-//         },
-//         "interactionStatistic": {
-//           "@type": "InteractionCounter",
-//           "interactionType": { "@type": "LikeAction" },
-//           "userInteractionCount": c.likes || 0
-//         }
-//       }))
-//     },
-//     // ✅ BREADCRUMBS
-//     {
-//       "@type": "BreadcrumbList",
-//       "itemListElement": [
-//         { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_ROOT },
-//         { "@type": "ListItem", "position": 2, "name": isVideo ? "Reels" : "Posts", "item": `${SITE_ROOT}/${isVideo ? "videos" : "posts"}` },
-//         { "@type": "ListItem", "position": 3, "name": post.title }
-//       ]
-//     }
-//   ]
-// };
 
   return (
   <main className="w-full min-h-screen bg-gray-50">
@@ -2014,6 +1939,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
