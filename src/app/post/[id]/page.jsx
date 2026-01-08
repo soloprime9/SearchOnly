@@ -474,7 +474,7 @@ const discussionSchema = {
 
         {/* Post Content */}
         <SinglePostPage initialPost={post} />
-      </article>>
+      </article>
     </section>
 
 
@@ -2063,6 +2063,7 @@ const discussionSchema = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
