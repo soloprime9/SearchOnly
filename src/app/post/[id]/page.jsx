@@ -418,7 +418,8 @@ type="application/ld+json"
 
 
     <section className="max-w-3xl mx-auto px-4 py-8">
-      <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
+      <div className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
+
 
         {/* User Profile */}
         <div className="flex items-center justify-between mb-5">
@@ -477,7 +478,7 @@ type="application/ld+json"
 
         {/* Post Content */}
         <SinglePostPage initialPost={post} />
-      </article>
+      </div>
     </section>
 
 
@@ -2066,6 +2067,7 @@ type="application/ld+json"
 // //     </main>
 // //   );
 // // }
+
 
 
 
