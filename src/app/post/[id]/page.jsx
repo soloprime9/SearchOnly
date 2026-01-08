@@ -165,89 +165,6 @@ export default async function Page({ params }) {
   /* ---------------------- JSON-LD ---------------------- */
   let jsonLdMain;
 
-//   if (isVideo) {
-//     jsonLdMain = {
-//       "@context": "https://schema.org",
-//       "@type": "VideoObject",
-
-//       url: pageUrl,
-//       name: post.title,
-//       headline: post.title,
-//       description: buildDescription(post),
-
-//       thumbnailUrl: thumbnail,
-//       contentUrl: mediaUrl,
-//       embedUrl: `${SITE_ROOT}/post/${post._id}`,
-
-//       uploadDate: new Date(post.createdAt).toISOString(),
-//       datePublished: new Date(post.createdAt).toISOString(),
-//       dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
-
-//       duration: post.duration
-//   ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration)
-//   : undefined,
-
-
-//       width: post.width || 1280,
-//       height: post.height || 720,
-//       encodingFormat: "video/mp4",
-
-//       publisher: {
-//         "@type": "Organization",
-//         name: "FondPeace",
-//         url: SITE_ROOT,
-//         logo: {
-//           "@type": "ImageObject",
-//           url: `${SITE_ROOT}/logo.jpg`,
-//           width: 512,
-//           height: 512,
-//         },
-//       },
-
-//       author: { "@type": "Person", name: authorName },
-//       creator: { "@type": "Person", name: authorName },
-
-//       interactionStatistic: buildInteractionSchema(post),
-//       keywords: extractKeywords(post),
-//       inLanguage: "hi-IN",
-//       isFamilyFriendly: true,
-
-//       potentialAction: { "@type": "WatchAction", target: pageUrl },
-
-//       mainEntityOfPage: {
-//         "@type": "WebPage",
-//         "@id": pageUrl,
-//       },
-//     };
-//   }
-
-//   else {
-//   jsonLdMain = {
-//     "@context": "https://schema.org",
-//     "@type": "Article",
-//     url: pageUrl,
-//     name: post.title,
-//     headline: post.title,
-//     description: buildDescription(post),
-//     image: [thumbnail],
-//     datePublished: new Date(post.createdAt).toISOString(),
-//     dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
-//     publisher: {
-//       "@type": "Organization",
-//       name: "FondPeace",
-//       url: SITE_ROOT,
-//       logo: { "@type": "ImageObject", url: `${SITE_ROOT}/logo.png`, width: 512, height: 512 }
-//     },
-//     author: { "@type": "Person", name: authorName },
-//     interactionStatistic: buildInteractionSchema(post),
-//     keywords: extractKeywords(post),
-//     inLanguage: "hi-IN",
-//     isFamilyFriendly: true,
-//     potentialAction: { "@type": "ReadAction", target: pageUrl },
-//     mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
-//   };
-// }
-
 
   jsonLdMain = {
   "@context": "https://schema.org",
@@ -286,29 +203,6 @@ export default async function Page({ params }) {
 };
 
 
-//   const articleSchema = {
-//   "@context": "https://schema.org",
-//   "@type": "Article",
-//     "url": pageUrl, // ✅ IMPORTANT
-//   "headline": post.title,
-//   "description": buildDescription(post),
-//   "image": [thumbnail],
-//   "author": {
-//     "@type": "Person",
-//     "name": authorName
-//   },
-//   "publisher": {
-//     "@type": "Organization",
-//     "name": "FondPeace",
-//     "logo": {
-//       "@type": "ImageObject",
-//       "url": `${SITE_ROOT}/logo.png`
-//     }
-//   },
-//   "datePublished": new Date(post.createdAt).toISOString(),
-//   "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-//   "mainEntityOfPage": pageUrl
-// };
 
   const breadcrumbSchema = {
   "@context": "https://schema.org",
@@ -338,18 +232,15 @@ export default async function Page({ params }) {
 const discussionSchema = {
   "@context": "https://schema.org",
   "@type": "DiscussionForumPosting",
-  "headline": post.title,
-  "text": buildDescription(post),
-  "url": pageUrl, // post URL
-  "image": isImage ? [mediaUrl] : undefined,
-  "video": isVideo ? { "@type": "VideoObject", "contentUrl": mediaUrl } : undefined,
+  "url": pageUrl,
   "author": {
     "@type": "Person",
     "name": authorName,
-    "url": `${SITE_ROOT}/profile/${authorName}` // ✅ use /profile/username
+    "url": `${SITE_ROOT}/profile/${authorName}`
   },
   "datePublished": new Date(post.createdAt).toISOString(),
   "commentCount": commentsCount(post),
+  "interactionStatistic": buildInteractionSchema(post),  // optional but good for likes/comments/views
   "comment": post.comments?.map(c => ({
     "@type": "Comment",
     "author": {
@@ -358,8 +249,8 @@ const discussionSchema = {
       "url": `${SITE_ROOT}/profile/${c.userId?.username || "anonymous"}`
     },
     "dateCreated": new Date(c.createdAt).toISOString(),
-    "text": c.CommentText, // ✅ required by Google
-    "url": `${pageUrl}#comment-${c._id}`, // ✅ optional but removes warning
+    "text": c.CommentText,
+    "url": `${pageUrl}#comment-${c._id}`,
     "interactionStatistic": {
       "@type": "InteractionCounter",
       "interactionType": { "@type": "LikeAction" },
@@ -2063,6 +1954,7 @@ const discussionSchema = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
