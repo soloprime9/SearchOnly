@@ -389,7 +389,7 @@ const jsonLdOptimized = {
             href={`/short/${r._id}`}
             className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
           >
-            <div className="w-full h-40 bg-gray-100">
+            <div className="w-full bg-gray-100">
               <img
                 src={thumb}
                 alt={r.title}
@@ -1959,6 +1959,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
