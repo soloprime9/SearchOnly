@@ -168,7 +168,7 @@ export default function SingleReel({ initialPost }) {
       </div>
 
       {/* INTERACTIONS */}
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center mb-3 border-2 rounded-lg p-2 bg-gray-100">
         <div className="flex gap-6 items-center">
           <button onClick={handleLike} className="flex items-center gap-1">
             {hasLiked ? (
