@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import { useRouter } from "next/navigation";
 import {
   FaHeart,
   FaRegHeart,
@@ -12,7 +13,7 @@ import {
   FaEye,
   FaEllipsisH,
   FaPlay,
-  FaPause,
+  FaPause,FaArrowLeft,
 } from "react-icons/fa";
 import { IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
 
@@ -111,6 +112,31 @@ export default function SingleReel({ initialPost }) {
 
   return (
     <>
+
+      {/* HEADER – Instagram style */}
+<header className="bg-white border-b sticky top-0 z-50">
+  <div className="max-w-3xl mx-auto px-4 h-12 flex items-center justify-between">
+    
+    {/* Back Button */}
+    <button
+      onClick={() => router.back()}
+      className="p-2 -ml-2"
+      aria-label="Go back"
+    >
+      <FaArrowLeft className="text-lg text-gray-900" />
+    </button>
+
+    {/* Center Title */}
+    <p className="text-sm font-semibold text-gray-900">
+      Post
+    </p>
+
+    {/* Right Spacer (for symmetry like Instagram) */}
+    <div className="w-6" />
+  </div>
+</header>
+
+      
       {/* USER HEADER */}
       <div className="flex items-center justify-between mb-5">
         <Link
