@@ -351,7 +351,7 @@ const jsonLdFull = {
 
         
         return (
-            <main className="w-full min-h-screen bg-gray-50">
+            <main className="w-full min-h-screen bg-white">
 
                 {/* JSON-LD: क्रॉलर को इंडेक्स करने के लिए केवल वर्तमान वीडियो का डेटा देता है */}
                 <script
@@ -423,7 +423,7 @@ const jsonLdFull = {
 
                 
                 {/* CONTENT */}
-    <section className="max-w-3xl mx-auto px-2 py-8">
+    <section className="max-w-3xl mx-auto px-2 py-1">
       <article className="bg-white shadow-md rounded-2xl overflow-hidden">
 
         {/* Reels Feed (UNCHANGED LOGIC) */}
