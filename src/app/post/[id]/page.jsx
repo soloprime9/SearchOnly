@@ -4,7 +4,7 @@
 
 import SinglePostPage from "@/components/SinglePostPage";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
-
+import Link from "next/link";
 
 const API_BASE = "https://backend-k.vercel.app";
 const SITE_ROOT = "https://fondpeace.com";
@@ -295,7 +295,7 @@ const jsonLdOptimized = {
 
   
   return (
-  <main className="w-full min-h-screen bg-gray-50">
+  <main className="w-full min-h-screen bg-white">
 
     {/* JSON-LD */}
    
@@ -306,7 +306,28 @@ const jsonLdOptimized = {
   }}
 />
 
+      {/* HEADER – Instagram style */}
+<header className="bg-white  sticky top-0 z-50">
+  <div className="max-w-3xl mx-auto px-1 h-12 flex items-center justify-between">
+    
+    {/* Back Button → Home */}
+    <Link
+      href="/"
+      className="p-2 -ml-2"
+      aria-label="Go to home"
+    >
+      <FaArrowLeft className="text-lg text-gray-900" />
+    </Link>
 
+    {/* Center Title */}
+    <p className="text-md font-semibold text-gray-900">
+      Post
+    </p>
+
+    {/* Right Spacer (for symmetry like Instagram) */}
+    <div className="w-6" />
+  </div>
+</header>
 
 
     <section className="max-w-3xl mx-auto px-4 py-8">
@@ -1960,6 +1981,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
