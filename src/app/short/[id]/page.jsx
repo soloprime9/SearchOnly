@@ -213,43 +213,64 @@ const jsonLdFull = {
 
     // 2️⃣ VideoObject (ONLY when media is video)
     ...(isVideo
-      ? [
-          {
-            "@type": "VideoObject",
-            "@id": `${SITE_ROOT}/short/${post._id}#video`,
-            name: post.title || "FondPeace Video",
-            description: post.title || "FondPeace video post",
-            thumbnailUrl: [
-              toAbsolute(post.thumbnail || post.media || DEFAULT_AVATAR)
-            ],
-            contentUrl: toAbsolute(post.media),
-            uploadDate: new Date(post.createdAt).toISOString(),
-            duration:
-              post.duration &&
-              (Number(post.duration)
-                ? secToISO(Number(post.duration))
-                : post.duration),
-            author: {
-              "@type": "Person",
-              name: post.userId?.username || "FondPeace",
-              url: `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
-            },
-            publisher: {
-              "@type": "Organization",
-              name: "FondPeace",
-              url: SITE_ROOT,
-              logo: {
-                "@type": "ImageObject",
-                url: `${SITE_ROOT}/Fondpeace.jpg`,
-                width: 600,
-                height: 60
-              }
-            },
-            interactionStatistic: buildInteractionSchema(post),
-            mainEntityOfPage: `${SITE_ROOT}/short/${post._id}`
+  ? [
+      {
+        "@type": "VideoObject",
+        "@id": `${SITE_ROOT}/short/${post._id}#video`,
+        name: post.title || "FondPeace Video",
+        description: post.title || "FondPeace video post",
+
+        thumbnailUrl: [
+          toAbsolute(post.thumbnail || post.media || DEFAULT_AVATAR)
+        ],
+
+        contentUrl: toAbsolute(post.media),
+        uploadDate: new Date(post.createdAt).toISOString(),
+
+        duration:
+          post.duration &&
+          (Number(post.duration)
+            ? secToISO(Number(post.duration))
+            : post.duration),
+
+        author: {
+          "@type": "Person",
+          name: post.userId?.username || "FondPeace",
+          url: `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
+        },
+
+        publisher: {
+          "@type": "Organization",
+          name: "FondPeace",
+          url: SITE_ROOT,
+          logo: {
+            "@type": "ImageObject",
+            url: `${SITE_ROOT}/Fondpeace.jpg`,
+            width: 600,
+            height: 60
           }
-        ]
-      : []),
+        },
+
+        interactionStatistic: buildInteractionSchema(post),
+
+        keywords: extractKeywords(post),
+        inLanguage: "hi-IN",
+        isFamilyFriendly: true,
+        isAccessibleForFree: true,
+
+        potentialAction: {
+          "@type": "WatchAction",
+          target: `${SITE_ROOT}/short/${post._id}`
+        },
+
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": `${SITE_ROOT}/short/${post._id}`
+        }
+      }
+    ]
+  : []),
+
 
     // 3️⃣ SocialMediaPosting
     {
