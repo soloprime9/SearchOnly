@@ -3,7 +3,8 @@
 // ✓ FIXES "VIDEO ISN’T ON WATCH PAGE" ERROR
 
 import SinglePostPage from "@/components/SinglePostPage";
-import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
+import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 const API_BASE = "https://backend-k.vercel.app";
 const SITE_ROOT = "https://fondpeace.com";
@@ -305,7 +306,28 @@ const jsonLdOptimized = {
   }}
 />
 
+{/* HEADER – Instagram style */}
+<header className="bg-white border-b sticky top-0 z-50">
+  <div className="max-w-3xl mx-auto px-4 h-12 flex items-center justify-between">
+    
+    {/* Back Button */}
+    <button
+      onClick={() => router.back()}
+      className="p-2 -ml-2"
+      aria-label="Go back"
+    >
+      <FaArrowLeft className="text-lg text-gray-900" />
+    </button>
 
+    {/* Center Title */}
+    <p className="text-sm font-semibold text-gray-900">
+      Post
+    </p>
+
+    {/* Right Spacer (for symmetry like Instagram) */}
+    <div className="w-6" />
+  </div>
+</header>
 
 
     <section className="max-w-3xl mx-auto px-4 py-8">
@@ -1959,6 +1981,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
