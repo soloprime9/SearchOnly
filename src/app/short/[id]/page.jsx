@@ -201,85 +201,126 @@ export default async function Page({ params }) {
 const jsonLdFull = {
   "@context": "https://schema.org",
   "@graph": [
-    // 1. WebPage - The container
+    // 1️⃣ WebPage
     {
       "@type": "WebPage",
       "@id": `${SITE_ROOT}/short/${post._id}#webpage`,
-      "url": `${SITE_ROOT}/short/${post._id}`,
-      "name": post.title ? post.title.substring(0, 110) : "FondPeace Video",
-      "breadcrumb": { "@id": `${SITE_ROOT}/short/${post._id}#breadcrumb` },
-      "mainEntity": { "@id": `${SITE_ROOT}/short/${post._id}#video-post` }
+      url: `${SITE_ROOT}/short/${post._id}`,
+      name: post.title ? post.title.substring(0, 110) : "FondPeace Post",
+      mainEntity: { "@id": `${SITE_ROOT}/short/${post._id}#post` },
+      breadcrumb: { "@id": `${SITE_ROOT}/short/${post._id}#breadcrumb` }
     },
 
-    // 2. VideoObject - Critical for Video SEO
-    {
-      "@type": "VideoObject",
-      "@id": `${SITE_ROOT}/short/${post._id}#video-post`,
-      "name": post.title || "FondPeace Video",
-      "description": buildDescription(post), // Ensure this returns a string
-      "thumbnailUrl": [post.thumbnail || DEFAULT_THUMB],
-      "uploadDate": post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
-      "duration": post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
-      "contentUrl": post.mediaUrl || `${SITE_ROOT}/short/${post._id}`, // Falls back to page URL if direct media URL is missing
-      "embedUrl": `${SITE_ROOT}/short/${post._id}`, // Using main page as embed URL since you don't have a separate one
-      "interactionStatistic": buildInteractionSchema(post),
-      "author": { 
-        "@type": "Person", 
-        "name": post.userId?.username || "FondPeace",
-        "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "FondPeace",
-        "logo": {
-          "@type": "ImageObject",
-          "url": `${SITE_ROOT}/Fondpeace.jpg`
-        }
-      }
-    },
+    // 2️⃣ VideoObject (ONLY when media is video)
+    ...(isVideo
+      ? [
+          {
+            "@type": "VideoObject",
+            "@id": `${SITE_ROOT}/short/${post._id}#video`,
+            name: post.title || "FondPeace Video",
+            description: post.title || "FondPeace video post",
+            thumbnailUrl: [
+              toAbsolute(post.thumbnail || post.media || DEFAULT_AVATAR)
+            ],
+            contentUrl: toAbsolute(post.media),
+            uploadDate: new Date(post.createdAt).toISOString(),
+            duration:
+              post.duration &&
+              (Number(post.duration)
+                ? secToISO(Number(post.duration))
+                : post.duration),
+            author: {
+              "@type": "Person",
+              name: post.userId?.username || "FondPeace",
+              url: `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "FondPeace",
+              url: SITE_ROOT,
+              logo: {
+                "@type": "ImageObject",
+                url: `${SITE_ROOT}/Fondpeace.jpg`,
+                width: 600,
+                height: 60
+              }
+            },
+            interactionStatistic: buildInteractionSchema(post),
+            mainEntityOfPage: `${SITE_ROOT}/short/${post._id}`
+          }
+        ]
+      : []),
 
-    // 3. SocialMediaPosting - For context and comments
+    // 3️⃣ SocialMediaPosting
     {
       "@type": "SocialMediaPosting",
-      "@id": `${SITE_ROOT}/short/${post._id}#social-post`,
-      "headline": post.title || "FondPeace Video",
-      "sharedContent": { "@id": `${SITE_ROOT}/short/${post._id}#video-post` }, // Links to the VideoObject
-      "articleBody": post.title || "",
-      "datePublished": post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
-      "author": { "@id": `${SITE_ROOT}/short/${post._id}#video-post` },
-      "comment": (post.comments || []).map((c) => ({
+      "@id": `${SITE_ROOT}/short/${post._id}#post`,
+      url: `${SITE_ROOT}/short/${post._id}`,
+      headline: post.title ? post.title.substring(0, 110) : "FondPeace Post",
+      articleBody: post.title || "",
+      dateCreated: new Date(post.createdAt).toISOString(),
+      dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
+      mainEntityOfPage: { "@id": `${SITE_ROOT}/short/${post._id}#webpage` },
+
+      ...(isVideo && {
+        sharedContent: { "@id": `${SITE_ROOT}/short/${post._id}#video` }
+      }),
+
+      author: {
+        "@type": "Person",
+        "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
+        name: post.userId?.username || "FondPeace",
+        url: `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
+        image: toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+      },
+
+      image: {
+        "@type": "ImageObject",
+        url: toAbsolute(post.media || post.thumbnail || DEFAULT_AVATAR),
+        width: 1080,
+        height: 1350,
+        representativeOfPage: true
+      },
+
+      commentCount: commentsCount(post),
+      interactionStatistic: buildInteractionSchema(post),
+
+      comment: (post.comments || []).map((c) => ({
         "@type": "Comment",
-        "text": c.CommentText || "",
-        "dateCreated": new Date(c.createdAt).toISOString(),
-        "author": {
+        "@id": `${SITE_ROOT}/short/${post._id}#comment-${c._id}`,
+        text: c.CommentText || "",
+        dateCreated: new Date(c.createdAt).toISOString(),
+        author: {
           "@type": "Person",
-          "name": c.userId?.username || "User"
-        }
+          name: c.userId?.username || "User",
+          url: `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+        },
+        interactionStatistic: buildCommentInteractionSchema(c)
       }))
     },
 
-    // 4. BreadcrumbList
+    // 4️⃣ Breadcrumb
     {
       "@type": "BreadcrumbList",
       "@id": `${SITE_ROOT}/short/${post._id}#breadcrumb`,
-      "itemListElement": [
+      itemListElement: [
         {
           "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": SITE_ROOT
+          position: 1,
+          name: "FondPeace",
+          item: SITE_ROOT
         },
         {
           "@type": "ListItem",
-          "position": 2,
-          "name": post.userId?.username || "Creator",
-          "item": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
+          position: 2,
+          name: post.userId?.username || "User",
+          item: `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
         },
         {
           "@type": "ListItem",
-          "position": 3,
-          "name": post.title || "Video",
-          "item": `${SITE_ROOT}/short/${post._id}`
+          position: 3,
+          name: post.title ? post.title.substring(0, 110) : "Post",
+          item: `${SITE_ROOT}/short/${post._id}`
         }
       ]
     }
