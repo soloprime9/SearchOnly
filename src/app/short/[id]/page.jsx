@@ -350,7 +350,7 @@ const jsonLdFull = {
 
         
         return (
-            <main className="h-screen bg-white overflow-hidden">
+            <main className="w-full min-h-screen bg-gray-50">
 
                 {/* JSON-LD: क्रॉलर को इंडेक्स करने के लिए केवल वर्तमान वीडियो का डेटा देता है */}
                 <script
@@ -362,20 +362,14 @@ const jsonLdFull = {
                 {/* <StatusBar /> */}
                 
                             {/* HEADER */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-2 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-blue-600">
-            FondPeace.com
-          </Link>
-
-          {/* <nav className="flex items-center gap-6 text-blue-700 font-semibold text-lg">
-            <Link href="/" className="hover:underline">
-              FondPeace
-            </Link>
-          </nav> */}
-        </div>
-      </header>
-
+     {/* HEADER (same family as post page, but kept minimal) */}
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+        <Link href="/" className="text-xl font-bold text-blue-600">
+          FondPeace.com
+        </Link>
+      </div>
+    </header>
                 {/* Hidden HTML VideoObject for SEO (authority-level) */}
         <section
           itemScope
@@ -433,11 +427,21 @@ const jsonLdFull = {
 
 
                 
-                {/* ReelsFeed: Client Component */}
-                {/* initialPost में केवल वह वीडियो है जिसे हम चाहते हैं कि Google इंडेक्स करे। */}
-                <div className="pt-[56px] h-screen overflow-hidden">
-  <ReelsFeedWrapper initialPost={post} initialRelated={related} />
-</div>
+                {/* CONTENT */}
+    <section className="max-w-3xl mx-auto px-4 py-8">
+      <article className="bg-white shadow-md rounded-2xl overflow-hidden">
+
+        {/* Reels Feed (UNCHANGED LOGIC) */}
+        <div className="w-full">
+          <ReelsFeedWrapper
+            initialPost={post}
+            initialRelated={related}
+          />
+        </div>
+
+      </article>
+    </section>
+
 
                 
             </main>
