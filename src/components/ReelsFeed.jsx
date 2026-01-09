@@ -22,17 +22,15 @@ const DEFAULT_AVATAR = "/Fondpeace.jpg";
 
 export default function SingleReel({ initialPost }) {
   const videoRef = useRef(null);
-  const commentRef = useRef(null);
 
   const [post, setPost] = useState(initialPost);
   const [userId, setUserId] = useState(null);
-  const [showComments, setShowComments] = useState(true);
   const [comment, setComment] = useState("");
   const [muted, setMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
 
-  /* ---------------- USER ---------------- */
+  /* USER */
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -40,7 +38,7 @@ export default function SingleReel({ initialPost }) {
     if (decoded?.UserId) setUserId(decoded.UserId);
   }, []);
 
-  /* ---------------- AUTOPLAY ---------------- */
+  /* AUTOPLAY */
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = muted;
@@ -48,17 +46,15 @@ export default function SingleReel({ initialPost }) {
     }
   }, [muted]);
 
-
-
   if (!post) {
-    return <div className="h-screen flex items-center justify-center">Video not found</div>;
+    return <div className="py-20 text-center">Video not found</div>;
   }
 
   const hasLiked = post.likes?.some(
     (id) => id?.toString() === userId?.toString()
   );
 
-  /* ---------------- LIKE ---------------- */
+  /* LIKE */
   const handleLike = async () => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Please login");
@@ -71,7 +67,7 @@ export default function SingleReel({ initialPost }) {
     setPost((p) => ({ ...p, likes: res.data.likes }));
   };
 
-  /* ---------------- COMMENT ---------------- */
+  /* COMMENT */
   const handleComment = async () => {
     if (!comment.trim()) return;
     const token = localStorage.getItem("token");
@@ -86,13 +82,13 @@ export default function SingleReel({ initialPost }) {
     setComment("");
   };
 
-  /* ---------------- SHARE ---------------- */
+  /* SHARE */
   const handleShare = async () => {
     await navigator.clipboard.writeText(window.location.href);
     alert("Link copied");
   };
 
-  /* ---------------- PLAY / PAUSE ---------------- */
+  /* PLAY / PAUSE */
   const togglePlayPause = () => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
@@ -103,158 +99,414 @@ export default function SingleReel({ initialPost }) {
       setIsPlaying(false);
     }
     setShowPlayIcon(true);
-    setTimeout(() => setShowPlayIcon(false), 700);
+    setTimeout(() => setShowPlayIcon(false), 600);
   };
 
-  /* ---------------- MUTE ---------------- */
+  /* MUTE */
   const toggleMute = (e) => {
     e.stopPropagation();
-    if (!videoRef.current) return;
     videoRef.current.muted = !muted;
     setMuted(!muted);
   };
 
-
-   return (
-    <main className="w-full min-h-screen bg-gray-50">
-      <section className="max-w-3xl mx-auto px-4 py-8">
-        <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
-
-          {/* -------- USER HEADER -------- */}
-          <div className="flex items-center justify-between mb-5">
-            <Link
-              href={`/profile/${post.userId?.username}`}
-              className="flex items-center gap-3"
-            >
-              <img
-                src={post.userId?.avatar || DEFAULT_AVATAR}
-                className="w-11 h-11 rounded-full object-cover border"
-              />
-              <div>
-                <p className="font-semibold text-gray-800">
-                  {post.userId?.username || "fondpeace"}
-                </p>
-                <p className="text-gray-500 text-sm">
-                  {new Date(post.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            </Link>
-            <FaEllipsisH className="text-gray-500" />
-          </div>
-
-          {/* -------- VIDEO -------- */}
-          <div
-            className="relative w-full bg-black rounded-xl overflow-hidden mb-4"
-            onClick={togglePlayPause}
-          >
-            <video
-              ref={videoRef}
-              src={post.media}
-              poster={post.thumbnail || DEFAULT_THUMB}
-              autoPlay
-              loop
-              playsInline
-              muted={muted}
-              controls={false}
-              className="w-full max-h-[480px] object-contain bg-black"
-            />
-
-            {showPlayIcon && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                {isPlaying ? (
-                  <FaPause className="text-white text-6xl opacity-90" />
-                ) : (
-                  <FaPlay className="text-white text-6xl opacity-90" />
-                )}
-              </div>
-            )}
-
-            <button
-              onClick={toggleMute}
-              className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full text-white"
-            >
-              {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
-            </button>
-          </div>
-
-          {/* -------- INTERACTIONS -------- */}
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex gap-6 items-center">
-              <button onClick={handleLike} className="flex items-center gap-1">
-                {hasLiked ? (
-                  <FaHeart className="text-red-600 text-xl" />
-                ) : (
-                  <FaRegHeart className="text-xl" />
-                )}
-                {post.likes?.length || 0}
-              </button>
-
-              <div className="flex items-center gap-1">
-                <FaCommentDots className="text-xl" />
-                {post.comments?.length || 0}
-              </div>
-
-              <button onClick={handleShare}>
-                <FaShareAlt className="text-xl" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1 text-sm text-gray-600">
-              <FaEye />
-              {post.views || 0}
-            </div>
-          </div>
-
-          {/* -------- CAPTION -------- */}
-          <div className="text-sm mb-4">
-            <span className="font-semibold mr-1">
+  return (
+    <>
+      {/* USER HEADER */}
+      <div className="flex items-center justify-between mb-5">
+        <Link
+          href={`/profile/${post.userId?.username}`}
+          className="flex items-center gap-3"
+        >
+          <img
+            src={post.userId?.avatar || DEFAULT_AVATAR}
+            className="w-11 h-11 rounded-full object-cover border"
+          />
+          <div>
+            <p className="font-semibold text-gray-800">
               {post.userId?.username || "fondpeace"}
-            </span>
-            {post.title}
+            </p>
+            <p className="text-gray-500 text-sm">
+              {new Date(post.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        </Link>
+        <FaEllipsisH className="text-gray-500" />
+      </div>
+
+      {/* VIDEO */}
+      <div
+        className="relative w-full bg-black rounded-xl overflow-hidden mb-4"
+        onClick={togglePlayPause}
+      >
+        <video
+          ref={videoRef}
+          src={post.media}
+          poster={post.thumbnail || DEFAULT_THUMB}
+          autoPlay
+          loop
+          playsInline
+          muted={muted}
+          className="w-full max-h-[480px] object-contain bg-black"
+        />
+
+        {showPlayIcon && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            {isPlaying ? (
+              <FaPause className="text-white text-6xl" />
+            ) : (
+              <FaPlay className="text-white text-6xl" />
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={toggleMute}
+          className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full text-white"
+        >
+          {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
+        </button>
+      </div>
+
+      {/* INTERACTIONS */}
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex gap-6 items-center">
+          <button onClick={handleLike} className="flex items-center gap-1">
+            {hasLiked ? (
+              <FaHeart className="text-red-600 text-xl" />
+            ) : (
+              <FaRegHeart className="text-xl" />
+            )}
+            {post.likes?.length || 0}
+          </button>
+
+          <div className="flex items-center gap-1">
+            <FaCommentDots className="text-xl" />
+            {post.comments?.length || 0}
           </div>
 
-          {/* -------- COMMENTS -------- */}
-          <div className="bg-gray-50 border-t pt-4 max-h-[35vh] overflow-y-auto">
-            <div className="flex items-center gap-3 mb-4">
-              <img
-                src={DEFAULT_AVATAR}
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <input
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Add a comment..."
-                className="flex-1 bg-white border rounded-full px-4 py-2 text-sm"
-              />
-              <button
-                onClick={handleComment}
-                className="text-blue-600 font-semibold text-sm"
-              >
-                Post
-              </button>
-            </div>
+          <button onClick={handleShare}>
+            <FaShareAlt className="text-xl" />
+          </button>
+        </div>
 
-            {post.comments?.map((cmt, i) => (
-              <div key={i} className="flex gap-3 mb-3">
-                <img
-                  src={cmt.userId?.avatar || DEFAULT_AVATAR}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <p className="text-sm">
-                  <span className="font-semibold mr-1">
-                    {cmt.userId?.username || "User"}
-                  </span>
-                  {cmt.CommentText}
-                </p>
-              </div>
-            ))}
+        <div className="flex items-center gap-1 text-sm text-gray-600">
+          <FaEye />
+          {post.views || 0}
+        </div>
+      </div>
+
+      {/* CAPTION */}
+      <div className="text-sm mb-4">
+        <span className="font-semibold mr-1">
+          {post.userId?.username || "fondpeace"}
+        </span>
+        {post.title}
+      </div>
+
+      {/* COMMENTS */}
+      <div className="bg-gray-50 border-t pt-4 max-h-[35vh] overflow-y-auto">
+        <div className="flex items-center gap-3 mb-4">
+          <img
+            src={DEFAULT_AVATAR}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+          <input
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Add a comment..."
+            className="flex-1 bg-white border rounded-full px-4 py-2 text-sm"
+          />
+          <button
+            onClick={handleComment}
+            className="text-blue-600 font-semibold text-sm"
+          >
+            Post
+          </button>
+        </div>
+
+        {post.comments?.map((cmt, i) => (
+          <div key={i} className="flex gap-3 mb-3">
+            <img
+              src={cmt.userId?.avatar || DEFAULT_AVATAR}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+            <p className="text-sm">
+              <span className="font-semibold mr-1">
+                {cmt.userId?.username || "User"}
+              </span>
+              {cmt.CommentText}
+            </p>
           </div>
-
-        </article>
-      </section>
-    </main>
+        ))}
+      </div>
+    </>
   );
 }
+
+
+
+
+
+
+
+
+// "use client";
+
+// import { useEffect, useRef, useState } from "react";
+// import Link from "next/link";
+// import axios from "axios";
+// import jwt from "jsonwebtoken";
+// import {
+//   FaHeart,
+//   FaRegHeart,
+//   FaCommentDots,
+//   FaShareAlt,
+//   FaEye,
+//   FaEllipsisH,
+//   FaPlay,
+//   FaPause,
+// } from "react-icons/fa";
+// import { IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
+
+// const API_BASE = "https://backend-k.vercel.app";
+// const DEFAULT_THUMB = "/Fondpeace.jpg";
+// const DEFAULT_AVATAR = "/Fondpeace.jpg";
+
+// export default function SingleReel({ initialPost }) {
+//   const videoRef = useRef(null);
+//   const commentRef = useRef(null);
+
+//   const [post, setPost] = useState(initialPost);
+//   const [userId, setUserId] = useState(null);
+//   const [showComments, setShowComments] = useState(true);
+//   const [comment, setComment] = useState("");
+//   const [muted, setMuted] = useState(true);
+//   const [isPlaying, setIsPlaying] = useState(true);
+//   const [showPlayIcon, setShowPlayIcon] = useState(false);
+
+//   /* ---------------- USER ---------------- */
+//   useEffect(() => {
+//     const token = localStorage.getItem("token");
+//     if (!token) return;
+//     const decoded = jwt.decode(token);
+//     if (decoded?.UserId) setUserId(decoded.UserId);
+//   }, []);
+
+//   /* ---------------- AUTOPLAY ---------------- */
+//   useEffect(() => {
+//     if (videoRef.current) {
+//       videoRef.current.muted = muted;
+//       videoRef.current.play().catch(() => {});
+//     }
+//   }, [muted]);
+
+
+
+//   if (!post) {
+//     return <div className="h-screen flex items-center justify-center">Video not found</div>;
+//   }
+
+//   const hasLiked = post.likes?.some(
+//     (id) => id?.toString() === userId?.toString()
+//   );
+
+//   /* ---------------- LIKE ---------------- */
+//   const handleLike = async () => {
+//     const token = localStorage.getItem("token");
+//     if (!token) return alert("Please login");
+
+//     const res = await axios.post(
+//       `${API_BASE}/post/like/${post._id}`,
+//       {},
+//       { headers: { "x-auth-token": token } }
+//     );
+//     setPost((p) => ({ ...p, likes: res.data.likes }));
+//   };
+
+//   /* ---------------- COMMENT ---------------- */
+//   const handleComment = async () => {
+//     if (!comment.trim()) return;
+//     const token = localStorage.getItem("token");
+//     if (!token) return alert("Please login");
+
+//     const res = await axios.post(
+//       `${API_BASE}/post/comment/${post._id}`,
+//       { CommentText: comment, userId },
+//       { headers: { "x-auth-token": token } }
+//     );
+//     setPost((p) => ({ ...p, comments: res.data.comments }));
+//     setComment("");
+//   };
+
+//   /* ---------------- SHARE ---------------- */
+//   const handleShare = async () => {
+//     await navigator.clipboard.writeText(window.location.href);
+//     alert("Link copied");
+//   };
+
+//   /* ---------------- PLAY / PAUSE ---------------- */
+//   const togglePlayPause = () => {
+//     if (!videoRef.current) return;
+//     if (videoRef.current.paused) {
+//       videoRef.current.play();
+//       setIsPlaying(true);
+//     } else {
+//       videoRef.current.pause();
+//       setIsPlaying(false);
+//     }
+//     setShowPlayIcon(true);
+//     setTimeout(() => setShowPlayIcon(false), 700);
+//   };
+
+//   /* ---------------- MUTE ---------------- */
+//   const toggleMute = (e) => {
+//     e.stopPropagation();
+//     if (!videoRef.current) return;
+//     videoRef.current.muted = !muted;
+//     setMuted(!muted);
+//   };
+
+
+//    return (
+//     <main className="w-full min-h-screen bg-gray-50">
+//       <section className="max-w-3xl mx-auto px-4 py-8">
+//         <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
+
+//           {/* -------- USER HEADER -------- */}
+//           <div className="flex items-center justify-between mb-5">
+//             <Link
+//               href={`/profile/${post.userId?.username}`}
+//               className="flex items-center gap-3"
+//             >
+//               <img
+//                 src={post.userId?.avatar || DEFAULT_AVATAR}
+//                 className="w-11 h-11 rounded-full object-cover border"
+//               />
+//               <div>
+//                 <p className="font-semibold text-gray-800">
+//                   {post.userId?.username || "fondpeace"}
+//                 </p>
+//                 <p className="text-gray-500 text-sm">
+//                   {new Date(post.createdAt).toLocaleDateString()}
+//                 </p>
+//               </div>
+//             </Link>
+//             <FaEllipsisH className="text-gray-500" />
+//           </div>
+
+//           {/* -------- VIDEO -------- */}
+//           <div
+//             className="relative w-full bg-black rounded-xl overflow-hidden mb-4"
+//             onClick={togglePlayPause}
+//           >
+//             <video
+//               ref={videoRef}
+//               src={post.media}
+//               poster={post.thumbnail || DEFAULT_THUMB}
+//               autoPlay
+//               loop
+//               playsInline
+//               muted={muted}
+//               controls={false}
+//               className="w-full max-h-[480px] object-contain bg-black"
+//             />
+
+//             {showPlayIcon && (
+//               <div className="absolute inset-0 flex items-center justify-center">
+//                 {isPlaying ? (
+//                   <FaPause className="text-white text-6xl opacity-90" />
+//                 ) : (
+//                   <FaPlay className="text-white text-6xl opacity-90" />
+//                 )}
+//               </div>
+//             )}
+
+//             <button
+//               onClick={toggleMute}
+//               className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full text-white"
+//             >
+//               {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
+//             </button>
+//           </div>
+
+//           {/* -------- INTERACTIONS -------- */}
+//           <div className="flex justify-between items-center mb-3">
+//             <div className="flex gap-6 items-center">
+//               <button onClick={handleLike} className="flex items-center gap-1">
+//                 {hasLiked ? (
+//                   <FaHeart className="text-red-600 text-xl" />
+//                 ) : (
+//                   <FaRegHeart className="text-xl" />
+//                 )}
+//                 {post.likes?.length || 0}
+//               </button>
+
+//               <div className="flex items-center gap-1">
+//                 <FaCommentDots className="text-xl" />
+//                 {post.comments?.length || 0}
+//               </div>
+
+//               <button onClick={handleShare}>
+//                 <FaShareAlt className="text-xl" />
+//               </button>
+//             </div>
+
+//             <div className="flex items-center gap-1 text-sm text-gray-600">
+//               <FaEye />
+//               {post.views || 0}
+//             </div>
+//           </div>
+
+//           {/* -------- CAPTION -------- */}
+//           <div className="text-sm mb-4">
+//             <span className="font-semibold mr-1">
+//               {post.userId?.username || "fondpeace"}
+//             </span>
+//             {post.title}
+//           </div>
+
+//           {/* -------- COMMENTS -------- */}
+//           <div className="bg-gray-50 border-t pt-4 max-h-[35vh] overflow-y-auto">
+//             <div className="flex items-center gap-3 mb-4">
+//               <img
+//                 src={DEFAULT_AVATAR}
+//                 className="w-8 h-8 rounded-full object-cover"
+//               />
+//               <input
+//                 value={comment}
+//                 onChange={(e) => setComment(e.target.value)}
+//                 placeholder="Add a comment..."
+//                 className="flex-1 bg-white border rounded-full px-4 py-2 text-sm"
+//               />
+//               <button
+//                 onClick={handleComment}
+//                 className="text-blue-600 font-semibold text-sm"
+//               >
+//                 Post
+//               </button>
+//             </div>
+
+//             {post.comments?.map((cmt, i) => (
+//               <div key={i} className="flex gap-3 mb-3">
+//                 <img
+//                   src={cmt.userId?.avatar || DEFAULT_AVATAR}
+//                   className="w-8 h-8 rounded-full object-cover"
+//                 />
+//                 <p className="text-sm">
+//                   <span className="font-semibold mr-1">
+//                     {cmt.userId?.username || "User"}
+//                   </span>
+//                   {cmt.CommentText}
+//                 </p>
+//               </div>
+//             ))}
+//           </div>
+
+//         </article>
+//       </section>
+//     </main>
+//   );
+// }
   
 
 
