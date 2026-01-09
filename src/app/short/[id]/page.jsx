@@ -428,11 +428,11 @@ const jsonLdFull = {
 
                 
                 {/* CONTENT */}
-    <section className="max-w-3xl mx-auto px-4 py-8">
+    <section className="max-w-3xl mx-auto px-2 py-8">
       <article className="bg-white shadow-md rounded-2xl overflow-hidden">
 
         {/* Reels Feed (UNCHANGED LOGIC) */}
-        <div className="w-full">
+        <div className="w-full p-4">
           <ReelsFeedWrapper
             initialPost={post}
             initialRelated={related}
