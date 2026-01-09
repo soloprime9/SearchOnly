@@ -204,7 +204,7 @@ export default function SingleReel({ initialPost }) {
       </div>
 
       {/* COMMENTS */}
-      <div className="bg-gray-50 border-t pt-4 max-h-[35vh] overflow-y-auto">
+      <div className="bg-gray-50 border-t pt-4 ">
         <div className="flex items-center gap-3 mb-4">
           <img
             src={DEFAULT_AVATAR}
@@ -218,26 +218,39 @@ export default function SingleReel({ initialPost }) {
           />
           <button
             onClick={handleComment}
-            className="text-blue-600 font-semibold text-sm"
+            className="text-white font-bold text-md border-2 bg-blue-800 p-2 rounded-lg"
           >
             Post
           </button>
         </div>
 
-        {post.comments?.map((cmt, i) => (
-          <div key={i} className="flex gap-3 mb-3">
-            <img
-              src={cmt.userId?.avatar || DEFAULT_AVATAR}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-            <p className="text-sm">
-              <span className="font-semibold mr-1">
-                {cmt.userId?.username || "User"}
-              </span>
-              {cmt.CommentText}
-            </p>
-          </div>
-        ))}
+        {/* Show Comments */}
+<div className="space-y-2">
+  {post.comments?.map((cmt, i) => (
+    <div
+      key={i}
+      className="flex gap-3 bg-gray-100 p-3 rounded-md"
+    >
+      {/* Avatar */}
+      <img
+        src={cmt.userId?.avatar || DEFAULT_AVATAR}
+        alt="user"
+        className="w-8 h-8 rounded-full object-cover"
+      />
+
+      {/* Comment Content */}
+      <div>
+        <p className="font-semibold text-gray-800 text-sm">
+          {cmt.userId?.username || "User"}
+        </p>
+        <p className="text-gray-700 text-sm">
+          {cmt.CommentText}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
+
       </div>
     </>
   );
