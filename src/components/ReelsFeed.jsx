@@ -127,7 +127,7 @@ export default function SingleReel({ initialPost }) {
     </Link>
 
     {/* Center Title */}
-    <p className="text-sm font-semibold text-gray-900">
+    <p className="text-md font-semibold text-gray-900">
       Post
     </p>
 
