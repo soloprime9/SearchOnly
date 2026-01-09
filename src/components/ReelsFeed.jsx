@@ -113,28 +113,7 @@ export default function SingleReel({ initialPost }) {
   return (
     <>
 
-       {/* HEADER – Instagram style */}
-<header className="bg-white  sticky top-0 z-50">
-  <div className="max-w-3xl mx-auto px-1 mb-2 h-12 flex items-center justify-between">
-    
-    {/* Back Button → Home */}
-    <Link
-      href="/"
-      className="p-2 -ml-2"
-      aria-label="Go to home"
-    >
-      <FaArrowLeft className="text-lg text-gray-900" />
-    </Link>
-
-    {/* Center Title */}
-    <p className="text-md font-semibold text-gray-900">
-      Post
-    </p>
-
-    {/* Right Spacer (for symmetry like Instagram) */}
-    <div className="w-6" />
-  </div>
-</header>
+      
       
       {/* USER HEADER */}
       <div className="flex items-center justify-between mb-5">
