@@ -306,9 +306,9 @@ const jsonLdOptimized = {
   }}
 />
 
-      {/* HEADER – Instagram style */}
+       {/* HEADER – Instagram style */}
 <header className="bg-white  sticky top-0 z-50">
-  <div className="max-w-3xl mx-auto px-1 h-12 flex items-center justify-between">
+  <div className="max-w-3xl mx-auto px-1 mb-2 h-12 flex items-center justify-between">
     
     {/* Back Button → Home */}
     <Link
@@ -1981,6 +1981,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
