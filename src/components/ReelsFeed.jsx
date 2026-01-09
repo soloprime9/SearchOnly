@@ -113,18 +113,18 @@ export default function SingleReel({ initialPost }) {
   return (
     <>
 
-      {/* HEADER – Instagram style */}
-<header className="bg-white border-b sticky top-0 z-50">
-  <div className="max-w-3xl mx-auto px-4 h-12 flex items-center justify-between">
+     {/* HEADER – Instagram style */}
+<header className="bg-white  sticky top-0 z-50">
+  <div className="max-w-3xl mx-auto px-1 h-12 flex items-center justify-between">
     
-    {/* Back Button */}
-    <button
-      onClick={() => router.back()}
+    {/* Back Button → Home */}
+    <Link
+      href="/"
       className="p-2 -ml-2"
-      aria-label="Go back"
+      aria-label="Go to home"
     >
       <FaArrowLeft className="text-lg text-gray-900" />
-    </button>
+    </Link>
 
     {/* Center Title */}
     <p className="text-sm font-semibold text-gray-900">
@@ -135,7 +135,6 @@ export default function SingleReel({ initialPost }) {
     <div className="w-6" />
   </div>
 </header>
-
       
       {/* USER HEADER */}
       <div className="flex items-center justify-between mb-5">
