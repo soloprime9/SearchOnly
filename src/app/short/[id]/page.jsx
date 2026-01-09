@@ -195,9 +195,8 @@ export default async function Page({ params }) {
 
 
 
-
-       const SITE_ROOT = "https://yourdomain.com"; // Ensure this is defined
-const DEFAULT_THUMB = `${SITE_ROOT}/default-thumbnail.jpg`;
+ 
+    
 
 const jsonLdFull = {
   "@context": "https://schema.org",
