@@ -5,7 +5,7 @@
 import SinglePostPage from "@/components/SinglePostPage";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
-
+import { redirect } from "next/navigation";
 const API_BASE = "https://backend-k.vercel.app";
 const SITE_ROOT = "https://fondpeace.com";
 const DEFAULT_AVATAR = "https://fondpeace.com/Fondpeace.jpg";
@@ -193,11 +193,7 @@ export default async function Page({ params }) {
   const related = data?.related ?? [];
 
   if (!post) {
-    return (
-      <div className="p-20 text-center text-xl text-red-600">
-        Post Not Found
-      </div>
-    );
+    redirect("/")
   }
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
@@ -1981,6 +1977,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
