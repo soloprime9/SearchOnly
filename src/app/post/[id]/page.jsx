@@ -414,14 +414,15 @@ const jsonLdOptimized = {
             className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
           >
             {/* ✅ THUMBNAIL CONTAINER FIX */}
-            <div className="w-full aspect-video bg-gray-100 overflow-hidden">
-              <img
-                src={thumb}
-                alt={r.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
+            <div className="w-full aspect-video bg-gray-200 overflow-hidden relative">
+  <img
+    src={thumb}
+    alt={r.title}
+    className="w-full h-full object-cover object-center"
+    loading="lazy"
+  />
+</div>
+
 
             <div className="p-3">
               <p className="font-medium text-gray-900 line-clamp-2 text-sm">
@@ -1985,6 +1986,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
