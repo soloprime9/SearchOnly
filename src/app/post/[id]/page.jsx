@@ -178,14 +178,14 @@ export default async function Page({ params }) {
   const id = params?.id;
   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
 
-  if (!res.ok) {
-    console.log("API error", await res.text());
-    return (
-      <div className="p-20 text-center text-xl text-red-600">
-        Post Not Found Buddy
-      </div>
-    );
-  }
+  // if (!res.ok) {
+  //   console.log("API error", await res.text());
+  //   return (
+  //     <div className="p-20 text-center text-xl text-red-600">
+  //       Post Not Found Buddy
+  //     </div>
+  //   );
+  // }
 
   const data = await res.json();
   const post = data?.post;
@@ -1977,6 +1977,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
