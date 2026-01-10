@@ -193,7 +193,10 @@ export default async function Page({ params }) {
   const related = data?.related ?? [];
 
   if (!post) {
-    redirect("/")
+    return (
+      <div className = "p-20 text-center text-xl text-red-600">
+      Post Not Found | FondPeace.com</div>
+    );
   }
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
@@ -396,22 +399,26 @@ const jsonLdOptimized = {
     
     {Array.isArray(related) && related.length > 0 && (
   <aside className="max-w-5xl mx-auto mt-10 px-4">
-    <p className="text-xl font-semibold mb-4 text-gray-900">Related Posts</p>
+    <p className="text-xl font-semibold mb-4 text-gray-900">
+      Related Posts
+    </p>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
       {related.map((r) => {
         const thumb = toAbsolute(r.thumbnail || "");
+
         return (
           <a
             key={r._id}
             href={`/short/${r._id}`}
             className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
           >
-            <div className="w-full bg-gray-100">
+            {/* ✅ THUMBNAIL CONTAINER FIX */}
+            <div className="w-full aspect-video bg-gray-100 overflow-hidden">
               <img
                 src={thumb}
                 alt={r.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 loading="lazy"
               />
             </div>
@@ -422,9 +429,9 @@ const jsonLdOptimized = {
               </p>
 
               <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
-                <FaHeart className="text-red-500" /> {likesCount(r)} 
+                <FaHeart className="text-red-500" /> {likesCount(r)}
                 <span>•</span>
-                <FaCommentDots /> {commentsCount(r)} 
+                <FaCommentDots /> {commentsCount(r)}
                 <span>•</span>
                 <FaEye /> {viewsCount(r) || 0}
               </div>
@@ -435,6 +442,7 @@ const jsonLdOptimized = {
     </div>
   </aside>
 )}
+
 
 
   </main>
@@ -1977,6 +1985,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
