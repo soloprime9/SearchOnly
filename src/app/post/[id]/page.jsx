@@ -182,7 +182,7 @@ export default async function Page({ params }) {
     console.log("API error", await res.text());
     return (
       <div className="p-20 text-center text-xl text-red-600">
-        Post Not Found
+        Post Not Found Buddy
       </div>
     );
   }
@@ -1977,6 +1977,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
