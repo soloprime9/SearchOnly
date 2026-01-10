@@ -418,7 +418,7 @@ const jsonLdOptimized = {
               <img
                 src={thumb}
                 alt={r.title}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
                 loading="lazy"
               />
             </div>
@@ -1985,6 +1985,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
