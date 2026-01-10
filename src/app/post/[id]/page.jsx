@@ -178,14 +178,10 @@ export default async function Page({ params }) {
   const id = params?.id;
   const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
 
-  // if (!res.ok) {
-  //   console.log("API error", await res.text());
-  //   return (
-  //     <div className="p-20 text-center text-xl text-red-600">
-  //       Post Not Found Buddy
-  //     </div>
-  //   );
-  // }
+  if (!res.ok) {
+    console.log("API error", await res.text());
+    redirect("/");
+  }
 
   const data = await res.json();
   const post = data?.post;
@@ -193,10 +189,7 @@ export default async function Page({ params }) {
   const related = data?.related ?? [];
 
   if (!post) {
-    return (
-      <div className = "p-20 text-center text-xl text-red-600">
-      Post Not Found | FondPeace.com</div>
-    );
+    redirect("/");
   }
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
@@ -1986,6 +1979,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
