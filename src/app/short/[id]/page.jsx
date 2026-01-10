@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
-
+import { redirect } from "next/navigation";
 
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
 
@@ -177,14 +177,14 @@ export default async function Page({ params }) {
         // Fetch post and related videos
         const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
         if (!res.ok) {
-            return notFound();
+            redirect("/");
         }
         const data = await res.json();
         const post = data?.post || null;
         const related = data?.related || [];
 
         if (!post) {
-            return notFound();
+            redirect("/");
         }
 
         const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
