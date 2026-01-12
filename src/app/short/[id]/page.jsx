@@ -224,7 +224,7 @@ const jsonLdFull = {
           "caption": post.title || "",
         "thumbnailUrl": [thumbnail || DEFAULT_THUMB],
         ...(mediaUrl ? { "contentUrl": mediaUrl } : {}),
-        "embedUrl": `${SITE_ROOT}/short/${post._id}`, 
+        // "embedUrl": `${SITE_ROOT}/short/${post._id}`, 
           // Shorts format
           "width": 1080,
           "height": 1920,
