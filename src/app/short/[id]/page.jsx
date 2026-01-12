@@ -217,57 +217,37 @@ const jsonLdFull = {
   ? [
       {
         "@type": "VideoObject",
-        "@id": `${SITE_ROOT}/short/${post._id}#video`,
-        name: post.title || "FondPeace Video",
-        description: post.title || "FondPeace video post",
+             name: post.title || "FondPeace Video",
+             headline: post.title || "FondPeace Video",
+             description: buildDescription(post),
+             thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+             ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
+             embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
+             uploadDate: post.createdAt
+   ? new Date(post.createdAt).toISOString()
+   : new Date().toISOString(),
+             // ... (rest of the schema properties)
+             duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
+             author: { "@type": "Person", name: authorName },
+             publisher: {
+   "@type": "Organization",
+   name: "FondPeace",
+   url: "https://www.fondpeace.com",
+   logo: {
+     "@type": "ImageObject",
+     url: "https://www.fondpeace.com/Fondpeace.jpg",
+     width: 600,
+     height: 60
+   }
+ },
 
-        thumbnailUrl: [
-          toAbsolute(post.thumbnail || post.media || DEFAULT_AVATAR)
-        ],
-
-        contentUrl: toAbsolute(post.media),
-        uploadDate: new Date(post.createdAt).toISOString(),
-
-        duration:
-          post.duration &&
-          (Number(post.duration)
-            ? secToISO(Number(post.duration))
-            : post.duration),
-
-        author: {
-          "@type": "Person",
-          name: post.userId?.username || "FondPeace",
-          url: `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
-        },
-
-        publisher: {
-          "@type": "Organization",
-          name: "FondPeace",
-          url: SITE_ROOT,
-          logo: {
-            "@type": "ImageObject",
-            url: `${SITE_ROOT}/Fondpeace.jpg`,
-            width: 600,
-            height: 60
-          }
-        },
-
-        interactionStatistic: buildInteractionSchema(post),
-
-        keywords: extractKeywords(post),
-        inLanguage: "hi-IN",
-        isFamilyFriendly: true,
-        isAccessibleForFree: true,
-
-        potentialAction: {
-          "@type": "WatchAction",
-          target: `${SITE_ROOT}/short/${post._id}`
-        },
-
-        mainEntityOfPage: {
-          "@type": "WebPage",
-          "@id": `${SITE_ROOT}/short/${post._id}`
-        }
+             interactionStatistic: buildInteractionSchema(post),
+             keywords: extractKeywords(post),
+             inLanguage: "hi-IN",
+             potentialAction: { "@type": "WatchAction", target: pageUrl },
+             isFamilyFriendly: true,
+             isAccessibleForFree: true,
+             mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
       }
     ]
   : []),
