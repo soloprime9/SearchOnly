@@ -91,7 +91,7 @@ function buildDescription(post) {
     const comments = commentsCount(post);
     const views = viewsCount(post);
     const title = post?.title || "FondPeace Video";
-    return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
+    return `${title} uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
 }
 
 
@@ -112,18 +112,18 @@ export async function generateMetadata({ params }) {
     const thumb = toAbsolute(post.thumbnail || mediaUrl); // Fallback to media if no thumb
     const pageUrl = `${SITE_ROOT}/short/${id}`;
 
-    let rawTitle = post.title || "FondPeace Video";
-    if (rawTitle.length > 60) rawTitle = rawTitle.slice(0, 57) + "...";
+    let title = post.title || "FondPeace Video";
+    
     const titleTag = `${rawTitle} | FondPeace`;
-    const description = buildDescription(post);
+    const description = post.title || "FondPeace Viral Video Description";
 
     return {
-      title: titleTag,
+      title: title,
       description,
       keywords: extractKeywords(post),
       alternates: { canonical: pageUrl },
       openGraph: {
-        title: titleTag,
+        title: title,
         description,
         url: pageUrl,
         siteName: "FondPeace",
@@ -131,8 +131,8 @@ export async function generateMetadata({ params }) {
         images: [
           {
             url: thumb,
-            width: 1280,
-            height: 720,
+            width: 1080,
+            height: 1920,
             alt: titleTag,
           },
         ],
@@ -140,22 +140,22 @@ export async function generateMetadata({ params }) {
         videos: [
           {
             url: mediaUrl,
-            width: 1280,
-            height: 720,
+            width: 1080,
+            height: 1920,
             type: "video/mp4",
           },
         ],
       },
       twitter: {
         card: "player", // For embedded player with play button
-        title: titleTag,
+        title: title,
         description,
         image: thumb, // Fallback static thumbnail (important!)
-        site: "@yourfondpeacehandle", // Optional: Add your X handle if available
+        site: "@FondPeaceTech", // Optional: Add your X handle if available
         player: {
           url: pageUrl, // The page URL (must contain playable video; X embeds the page in iframe)
-          width: 1280,
-          height: 720,
+          width: 1080,
+          height: 1920,
           // stream: mediaUrl, // Optional: Direct stream URL if supported (for better performance)
         },
       },
@@ -202,102 +202,101 @@ export default async function Page({ params }) {
 const jsonLdFull = {
   "@context": "https://schema.org",
   "@graph": [
-    // 1️⃣ WebPage
+    // 1️⃣ WebPage (The Parent Container)
     {
       "@type": "WebPage",
       "@id": `${SITE_ROOT}/short/${post._id}#webpage`,
-      url: `${SITE_ROOT}/short/${post._id}`,
-      name: post.title ? post.title.substring(0, 110) : "FondPeace Post",
-      mainEntity: { "@id": `${SITE_ROOT}/short/${post._id}#post` },
-      breadcrumb: { "@id": `${SITE_ROOT}/short/${post._id}#breadcrumb` }
+      "url": `${SITE_ROOT}/short/${post._id}`,
+      "name": post.title || "FondPeace Global Post",
+      "mainEntity": { "@id": isVideo ? `${SITE_ROOT}/short/${post._id}#video` : `${SITE_ROOT}/short/${post._id}#post` },
+      "breadcrumb": { "@id": `${SITE_ROOT}/short/${post._id}#breadcrumb` },
+      // Tells Google this page is available to everyone
+      "inLanguage": "mul" 
     },
 
-    // 2️⃣ VideoObject (ONLY when media is video)
-    ...(isVideo
-  ? [
+    // 2️⃣ VideoObject (The Global Video)
+    ...(isVideo ? [
       {
         "@type": "VideoObject",
-             name: post.title || "FondPeace Video",
-             headline: post.title || "FondPeace Video",
-             description: buildDescription(post),
-             thumbnailUrl: [thumbnail || DEFAULT_THUMB],
-             ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
-             embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
-             uploadDate: post.createdAt
-   ? new Date(post.createdAt).toISOString()
-   : new Date().toISOString(),
-             // ... (rest of the schema properties)
-             duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
-             author: { "@type": "Person", name: authorName },
-             publisher: {
-   "@type": "Organization",
-   name: "FondPeace",
-   url: "https://www.fondpeace.com",
-   logo: {
-     "@type": "ImageObject",
-     url: "https://www.fondpeace.com/Fondpeace.jpg",
-     width: 600,
-     height: 60
-   }
- },
+        "@id": `${SITE_ROOT}/short/${post._id}#video`, 
+        "name": post.title || "FondPeace Video",
+        "description": post.title,
+          "caption": post.title || "",
+        "thumbnailUrl": [thumbnail || DEFAULT_THUMB],
+        ...(mediaUrl ? { "contentUrl": mediaUrl } : {}),
+        "embedUrl": `${SITE_ROOT}/short/${post._id}`, 
+          // Shorts format
+          "width": 1080,
+          "height": 1920,
+        "uploadDate": post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
+        "duration": post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : "PT30S",
+        "author": { 
+          "@type": "Person", 
+          "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
+          "name": authorName 
+        },
+          // Link video → creator profile (Instagram style)
+  "isPartOf": {
+    "@type": "ProfilePage",
+    "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
+  },
+        "publisher": {
+          "@type": "Organization",
+          "name": "FondPeace",
+          "url": "https://www.fondpeace.com",
+          "logo": { "@type": "ImageObject", "url": "https://www.fondpeace.com/Fondpeace.jpg" }
+        },
+        
+        // --- GLOBAL SETTINGS ---
+        "inLanguage": "mul", // Standard for multi-language or global content
+        "regionsAllowed": [], // Empty array = Allowed in all countries
+        "isFamilyFriendly": true,
+        // -----------------------
 
-             interactionStatistic: buildInteractionSchema(post),
-             keywords: extractKeywords(post),
-             inLanguage: "hi-IN",
-             potentialAction: { "@type": "WatchAction", target: pageUrl },
-             isFamilyFriendly: true,
-             isAccessibleForFree: true,
-             mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+        "potentialAction": { 
+          "@type": "WatchAction", 
+          "target": `${SITE_ROOT}/short/${post._id}` 
+        },
+        "mainEntityOfPage": { "@id": `${SITE_ROOT}/short/${post._id}#webpage` }
       }
-    ]
-  : []),
-
+    ] : []),
 
     // 3️⃣ SocialMediaPosting
     {
       "@type": "SocialMediaPosting",
       "@id": `${SITE_ROOT}/short/${post._id}#post`,
-      url: `${SITE_ROOT}/short/${post._id}`,
-      headline: post.title ? post.title.substring(0, 110) : "FondPeace Post",
-      articleBody: post.title || "",
-      dateCreated: new Date(post.createdAt).toISOString(),
-      dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
-      mainEntityOfPage: { "@id": `${SITE_ROOT}/short/${post._id}#webpage` },
-
-      ...(isVideo && {
-        sharedContent: { "@id": `${SITE_ROOT}/short/${post._id}#video` }
-      }),
-
-      author: {
+      "url": `${SITE_ROOT}/short/${post._id}`,
+      "headline": post.title || "FondPeace Viral Video Post",
+      "articleBody": post.title || "",
+      "dateCreated": new Date(post.createdAt).toISOString(),
+      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+      "mainEntityOfPage": { "@id": `${SITE_ROOT}/short/${post._id}#webpage` },
+      ...(isVideo && { "sharedContent": { "@id": `${SITE_ROOT}/short/${post._id}#video` } }),
+      "author": {
         "@type": "Person",
         "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
-        name: post.userId?.username || "FondPeace",
-        url: `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
-        image: toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+        "name": post.userId?.username || "FondPeace",
+        "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
+        "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
       },
-
-      image: {
+      "image": {
         "@type": "ImageObject",
-        url: toAbsolute(post.media || post.thumbnail || DEFAULT_AVATAR),
-        width: 1080,
-        height: 1350,
-        representativeOfPage: true
+        "url": toAbsolute(thumbnail || post.thumbnail || DEFAULT_AVATAR),
+        "width": 1080,
+        "height": 1350
       },
-
-      commentCount: commentsCount(post),
-      interactionStatistic: buildInteractionSchema(post),
-
-      comment: (post.comments || []).map((c) => ({
+      "commentCount": commentsCount(post),
+      "interactionStatistic": buildInteractionSchema(post),
+      "comment": (post.comments || []).map((c) => ({
         "@type": "Comment",
         "@id": `${SITE_ROOT}/short/${post._id}#comment-${c._id}`,
-        text: c.CommentText || "",
-        dateCreated: new Date(c.createdAt).toISOString(),
-        author: {
+        "text": c.CommentText || "",
+        "dateCreated": new Date(c.createdAt).toISOString(),
+        "author": {
           "@type": "Person",
-          name: c.userId?.username || "User",
-          url: `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
-        },
-        interactionStatistic: buildCommentInteractionSchema(c)
+          "name": c.userId?.username || "User",
+          "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+        }
       }))
     },
 
@@ -305,25 +304,10 @@ const jsonLdFull = {
     {
       "@type": "BreadcrumbList",
       "@id": `${SITE_ROOT}/short/${post._id}#breadcrumb`,
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "FondPeace",
-          item: SITE_ROOT
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: post.userId?.username || "User",
-          item: `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: post.title ? post.title.substring(0, 110) : "Post",
-          item: `${SITE_ROOT}/short/${post._id}`
-        }
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
+        { "@type": "ListItem", "position": 2, "name": post.userId?.username || "User", "item": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}` },
+        { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": `${SITE_ROOT}/short/${post._id}` }
       ]
     }
   ]
@@ -380,7 +364,7 @@ const jsonLdFull = {
           }}
         >
           <h1 itemProp="name">{post.title}</h1>
-          <p itemProp="description">{buildDescription(post)}</p>
+          <p itemProp="description">{post.title}</p>
 
           <video
             itemProp="contentUrl"
