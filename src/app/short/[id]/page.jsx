@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import { redirect } from "next/navigation";
-
+import SinglePostPage from "@/components/SinglePostPage";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
 
 // Server-side Constants
