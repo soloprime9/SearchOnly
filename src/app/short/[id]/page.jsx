@@ -314,19 +314,20 @@ const jsonLdFull = {
 };
 
         
-        return (
-            <main className="w-full min-h-screen bg-white">
+         
+  return (
+  <main className="w-full min-h-screen bg-white">
 
-                {/* JSON-LD: क्रॉलर को इंडेक्स करने के लिए केवल वर्तमान वीडियो का डेटा देता है */}
-                <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFull) }}
-    />
+    {/* JSON-LD */}
+   
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify(jsonLdFull)
+  }}
+/>
 
-                {/* Status Bar, etc. */}
-                {/* <StatusBar /> */}
-                
-    {/* HEADER – Instagram style */}
+       {/* HEADER – Instagram style */}
 <header className="bg-white  sticky top-0 z-50">
   <div className="max-w-3xl mx-auto px-1 mb-2 h-12 flex items-center justify-between">
     
@@ -349,120 +350,76 @@ const jsonLdFull = {
   </div>
 </header>
 
-                
-                {/* Hidden HTML VideoObject for SEO (authority-level) */}
-        <section
-          itemScope
-          itemType="https://schema.org/VideoObject"
-          style={{
-            position: "absolute",
-            left: "-9999px",
-            top: 0,
-            width: "1px",
-            height: "1px",
-            overflow: "hidden"
-          }}
-        >
-          <h1 itemProp="name">{post.title}</h1>
-          <p itemProp="description">{post.title}</p>
 
-          <video
-            itemProp="contentUrl"
-            src={mediaUrl}
-            poster={thumbnail}
-            preload="metadata"
-            controls
-          >
-            <source src={mediaUrl} type="video/mp4" />
-          </video>
+    <section className="max-w-3xl mx-auto px-4 py-8">
+      <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
 
-          <meta itemProp="thumbnailUrl" content={thumbnail} />
-          <meta itemProp="uploadDate" content={post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString()} />
-          <meta itemProp="duration" content={post.duration ? (String(post.duration).startsWith("PT") ? post.duration : secToISO(Number(post.duration))) : "PT0M30S"} />
 
-          <div itemProp="interactionStatistic" itemScope itemType="https://schema.org/InteractionCounter">
-            <meta itemProp="interactionType" content="https://schema.org/WatchAction" />
-            <meta itemProp="userInteractionCount" content={viewsCount(post)} />
-          </div>
 
-          <link itemProp="mainEntityOfPage" href={pageUrl} />
-
-          <div itemProp="author" itemScope itemType="https://schema.org/Person">
-            <meta itemProp="name" content={authorName} />
-          </div>
-
-          <div itemProp="publisher" itemScope itemType="https://schema.org/Organization">
-            <meta itemProp="name" content="FondPeace" />
-            <meta itemProp="url" content={SITE_ROOT} />
-            <div itemProp="logo" itemScope itemType="https://schema.org/ImageObject">
-              <meta itemProp="url" content={DEFAULT_THUMB} />
-              <meta itemProp="width" content="600" />
-              <meta itemProp="height" content="60" />
+        {/* User Profile */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <img
+              src={post.user?.profilePic || "/Fondpeace.jpg"}
+              alt={post.userId?.username || "User"}
+              className="w-11 h-11 rounded-full object-cover border"
+              loading="lazy"
+            />
+            <div>
+              <span className="font-semibold text-gray-800 block">
+                {post.userId?.username || "Anonymous"}
+              </span>
+              <span className="text-gray-500 text-sm">
+                {new Date(post.createdAt).toLocaleDateString()}
+              </span>
             </div>
           </div>
 
-          <meta itemProp="keywords" content={extractKeywords(post)} />
-          <meta itemProp="isFamilyFriendly" content="true" />
-        </section>
-
-
-                
-                {/* CONTENT */}
-    <section className="max-w-3xl mx-auto px-1 py-1">
-      <article className="bg-white p-1 shadow-md rounded-2xl overflow-hidden">
-
-        {/* Reels Feed (UNCHANGED LOGIC) */}
-        <div className="w-full p-1">
-          <ReelsFeedWrapper
-            initialPost={post}
-            initialRelated={related}
-          />
+          {/* Menu button */}
+          <button className="text-gray-500 hover:text-black transition">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v.01M12 12v.01M12 18v.01" />
+            </svg>
+          </button>
         </div>
 
+        {/* Post Title */}
+        <h1 className="text-gray-800 mb-4">
+          {post.title}
+        </h1>
+
+        {/* Media Section */}
+        {isVideo ? (
+          <video
+            src={mediaUrl}
+            poster={thumbnail}
+            controls
+            className="rounded-xl w-full max-h-[480px] bg-black"
+          />
+        ) : isImage ? (
+          <img
+            src={mediaUrl}
+            alt={post.title}
+            className="rounded-xl w-full object-cover"
+            loading="lazy"
+          />
+        ) : null}
+
+        {/* Post Content */}
+        <SinglePostPage initialPost={post} />
       </article>
     </section>
 
-                {/* {Array.isArray(related) && related.length > 0 && (
-  <aside className="max-w-5xl mx-auto mt-10 px-4">
-    <p className="text-xl font-semibold mb-4 text-gray-900">Related Posts</p>
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-      {related.map((r) => {
-        const thumb = toAbsolute(r.thumbnail || "");
-        return (
-          <a
-            key={r._id}
-            href={`/short/${r._id}`}
-            className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
-          >
-            <div className="w-full bg-gray-100">
-              <img
-                src={thumb}
-                alt={r.title}
-                className="w-full h-full object-contain"
-                loading="lazy"
-              />
-            </div>
+        
 
-            <div className="p-3">
-              <p className="font-medium text-gray-900 line-clamp-2 text-sm">
-                {r.title}
-              </p>
-
-              <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
-                <FaHeart className="text-red-500" /> {likesCount(r)} 
-                <span>•</span>
-                <FaCommentDots /> {commentsCount(r)} 
-                <span>•</span>
-                <FaEye /> {viewsCount(r) || 0}
-              </div>
-            </div>
-          </a>
-        );
-      })}
-    </div>
-  </aside>
-)} */}
+     
                 
             </main>
         );
@@ -479,7 +436,20 @@ const jsonLdFull = {
 
 
 
+        {/* /* {/* CONTENT */} */
+    <section className="max-w-3xl mx-auto px-1 py-1">
+      <article className="bg-white p-1 shadow-md rounded-2xl overflow-hidden">
 
+        {/* Reels Feed (UNCHANGED LOGIC) */}
+        <div className="w-full p-1">
+          <ReelsFeedWrapper
+            initialPost={post}
+            initialRelated={related}
+          />
+        </div>
+
+      </article>
+    </section> */}
 
 
 // // app/short/[id]/page.jsx
