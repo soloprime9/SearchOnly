@@ -120,7 +120,7 @@ export async function generateMetadata({ params }) {
   const pageUrl = `${SITE_ROOT}/post/${id}`;
 
   try {
-    const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
     const data = await res.json();
     const post = data?.post;
 
@@ -176,7 +176,7 @@ twitter: {
 /* ------------------------------ PAGE ------------------------------ */
 export default async function Page({ params }) {
   const id = params?.id;
-  const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
 
   if (!res.ok) {
     console.log("API error", await res.text());
