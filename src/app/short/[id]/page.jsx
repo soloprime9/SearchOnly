@@ -117,49 +117,50 @@ export async function generateMetadata({ params }) {
     
     const description = post.title;
 
-    return {
-      title: title,
-      description,
-      keywords: extractKeywords(post),
-      alternates: { canonical: pageUrl },
-      openGraph: {
-        title: title,
-        description,
-        url: pageUrl,
-        siteName: "FondPeace",
-        type: "video.other", // Root level for better support
-        images: [
-          {
-            url: thumb,
-            width: 1080,
-            height: 1920,
-            alt: title,
-          },
-        ],
-        // Keep videos for LinkedIn/FB compatibility, but WhatsApp will use images
-        videos: [
-          {
-            url: mediaUrl,
-            width: 1080,
-            height: 1920,
-            type: "video/mp4",
-          },
-        ],
+
+      return {
+  title: title,
+  description: description,
+  keywords: extractKeywords(post),
+  alternates: { canonical: pageUrl },
+  openGraph: {
+    title: title,
+    description: description,
+    url: pageUrl,
+    siteName: "FondPeace",
+    type: "video.other", // Better for vertical/reels content
+    images: [
+      {
+        url: thumb,
+        width: 1080,
+        height: 1920,
+        alt: title,
       },
-      twitter: {
-        card: "player", // For embedded player with play button
-        title: title,
-        description,
-        image: thumb, // Fallback static thumbnail (important!)
-        site: "@FondPeaceTech", // Optional: Add your X handle if available
-        player: {
-          url: pageUrl, // The page URL (must contain playable video; X embeds the page in iframe)
-          width: 1080,
-          height: 1920,
-          // stream: mediaUrl, // Optional: Direct stream URL if supported (for better performance)
-        },
+    ],
+    videos: [
+      {
+        url: mediaUrl,
+        width: 1080,
+        height: 1920,
+        type: "video/mp4",
+        secureUrl: mediaUrl, // Required by some social crawlers
       },
-    };
+    ],
+  },
+  twitter: {
+    card: "player",
+    title: title,
+    description: description,
+    images: [thumb], // Twitter looks for 'images' array or 'image' string
+    site: "@FondPeaceTech",
+    player: {
+      url: `${SITE_ROOT}/short/${post._id}?embed=true`, // Ideally a clean player-only URL
+      width: 1080,
+      height: 1920,
+      stream: mediaUrl, // VERY IMPORTANT: Allows direct playback inside the X feed
+    },
+  },
+};
   } catch (err) {
     console.log("Metadata error:", err);
     return { title: "FondPeace Video" };
@@ -191,126 +192,58 @@ export default async function Page({ params }) {
         const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
         const pageUrl = `${SITE_ROOT}/short/${post._id || id}`;
         const authorName = post?.userId?.username;
-        const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || (post.mediaType && String(post.mediaType).startsWith("video")));
 
+        const isVideo =
+  post.mediaType?.startsWith("video") ||
+  /\.(mp4|webm|mov|m3u8)$/i.test(mediaUrl || "");
 
+        const authorId = `${SITE_ROOT}/profile/${post.userId?.username}#person`;
 
-
- 
-    
-
-const jsonLdFull = {
-  "@context": "https://schema.org",
-  "@graph": [
-    // 1️⃣ WebPage (The Parent Container)
-    {
-      "@type": "WebPage",
-      "@id": `${SITE_ROOT}/short/${post._id}#webpage`,
-      "url": `${SITE_ROOT}/short/${post._id}`,
-      "name": post.title,
-      "mainEntity": { "@id": isVideo ? `${SITE_ROOT}/short/${post._id}#video` : `${SITE_ROOT}/short/${post._id}#post` },
-      "breadcrumb": { "@id": `${SITE_ROOT}/short/${post._id}#breadcrumb` },
-      // Tells Google this page is available to everyone
-      "inLanguage": "mul" 
+// This is the cleaned, 100% Video-Focused Schema
+const videoSchema = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": post.title || "FondPeace Video",
+    "headline": post.title || "FondPeace Video",
+    "description": buildDescription(post),
+    "thumbnailUrl": [thumbnail || DEFAULT_THUMB],
+    // Ensure contentUrl points directly to the .mp4 file
+    ...(mediaUrl ? { "contentUrl": mediaUrl } : {}),
+    // Using the page URL as embedUrl is common for Reels/Shorts
+    "embedUrl": `${SITE_ROOT}/short/${post._id || id}`, 
+    "width": 1080, // Add this
+    "height": 1920, // Add this
+    "uploadDate": post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
+    "duration": post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : "PT0M30S",
+    "author": { 
+        "@type": "Person", 
+        "name": authorName,
+        "url": `${SITE_ROOT}/profile/${post.userId?.username}` 
     },
-
-    // 2️⃣ VideoObject (The Global Video)
-    ...(isVideo ? [
-      {
-        "@type": "VideoObject",
-        "@id": `${SITE_ROOT}/short/${post._id}#video`, 
-        "name": post.title,
-        "description": post.title,
-          "caption": post.title,
-        "thumbnailUrl": [thumbnail || DEFAULT_THUMB],
-        ...(mediaUrl ? { "contentUrl": mediaUrl } : {}),
-        // "embedUrl": `${SITE_ROOT}/short/${post._id}`, 
-          // Shorts format
-          "width": 1080,
-          "height": 1920,
-        "uploadDate": post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
-        "duration": post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : "PT30S",
-        "author": { 
-          "@type": "Person", 
-          "@id": `${SITE_ROOT}/profile/${post.userId?.username}`,
-          "name": authorName 
-        },
-          // Link video → creator profile (Instagram style)
-  "isPartOf": {
-    "@type": "ProfilePage",
-    "@id": `${SITE_ROOT}/profile/${post.userId?.username }`
-  },
-        "publisher": {
-          "@type": "Organization",
-          "name": "FondPeace",
-          "url": "https://www.fondpeace.com",
-          "logo": { "@type": "ImageObject", "url": "https://www.fondpeace.com/Fondpeace.jpg" }
-        },
-        
-        // --- GLOBAL SETTINGS ---
-        "inLanguage": "mul", // Standard for multi-language or global content
-        "regionsAllowed": [], // Empty array = Allowed in all countries
-        "isFamilyFriendly": true,
-        // -----------------------
-
-        "potentialAction": { 
-          "@type": "WatchAction", 
-          "target": `${SITE_ROOT}/short/${post._id}` 
-        },
-        "mainEntityOfPage": { "@id": `${SITE_ROOT}/short/${post._id}#webpage` }
-      }
-    ] : []),
-
-    // 3️⃣ SocialMediaPosting
-    {
-      "@type": "SocialMediaPosting",
-      "@id": `${SITE_ROOT}/short/${post._id}#post`,
-      "url": `${SITE_ROOT}/short/${post._id}`,
-      "headline": post.title,
-      "articleBody": post.title ,
-      "dateCreated": new Date(post.createdAt).toISOString(),
-      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-      "mainEntityOfPage": { "@id": `${SITE_ROOT}/short/${post._id}#webpage` },
-      ...(isVideo && { "sharedContent": { "@id": `${SITE_ROOT}/short/${post._id}#video` } }),
-      "author": {
-        "@type": "Person",
-        "@id": `${SITE_ROOT}/profile/${post.userId?.username }#person`,
-        "name": post.userId?.username,
-        "url": `${SITE_ROOT}/profile/${post.userId?.username}`,
-        "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
-      },
-      "image": {
-        "@type": "ImageObject",
-        "url": toAbsolute(thumbnail || post.thumbnail || DEFAULT_AVATAR),
-        "width": 1080,
-        "height": 1350
-      },
-      "commentCount": commentsCount(post),
-      "interactionStatistic": buildInteractionSchema(post),
-      "comment": (post.comments || []).map((c) => ({
-        "@type": "Comment",
-        "@id": `${SITE_ROOT}/short/${post._id}#comment-${c._id}`,
-        "text": c.CommentText || "",
-        "dateCreated": new Date(c.createdAt).toISOString(),
-        "author": {
-          "@type": "Person",
-          "name": c.userId?.username || "User",
-          "url": `${SITE_ROOT}/profile/${c.userId?.username }`
+    "publisher": {
+        "@type": "Organization",
+        "name": "FondPeace",
+        "url": "https://www.fondpeace.com",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.fondpeace.com/Fondpeace.jpg",
+            "width": 600,
+            "height": 60
         }
-      }))
     },
-
-    // 4️⃣ Breadcrumb
-    {
-      "@type": "BreadcrumbList",
-      "@id": `${SITE_ROOT}/short/${post._id}#breadcrumb`,
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
-        { "@type": "ListItem", "position": 2, "name": post.userId?.username || "User", "item": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}` },
-        { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": `${SITE_ROOT}/short/${post._id}` }
-      ]
-    }
-  ]
+    "interactionStatistic": buildInteractionSchema(post),
+    "keywords": extractKeywords(post),
+    
+    "potentialAction": { 
+        "@type": "WatchAction", 
+        "target": pageUrl 
+    },
+    "isFamilyFriendly": true,
+    "isAccessibleForFree": true,
+    "mainEntityOfPage": { 
+        "@type": "WebPage", 
+        "@id": pageUrl 
+    },
 };
 
         
@@ -323,7 +256,7 @@ const jsonLdFull = {
 <script
   type="application/ld+json"
   dangerouslySetInnerHTML={{
-    __html: JSON.stringify(jsonLdFull)
+    __html: JSON.stringify(videoSchema)
   }}
 />
 
@@ -351,8 +284,8 @@ const jsonLdFull = {
 </header>
 
 
-    <section className="max-w-3xl mx-auto px-4 py-8">
-      <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
+    <section className="max-w-3xl mx-auto px-1 py-2">
+      <section className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
 
 
 
@@ -389,31 +322,33 @@ const jsonLdFull = {
           </button>
         </div>
 
-        {/* Post Title */}
+        
+
+        {/* Media Section – VIDEO ONLY */}
+{isVideo && mediaUrl ? (
+  <video
+  src={mediaUrl}
+  itemProp="contentUrl"  // Tells Google this is the video file
+  poster={thumbnail}
+  itemProp="thumbnailUrl" // Tells Google this is the image
+  controls
+  muted
+  playsInline
+  preload="metadata"
+  className="rounded-xl w-full aspect-[9/16] max-h-[80vh] bg-black object-contain"
+>
+  <source src={mediaUrl} type="video/mp4" />
+</video>
+) : null}
+          {/* Post Title */}
         <h1 className="text-gray-800 mb-4">
           {post.title}
         </h1>
 
-        {/* Media Section */}
-        {isVideo ? (
-          <video
-            src={mediaUrl}
-            poster={thumbnail}
-            controls
-            className="rounded-xl w-full max-h-[480px] bg-black"
-          />
-        ) : isImage ? (
-          <img
-            src={mediaUrl}
-            alt={post.title}
-            className="rounded-xl w-full object-cover"
-            loading="lazy"
-          />
-        ) : null}
 
         {/* Post Content */}
         <SinglePostPage initialPost={post} />
-      </article>
+      </section>
     </section>
 
 
