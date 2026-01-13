@@ -90,7 +90,7 @@ function buildDescription(post) {
     const likes = likesCount(post);
     const comments = commentsCount(post);
     const views = viewsCount(post);
-    const title = post?.title || "FondPeace Video";
+    const title = post?.title;
     return `${title} uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
 }
 
@@ -112,10 +112,10 @@ export async function generateMetadata({ params }) {
     const thumb = toAbsolute(post.thumbnail || mediaUrl); // Fallback to media if no thumb
     const pageUrl = `${SITE_ROOT}/short/${id}`;
 
-    let title = post.title || "FondPeace Video";
+    let title = post.title;
     
-    const titleTag = `${rawTitle} | FondPeace`;
-    const description = post.title || "FondPeace Viral Video Description";
+    
+    const description = post.title;
 
     return {
       title: title,
@@ -190,7 +190,7 @@ export default async function Page({ params }) {
         const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
         const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
         const pageUrl = `${SITE_ROOT}/short/${post._id || id}`;
-        const authorName = post?.userId?.username || "FondPeace";
+        const authorName = post?.userId?.username;
         const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || (post.mediaType && String(post.mediaType).startsWith("video")));
 
 
@@ -207,7 +207,7 @@ const jsonLdFull = {
       "@type": "WebPage",
       "@id": `${SITE_ROOT}/short/${post._id}#webpage`,
       "url": `${SITE_ROOT}/short/${post._id}`,
-      "name": post.title || "FondPeace Global Post",
+      "name": post.title,
       "mainEntity": { "@id": isVideo ? `${SITE_ROOT}/short/${post._id}#video` : `${SITE_ROOT}/short/${post._id}#post` },
       "breadcrumb": { "@id": `${SITE_ROOT}/short/${post._id}#breadcrumb` },
       // Tells Google this page is available to everyone
@@ -219,9 +219,9 @@ const jsonLdFull = {
       {
         "@type": "VideoObject",
         "@id": `${SITE_ROOT}/short/${post._id}#video`, 
-        "name": post.title || "FondPeace Video",
+        "name": post.title,
         "description": post.title,
-          "caption": post.title || "",
+          "caption": post.title,
         "thumbnailUrl": [thumbnail || DEFAULT_THUMB],
         ...(mediaUrl ? { "contentUrl": mediaUrl } : {}),
         // "embedUrl": `${SITE_ROOT}/short/${post._id}`, 
@@ -232,13 +232,13 @@ const jsonLdFull = {
         "duration": post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : "PT30S",
         "author": { 
           "@type": "Person", 
-          "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
+          "@id": `${SITE_ROOT}/profile/${post.userId?.username`,
           "name": authorName 
         },
           // Link video → creator profile (Instagram style)
   "isPartOf": {
     "@type": "ProfilePage",
-    "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
+    "@id": `${SITE_ROOT}/profile/${post.userId?.username }`
   },
         "publisher": {
           "@type": "Organization",
@@ -266,17 +266,17 @@ const jsonLdFull = {
       "@type": "SocialMediaPosting",
       "@id": `${SITE_ROOT}/short/${post._id}#post`,
       "url": `${SITE_ROOT}/short/${post._id}`,
-      "headline": post.title || "FondPeace Viral Video Post",
-      "articleBody": post.title || "",
+      "headline": post.title,
+      "articleBody": post.title ,
       "dateCreated": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
       "mainEntityOfPage": { "@id": `${SITE_ROOT}/short/${post._id}#webpage` },
       ...(isVideo && { "sharedContent": { "@id": `${SITE_ROOT}/short/${post._id}#video` } }),
       "author": {
         "@type": "Person",
-        "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
-        "name": post.userId?.username || "FondPeace",
-        "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
+        "@id": `${SITE_ROOT}/profile/${post.userId?.username }#person`,
+        "name": post.userId?.username,
+        "url": `${SITE_ROOT}/profile/${post.userId?.username}`,
         "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
       },
       "image": {
@@ -295,7 +295,7 @@ const jsonLdFull = {
         "author": {
           "@type": "Person",
           "name": c.userId?.username || "User",
-          "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+          "url": `${SITE_ROOT}/profile/${c.userId?.username }`
         }
       }))
     },
