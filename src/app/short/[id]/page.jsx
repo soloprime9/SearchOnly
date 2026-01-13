@@ -422,7 +422,7 @@ const jsonLdFull = {
       </article>
     </section>
 
-    {Array.isArray(related) && related.length > 0 && (
+                {/* {Array.isArray(related) && related.length > 0 && (
   <aside className="max-w-5xl mx-auto mt-10 px-4">
     <p className="text-xl font-semibold mb-4 text-gray-900">Related Posts</p>
 
@@ -462,7 +462,7 @@ const jsonLdFull = {
       })}
     </div>
   </aside>
-)}
+)} */}
                 
             </main>
         );
