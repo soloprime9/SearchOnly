@@ -133,7 +133,7 @@ export async function generateMetadata({ params }) {
             url: thumb,
             width: 1080,
             height: 1920,
-            alt: titleTag,
+            alt: title,
           },
         ],
         // Keep videos for LinkedIn/FB compatibility, but WhatsApp will use images
