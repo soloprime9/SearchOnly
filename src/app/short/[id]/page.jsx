@@ -103,7 +103,7 @@ export async function generateMetadata({ params }) {
 
   try {
     const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
-    if (!res.ok) return { title: "FondPeace Video" };
+    if (!res.ok) return { title: "FondPeace Video hello" };
 
     const { post } = await res.json();
     if (!post) return { title: "Video Not Found | FondPeace" };
@@ -161,7 +161,7 @@ export async function generateMetadata({ params }) {
       },
     };
   } catch (err) {
-    console.error("Metadata error:", err);
+    console.log("Metadata error:", err);
     return { title: "FondPeace Video" };
   }
 }
