@@ -232,7 +232,7 @@ const jsonLdFull = {
         "duration": post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : "PT30S",
         "author": { 
           "@type": "Person", 
-          "@id": `${SITE_ROOT}/profile/${post.userId?.username`,
+          "@id": `${SITE_ROOT}/profile/${post.userId?.username}`,
           "name": authorName 
         },
           // Link video → creator profile (Instagram style)
