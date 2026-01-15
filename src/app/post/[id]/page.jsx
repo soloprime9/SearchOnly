@@ -177,7 +177,7 @@ twitter: {
 /* ------------------------------ PAGE ------------------------------ */
 export default async function Page({ params }) {
   const id = params?.id;
-  const res = await fetch(`${API_BASE}/post/${id}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
 
   if (!res.ok) {
   const errorText = await res.text();
@@ -1979,6 +1979,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
