@@ -242,40 +242,61 @@ const related = data?.related ?? [];
 
       // 3️⃣ SocialMediaPosting
       {
-        "@type": "SocialMediaPosting",
-        "@id": `${pageUrl}#post`,
-        "url": pageUrl,
-        "headline": post.title || "FondPeace Post",
-        "articleBody": post.content || post.title || "",
-        "dateCreated": new Date(post.createdAt).toISOString(),
-        "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-        "mainEntityOfPage": { "@id": `${pageUrl}#webpage` },
-        ...(isImage || isVideo ? { "sharedContent": { "@id": `${pageUrl}#media` } } : {}),
+  "@type": "SocialMediaPosting",
+  "@id": `${pageUrl}#post`,
+  "url": pageUrl,
+  "headline": post.title || "FondPeace Post",
+  "articleBody": post.content || post.title || "",
+  "dateCreated": new Date(post.createdAt).toISOString(),
+  "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+  "mainEntityOfPage": { "@id": `${pageUrl}#webpage` },
 
-        "author": {
-          "@type": "Person",
-          "@id": `${SITE_ROOT}/profile/${authorName}#person`,
-          "name": authorName,
-          "url": `${SITE_ROOT}/profile/${authorName}`,
-          "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
-        },
+  ...(isImage || isVideo
+    ? { "sharedContent": { "@id": `${pageUrl}#media` } }
+    : {}),
 
-        "interactionStatistic": buildInteractionSchema(post),
-        "commentCount": commentsCount(post),
+  ...(isImage
+    ? {
+        image: {
+          "@type": "ImageObject",
+          "url": mediaUrl,
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    : isVideo
+    ? {
+        image: {
+          "@type": "ImageObject",
+          "url": post.thumbnail || DEFAULT_THUMB
+        }
+      }
+    : {}),
 
-        "comment": (post.comments || []).map((c) => ({
-          "@type": "Comment",
-          "@id": `${pageUrl}#comment-${c._id}`,
-          "text": c.CommentText || "",
-          "dateCreated": new Date(c.createdAt).toISOString(),
-          "author": {
-            "@type": "Person",
-            "name": c.userId?.username || "User",
-            "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
-          },
-          "interactionStatistic": buildCommentInteractionSchema(c)
-        }))
-      },
+  "author": {
+    "@type": "Person",
+    "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+    "name": authorName,
+    "url": `${SITE_ROOT}/profile/${authorName}`,
+    "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+  },
+
+  "interactionStatistic": buildInteractionSchema(post),
+  "commentCount": commentsCount(post),
+
+  "comment": (post.comments || []).map((c) => ({
+    "@type": "Comment",
+    "@id": `${pageUrl}#comment-${c._id}`,
+    "text": c.CommentText || "",
+    "dateCreated": new Date(c.createdAt).toISOString(),
+    "author": {
+      "@type": "Person",
+      "name": c.userId?.username || "User",
+      "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+    },
+    "interactionStatistic": buildCommentInteractionSchema(c)
+  }))
+},
 
       // 4️⃣ Breadcrumb
       {
@@ -1981,6 +2002,7 @@ const related = data?.related ?? [];
 // //     </main>
 // //   );
 // // }
+
 
 
 
