@@ -188,6 +188,8 @@ export default async function Page({ params }) {
 
   const data = await res.json();
   const post = data?.post;
+    console.log("Post: ", post);
+  const related = data?.related ?? [];
   if (!post) {
   console.error("POST IS NULL OR UNDEFINED", data);
   throw new Error("Post not found in API response");
@@ -1979,6 +1981,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
