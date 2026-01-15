@@ -280,9 +280,16 @@ const videoSchema = {
 <script
   type="application/ld+json"
   dangerouslySetInnerHTML={{
-    __html: JSON.stringify(videoSchema,breadcrumbSchema)
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        videoSchema,
+        breadcrumbSchema
+      ]
+    })
   }}
 />
+
 
        {/* HEADER – Instagram style */}
 <header className="bg-white  sticky top-0 z-50">
