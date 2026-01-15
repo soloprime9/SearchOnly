@@ -246,7 +246,31 @@ const videoSchema = {
     },
 };
 
-        
+  const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "FondPeace",
+      "item": SITE_ROOT
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": authorName,
+      "item": `${SITE_ROOT}/profile/${authorName}`
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": post.title || "Video",
+      "item": pageUrl
+    }
+  ]
+};
+      
          
   return (
   <main className="w-full min-h-screen bg-white">
@@ -256,7 +280,7 @@ const videoSchema = {
 <script
   type="application/ld+json"
   dangerouslySetInnerHTML={{
-    __html: JSON.stringify(videoSchema)
+    __html: JSON.stringify(videoSchema,breadcrumbSchema)
   }}
 />
 
