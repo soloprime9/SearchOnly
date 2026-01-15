@@ -180,20 +180,20 @@ export default async function Page({ params }) {
   const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
 
   if (!res.ok) {
-  const errorText = await res.text();
-  console.error("API ERROR:", res.status, errorText);
-  throw new Error(`API failed: ${res.status} - ${errorText}`);
+  console.error("API ERROR:", res.status, await res.text());
+  redirect("/");
 }
 
+const data = await res.json();
+const post = data?.post;
 
-  const data = await res.json();
-  const post = data?.post;
-    console.log("Post: ", post);
-  const related = data?.related ?? [];
-  if (!post) {
+if (!post) {
   console.error("POST IS NULL OR UNDEFINED", data);
-  throw new Error("Post not found in API response");
+  redirect("/");
 }
+
+const related = data?.related ?? [];
+
 
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
@@ -1981,6 +1981,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
