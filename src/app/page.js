@@ -206,7 +206,7 @@ if (collectionNode && posts.length > 0) {
   });
 }
 
-
+ 
   return (
     <>
       {/* Structured Data */}
