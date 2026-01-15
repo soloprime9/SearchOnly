@@ -174,9 +174,10 @@ twitter: {
 }
 
 /* ------------------------------ PAGE ------------------------------ */
+/* ------------------------------ PAGE ------------------------------ */
 export default async function Page({ params }) {
   const id = params?.id;
-  const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
+  const res = await fetch(`${API_BASE}/post/${id}`, { cache: "no-store" });
 
   if (!res.ok) {
     console.log("API error", await res.text());
@@ -185,80 +186,75 @@ export default async function Page({ params }) {
 
   const data = await res.json();
   const post = data?.post;
-  const related = data?.related ?? [];
-
-  if (!post) {
-    redirect("/");
-  }
+  if (!post) redirect("/");
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
   const mediaUrl = toAbsolute(post.media || post.mediaUrl);
-  const thumbnail = toAbsolute(post.thumbnail || mediaUrl);
   const authorName = post.userId?.username || "FondPeace";
 
+  const isVideo = mediaUrl?.endsWith(".mp4");
   const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
-  /* ---------------------- JSON-LD for Reddit-style Image Post ---------------------- */
+  /* ---------------------- JSON-LD for Reddit-style Social Post ---------------------- */
   const jsonLdRedditStyle = {
     "@context": "https://schema.org",
     "@graph": [
 
-      /* 1️⃣ WebPage */
+      // 1️⃣ WebPage
       {
         "@type": "WebPage",
         "@id": `${pageUrl}#webpage`,
         "url": pageUrl,
-        "name": post.title || "FondPeace Image Post",
+        "name": post.title || "FondPeace Post",
         "mainEntity": { "@id": `${pageUrl}#post` },
         "breadcrumb": { "@id": `${pageUrl}#breadcrumb` }
       },
 
-      /* 2️⃣ ImageObject */
-      {
-        "@type": "ImageObject",
-        "@id": `${pageUrl}#image`,
-        "url": mediaUrl,
-        "width": 1080,
-        "height": 1350,
-        "caption": post.title || "FondPeace Image Post",
-        "uploadDate": new Date(post.createdAt).toISOString(),
-        "author": {
-          "@type": "Person",
-          "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
-          "name": authorName,
-          "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
-          "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
-        }
-      },
+      // 2️⃣ Media Object (if exists)
+      ...(isImage || isVideo
+        ? [
+            {
+              "@type": isVideo ? "VideoObject" : "ImageObject",
+              "@id": `${pageUrl}#media`,
+              "url": mediaUrl,
+              "uploadDate": new Date(post.createdAt).toISOString(),
+              ...(isVideo
+                ? { "contentUrl": mediaUrl, "duration": post.duration ? secToISO(Number(post.duration)) : undefined }
+                : { "width": 1080, "height": 1350, "caption": post.title || "FondPeace Image Post" }),
+              "author": {
+                "@type": "Person",
+                "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+                "name": authorName,
+                "url": `${SITE_ROOT}/profile/${authorName}`,
+                "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+              }
+            }
+          ]
+        : []),
 
-      /* 3️⃣ SocialMediaPosting */
+      // 3️⃣ SocialMediaPosting
       {
         "@type": "SocialMediaPosting",
         "@id": `${pageUrl}#post`,
         "url": pageUrl,
-        "headline": post.title || "FondPeace Image Post",
-        "articleBody": post.title || "",
+        "headline": post.title || "FondPeace Post",
+        "articleBody": post.content || post.title || "",
         "dateCreated": new Date(post.createdAt).toISOString(),
         "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
         "mainEntityOfPage": { "@id": `${pageUrl}#webpage` },
+        ...(isImage || isVideo ? { "sharedContent": { "@id": `${pageUrl}#media` } } : {}),
 
-        /* Attach the image */
-        "sharedContent": { "@id": `${pageUrl}#image` },
-
-        /* Author Info */
         "author": {
           "@type": "Person",
-          "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
+          "@id": `${SITE_ROOT}/profile/${authorName}#person`,
           "name": authorName,
-          "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
+          "url": `${SITE_ROOT}/profile/${authorName}`,
           "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
         },
 
-        /* Interaction stats */
         "interactionStatistic": buildInteractionSchema(post),
         "commentCount": commentsCount(post),
 
-        /* Comments */
         "comment": (post.comments || []).map((c) => ({
           "@type": "Comment",
           "@id": `${pageUrl}#comment-${c._id}`,
@@ -273,29 +269,14 @@ export default async function Page({ params }) {
         }))
       },
 
-      /* 4️⃣ Breadcrumb */
+      // 4️⃣ Breadcrumb
       {
         "@type": "BreadcrumbList",
         "@id": `${pageUrl}#breadcrumb`,
         "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "FondPeace",
-            "item": SITE_ROOT
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": authorName,
-            "item": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": post.title || "Image Post",
-            "item": pageUrl
-          }
+          { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
+          { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
+          { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": pageUrl }
         ]
       }
     ]
@@ -307,10 +288,9 @@ export default async function Page({ params }) {
       {/* JSON-LD */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLdRedditStyle)
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdRedditStyle) }}
       />
+    
 
        {/* HEADER – Instagram style */}
 <header className="bg-white  sticky top-0 z-50">
@@ -1993,6 +1973,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
