@@ -9,18 +9,19 @@ const API_BASE = "https://backend-k.vercel.app";
    METADATA (GOOGLE SAFE)
 ========================= */
 export const metadata = {
-  title: "FondPeace | Trusted Community Platform for Open Conversations",
+  title: "FondPeace", // Brand-first title
   description:
     "FondPeace is an independent community platform for thoughtful discussions, idea sharing, and meaningful conversations built on trust and transparency.",
   keywords: [
     "FondPeace",
     "community platform",
-    "online discussions",
     "open conversations",
+    "online discussions",
     "share ideas",
     "Indian community platform",
   ],
   applicationName: "FondPeace",
+  themeColor: "#1A73E8",
   robots: {
     index: true,
     follow: true,
@@ -43,13 +44,13 @@ export const metadata = {
   openGraph: {
     type: "website",
     siteName: "FondPeace",
-    title: "FondPeace – A Trusted Community Platform",
+    title: "FondPeace",
     description:
       "Join FondPeace to discover meaningful discussions and participate in respectful community conversations.",
     url: "https://fondpeace.com",
     images: [
       {
-        url: "https://www.fondpeace.com/Fondpeace.jpg",
+        url: "https://fondpeace.com/FondPeace-1200x630.jpg",
         width: 1200,
         height: 630,
         alt: "FondPeace community platform",
@@ -58,19 +59,20 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FondPeace – Community Platform",
+    title: "FondPeace",
     description:
       "FondPeace is a trusted platform for discussions, ideas, and transparent conversations.",
-    images: ["https://www.fondpeace.com/Fondpeace.jpg"],
+    images: ["https://fondpeace.com/FondPeace-1200x630.jpg"],
   },
 };
 
 /* =========================
-   STRUCTURED DATA (E-E-A-T)
+   STRUCTURED DATA JSON-LD
 ========================= */
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
+    // Founder
     {
       "@type": "Person",
       "@id": "https://fondpeace.com/#author",
@@ -78,48 +80,83 @@ const structuredData = {
       url: "https://fondpeace.com/about",
       jobTitle: "Founder & Platform Editor",
       sameAs: [
-        "https://www.youtube.com/@DhakadKhabar",
-        "https://www.linkedin.com/in/aman-kumar"
-      ]
+        "http://www.youtube.com/@FondPeaceUpdate",
+        "https://www.instagram.com/fondpeacetecho/",
+         "https://x.com/FondPeaceTech",
+         "https://news.fondpeace.com/"
+         
+      ],
     },
+    // Organization
     {
       "@type": "Organization",
       "@id": "https://fondpeace.com/#organization",
       name: "FondPeace",
+      alternateName: "FondPeace Community",
       url: "https://fondpeace.com",
-      logo: "https://www.fondpeace.com/Fondpeace.jpg",
-      foundingDate: "2024",
-      founder: {
-        "@id": "https://fondpeace.com/#author"
+      logo: {
+        "@type": "ImageObject",
+        url: "https://fondpeace.com/FondPeace-1200x630.jpg",
+        width: 1200,
+        height: 630,
       },
+      foundingDate: "2024",
+      founder: { "@id": "https://fondpeace.com/#author" },
       sameAs: [
-        "https://www.youtube.com/@DhakadKhabar",
-        "https://www.linkedin.com/company/108773259/"
-      ]
+         "http://www.youtube.com/@FondPeaceUpdate",
+        "https://www.instagram.com/fondpeacetecho/",
+         "https://x.com/FondPeaceTech",
+         "https://news.fondpeace.com/"
+      ],
     },
+    // WebSite
     {
       "@type": "WebSite",
       "@id": "https://fondpeace.com/#website",
       url: "https://fondpeace.com",
       name: "FondPeace",
-      publisher: {
-        "@id": "https://fondpeace.com/#organization"
-      },
+      alternateName: "FondPeace Community Platform",
+      publisher: { "@id": "https://fondpeace.com/#organization" },
       potentialAction: {
         "@type": "SearchAction",
         target: "https://fondpeace.com/searchbro?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-  ]
+        "query-input": "required name=search_term_string",
+      },
+    },
+    // CollectionPage (Homepage)
+    {
+      "@type": "CollectionPage",
+      "@id": "https://fondpeace.com/#webpage",
+      url: "https://fondpeace.com",
+      name: "FondPeace",
+      description: "Latest discussions and shared ideas from the FondPeace community.",
+      publisher: { "@id": "https://fondpeace.com/#organization" },
+      breadcrumb: { "@id": "https://fondpeace.com/#breadcrumb" },
+      image: "https://fondpeace.com/FondPeace-1200x630.jpg",
+      mainEntityOfPage: { "@id": "https://fondpeace.com/#webpage" },
+      mainEntity: [],
+    },
+    // Single Breadcrumb for Homepage
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://fondpeace.com/#breadcrumb",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "FondPeace",
+          item: "https://fondpeace.com",
+        },
+      ],
+    },
+  ],
 };
 
 /* =========================
-   HOMEPAGE
+   HOMEPAGE COMPONENT
 ========================= */
 export default async function HomePage() {
-
-   let posts = [];
+  let posts = [];
 
   try {
     const res = await fetch(`${API_BASE}/post/mango/getall`, {
@@ -129,7 +166,47 @@ export default async function HomePage() {
   } catch (err) {
     console.error("Homepage feed fetch failed", err);
   }
-   
+
+  // Populate structuredData with posts for rich results
+  const collectionNode = structuredData["@graph"].find(
+  (node) => node["@type"] === "CollectionPage"
+);
+
+if (collectionNode && posts.length > 0) {
+  collectionNode.mainEntity = posts.map((post) => {
+    const isVideo = post.mediaType?.startsWith("video");
+
+    const postUrl = isVideo
+      ? `https://fondpeace.com/short/${post._id}`
+      : `https://fondpeace.com/post/${post._id}`;
+
+    const authorProfileUrl = post.userId?.username
+      ? `https://fondpeace.com/profile/${post.userId.username}`
+      : "https://fondpeace.com/";
+
+    return {
+      "@type": "DiscussionForumPosting",
+      "@id": `${postUrl}#discussion`,
+      "url": postUrl,
+      "headline": post.title || "FondPeace Post",
+      "description": post.title || "",
+      "author": {
+        "@type": "Person",
+        "name": post.userId?.username || "FondPeace",
+        "url": authorProfileUrl
+      },
+      "datePublished": post.createdAt,
+      "dateModified": post.updatedAt || post.createdAt,
+      "keywords": post.keywords || [],
+      "image": post.image || "https://fondpeace.com/FondPeace-1200x630.jpg",
+      "mainEntityOfPage": {
+        "@id": postUrl
+      }
+    };
+  });
+}
+
+
   return (
     <>
       {/* Structured Data */}
@@ -137,6 +214,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+
 
       {/* Performance */}
       <link rel="preconnect" href="https://backend-k.vercel.app" />
