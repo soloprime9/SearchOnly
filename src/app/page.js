@@ -167,7 +167,6 @@ export default async function HomePage() {
     console.error("Homepage feed fetch failed", err);
   }
 
-  // Populate structuredData with posts for rich results
   const collectionNode = structuredData["@graph"].find(
   (node) => node["@type"] === "CollectionPage"
 );
@@ -180,31 +179,53 @@ if (collectionNode && posts.length > 0) {
       ? `https://fondpeace.com/short/${post._id}`
       : `https://fondpeace.com/post/${post._id}`;
 
+    const postImage = isVideo
+      ? post.thumbnail || post.medias?.url || "https://fondpeace.com/FondPeace-1200x630.jpg"
+      : post.media || post.medias?.url || "https://fondpeace.com/FondPeace-1200x630.jpg";
+
     const authorProfileUrl = post.userId?.username
-      ? `https://fondpeace.com/profile/${post.userId.username}`
+      ? `https://fondpeace.com/profile/${encodeURIComponent(post.userId.username)}`
       : "https://fondpeace.com/";
 
     return {
       "@type": "DiscussionForumPosting",
       "@id": `${postUrl}#discussion`,
-      "url": postUrl,
-      "headline": post.title || "FondPeace Post",
-      "description": post.title || "",
-      "author": {
+      url: postUrl,
+
+      // Keep headline but neutralize Article inference
+      headline: post.title || "FondPeace Discussion",
+
+      author: {
         "@type": "Person",
-        "name": post.userId?.username || "FondPeace",
-        "url": authorProfileUrl
+        name: post.userId?.username || "FondPeace",
+        url: authorProfileUrl,
       },
-      "datePublished": post.createdAt,
-      "dateModified": post.updatedAt || post.createdAt,
-      "keywords": post.keywords || [],
-      "image": post.image || "https://fondpeace.com/FondPeace-1200x630.jpg",
-      "mainEntityOfPage": {
-        "@id": postUrl
-      }
+
+      datePublished: post.createdAt,
+      dateModified: post.updatedAt || post.createdAt,
+
+      image: postImage,
+
+      interactionStatistic: [
+        {
+          "@type": "InteractionCounter",
+          interactionType: { "@type": "LikeAction" },
+          userInteractionCount: post.likes?.length || 0,
+        },
+        {
+          "@type": "InteractionCounter",
+          interactionType: { "@type": "CommentAction" },
+          userInteractionCount: post.comments?.length || 0,
+        },
+      ],
+
+      mainEntityOfPage: {
+        "@id": postUrl,
+      },
     };
   });
 }
+
 
  
   return (
