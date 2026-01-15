@@ -180,13 +180,19 @@ export default async function Page({ params }) {
   const res = await fetch(`${API_BASE}/post/${id}`, { cache: "no-store" });
 
   if (!res.ok) {
-    console.log("API error", await res.text());
-    redirect("/");
-  }
+  const errorText = await res.text();
+  console.error("API ERROR:", res.status, errorText);
+  throw new Error(`API failed: ${res.status} - ${errorText}`);
+}
+
 
   const data = await res.json();
   const post = data?.post;
-  if (!post) redirect("/");
+  if (!post) {
+  console.error("POST IS NULL OR UNDEFINED", data);
+  throw new Error("Post not found in API response");
+}
+
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
   const mediaUrl = toAbsolute(post.media || post.mediaUrl);
@@ -1973,6 +1979,7 @@ export default async function Page({ params }) {
 // //     </main>
 // //   );
 // // }
+
 
 
 
