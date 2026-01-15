@@ -185,7 +185,6 @@ export default async function Page({ params }) {
 
   const data = await res.json();
   const post = data?.post;
-  console.log("Post: ", post);
   const related = data?.related ?? [];
 
   if (!post) {
@@ -197,106 +196,121 @@ export default async function Page({ params }) {
   const thumbnail = toAbsolute(post.thumbnail || mediaUrl);
   const authorName = post.userId?.username || "FondPeace";
 
-  const isVideo = mediaUrl?.endsWith(".mp4");
   const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
+  /* ---------------------- JSON-LD for Reddit-style Image Post ---------------------- */
+  const jsonLdRedditStyle = {
+    "@context": "https://schema.org",
+    "@graph": [
 
-  /* ---------------------- JSON-LD ---------------------- */
-const jsonLdOptimized = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebPage",
-      "@id": `${SITE_ROOT}/post/${post._id}#webpage`,
-      "url": `${SITE_ROOT}/post/${post._id}`,
-      "name": post.title ? post.title.substring(0, 110) : "FondPeace Post",
-      "mainEntity": { "@id": `${SITE_ROOT}/post/${post._id}#post` },
-      "breadcrumb": { "@id": `${SITE_ROOT}/post/${post._id}#breadcrumb` }
-    },
-    {
-      "@type": "SocialMediaPosting",
-      "@id": `${SITE_ROOT}/post/${post._id}#post`,
-      "url": `${SITE_ROOT}/post/${post._id}`,
-      "headline": post.title ? post.title.substring(0, 110) : "FondPeace Post",
-      "articleBody": post.title || "",
-      "dateCreated": new Date(post.createdAt).toISOString(),
-      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-      "mainEntityOfPage": { "@id": `${SITE_ROOT}/post/${post._id}#webpage` },
-      "author": {
-        "@type": "Person",
-        "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
-        "name": post.userId?.username || "FondPeace",
-        "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
-        "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR,
-        "identifier": {
-          "@type": "PropertyValue",
-          "propertyID": "Username",
-          "value": post.userId?.username || "FondPeace"
-        }
+      /* 1️⃣ WebPage */
+      {
+        "@type": "WebPage",
+        "@id": `${pageUrl}#webpage`,
+        "url": pageUrl,
+        "name": post.title || "FondPeace Image Post",
+        "mainEntity": { "@id": `${pageUrl}#post` },
+        "breadcrumb": { "@id": `${pageUrl}#breadcrumb` }
       },
-      "image": {
+
+      /* 2️⃣ ImageObject */
+      {
         "@type": "ImageObject",
-        "url": toAbsolute(post.media || post.thumbnail || DEFAULT_AVATAR),
+        "@id": `${pageUrl}#image`,
+        "url": mediaUrl,
         "width": 1080,
         "height": 1350,
-        "caption": post.title ? post.title.substring(0, 110) : "Post Image",
-        "representativeOfPage": true
-      },
-      "commentCount": commentsCount(post),
-      "interactionStatistic": buildInteractionSchema(post),
-      "comment": (post.comments || []).map((c) => ({
-        "@type": "Comment",
-        "@id": `${SITE_ROOT}/post/${post._id}#comment-${c._id}`,
-        "text": c.CommentText || "",
-        "dateCreated": new Date(c.createdAt).toISOString(),
+        "caption": post.title || "FondPeace Image Post",
+        "uploadDate": new Date(post.createdAt).toISOString(),
         "author": {
           "@type": "Person",
-          "name": c.userId?.username || "User",
-          "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
-        },
-        "interactionStatistic": buildCommentInteractionSchema(c)
-      }))
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": `${SITE_ROOT}/post/${post._id}#breadcrumb`,
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "FondPeace",
-          "item": SITE_ROOT
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": post.userId?.username || "User",
-          "item": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": post.title ? post.title.substring(0, 110) : "Post",
-          "item": `${SITE_ROOT}/post/${post._id}`
+          "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
+          "name": authorName,
+          "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
+          "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
         }
-      ]
-    }
-  ]
-};
+      },
 
+      /* 3️⃣ SocialMediaPosting */
+      {
+        "@type": "SocialMediaPosting",
+        "@id": `${pageUrl}#post`,
+        "url": pageUrl,
+        "headline": post.title || "FondPeace Image Post",
+        "articleBody": post.title || "",
+        "dateCreated": new Date(post.createdAt).toISOString(),
+        "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+        "mainEntityOfPage": { "@id": `${pageUrl}#webpage` },
 
-  
+        /* Attach the image */
+        "sharedContent": { "@id": `${pageUrl}#image` },
+
+        /* Author Info */
+        "author": {
+          "@type": "Person",
+          "@id": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}#person`,
+          "name": authorName,
+          "url": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`,
+          "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+        },
+
+        /* Interaction stats */
+        "interactionStatistic": buildInteractionSchema(post),
+        "commentCount": commentsCount(post),
+
+        /* Comments */
+        "comment": (post.comments || []).map((c) => ({
+          "@type": "Comment",
+          "@id": `${pageUrl}#comment-${c._id}`,
+          "text": c.CommentText || "",
+          "dateCreated": new Date(c.createdAt).toISOString(),
+          "author": {
+            "@type": "Person",
+            "name": c.userId?.username || "User",
+            "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+          },
+          "interactionStatistic": buildCommentInteractionSchema(c)
+        }))
+      },
+
+      /* 4️⃣ Breadcrumb */
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${pageUrl}#breadcrumb`,
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "FondPeace",
+            "item": SITE_ROOT
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": authorName,
+            "item": `${SITE_ROOT}/profile/${post.userId?.username || "FondPeace"}`
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": post.title || "Image Post",
+            "item": pageUrl
+          }
+        ]
+      }
+    ]
+  };
+
   return (
-  <main className="w-full min-h-screen bg-white">
+    <main className="w-full min-h-screen bg-white">
 
-    {/* JSON-LD */}
-   
-<script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{
-    __html: JSON.stringify(jsonLdOptimized)
-  }}
-/>
+      {/* JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLdRedditStyle)
+        }}
+      />
 
        {/* HEADER – Instagram style */}
 <header className="bg-white  sticky top-0 z-50">
@@ -1979,6 +1993,7 @@ const jsonLdOptimized = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
