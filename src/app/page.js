@@ -254,7 +254,7 @@ if (collectionNode && posts.length > 0) {
               className="flex items-center gap-3 w-full max-w-3xl p-4 border border-gray-300 rounded-xl bg-white text-gray-600 shadow-sm hover:shadow-md transition"
             >
               <FaSearch />
-              <span>Search discussions, posts, and topics…</span>
+              <span>Search Now</span>
             </Link>
           </section>
 
