@@ -34,11 +34,11 @@ export default function ProductPageView({ data }) {
     <div className="max-w-4xl mx-auto p-5 md:p-10">
 
       {/* Thumbnail */}
-      <div className="w-full h-68 md:h-80 rounded-xl overflow-hidden shadow-lg border border-gray-300">
+      <div className="w-full h-80 md:h-80 rounded-xl overflow-hidden shadow-lg border border-gray-300">
   <img
     src={product.thumbnail || "/Fondpeace.jpg"}
     alt={product.title}
-    className="w-full h-full object-cover border border-red-400"
+    className="w-full h-full md:object-cover border border-red-400"
   />
 </div>
 
