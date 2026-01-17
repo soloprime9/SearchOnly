@@ -24,14 +24,14 @@ export async function generateMetadata({ params }) {
 
   if (!res.ok) {
     return {
-      title: "Product not found – IntroList",
+      title: "Product not found – FondPeace",
       description: "This product is not available on IntroList.",
     };
   }
 
   const { product } = await res.json();
 
-  const title = `${product.title}: ${product.description} | IntroList`;
+  const title = `${product.title}: ${product.description} | FondPeace.com`;
   const desc = product.longDescription?.slice(0, 160) || product.description;
   const image = product.thumbnail || "/Fondpeace.jpg";
   const url = `https://www.fondpeace.com/IntroList/${slug}`;
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }) {
       title,
       description: desc,
       url,
-      siteName: "IntroList",
+      siteName: "FondPeace",
       type: "article",
       locale: "en_US",
       images: [
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }) {
     // ============================
     twitter: {
       card: "summary_large_image",
-      site: "@IntroListHQ",
+      site: "@FondPeace",
       creator: "@IntroListHQ",
       title,
       description: desc,
@@ -91,7 +91,7 @@ export async function generateMetadata({ params }) {
         url,
         brand: {
           "@type": "Brand",
-          name: "IntroList",
+          name: "FondPeace",
         },
         aggregateRating: {
           "@type": "AggregateRating",
