@@ -63,7 +63,7 @@ export default function IntroListView({ list = [] }) {
       {hasMore && (
         <div className="text-center mt-10">
           <button
-            className="px-6 py-3 rounded-lg bg-black text-white hover:bg-gray-800"
+            className="px-6 py-3 rounded-lg bg-black text-white hover:bg-gray-800 cursor-pointer"
             onClick={() => {
               setPage(prev => prev + 1);
               loadMore();
