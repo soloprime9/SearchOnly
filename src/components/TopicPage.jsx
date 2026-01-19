@@ -77,7 +77,7 @@ export default function TopicPage({ topic }) {
                   alt={p.title}
                   loading="lazy"
                   className="w-full h-full object-cover"
-                  onError={(e) => (e.currentTarget.src = "/fallback.jpg")}
+                  onError={(e) => (e.currentTarget.src = "/Fondpeace.jpg")}
                 />
               )}
 
