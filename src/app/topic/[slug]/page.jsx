@@ -13,12 +13,12 @@ export default async function TopicPage({ params }) {
   const slug = params.slug;
   console.log(slug);
 
-  const res = await fetch(
-    `${API_BASE}/post/single/search?q=${slug}`,
-    { cache: "no-store" }
-  );
 
-  const posts = await res.json();
+  const { data } = await axios.get(`${API_BASE}/post/single/search?q=${slug}`,
+                                { cache: "no-store" }  );
+  
+
+  const posts = await data.json();
   console.log(posts);
   if (!posts || posts.length === 0) {
     return (
