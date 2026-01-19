@@ -2,7 +2,10 @@ import TopicPage from "@/components/TopicPage";
 
 /* ---------------- SEO METADATA ---------------- */
 export async function generateMetadata({ params }) {
-  const topic = decodeURIComponent(params.slug).replace(/-/g, " ");
+  const topicRaw = decodeURIComponent(params.slug).replace(/-/g, " ");
+
+  const topic =
+    topicRaw.charAt(0).toUpperCase() + topicRaw.slice(1);
   const url = `https://news.fondpeace.com/topic/${params.slug}`;
 
   return {
