@@ -36,7 +36,7 @@ export async function generateMetadata({ params }) {
 }
 
 /* ---------------- PAGE ---------------- */
-export default async function TopicPage({ params }) {
+export default async function TopicPost({ params }) {
   const topic = decodeURIComponent(params.slug).replace(/-/g, " ");
 
   let posts = [];
