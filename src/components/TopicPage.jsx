@@ -22,7 +22,7 @@ export default function TopicPage({ topic }) {
 
         // Backend already returns array
         setPosts(Array.isArray(res.data) ? res.data : []);
-        console.log("Topic posts:", res.data);
+        
       } catch (err) {
         console.error("Topic fetch error:", err);
         setPosts([]);
