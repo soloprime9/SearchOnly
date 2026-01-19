@@ -1,6 +1,8 @@
+
+const API_BASE = "https://backend-k.vercel.app";
 export async function generateMetadata({ params }) {
   const text = params.slug.replace(/-/g, " ");
-  const API_BASE = "https://backend-k.vercel.app";
+  
   return {
     title: `${text} – Search Results | FondPeace`,
     description: `Browse latest posts, news and discussions related to ${text} on FondPeace.`
