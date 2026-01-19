@@ -1,6 +1,6 @@
 export async function generateMetadata({ params }) {
   const text = params.slug.replace(/-/g, " ");
-
+  const API_BASE = "https://backend-k.vercel.app";
   return {
     title: `${text} – Search Results | FondPeace`,
     description: `Browse latest posts, news and discussions related to ${text} on FondPeace.`
@@ -11,7 +11,7 @@ export default async function TopicPage({ params }) {
   const slug = params.slug;
 
   const res = await fetch(
-    `https://backend-k.vercel.app/post/topic/${slug}`,
+    `${API_BASE}/post/single/search?q=${slug}`,
     { cache: "no-store" }
   );
 
