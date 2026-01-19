@@ -10,28 +10,32 @@ export default function TopicPage({ topic }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!topic) return;
+  if (!topic) {
+    console.log("Topic is empty");
+    return;
+  }
+ 
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_BASE}/post/single/search?q=${encodeURIComponent(topic)}`, {
+        headers: { "Content-Type": "application/json" },
+      });
 
-    const fetchPosts = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`${API_BASE}/post/single/search?q=${encodeURIComponent(topic)}`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        setPosts(res.data || []);
-        console.log(res.data);
-      } catch (err) {
-        console.error("Error fetching topic posts:", err);
-        setPosts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+      console.log("Axios response:", res); // Logs full Axios response
+      console.log("Posts data:", res.data); // Logs only data
 
-    fetchPosts();
-  }, [topic]);
+      setPosts(res.data || []);
+    } catch (err) {
+      console.error("Error fetching topic posts:", err);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPosts();
+}, [topic]);
 
   if (loading) {
     return <p className="text-gray-500 mt-2">Loading posts...</p>;
