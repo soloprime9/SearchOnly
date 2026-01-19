@@ -21,6 +21,7 @@ export default function TopicPage({ topic }) {
           },
         });
         setPosts(res.data || []);
+        console.log(res.data);
       } catch (err) {
         console.error("Error fetching topic posts:", err);
         setPosts([]);
@@ -48,6 +49,10 @@ export default function TopicPage({ topic }) {
     <div className="mt-6 space-y-4">
       {posts.map((p) => (
         <Link key={p._id} href={`/short/${p._id}`} className="block border-b pb-3">
+          <img
+                src={p.thumbnail || p.media}
+                className="w-20 h-20 object-cover rounded-lg"
+              />
           <h2 className="font-semibold">{p.title}</h2>
         </Link>
       ))}
