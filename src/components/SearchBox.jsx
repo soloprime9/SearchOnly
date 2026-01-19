@@ -22,11 +22,23 @@ export default function SearchFull() {
 
       {/* 🔍 Search Box */}
       <input
-        value={query}
-        onChange={(e) => search(e.target.value)}
-        placeholder="Search by title or hashtags..."
-        className="w-full p-3 bg-gray-100 rounded-xl outline-none"
-      />
+  value={query}
+  onChange={(e) => search(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter" && query.trim()) {
+      const slug = query
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+
+      window.location.href = `/topic/${slug}`;
+    }
+  }}
+  placeholder="Search by title or hashtags..."
+  className="w-full p-3 bg-gray-100 rounded-xl outline-none"
+/>
+
 
       {/* 📌 Results */}
       <div className="mt-4 flex flex-col gap-3">
