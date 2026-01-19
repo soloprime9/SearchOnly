@@ -9,6 +9,7 @@ export async function generateMetadata({ params }) {
 
 export default async function TopicPage({ params }) {
   const slug = params.slug;
+  console.log(slug);
 
   const res = await fetch(
     `${API_BASE}/post/single/search?q=${slug}`,
@@ -16,7 +17,7 @@ export default async function TopicPage({ params }) {
   );
 
   const posts = await res.json();
-
+  console.log(posts);
   if (!posts || posts.length === 0) {
     return (
       <main className="max-w-3xl mx-auto p-4">
