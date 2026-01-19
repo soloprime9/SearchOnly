@@ -6,7 +6,7 @@ export async function generateMetadata({ params }) {
 
   const topic =
     topicRaw.charAt(0).toUpperCase() + topicRaw.slice(1);
-  const url = `https://news.fondpeace.com/topic/${params.slug}`;
+  const url = `https://fondpeace.com/topic/${params.slug}`;
 
   return {
     title: `${topic} – Latest Posts & Videos | FondPeace`,
@@ -62,20 +62,20 @@ export default async function TopicPost({ params }) {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: `${topic} – FondPeace`,
-    url: `https://news.fondpeace.com/topic/${params.slug}`,
+    url: `https://fondpeace.com/topic/${params.slug}`,
     description: `Latest posts, videos, and discussions related to ${topic}.`,
     isPartOf: {
       "@type": "WebSite",
       name: "FondPeace",
-      url: "https://news.fondpeace.com",
+      url: "https://fondpeace.com",
     },
     publisher: {
       "@type": "Organization",
       name: "FondPeace",
-      url: "https://news.fondpeace.com",
+      url: "https://fondpeace.com",
       logo: {
         "@type": "ImageObject",
-        url: "https://news.fondpeace.com/logo.png",
+        url: "https://fondpeace.com/logo.png",
       },
     },
     breadcrumb: {
@@ -84,14 +84,14 @@ export default async function TopicPost({ params }) {
         {
           "@type": "ListItem",
           position: 1,
-          name: "Home",
-          item: "https://news.fondpeace.com",
+          name: "FondPeace",
+          item: "https://fondpeace.com",
         },
         {
           "@type": "ListItem",
           position: 2,
           name: topic,
-          item: `https://news.fondpeace.com/topic/${params.slug}`,
+          item: `https://fondpeace.com/topic/${params.slug}`,
         },
       ],
     },
@@ -103,8 +103,8 @@ export default async function TopicPost({ params }) {
       itemListElement: posts.slice(0, 10).map((p, i) => {
         const postUrl =
           p.mediaType?.startsWith("video")
-            ? `https://news.fondpeace.com/short/${p._id}`
-            : `https://news.fondpeace.com/post/${p._id}`;
+            ? `https://fondpeace.com/short/${p._id}`
+            : `https://fondpeace.com/post/${p._id}`;
 
         return {
           "@type": "ListItem",
