@@ -62,11 +62,16 @@ export default function TopicPage({ topic }) {
     <section className="mt-6">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {posts.map((p) => (
-          <Link
-            key={p._id}
-            href={`/short/${p._id}`}
-            className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition"
-          >
+          
+            <Link
+              key={p._id}
+              href={
+              p.mediaType?.startsWith("video")
+                ? `/short/${p._id}`
+                : `/post/${p._id}`
+              }
+              className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition"
+            >
             {/* MEDIA */}
             <div className="relative aspect-[4/5] bg-gray-100">
 
