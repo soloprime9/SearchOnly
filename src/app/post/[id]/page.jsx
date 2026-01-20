@@ -203,113 +203,237 @@ const related = data?.related ?? [];
   const isVideo = mediaUrl?.endsWith(".mp4");
   const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
-  /* ---------------------- JSON-LD for Reddit-style Social Post ---------------------- */
-  const jsonLdRedditStyle = {
-    "@context": "https://schema.org",
-    "@graph": [
+const jsonLdRedditStyle = {
+  "@context": "https://schema.org",
+  "@graph": [
+    // 1️⃣ Breadcrumb
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${pageUrl}#breadcrumb`,
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
+        { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
+        { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": pageUrl }
+      ]
+    },
 
-      // 1️⃣ WebPage
-      {
+    // 2️⃣ Discussion Forum Post
+    {
+      "@type": "DiscussionForumPosting",
+      "@id": `${pageUrl}#post`,
+      "url": pageUrl,
+      "headline": post.title,
+      "articleBody": post.title,
+      "datePublished": new Date(post.createdAt).toISOString(),
+      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+      "author": {
+        "@type": "Person",
+        "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+        "name": authorName,
+        "url": `${SITE_ROOT}/profile/${authorName}`,
+        "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "FondPeace",
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${SITE_ROOT}/Fondpeace.jpg`
+        }
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": mediaUrl
+        
+      },
+      "interactionStatistic": [
+        {
+          "@type": "InteractionCounter",
+          "interactionType": "https://schema.org/LikeAction",
+          "userInteractionCount": post.likes?.length || 0
+        },
+        {
+          "@type": "InteractionCounter",
+          "interactionType": "https://schema.org/ViewAction",
+          "userInteractionCount": post.views || 0
+        },
+        {
+          "@type": "InteractionCounter",
+          "interactionType": "https://schema.org/CommentAction",
+          "userInteractionCount": post.comments?.length || 0
+        }
+      ],
+      "commentCount": post.comments?.length || 0,
+      "isPartOf": {
         "@type": "WebPage",
-        "@id": `${pageUrl}#webpage`,
-        "url": pageUrl,
-        "name": post.title || "FondPeace Post",
-        "mainEntity": { "@id": `${pageUrl}#post` },
-        "breadcrumb": { "@id": `${pageUrl}#breadcrumb` }
+        "name": "FondPeace",
+        "url": "https://fondpeace.com"
+      },
+      "about": {
+        "@type": "Thing",
+        "name": post.title,
+        "description": post.title
       },
 
-      // 2️⃣ Media Object (if exists)
-      ...(isImage || isVideo
-        ? [
+      // 3️⃣ Nested Comments + Replies
+      "comment": (post.comments || []).map((c) => ({
+        "@type": "Comment",
+        "@id": `${pageUrl}#comment-${c._id}`,
+        "text": c.CommentText || "",
+        "dateCreated": new Date(c.createdAt).toISOString(),
+        "author": {
+          "@type": "Person",
+          "name": c.userId?.username || "User",
+          "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+        },
+        "interactionStatistic": [
+          {
+            "@type": "InteractionCounter",
+            "interactionType": "https://schema.org/LikeAction",
+            "userInteractionCount": c.likes || 0
+          },
+          {
+            "@type": "InteractionCounter",
+            "interactionType": "https://schema.org/ReplyAction",
+            "userInteractionCount": c.replies?.length || 0
+          }
+        ],
+        "comment": (c.replies || []).map((r) => ({
+          "@type": "Comment",
+          "@id": `${pageUrl}#reply-${r._id}`,
+          "parentItem": { "@id": `${pageUrl}#comment-${c._id}` },
+          "text": r.replyText || "",
+          "dateCreated": new Date(r.createdAt).toISOString(),
+          "author": {
+            "@type": "Person",
+            "name": r.userId?.username || "User",
+            "url": `${SITE_ROOT}/profile/${r.userId?.username || "User"}`
+          },
+          
+          "interactionStatistic": [
             {
-              "@type": isVideo ? "VideoObject" : "ImageObject",
-              "@id": `${pageUrl}#media`,
-              "url": mediaUrl,
-              "uploadDate": new Date(post.createdAt).toISOString(),
-              ...(isVideo
-                ? { "contentUrl": mediaUrl, "duration": post.duration ? secToISO(Number(post.duration)) : undefined }
-                : { "width": 1080, "height": 1350, "caption": post.title || "FondPeace Image Post" }),
-              "author": {
-                "@type": "Person",
-                "@id": `${SITE_ROOT}/profile/${authorName}#person`,
-                "name": authorName,
-                "url": `${SITE_ROOT}/profile/${authorName}`,
-                "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
-              }
+              "@type": "InteractionCounter",
+              "interactionType": "https://schema.org/LikeAction",
+              "userInteractionCount": r.likes || 0
             }
           ]
-        : []),
+        }))
+      })),
 
-      // 3️⃣ SocialMediaPosting
-      {
-  "@type": "SocialMediaPosting",
-  "@id": `${pageUrl}#post`,
-  "url": pageUrl,
-  "headline": post.title || "FondPeace Post",
-  "articleBody": post.content || post.title || "",
-  "dateCreated": new Date(post.createdAt).toISOString(),
-  "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-  "mainEntityOfPage": { "@id": `${pageUrl}#webpage` },
+      // 4️⃣ Related Links
+      "relatedLink": (related || []).map((r) => `${SITE_ROOT}/short/${r._id}`)
+    }
+  ]
+};
 
-  ...(isImage || isVideo
-    ? { "sharedContent": { "@id": `${pageUrl}#media` } }
-    : {}),
+  
+  // /* ---------------------- JSON-LD for Reddit-style Social Post ---------------------- */
+//   const jsonLdRedditStyle = {
+//     "@context": "https://schema.org",
+//     "@graph": [
 
-  ...(isImage
-    ? {
-        image: {
-          "@type": "ImageObject",
-          "url": mediaUrl,
-          "width": 1080,
-          "height": 1350
-        }
-      }
-    : isVideo
-    ? {
-        image: {
-          "@type": "ImageObject",
-          "url": post.thumbnail || DEFAULT_THUMB
-        }
-      }
-    : {}),
+//       // 1️⃣ WebPage
+//       {
+//         "@type": "WebPage",
+//         "@id": `${pageUrl}#webpage`,
+//         "url": pageUrl,
+//         "name": post.title || "FondPeace Post",
+//         "mainEntity": { "@id": `${pageUrl}#post` },
+//         "breadcrumb": { "@id": `${pageUrl}#breadcrumb` }
+//       },
 
-  "author": {
-    "@type": "Person",
-    "@id": `${SITE_ROOT}/profile/${authorName}#person`,
-    "name": authorName,
-    "url": `${SITE_ROOT}/profile/${authorName}`,
-    "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
-  },
+//       // 2️⃣ Media Object (if exists)
+//       ...(isImage || isVideo
+//         ? [
+//             {
+//               "@type": isVideo ? "VideoObject" : "ImageObject",
+//               "@id": `${pageUrl}#media`,
+//               "url": mediaUrl,
+//               "uploadDate": new Date(post.createdAt).toISOString(),
+//               ...(isVideo
+//                 ? { "contentUrl": mediaUrl, "duration": post.duration ? secToISO(Number(post.duration)) : undefined }
+//                 : { "width": 1080, "height": 1350, "caption": post.title || "FondPeace Image Post" }),
+//               "author": {
+//                 "@type": "Person",
+//                 "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+//                 "name": authorName,
+//                 "url": `${SITE_ROOT}/profile/${authorName}`,
+//                 "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+//               }
+//             }
+//           ]
+//         : []),
 
-  "interactionStatistic": buildInteractionSchema(post),
-  "commentCount": commentsCount(post),
+//       // 3️⃣ SocialMediaPosting
+//       {
+//   "@type": "SocialMediaPosting",
+//   "@id": `${pageUrl}#post`,
+//   "url": pageUrl,
+//   "headline": post.title || "FondPeace Post",
+//   "articleBody": post.content || post.title || "",
+//   "dateCreated": new Date(post.createdAt).toISOString(),
+//   "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+//   "mainEntityOfPage": { "@id": `${pageUrl}#webpage` },
 
-  "comment": (post.comments || []).map((c) => ({
-    "@type": "Comment",
-    "@id": `${pageUrl}#comment-${c._id}`,
-    "text": c.CommentText || "",
-    "dateCreated": new Date(c.createdAt).toISOString(),
-    "author": {
-      "@type": "Person",
-      "name": c.userId?.username || "User",
-      "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
-    },
-    "interactionStatistic": buildCommentInteractionSchema(c)
-  }))
-},
+//   ...(isImage || isVideo
+//     ? { "sharedContent": { "@id": `${pageUrl}#media` } }
+//     : {}),
 
-      // 4️⃣ Breadcrumb
-      {
-        "@type": "BreadcrumbList",
-        "@id": `${pageUrl}#breadcrumb`,
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
-          { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
-          { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": pageUrl }
-        ]
-      }
-    ]
-  };
+//   ...(isImage
+//     ? {
+//         image: {
+//           "@type": "ImageObject",
+//           "url": mediaUrl,
+//           "width": 1080,
+//           "height": 1350
+//         }
+//       }
+//     : isVideo
+//     ? {
+//         image: {
+//           "@type": "ImageObject",
+//           "url": post.thumbnail || DEFAULT_THUMB
+//         }
+//       }
+//     : {}),
+
+//   "author": {
+//     "@type": "Person",
+//     "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+//     "name": authorName,
+//     "url": `${SITE_ROOT}/profile/${authorName}`,
+//     "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+//   },
+
+//   "interactionStatistic": buildInteractionSchema(post),
+//   "commentCount": commentsCount(post),
+
+//   "comment": (post.comments || []).map((c) => ({
+//     "@type": "Comment",
+//     "@id": `${pageUrl}#comment-${c._id}`,
+//     "text": c.CommentText || "",
+//     "dateCreated": new Date(c.createdAt).toISOString(),
+//     "author": {
+//       "@type": "Person",
+//       "name": c.userId?.username || "User",
+//       "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+//     },
+//     "interactionStatistic": buildCommentInteractionSchema(c)
+//   }))
+// },
+
+//       // 4️⃣ Breadcrumb
+//       {
+//         "@type": "BreadcrumbList",
+//         "@id": `${pageUrl}#breadcrumb`,
+//         "itemListElement": [
+//           { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
+//           { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
+//           { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": pageUrl }
+//         ]
+//       }
+//     ]
+//   };
 
   return (
     <main className="w-full min-h-screen bg-white">
@@ -2002,6 +2126,7 @@ const related = data?.related ?? [];
 // //     </main>
 // //   );
 // // }
+
 
 
 
