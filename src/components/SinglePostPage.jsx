@@ -95,7 +95,7 @@ export default function SinglePostInteractions({ initialPost }) {
     if (!token || !userId) return;
 
     const res = await axios.post(
-      `${API_BASE}/comment/${post._id}/like/${commentId}`,
+      `${API_BASE}/post/comment/${post._id}/like/${commentId}`,
       {},
       { headers: { "x-auth-token": token } }
     );
@@ -125,7 +125,7 @@ export default function SinglePostInteractions({ initialPost }) {
     if (!token) return;
 
     const res = await axios.post(
-      `${API_BASE}/comment/${post._id}/reply/${commentId}`,
+      `${API_BASE}/post/comment/${post._id}/reply/${commentId}`,
       { replyText: replyText[commentId] },
       { headers: { "x-auth-token": token } }
     );
@@ -149,7 +149,7 @@ export default function SinglePostInteractions({ initialPost }) {
     if (!token || !userId) return;
 
     const res = await axios.post(
-      `${API_BASE}/comment/${post._id}/like-reply/${commentId}/${replyId}`,
+      `${API_BASE}/post/comment/${post._id}/like-reply/${commentId}/${replyId}`,
       {},
       { headers: { "x-auth-token": token } }
     );
