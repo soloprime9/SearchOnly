@@ -11,8 +11,16 @@ import {
   FaEye,
 } from "react-icons/fa";
 
+/* ================= UTILS ================= */
+const safeArray = (v) => (Array.isArray(v) ? v : []);
+
 export default function SinglePostInteractions({ initialPost }) {
-  const [post, setPost] = useState(initialPost);
+  const [post, setPost] = useState({
+    ...initialPost,
+    likes: safeArray(initialPost?.likes),
+    comments: safeArray(initialPost?.comments),
+  });
+
   const [comment, setComment] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -24,21 +32,24 @@ export default function SinglePostInteractions({ initialPost }) {
   /* ================= AUTH ================= */
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      const decoded = jwt.decode(token);
-      if (decoded?.UserId) setUserId(decoded.UserId);
-    }
+    if (!token) return;
+
+    const decoded = jwt.decode(token);
+    if (decoded?.UserId) setUserId(String(decoded.UserId));
   }, []);
 
   /* ================= HELPERS ================= */
   const hasLikedPost = () =>
-    userId && post.likes?.some((id) => id.toString() === userId.toString());
+    !!userId &&
+    safeArray(post.likes).some((id) => String(id) === String(userId));
 
-  const hasLikedComment = (likes = []) =>
-    userId && likes.some((id) => id.toString() === userId.toString());
+  const hasLikedComment = (likes) =>
+    !!userId &&
+    safeArray(likes).some((id) => String(id) === String(userId));
 
-  const hasLikedReply = (likes = []) =>
-    userId && likes.some((id) => id.toString() === userId.toString());
+  const hasLikedReply = (likes) =>
+    !!userId &&
+    safeArray(likes).some((id) => String(id) === String(userId));
 
   /* ================= POST LIKE ================= */
   const handleLike = async () => {
@@ -51,7 +62,10 @@ export default function SinglePostInteractions({ initialPost }) {
       { headers: { "x-auth-token": token } }
     );
 
-    setPost((p) => ({ ...p, likes: res.data.likes }));
+    setPost((p) => ({
+      ...p,
+      likes: safeArray(res.data.likes),
+    }));
   };
 
   /* ================= COMMENT ================= */
@@ -67,14 +81,18 @@ export default function SinglePostInteractions({ initialPost }) {
       { headers: { "x-auth-token": token } }
     );
 
-    setPost((p) => ({ ...p, comments: res.data.comments }));
+    setPost((p) => ({
+      ...p,
+      comments: safeArray(res.data.comments),
+    }));
+
     setComment("");
   };
 
   /* ================= COMMENT LIKE ================= */
   const handleCommentLike = async (commentId) => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token || !userId) return;
 
     const res = await axios.post(
       `${API_BASE}/comment/${post._id}/like/${commentId}`,
@@ -89,8 +107,10 @@ export default function SinglePostInteractions({ initialPost }) {
           ? {
               ...c,
               likes: res.data.liked
-                ? [...c.likes, userId]
-                : c.likes.filter((id) => id !== userId),
+                ? [...safeArray(c.likes), userId]
+                : safeArray(c.likes).filter(
+                    (id) => String(id) !== String(userId)
+                  ),
             }
           : c
       ),
@@ -99,7 +119,7 @@ export default function SinglePostInteractions({ initialPost }) {
 
   /* ================= REPLY ================= */
   const submitReply = async (commentId) => {
-    if (!replyText[commentId]) return;
+    if (!replyText[commentId]?.trim()) return;
 
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -113,7 +133,9 @@ export default function SinglePostInteractions({ initialPost }) {
     setPost((p) => ({
       ...p,
       comments: p.comments.map((c) =>
-        c._id === commentId ? { ...c, replies: res.data } : c
+        c._id === commentId
+          ? { ...c, replies: safeArray(res.data) }
+          : c
       ),
     }));
 
@@ -124,7 +146,7 @@ export default function SinglePostInteractions({ initialPost }) {
   /* ================= REPLY LIKE ================= */
   const handleReplyLike = async (commentId, replyId) => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token || !userId) return;
 
     const res = await axios.post(
       `${API_BASE}/comment/${post._id}/like-reply/${commentId}/${replyId}`,
@@ -138,13 +160,15 @@ export default function SinglePostInteractions({ initialPost }) {
         c._id === commentId
           ? {
               ...c,
-              replies: c.replies.map((r) =>
+              replies: safeArray(c.replies).map((r) =>
                 r._id === replyId
                   ? {
                       ...r,
                       likes: res.data.liked
-                        ? [...r.likes, userId]
-                        : r.likes.filter((id) => id !== userId),
+                        ? [...safeArray(r.likes), userId]
+                        : safeArray(r.likes).filter(
+                            (id) => String(id) !== String(userId)
+                          ),
                     }
                   : r
               ),
@@ -156,11 +180,12 @@ export default function SinglePostInteractions({ initialPost }) {
 
   /* ================= SHARE ================= */
   const handleShare = async () => {
-    const text = `${post.title}\n${window.location.origin}/post/${post._id}`;
-    await navigator.clipboard.writeText(text);
-    alert("Copied link");
+    const url = `${window.location.origin}/post/${post._id}`;
+    await navigator.clipboard.writeText(`${post.title}\n${url}`);
+    alert("Link copied");
   };
 
+  /* ================= UI ================= */
   return (
     <div className="mt-6">
       {/* ACTION BAR */}
@@ -171,14 +196,14 @@ export default function SinglePostInteractions({ initialPost }) {
           ) : (
             <FaRegHeart />
           )}
-          {post.likes?.length || 0}
+          {safeArray(post.likes).length}
         </button>
 
         <button
           onClick={() => setShowComments((p) => !p)}
           className="flex gap-1 items-center"
         >
-          <FaCommentDots /> {post.comments?.length || 0}
+          <FaCommentDots /> {safeArray(post.comments).length}
         </button>
 
         <div className="flex gap-1 items-center">
@@ -208,9 +233,11 @@ export default function SinglePostInteractions({ initialPost }) {
             </button>
           </div>
 
-          {post.comments?.map((cmt) => (
+          {safeArray(post.comments).map((cmt) => (
             <div key={cmt._id} className="bg-gray-100 p-3 rounded">
-              <p className="font-semibold">{cmt.userId?.username || "User"}</p>
+              <p className="font-semibold">
+                {cmt.userId?.username || "User"}
+              </p>
               <p>{cmt.CommentText}</p>
 
               <button
@@ -222,7 +249,7 @@ export default function SinglePostInteractions({ initialPost }) {
                 ) : (
                   <FaRegHeart />
                 )}
-                {cmt.likes?.length || 0}
+                {safeArray(cmt.likes).length}
               </button>
 
               <button
@@ -255,7 +282,7 @@ export default function SinglePostInteractions({ initialPost }) {
               )}
 
               <div className="ml-6 mt-3 space-y-2">
-                {cmt.replies?.map((rep) => (
+                {safeArray(cmt.replies).map((rep) => (
                   <div key={rep._id} className="bg-white p-2 border rounded">
                     <p className="text-sm font-semibold">
                       {rep.userId?.username || "User"}
@@ -273,7 +300,7 @@ export default function SinglePostInteractions({ initialPost }) {
                       ) : (
                         <FaRegHeart />
                       )}
-                      {rep.likes?.length || 0}
+                      {safeArray(rep.likes).length}
                     </button>
                   </div>
                 ))}
@@ -285,7 +312,6 @@ export default function SinglePostInteractions({ initialPost }) {
     </div>
   );
 }
-
 
 
 
