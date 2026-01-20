@@ -129,6 +129,7 @@ export default function SinglePostInteractions({ initialPost }) {
       { replyText: replyText[commentId] },
       { headers: { "x-auth-token": token } }
     );
+    console.log("Reply: ",res);
 
     setPost((p) => ({
       ...p,
@@ -153,6 +154,7 @@ export default function SinglePostInteractions({ initialPost }) {
       {},
       { headers: { "x-auth-token": token } }
     );
+    console.log("reply Like: ",res);
 
     setPost((p) => ({
       ...p,
