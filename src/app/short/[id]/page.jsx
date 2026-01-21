@@ -371,10 +371,12 @@ const videoSchema = {
   <source src={mediaUrl} type="video/mp4" />
 </video>
 ) : null}
-          {/* Post Title */}
-        <h1 className="text-gray-800 mb-4">
-          {post.title}
-        </h1>
+         
+        {/* Post Title */}
+<h1 className="text-gray-800 mb-4 whitespace-pre-line">
+  {post.title}
+</h1>
+
 
 
         {/* Post Content */}
