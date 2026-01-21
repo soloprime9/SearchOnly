@@ -207,7 +207,10 @@ const handleDrop = (e) => {
           onChange={handleFileChange}
           className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer"
         />
-        <p className="text-white text-center">Select Media</p>
+        <p className="text-white text-center">
+  Drag & Drop media here or click to upload
+</p>
+
       </div>
 
       {/* Preview Section */}
