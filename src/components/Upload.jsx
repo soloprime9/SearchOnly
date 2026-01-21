@@ -235,15 +235,21 @@ const handleDrop = (e) => {
         </div>
       )}
 
-      {/* Title Input */}
-      <input
-        type="text"
-        className="w-full text-white p-3 text-lg sm:text-xl mt-4 bg-transparent border-b-2 border-white placeholder-white/80 focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
-        id="title"
-        value={title}
-        onChange={handleTitleChange}
-        placeholder="Enter title"
-      />
+     
+      {/* Title / Post Text */}
+<textarea
+  id="title"
+  value={title}
+  onChange={handleTitleChange}
+  placeholder="Write your post..."
+  rows={6}
+  className="w-full text-white p-3 text-lg sm:text-xl mt-4 
+             bg-transparent border-2 border-white 
+             placeholder-white/80 focus:outline-none 
+             focus:ring-2 focus:ring-yellow-400 
+             rounded resize-none"
+/>
+
 
       {/* Upload Progress */}
       {uploadProgress > 0 && (
