@@ -508,9 +508,10 @@ const jsonLdRedditStyle = {
         </div>
 
         {/* Post Title */}
-        <h1 className="text-gray-800 mb-4">
-          {post.title}
-        </h1>
+<h1 className="text-gray-800 mb-4 whitespace-pre-line">
+  {post.title}
+</h1>
+
 
         {/* Media Section */}
         {isVideo ? (
@@ -2126,6 +2127,7 @@ const jsonLdRedditStyle = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
