@@ -9,6 +9,8 @@ const UploadPost = () => {
   const [message, setMessage] = useState("");
   const [preview, setPreview] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -40,15 +42,8 @@ const UploadPost = () => {
     }
   }, []);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (!selectedFile) {
-      console.warn("No file selected.");
-      return;
-    }
 
-    const allowedTypes = [
-  // Images
+  const allowedTypes = [
   "image/png",
   "image/jpeg",
   "image/jpg",
@@ -58,8 +53,6 @@ const UploadPost = () => {
   "image/bmp",
   "image/tiff",
   "image/x-icon",
-
-  // Videos
   "video/mp4",
   "video/webm",
   "video/ogg",
@@ -67,23 +60,29 @@ const UploadPost = () => {
   "video/quicktime",
   "video/x-msvideo",
   "video/x-ms-wmv",
-  "video/mpeg"
+  "video/mpeg",
 ];
 
-    if (!allowedTypes.includes(selectedFile.type)) {
-      console.error("Invalid file type selected:", selectedFile.type);
-      setMessage(
-        "Invalid file type. Only images (PNG, JPG) and videos (MP4, WEBM) are allowed."
-      );
-      return;
-    }
+const processFile = (selectedFile) => {
+  if (!selectedFile) return;
 
-    setFile(selectedFile);
+  if (!allowedTypes.includes(selectedFile.type)) {
+    setMessage("Invalid file type!");
+    return;
+  }
 
-    const reader = new FileReader();
-    reader.onload = (event) => setPreview(event.target.result);
-    reader.readAsDataURL(selectedFile);
-  };
+  setFile(selectedFile);
+
+  const reader = new FileReader();
+  reader.onload = (e) => setPreview(e.target.result);
+  reader.readAsDataURL(selectedFile);
+};
+
+
+  const handleFileChange = (e) => {
+  processFile(e.target.files[0]);
+};
+
 
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
@@ -169,6 +168,22 @@ const UploadPost = () => {
     }
   };
 
+  const handleDragOver = (e) => {
+  e.preventDefault();
+  setIsDragging(true);
+};
+
+const handleDragLeave = () => {
+  setIsDragging(false);
+};
+
+const handleDrop = (e) => {
+  e.preventDefault();
+  setIsDragging(false);
+  processFile(e.dataTransfer.files[0]);
+};
+
+
   return (
     <div className="mt-20 sm:mt-32 lg:mt-40 px-4">
   <div className="lg:m-20 border-2 bg-blue-700 text-white font-bold rounded-lg py-6 px-4 sm:px-6 shadow-lg">
@@ -177,7 +192,15 @@ const UploadPost = () => {
     <form onSubmit={handleSubmit} className="flex flex-col items-center w-full max-w-2xl mx-auto">
       
       {/* File Input Area */}
-      <div className="relative border-2 border-dashed border-white rounded-md m-2 h-24 w-full flex items-center justify-center cursor-pointer hover:bg-blue-600 transition">
+      <div
+  className={`relative border-2 border-dashed rounded-md m-2 h-24 w-full flex items-center justify-center cursor-pointer transition
+    ${isDragging ? "bg-blue-500 border-yellow-400" : "border-white hover:bg-blue-600"}
+  `}
+  onDragOver={handleDragOver}
+  onDragLeave={handleDragLeave}
+  onDrop={handleDrop}
+>
+
         <input
           type="file"
           id="file"
