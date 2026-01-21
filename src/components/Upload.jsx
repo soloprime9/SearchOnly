@@ -247,7 +247,7 @@ const handleDrop = (e) => {
              bg-transparent border-2 border-white 
              placeholder-white/80 focus:outline-none 
              focus:ring-2 focus:ring-yellow-400 
-             rounded resize-none"
+             rounded resize-none whitespace-pre-wrap"
 />
 
 
