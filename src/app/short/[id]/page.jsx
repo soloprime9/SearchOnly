@@ -94,6 +94,35 @@ function buildDescription(post) {
     return `${title} uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
 }
 
+function mapComments(post, pageUrl) {
+  return (post.comments || []).map((c) => ({
+    "@type": "Comment",
+    "@id": `${pageUrl}#comment-${c._id}`,
+    text: c.CommentText || "",
+    dateCreated: new Date(c.createdAt).toISOString(),
+    author: {
+      "@type": "Person",
+      "@id": `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}#person`,
+      name: c.userId?.username || "FondPeace",
+      url: `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}`,
+    },
+    interactionStatistic: buildCommentInteractionSchema(c),
+    comment: (c.replies || []).map((r) => ({
+      "@type": "Comment",
+      "@id": `${pageUrl}#reply-${r._id}`,
+      parentItem: { "@id": `${pageUrl}#comment-${c._id}` },
+      text: r.replyText || "",
+      dateCreated: new Date(r.createdAt).toISOString(),
+      author: {
+        "@type": "Person",
+        "@id": `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}#person`,
+        name: r.userId?.username || "FondPeace",
+        url: `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}`,
+      },
+      interactionStatistic: buildCommentInteractionSchema(r),
+    })),
+  }));
+}
 
 
 // --- Metadata Generator (Google Indexing Focus) ---
@@ -132,16 +161,14 @@ export async function generateMetadata({ params }) {
     images: [
       {
         url: thumb,
-        width: 1080,
-        height: 1920,
+        
         alt: title,
       },
     ],
     videos: [
       {
         url: mediaUrl,
-        width: 1080,
-        height: 1920,
+        thumbnailUrl: thumb,
         type: "video/mp4",
         secureUrl: mediaUrl, // Required by some social crawlers
       },
@@ -154,11 +181,11 @@ export async function generateMetadata({ params }) {
     images: [thumb], // Twitter looks for 'images' array or 'image' string
     site: "@FondPeaceTech",
     player: {
-      url: `${SITE_ROOT}/short/${post._id}?embed=true`, // Ideally a clean player-only URL
-      width: 1080,
-      height: 1920,
-      stream: mediaUrl, // VERY IMPORTANT: Allows direct playback inside the X feed
-    },
+          url: `${SITE_ROOT}/short/${post._id}?embed=true`,
+          stream: mediaUrl,
+          type: "video/mp4",
+          image: thumb,
+        },
   },
 };
   } catch (err) {
@@ -200,77 +227,7 @@ export default async function Page({ params }) {
         const authorId = `${SITE_ROOT}/profile/${post.userId?.username}#person`;
 
 // This is the cleaned, 100% Video-Focused Schema
-const videoSchema = {
-    "@context": "https://schema.org",
-    "@type": "VideoObject",
-    "name": post.title || "FondPeace Video",
-    "headline": post.title || "FondPeace Video",
-    "description": buildDescription(post),
-    "thumbnailUrl": [thumbnail || DEFAULT_THUMB],
-    // Ensure contentUrl points directly to the .mp4 file
-    ...(mediaUrl ? { "contentUrl": mediaUrl } : {}),
-    // Using the page URL as embedUrl is common for Reels/Shorts
-    "embedUrl": `${SITE_ROOT}/short/${post._id || id}`, 
-    "width": 1080, // Add this
-    "height": 1920, // Add this
-    "uploadDate": post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
-    "duration": post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : "PT0M30S",
-    "author": { 
-        "@type": "Person", 
-        "name": authorName,
-        "url": `${SITE_ROOT}/profile/${post.userId?.username}` 
-    },
-    "publisher": {
-        "@type": "Organization",
-        "name": "FondPeace",
-        "url": "https://www.fondpeace.com",
-        "logo": {
-            "@type": "ImageObject",
-            "url": "https://www.fondpeace.com/Fondpeace.jpg",
-            "width": 600,
-            "height": 60
-        }
-    },
-    "interactionStatistic": buildInteractionSchema(post),
-    "keywords": extractKeywords(post),
-    
-    "potentialAction": { 
-        "@type": "WatchAction", 
-        "target": pageUrl 
-    },
-    "isFamilyFriendly": true,
-    "isAccessibleForFree": true,
-    "mainEntityOfPage": { 
-        "@type": "WebPage", 
-        "@id": pageUrl 
-    },
-};
 
-  const breadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "FondPeace",
-      "item": SITE_ROOT
-    },
-    {
-      "@type": "ListItem",
-      "position": 2,
-      "name": authorName,
-      "item": `${SITE_ROOT}/profile/${authorName}`
-    },
-    {
-      "@type": "ListItem",
-      "position": 3,
-      "name": post.title || "Video",
-      "item": pageUrl
-    }
-  ]
-};
-      
          
   return (
   <main className="w-full min-h-screen bg-white">
@@ -283,12 +240,73 @@ const videoSchema = {
     __html: JSON.stringify({
       "@context": "https://schema.org",
       "@graph": [
-        videoSchema,
-        breadcrumbSchema
-      ]
-    })
+        // 1️⃣ BreadcrumbList (Google sees this first)
+        {
+          "@type": "BreadcrumbList",
+          "@id": `${pageUrl}#breadcrumb`,
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "FondPeace", item: SITE_ROOT },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: authorName || "FondPeace",
+              item: `${SITE_ROOT}/profile/${authorName || "anonymous"}`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: post.title ,
+              item: pageUrl,
+            },
+          ],
+        },
+
+        // 2️⃣ VideoObject
+        {
+          "@type": "VideoObject",
+          "@id": `${pageUrl}#video`,
+          name: post.title,
+          headline: post.title ,
+          description: post.title,
+          thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+          ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
+          embedUrl: pageUrl,
+          uploadDate: post.createdAt
+            ? new Date(post.createdAt).toISOString()
+            : new Date().toISOString(),
+          duration: post.duration ? secToISO(Number(post.duration)) : "PT0M30S",
+         
+          author: {
+            "@type": "Person",
+            "@id": authorId,
+            name: authorName || "FondPeace",
+            url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`,
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "FondPeace",
+            url: SITE_ROOT,
+            logo: {
+              "@type": "ImageObject",
+              url: `${SITE_ROOT}/Fondpeace.jpg`
+              
+            },
+          },
+          interactionStatistic: buildInteractionSchema(post),
+          keywords: extractKeywords(post),
+          isFamilyFriendly: true,
+          isAccessibleForFree: true,
+          potentialAction: { "@type": "WatchAction", target: pageUrl },
+          mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+
+          // 3️⃣ Comments (nested)
+          comment: mapComments(post, pageUrl),
+        },
+      ],
+    }),
   }}
 />
+
 
 
        {/* HEADER – Instagram style */}
@@ -324,7 +342,7 @@ const videoSchema = {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <img
-              src={post.user?.profilePic || "/Fondpeace.jpg"}
+              src={post.userId?.profilePic || "/Fondpeace.jpg"}
               alt={post.userId?.username || "User"}
               className="w-11 h-11 rounded-full object-cover border"
               loading="lazy"
@@ -358,19 +376,18 @@ const videoSchema = {
         {/* Media Section – VIDEO ONLY */}
 {isVideo && mediaUrl ? (
   <video
-  src={mediaUrl}
-  itemProp="contentUrl"  // Tells Google this is the video file
-  poster={thumbnail}
-  itemProp="thumbnailUrl" // Tells Google this is the image
-  controls
-  muted
-  playsInline
-  preload="metadata"
-  className="rounded-xl w-full aspect-[9/16] max-h-[80vh] bg-black object-contain"
->
-  <source src={mediaUrl} type="video/mp4" />
-</video>
+    poster={thumbnail}           // Thumbnail for Google
+    controls
+    muted
+    playsInline
+    preload="metadata"
+    className="rounded-xl w-full aspect-[9/16] max-h-[80vh] bg-black object-contain"
+  >
+    <source src={mediaUrl} type="video/mp4" itemProp="contentUrl" />
+    Your browser does not support the video tag.
+  </video>
 ) : null}
+
          
         {/* Post Title */}
 <h1 className="text-gray-800 mb-4 whitespace-pre-line">
