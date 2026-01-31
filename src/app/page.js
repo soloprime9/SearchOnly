@@ -165,81 +165,95 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <main className="w-full overflow-x-hidden">
-  <div className="mx-auto w-full max-w-screen-xl px-4 md:px-8 lg:px-12 pb-8">
+     {/* Optimized responsive layout with SEO and Feed Focus */}
+<main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
+  <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    {/* ===== HERO ===== */}
-    <header className="pt-6 md:pt-10 text-center md:text-left">
-      <h1 className="text-3xl md:text-5xl font-bold text-gray-900">
+    {/* ===== HERO / HEADER ===== */}
+    <header className="py-6 md:py-10 text-center">
+      <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900">
         FondPeace
       </h1>
+      <p className="mt-2 text-gray-500 text-sm md:text-base">Experience the community feed</p>
     </header>
 
-    {/* ===== SEARCH ===== */}
-    <section className="mt-6 flex justify-center md:justify-start">
+    {/* ===== SEARCH - Wider on Desktop ===== */}
+    <section className="mb-8 flex justify-center">
       <Link
         href="/searchbro"
         aria-label="Search FondPeace"
-        className="flex items-center gap-3 w-full md:max-w-xl lg:max-w-2xl p-4 border border-gray-300 rounded-xl bg-white text-gray-600 shadow-sm hover:shadow-md transition"
+        className="flex items-center gap-3 w-full max-w-4xl p-4 border border-gray-200 rounded-2xl bg-white text-gray-600 shadow-sm hover:shadow-lg hover:border-blue-300 transition-all duration-300"
       >
-        <FaSearch />
-        <span>Search Now</span>
+        <FaSearch className="text-blue-500" />
+        <span className="font-medium">Search posts, videos, or people...</span>
       </Link>
     </section>
 
-    {/* ===== CLIENT UI ===== */}
-    <div className="mt-4 w-full flex justify-center md:justify-start">
-      <WhatsAppClientUI />
+    {/* ===== CLIENT UI (WhatsApp Style) ===== */}
+    <div className="mb-8 flex justify-center w-full">
+      <div className="w-full max-w-4xl">
+         <WhatsAppClientUI />
+      </div>
     </div>
 
-    {/* ===== FEED ===== */}
-    <section className="mt-6 w-full">
+    {/* ===== FEED (VillageClient) - The "Instagram" Style Layout ===== */}
+    <section className="w-full max-w-4xl mx-auto space-y-6">
+      <h2 className="sr-only">Community Feed</h2> 
+      {/* VillageClient should handle its own grid/flex for posts/videos internally */}
       <VillageClient initialPosts={posts} />
     </section>
 
-    {/* ===== FOOTER ===== */}
-    <footer className="border-t mt-12 pt-10 text-sm text-gray-600">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    {/* ===== FOOTER - Improved Desktop Grid ===== */}
+    <footer className="mt-16 border-t border-gray-200 pt-12 pb-8 w-full">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-8 mb-10">
 
-        <div>
-          <h4 className="font-semibold mb-3">Platform</h4>
-          <Link className="block mb-1" href="/aboutus">About</Link>
-          <Link className="block mb-1" href="/contactus">Contact</Link>
-          <Link className="block" href="/blog">Blog</Link>
-        </div>
+        <nav aria-label="Platform links">
+          <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Platform</h4>
+          <div className="space-y-3">
+            <Link className="block hover:text-blue-600 transition" href="/aboutus">About</Link>
+            <Link className="block hover:text-blue-600 transition" href="/contactus">Contact</Link>
+            <Link className="block hover:text-blue-600 transition" href="/blog">Blog</Link>
+          </div>
+        </nav>
 
-        <div>
-          <h4 className="font-semibold mb-3">Legal</h4>
-          <Link className="block mb-1" href="/privacypolicy">Privacy Policy</Link>
-          <Link className="block mb-1" href="/termcondition">Terms & Conditions</Link>
-          <Link className="block" href="/disclaimer">Disclaimer</Link>
-        </div>
+        <nav aria-label="Legal links">
+          <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Legal</h4>
+          <div className="space-y-3">
+            <Link className="block hover:text-blue-600 transition" href="/privacypolicy">Privacy Policy</Link>
+            <Link className="block hover:text-blue-600 transition" href="/termcondition">Terms & Conditions</Link>
+            <Link className="block hover:text-blue-600 transition" href="/disclaimer">Disclaimer</Link>
+          </div>
+        </nav>
 
-        <div>
-          <h4 className="font-semibold mb-3">Join with us</h4>
-          <Link className="block mb-1" href="/signup">Signup</Link>
-          <Link className="block" href="/login">Login</Link>
-        </div>
+        <nav aria-label="Account links">
+          <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Join Us</h4>
+          <div className="space-y-3">
+            <Link className="block hover:text-blue-600 transition" href="/signup">Signup</Link>
+            <Link className="block hover:text-blue-600 transition" href="/login">Login</Link>
+          </div>
+        </nav>
 
-        <div>
-          <h4 className="font-semibold mb-3">Follow</h4>
-          <a className="block mb-1" href="https://www.linkedin.com/company/108773259/">LinkedIn</a>
-          <a className="block mb-1" href="https://www.youtube.com/@FondPeaceUpdate/">YouTube</a>
-          <a className="block mb-1" href="https://www.facebook.com/people/FondPeace-Social/61583656988052/">Facebook</a>
-          <a className="block mb-1" href="https://www.ambitionbox.com/reviews/fond-peace-reviews">AmbitionBox</a>
-          <a className="block mb-1" href="https://www.instagram.com/fondpeacetecho/">Instagram</a>
-          <a className="block" href="https://x.com/FondPeaceTech">Twitter</a>
-        </div>
+        <nav aria-label="Social links">
+          <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Follow</h4>
+          <div className="grid grid-cols-1 gap-3 break-all">
+            <a className="hover:text-blue-600 transition" href="https://www.linkedin.com/company/108773259/">LinkedIn</a>
+            <a className="hover:text-red-600 transition" href="https://www.youtube.com/@FondPeaceUpdate/">YouTube</a>
+            <a className="hover:text-blue-700 transition" href="https://www.facebook.com/people/FondPeace-Social/61583656988052/">Facebook</a>
+            <a className="hover:text-pink-600 transition" href="https://www.instagram.com/fondpeacetecho/">Instagram</a>
+            <a className="hover:text-black transition" href="https://x.com/FondPeaceTech">Twitter</a>
+          </div>
+        </nav>
 
       </div>
 
-      <p className="mt-8 text-center text-xs text-gray-500">
-        Operated independently by FondPeace · Built with transparency and trust
-      </p>
-
-      <p className="mt-2 text-center text-xs">
-        © {new Date().getFullYear()} FondPeace. All rights reserved.
-      </p>
+      <div className="border-t border-gray-100 pt-8 text-center">
+        <p className="text-gray-500 text-sm">
+          Operated independently by <strong>FondPeace</strong> · Built with transparency and trust
+        </p>
+        <p className="mt-2 text-gray-400 text-xs">
+          © {new Date().getFullYear()} FondPeace. All rights reserved.
+        </p>
+      </div>
     </footer>
 
   </div>
