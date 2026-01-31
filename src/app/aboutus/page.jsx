@@ -194,15 +194,43 @@ const AboutUs = () => {
       </p>
 
       <ul className="list-disc pl-6 mb-8 space-y-2">
-        <li>X (Twitter): https://x.com/FondPeaceTech</li>
-        <li>Instagram: https://www.instagram.com/fondpeacetecho/</li>
-        <li>Threads: https://www.threads.com/@fondpeacetecho</li>
-        <li>YouTube: https://www.youtube.com/@FondPeaceUpdate</li>
-        <li>Medium: https://medium.com/@fondpeace</li>
-        <li>AmbitionBox Review: https://www.ambitionbox.com/reviews/fond-peace-reviews</li>
-        <li>Facebook: https://www.facebook.com/people/FondPeace-Social/61583656988052/</li>
-        
-      </ul>
+  <li>
+    <a href="https://x.com/FondPeaceTech" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+      X (Twitter)
+    </a>
+  </li>
+  <li>
+    <a href="https://www.instagram.com/fondpeacetecho/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+      Instagram
+    </a>
+  </li>
+  <li>
+    <a href="https://www.threads.com/@fondpeacetecho" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+      Threads
+    </a>
+  </li>
+  <li>
+    <a href="https://www.youtube.com/@FondPeaceUpdate" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+      YouTube
+    </a>
+  </li>
+  <li>
+    <a href="https://medium.com/@fondpeace" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+      Medium
+    </a>
+  </li>
+  <li>
+    <a href="https://www.ambitionbox.com/reviews/fond-peace-reviews" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+      AmbitionBox Review
+    </a>
+  </li>
+  <li>
+    <a href="https://www.facebook.com/people/FondPeace-Social/61583656988052/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+      Facebook
+    </a>
+  </li>
+</ul>
+
 
       <p className="text-sm text-gray-600">
         FondPeace continues to evolve based on responsible development practices
