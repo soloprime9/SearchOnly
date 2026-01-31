@@ -157,12 +157,6 @@ export default async function HomePage() {
     console.error("Homepage feed fetch failed", err);
   }
 
-  
-
-
-
-
- 
   return (
     <>
       {/* Structured Data */}
@@ -171,104 +165,89 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
+      <main className="flex flex-col w-full px-4 pb-8 overflow-x-hidden">
+  <div className="w-full max-w-6xl mx-auto">
 
-      {/* Performance */}
-      <link rel="preconnect" href="https://backend-k.vercel.app" />
-      <link rel="dns-prefetch" href="https://backend-k.vercel.app" />
+    {/* ===== HERO ===== */}
+    <header className="pt-4 max-w-4xl mx-auto text-center px-2">
+      <h1 className="text-3xl md:text-5xl font-bold text-gray-900">
+        FondPeace
+      </h1>
+    </header>
 
-      <main className="flex flex-col items-center px-4 pb-8">
-        <div className="w-full max-w-6xl">
+    {/* ===== SEARCH ===== */}
+    <section className="mt-4 flex justify-center px-2">
+      <Link
+        href="/searchbro"
+        aria-label="Search FondPeace"
+        className="flex items-center gap-3 w-full max-w-3xl p-4 border border-gray-300 rounded-xl bg-white text-gray-600 shadow-sm hover:shadow-md transition"
+      >
+        <FaSearch />
+        <span>Search Now</span>
+      </Link>
+    </section>
 
-          
+    {/* ===== CLIENT UI ===== */}
+    <div className="mt-2 flex justify-center w-full">
+      <WhatsAppClientUI />
+    </div>
 
-          {/* ===== HERO ===== */}
-          <header className="pt-4 max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-              FondPeace
-            </h1>
+    {/* ===== FEED ===== */}
+    <section className="mt-4 w-full">
+      <VillageClient initialPosts={posts} />
+    </section>
 
-           
+    {/* ===== FOOTER ===== */}
+    <footer className="border-t mt-8 pt-8 text-sm text-gray-600 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
 
-            
-
-           
-   
-          </header>
-
-          {/* ===== SEARCH ===== */}
-          <section className="mt-4 flex justify-center">
-            <Link
-              href="/searchbro"
-              aria-label="Search FondPeace"
-              className="flex items-center gap-3 w-full max-w-3xl p-4 border border-gray-300 rounded-xl bg-white text-gray-600 shadow-sm hover:shadow-md transition"
-            >
-              <FaSearch />
-              <span>Search Now</span>
-            </Link>
-          </section>
-
-          {/* ===== CLIENT UI ===== */}
-          <div className="mt-2 flex justify-center">
-            <WhatsAppClientUI />
-          </div>
-
-          
-          {/* ===== FEED ===== */}
-          <section className="mt-4">
-            
-            <VillageClient initialPosts={posts} />
-          </section>
-
-          {/* ===== FOOTER ===== */}
-          <footer className="border-t mt-8 pt-8 text-sm text-gray-600">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div>
-                <h4 className="font-semibold">Platform</h4>
-                <Link href="/aboutus">About</Link><br />
-                <Link href="/contactus">Contact</Link><br />
-                <Link href="/blog">Blog</Link>
-              </div>
-              <div>
-                <h4 className="font-semibold">Legal</h4>
-                <Link href="/privacypolicy">Privacy Policy</Link><br />
-                <Link href="/termcondition">Terms & Conditions</Link><br />
-                <Link href="/disclaimer">Disclaimer</Link>
-              </div>
-              <div>
-                <h4 className="font-semibold">Join with us</h4>
-                <Link href="/signup">Signup</Link><br />
-                <Link href="/login">Login</Link>
-              </div>
-              <div>
-                <h4 className="font-semibold">Follow</h4>
-                <a href="https://www.linkedin.com/company/108773259/">LinkedIn</a><br />
-                <a href="https://www.youtube.com/@FondPeaceUpdate/">YouTube</a>
-                <a href="https://www.facebook.com/people/FondPeace-Social/61583656988052/">Facebook</a>
-                <a href="https://www.ambitionbox.com/reviews/fond-peace-reviews">AmbitionBox</a>
-                <a href="https://www.instagram.com/fondpeacetecho/">Instagram</a>
-               <a href="https://x.com/FondPeaceTech">Twitter</a>
-             
-             
-             
-
-              </div>
-            </div>
-
-            <p className="mt-6 text-center text-xs text-gray-500">
-              Operated independently by FondPeace · Built with transparency and trust
-            </p>
-
-            <p className="mt-2 text-center">
-              © {new Date().getFullYear()} FondPeace. All rights reserved.
-            </p>
-          </footer>
-
+        <div>
+          <h4 className="font-semibold mb-2">Platform</h4>
+          <Link className="block" href="/aboutus">About</Link>
+          <Link className="block" href="/contactus">Contact</Link>
+          <Link className="block" href="/blog">Blog</Link>
         </div>
-      </main>
+
+        <div>
+          <h4 className="font-semibold mb-2">Legal</h4>
+          <Link className="block" href="/privacypolicy">Privacy Policy</Link>
+          <Link className="block" href="/termcondition">Terms & Conditions</Link>
+          <Link className="block" href="/disclaimer">Disclaimer</Link>
+        </div>
+
+        <div>
+          <h4 className="font-semibold mb-2">Join with us</h4>
+          <Link className="block" href="/signup">Signup</Link>
+          <Link className="block" href="/login">Login</Link>
+        </div>
+
+        <div className="break-all">
+          <h4 className="font-semibold mb-2">Follow</h4>
+          <a className="block" href="https://www.linkedin.com/company/108773259/">LinkedIn</a>
+          <a className="block" href="https://www.youtube.com/@FondPeaceUpdate/">YouTube</a>
+          <a className="block" href="https://www.facebook.com/people/FondPeace-Social/61583656988052/">Facebook</a>
+          <a className="block" href="https://www.ambitionbox.com/reviews/fond-peace-reviews">AmbitionBox</a>
+          <a className="block" href="https://www.instagram.com/fondpeacetecho/">Instagram</a>
+          <a className="block" href="https://x.com/FondPeaceTech">Twitter</a>
+        </div>
+
+      </div>
+
+      <p className="mt-6 text-center text-xs text-gray-500 px-2">
+        Operated independently by FondPeace · Built with transparency and trust
+      </p>
+
+      <p className="mt-2 text-center text-xs">
+        © {new Date().getFullYear()} FondPeace. All rights reserved.
+      </p>
+    </footer>
+
+  </div>
+</main>
+
     </>
   );
 }
-
 
 
 
