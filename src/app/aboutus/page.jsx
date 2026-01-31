@@ -2,80 +2,213 @@ import React from "react";
 
 const AboutUs = () => {
   return (
-    <div className="p-4 max-w-3xl mx-auto text-gray-800">
-      <h1 className="text-2xl">About Us - Fond Peace</h1>
-      <p>Hello, Dear friends, Welcome to Fond Peace. We are happy you want to know more about our site.</p>
-      <p>
-        Nowadays, people are more dependent on online products and services. That's why we’ve taken a step forward to help.
-      </p>
-      <p>
-        Our first wish is to provide you with better solutions to your problems. If you don't get a solution, kindly mention it in the comment section.
-      </p>
-      <p>
-        We strive to provide fresh and latest content that helps you stay updated with global events.
-      </p>
-      <p>
-        Below you can find more details about our site, including our categories and content type.
-      </p>
-      <p>
-        For further questions or information, feel free to contact us at <strong>jotarikhan@gmail.com</strong>.
+    <div className="p-4 max-w-5xl mx-auto text-gray-800 leading-relaxed">
+
+      {/* INTRO */}
+      <h1 className="text-4xl font-bold mb-6">About FondPeace</h1>
+
+      <p className="mb-4">
+        FondPeace is an independent, community-driven social media and discussion
+        platform built to support meaningful conversations, original content
+        creation, and transparent online interaction.
       </p>
 
-      <h2 className="text-xl font-bold mt-6">What is Our Goal?</h2>
-      <p>
-        Millions of websites are created daily, but a lot of fake content exists too. Our goal is to provide 100% original and safe content to ensure a great user experience.
-      </p>
-      <p>
-        We continuously improve our service to provide a better user experience. Our main focus is on Social Media Platforms with AI Automation.
-      </p>
-
-      <h3 className="text-lg font-bold mt-4">What is Our Service?</h3>
-      <p>
-        We focus on the Social Media Platform with AI Automation category. If you’re interested in this field, visit us daily for the latest content.
-      </p>
-      <p>
-        Fondpeace.com is a free, modern all-in-one social platform that blends web search and community features. You can connect with friends, explore trending news, chat, join communities, share posts and much more, all from one seamless platform.
-      </p>
-      <p>
-        We cover multiple categories beyond our core niche and encourage visitors to check our homepage for more.
-      </p>
-      <p>
-        Join our notification service via email or social media. All links are on our homepage: <a href="https://www.fondpeace.com/" className="text-blue-600 underline">Fond Peace</a>.
+      <p className="mb-4">
+        In an internet environment increasingly shaped by noise, misinformation,
+        and artificial engagement, FondPeace exists to offer a calmer, more
+        responsible alternative. The platform focuses on real people, real
+        voices, and real discussions — without manipulation, hidden agendas,
+        or forced virality.
       </p>
 
-      <h3 className="text-lg font-bold mt-4">About Fond Peace</h3>
-      <p>
-        As mentioned, our core goal is to focus on the Social Media Platform with AI Automation niche to help users find reliable content.
-      </p>
-      <p>
-        This website was created to assist people in accessing accurate information easily and save their valuable time.
+      <p className="mb-8">
+        FondPeace is not designed to chase attention at any cost. Instead, it is
+        built with long-term trust, community safety, and user freedom at its
+        core.
       </p>
 
-      <h3 className="text-lg font-bold mt-4">Admin's Statement for Fond Peace</h3>
-      <p>
-        Many users struggle to find correct information online. Our priority at Fond Peace is to deliver 100% legit and accurate content. We hope to make a positive difference and provide an enhanced web experience.
+      {/* WHAT IS FONDPEACE */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">What is FondPeace?</h2>
+
+      <p className="mb-4">
+        FondPeace is a modern social and community platform that allows users to
+        share posts, participate in discussions, explore trending topics, and
+        connect with others around shared interests and ideas.
       </p>
 
-      <h3 className="text-lg font-bold mt-4">Admin's Contact Information</h3>
-      <p>Hi, I’m Aman. Below are my contact details:</p>
-
-      <table className="table-auto border border-gray-400 mt-2">
-        <tbody>
-          <tr><td className="border px-4 py-2">Name</td><td className="border px-4 py-2 font-bold">Aman</td></tr>
-          <tr><td className="border px-4 py-2">Email</td><td className="border px-4 py-2 font-bold">jotarikhan@gmail.com</td></tr>
-          <tr><td className="border px-4 py-2">LinkedIn</td><td className="border px-4 py-2"><a href="https://www.linkedin.com/in/fondpeace-plateform-060528365/" className="text-blue-600 underline">LinkedIn Profile</a></td></tr>
-          <tr><td className="border px-4 py-2">Twitter</td><td className="border px-4 py-2"><a href="https://www.linkedin.com/in/fondpeace-plateform-060528365/" className="text-blue-600 underline">Twitter Link</a></td></tr>
-          <tr><td className="border px-4 py-2">Instagram</td><td className="border px-4 py-2"><a href="https://www.linkedin.com/in/fondpeace-plateform-060528365/" className="text-blue-600 underline">Instagram Link</a></td></tr>
-        </tbody>
-      </table>
-
-      <p className="mt-4">
-        These are my personal contact platforms. Feel free to reach out with any feedback or issues.
+      <p className="mb-4">
+        The platform blends elements commonly found in social networks and
+        discussion communities — similar in concept to Instagram, X (Twitter),
+        Threads, and Reddit — while maintaining a strong focus on transparency,
+        responsibility, and content quality.
       </p>
 
-      <p className="mt-4">
-        Thanks again for visiting our About Us page. For more, visit our homepage: <a href="https://www.fondpeace.com/" className="text-blue-600 underline">Fond Peace</a>
+      <p className="mb-6">
+        Users can publish original content, engage in conversations, follow
+        topics, and interact with posts in an environment designed to prioritize
+        clarity over chaos.
       </p>
+
+      {/* WHY IT EXISTS */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">Why FondPeace Exists</h2>
+
+      <p className="mb-4">
+        The internet has grown rapidly, but not always responsibly. Many platforms
+        rely heavily on algorithmic amplification, sensational content, and
+        engagement-driven mechanics that often reward outrage rather than
+        understanding.
+      </p>
+
+      <p className="mb-4">
+        FondPeace was created to take a different path — one that values balanced
+        discussion, independent thinking, and respectful participation.
+      </p>
+
+      <p className="mb-6">
+        The goal is not to maximize screen time, but to build a platform where
+        users feel comfortable sharing ideas without fear of manipulation or
+        artificial pressure.
+      </p>
+
+      {/* WHAT USERS CAN DO */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">What Users Can Do on FondPeace</h2>
+
+      <ul className="list-disc pl-6 mb-6 space-y-2">
+        <li>Share original posts, thoughts, and discussions</li>
+        <li>Upload and publish content similar to social media platforms</li>
+        <li>Engage with posts through comments and reactions</li>
+        <li>Explore trending and community-driven topics</li>
+        <li>Follow discussions and creators they care about</li>
+        <li>Participate in conversations without forced algorithmic bias</li>
+      </ul>
+
+      <p className="mb-6">
+        FondPeace is designed to support both casual users and serious creators,
+        without prioritizing one at the cost of the other.
+      </p>
+
+      {/* FOR CREATORS */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">Support for Creators</h2>
+
+      <p className="mb-4">
+        FondPeace respects creators and original authorship. Content ownership
+        remains with the creator, and proper attribution is always visible.
+      </p>
+
+      <p className="mb-4">
+        Unlike platforms that rely on artificial engagement or paid visibility,
+        FondPeace encourages organic growth based on clarity, originality, and
+        consistency.
+      </p>
+
+      <p className="mb-6">
+        Creators are free to express ideas, share work, and build an audience
+        without being pressured to follow sensational trends.
+      </p>
+
+      {/* TRUST & SAFETY */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">
+        Trust, Safety & Responsible Moderation
+      </h2>
+
+      <p className="mb-4">
+        Trust is a foundational principle of FondPeace. The platform is designed
+        to reduce spam, misinformation, and abusive behavior while preserving
+        freedom of expression.
+      </p>
+
+      <p className="mb-4">
+        Content moderation focuses on protecting community integrity rather than
+        enforcing ideological viewpoints. Clear guidelines exist to ensure fair
+        participation for all users.
+      </p>
+
+      <p className="mb-6">
+        Automated abuse, fake engagement, and deceptive practices are actively
+        discouraged to maintain a healthy environment.
+      </p>
+
+      {/* DATA & PRIVACY */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">Data Privacy & Security</h2>
+
+      <p className="mb-4">
+        FondPeace collects only the information necessary to operate the platform
+        and improve user experience. Personal data is not sold or exploited for
+        third-party manipulation.
+      </p>
+
+      <p className="mb-4">
+        Security practices are applied to protect user accounts and content from
+        unauthorized access. The platform continuously evolves to improve safety
+        and reliability.
+      </p>
+
+      <p className="mb-6">
+        Users retain control over their content and interactions, with clear
+        policies governing data usage.
+      </p>
+
+      {/* TRANSPARENCY */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">Transparency & Independence</h2>
+
+      <p className="mb-4">
+        FondPeace is independently operated. There are no hidden editorial
+        partnerships, paid influence boosts, or undisclosed ranking systems.
+      </p>
+
+      <p className="mb-6">
+        Platform decisions are guided by long-term sustainability, community
+        trust, and responsible development rather than short-term metrics.
+      </p>
+
+      {/* FOUNDER */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">Founder</h2>
+
+      <p className="mb-4">
+        FondPeace was founded by <strong>Aman Kumar</strong>, who serves as the
+        Founder & Platform Editor.
+      </p>
+
+      <p className="mb-6">
+        The platform is built and managed with a long-term vision focused on
+        stability, transparency, and genuine community growth.
+      </p>
+
+      {/* CONTACT */}
+      <h2 className="text-2xl font-semibold mt-10 mb-4">Contact & Communication</h2>
+
+      <p className="mb-4">
+        FondPeace values open communication and community feedback.
+      </p>
+
+      <p className="mb-4">
+        For feedback, platform inquiries, creator support, or general
+        communication, you can contact directly:
+      </p>
+
+      <p className="font-semibold mb-4">📧 Email: jotarikhan@gmail.com</p>
+
+      <p className="mb-4">
+        Official updates and community interaction are also available through
+        FondPeace’s verified social platforms:
+      </p>
+
+      <ul className="list-disc pl-6 mb-8 space-y-2">
+        <li>X (Twitter): https://x.com/FondPeaceTech</li>
+        <li>Instagram: https://www.instagram.com/fondpeacetecho/</li>
+        <li>Threads: https://www.threads.com/@fondpeacetecho</li>
+        <li>YouTube: https://www.youtube.com/@FondPeaceUpdate</li>
+        <li>Medium: https://medium.com/@fondpeace</li>
+        <li>AmbitionBox Review: https://www.ambitionbox.com/reviews/fond-peace-reviews</li>
+        <li>Facebook: https://www.facebook.com/people/FondPeace-Social/61583656988052/</li>
+        
+      </ul>
+
+      <p className="text-sm text-gray-600">
+        FondPeace continues to evolve based on responsible development practices
+        and community feedback.
+      </p>
+
     </div>
   );
 };
