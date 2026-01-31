@@ -165,22 +165,22 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <main className="flex flex-col w-full px-4 pb-8 overflow-x-hidden">
-  <div className="w-full max-w-6xl mx-auto">
+      <main className="w-full overflow-x-hidden">
+  <div className="mx-auto w-full max-w-screen-xl px-4 md:px-8 lg:px-12 pb-8">
 
     {/* ===== HERO ===== */}
-    <header className="pt-4 max-w-4xl mx-auto text-center px-2">
+    <header className="pt-6 md:pt-10 text-center md:text-left">
       <h1 className="text-3xl md:text-5xl font-bold text-gray-900">
         FondPeace
       </h1>
     </header>
 
     {/* ===== SEARCH ===== */}
-    <section className="mt-4 flex justify-center px-2">
+    <section className="mt-6 flex justify-center md:justify-start">
       <Link
         href="/searchbro"
         aria-label="Search FondPeace"
-        className="flex items-center gap-3 w-full max-w-3xl p-4 border border-gray-300 rounded-xl bg-white text-gray-600 shadow-sm hover:shadow-md transition"
+        className="flex items-center gap-3 w-full md:max-w-xl lg:max-w-2xl p-4 border border-gray-300 rounded-xl bg-white text-gray-600 shadow-sm hover:shadow-md transition"
       >
         <FaSearch />
         <span>Search Now</span>
@@ -188,52 +188,52 @@ export default async function HomePage() {
     </section>
 
     {/* ===== CLIENT UI ===== */}
-    <div className="mt-2 flex justify-center w-full">
+    <div className="mt-4 w-full flex justify-center md:justify-start">
       <WhatsAppClientUI />
     </div>
 
     {/* ===== FEED ===== */}
-    <section className="mt-4 w-full">
+    <section className="mt-6 w-full">
       <VillageClient initialPosts={posts} />
     </section>
 
     {/* ===== FOOTER ===== */}
-    <footer className="border-t mt-8 pt-8 text-sm text-gray-600 w-full">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+    <footer className="border-t mt-12 pt-10 text-sm text-gray-600">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
 
         <div>
-          <h4 className="font-semibold mb-2">Platform</h4>
-          <Link className="block" href="/aboutus">About</Link>
-          <Link className="block" href="/contactus">Contact</Link>
+          <h4 className="font-semibold mb-3">Platform</h4>
+          <Link className="block mb-1" href="/aboutus">About</Link>
+          <Link className="block mb-1" href="/contactus">Contact</Link>
           <Link className="block" href="/blog">Blog</Link>
         </div>
 
         <div>
-          <h4 className="font-semibold mb-2">Legal</h4>
-          <Link className="block" href="/privacypolicy">Privacy Policy</Link>
-          <Link className="block" href="/termcondition">Terms & Conditions</Link>
+          <h4 className="font-semibold mb-3">Legal</h4>
+          <Link className="block mb-1" href="/privacypolicy">Privacy Policy</Link>
+          <Link className="block mb-1" href="/termcondition">Terms & Conditions</Link>
           <Link className="block" href="/disclaimer">Disclaimer</Link>
         </div>
 
         <div>
-          <h4 className="font-semibold mb-2">Join with us</h4>
-          <Link className="block" href="/signup">Signup</Link>
+          <h4 className="font-semibold mb-3">Join with us</h4>
+          <Link className="block mb-1" href="/signup">Signup</Link>
           <Link className="block" href="/login">Login</Link>
         </div>
 
-        <div className="break-all">
-          <h4 className="font-semibold mb-2">Follow</h4>
-          <a className="block" href="https://www.linkedin.com/company/108773259/">LinkedIn</a>
-          <a className="block" href="https://www.youtube.com/@FondPeaceUpdate/">YouTube</a>
-          <a className="block" href="https://www.facebook.com/people/FondPeace-Social/61583656988052/">Facebook</a>
-          <a className="block" href="https://www.ambitionbox.com/reviews/fond-peace-reviews">AmbitionBox</a>
-          <a className="block" href="https://www.instagram.com/fondpeacetecho/">Instagram</a>
+        <div>
+          <h4 className="font-semibold mb-3">Follow</h4>
+          <a className="block mb-1" href="https://www.linkedin.com/company/108773259/">LinkedIn</a>
+          <a className="block mb-1" href="https://www.youtube.com/@FondPeaceUpdate/">YouTube</a>
+          <a className="block mb-1" href="https://www.facebook.com/people/FondPeace-Social/61583656988052/">Facebook</a>
+          <a className="block mb-1" href="https://www.ambitionbox.com/reviews/fond-peace-reviews">AmbitionBox</a>
+          <a className="block mb-1" href="https://www.instagram.com/fondpeacetecho/">Instagram</a>
           <a className="block" href="https://x.com/FondPeaceTech">Twitter</a>
         </div>
 
       </div>
 
-      <p className="mt-6 text-center text-xs text-gray-500 px-2">
+      <p className="mt-8 text-center text-xs text-gray-500">
         Operated independently by FondPeace · Built with transparency and trust
       </p>
 
@@ -244,6 +244,7 @@ export default async function HomePage() {
 
   </div>
 </main>
+
 
     </>
   );
