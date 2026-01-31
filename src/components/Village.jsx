@@ -166,10 +166,12 @@ export default function Village({ initialPosts = [] }) {
               <FaHeart className="text-red-500 text-[26px]" />
             ) : (
               <FaRegHeart className="text-[26px] text-gray-800 hover:text-gray-500" />
+              <span>{post.likes?.length || 0}</span>
             )}
           </button>
           <button onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: !commentBoxOpen[post._id]}))}>
-            <FaCommentDots className="text-[24px] text-gray-800 hover:text-gray-500" />
+            <FaCommentDots className="text-[24px] text-gray-800 hover:text-gray-500" /> 
+            <span>{post.comments?.length || 0}</span>
           </button>
           <button onClick={() => handleShare(post)}>
             <FaShareAlt className="text-[22px] text-gray-800 hover:text-gray-500" />
@@ -183,13 +185,11 @@ export default function Village({ initialPosts = [] }) {
 
       {/* Stats and Caption */}
       <div className="space-y-1.5">
-        <p className="text-sm font-bold text-gray-900">
-          {post.likes?.length || 0} likes
-        </p>
+        
         
         <div className="text-sm text-gray-900 leading-snug">
           <span className="font-bold mr-2 hover:underline cursor-pointer">
-            {post.userId?.username || "Unknown"}
+            {post.userId?.username}
           </span>
           <span className="whitespace-pre-wrap">{titleText}</span>
           {title.length > 100 && (
