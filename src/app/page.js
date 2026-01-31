@@ -107,6 +107,8 @@ const structuredData = {
         "https://www.instagram.com/fondpeacetecho/",
          "https://x.com/FondPeaceTech",
          "https://news.fondpeace.com/"
+         
+         
       ],
     },
     // WebSite
@@ -115,7 +117,7 @@ const structuredData = {
       "@id": "https://fondpeace.com/#website",
       url: "https://fondpeace.com",
       name: "FondPeace",
-      alternateName: "FondPeace Community Platform",
+      alternateName: "FondPeace",
       publisher: { "@id": "https://fondpeace.com/#organization" },
       potentialAction: {
         "@type": "SearchAction",
@@ -123,19 +125,7 @@ const structuredData = {
         "query-input": "required name=search_term_string",
       },
     },
-    // CollectionPage (Homepage)
-    {
-      "@type": "CollectionPage",
-      "@id": "https://fondpeace.com/#webpage",
-      url: "https://fondpeace.com",
-      name: "FondPeace",
-      description: "Latest discussions and shared ideas from the FondPeace community.",
-      publisher: { "@id": "https://fondpeace.com/#organization" },
-      breadcrumb: { "@id": "https://fondpeace.com/#breadcrumb" },
-      image: "https://fondpeace.com/FondPeace-1200x630.jpg",
-      mainEntityOfPage: { "@id": "https://fondpeace.com/#webpage" },
-      mainEntity: [],
-    },
+    
     // Single Breadcrumb for Homepage
     {
       "@type": "BreadcrumbList",
@@ -167,64 +157,9 @@ export default async function HomePage() {
     console.error("Homepage feed fetch failed", err);
   }
 
-  const collectionNode = structuredData["@graph"].find(
-  (node) => node["@type"] === "CollectionPage"
+  
 );
 
-if (collectionNode && posts.length > 0) {
-  collectionNode.mainEntity = posts.map((post) => {
-    const isVideo = post.mediaType?.startsWith("video");
-
-    const postUrl = isVideo
-      ? `https://fondpeace.com/short/${post._id}`
-      : `https://fondpeace.com/post/${post._id}`;
-
-    const postImage = isVideo
-      ? post.thumbnail || post.medias?.url || "https://fondpeace.com/FondPeace-1200x630.jpg"
-      : post.media || post.medias?.url || "https://fondpeace.com/FondPeace-1200x630.jpg";
-
-    const authorProfileUrl = post.userId?.username
-      ? `https://fondpeace.com/profile/${encodeURIComponent(post.userId.username)}`
-      : "https://fondpeace.com/";
-
-    return {
-      "@type": "DiscussionForumPosting",
-      "@id": `${postUrl}#discussion`,
-      url: postUrl,
-
-      // Keep headline but neutralize Article inference
-      headline: post.title || "FondPeace Discussion",
-
-      author: {
-        "@type": "Person",
-        name: post.userId?.username || "FondPeace",
-        url: authorProfileUrl,
-      },
-
-      datePublished: post.createdAt,
-      dateModified: post.updatedAt || post.createdAt,
-
-      image: postImage,
-
-      interactionStatistic: [
-        {
-          "@type": "InteractionCounter",
-          interactionType: { "@type": "LikeAction" },
-          userInteractionCount: post.likes?.length || 0,
-        },
-        {
-          "@type": "InteractionCounter",
-          interactionType: { "@type": "CommentAction" },
-          userInteractionCount: post.comments?.length || 0,
-        },
-      ],
-
-      mainEntityOfPage: {
-        "@id": postUrl,
-      },
-    };
-  });
-}
 
 
  
@@ -252,18 +187,11 @@ if (collectionNode && posts.length > 0) {
               FondPeace
             </h1>
 
-            <p className="mt-2 text-xl text-gray-700">
-              A trusted community platform for open conversations.
-            </p>
+           
 
-            <p className="mt-2 text-gray-600 max-w-2xl mx-auto sr-only">
-              Discover thoughtful discussions, explore ideas, and participate in
-              respectful conversations without noise or manipulation.
-            </p>
+            
 
-            <p className="mt-2 text-sm text-gray-500 sr-only">
-              Independent · Community-first · Transparent
-            </p>
+           
    
           </header>
 
@@ -284,51 +212,10 @@ if (collectionNode && posts.length > 0) {
             <WhatsAppClientUI />
           </div>
 
-          {/* ===== PURPOSE ===== */}
-          <section className="mt-4 max-w-4xl mx-auto text-gray-700 space-y-10 sr-only">
-            <div>
-              <h2 className="text-2xl font-semibold mb-2">
-                Why FondPeace Exists
-              </h2>
-              <p>
-                FondPeace was created to offer a balanced, human-driven space for
-                open discussions without algorithmic bias or misinformation.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-semibold mb-2">
-                Who It’s For
-              </h2>
-              <p>
-                Readers, creators, and communities who value respectful dialogue,
-                independent thinking, and meaningful engagement.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-semibold mb-2">
-                Trust & Transparency
-              </h2>
-              <p>
-                Clear guidelines, real authorship, and responsible moderation
-                ensure reliability and long-term trust.
-              </p>
-            </div>
-          </section>
-
-          {/* ===== INTERNAL NAV ===== */}
-          <nav className="sr-only">
-            <Link href="/JobTension">Job Tension</Link>
-            <Link href="/IntroList">Intro List</Link>
-            <Link href="/aboutus">About FondPeace</Link>
-            <Link href="/contactus">Contact</Link>
-            <Link href="/privacypolicy">Privacy Policy</Link>
-          </nav>
-
+          
           {/* ===== FEED ===== */}
           <section className="mt-4">
-            <h2 className="sr-only">Latest Community Discussions</h2>
+            
             <VillageClient initialPosts={posts} />
           </section>
 
@@ -355,7 +242,15 @@ if (collectionNode && posts.length > 0) {
               <div>
                 <h4 className="font-semibold">Follow</h4>
                 <a href="https://www.linkedin.com/company/108773259/">LinkedIn</a><br />
-                <a href="https://www.youtube.com/@DhakadKhabar">YouTube</a>
+                <a href="https://www.youtube.com/@FondPeaceUpdate/">YouTube</a>
+                <a href="https://www.facebook.com/people/FondPeace-Social/61583656988052/">Facebook</a>
+                <a href="https://www.ambitionbox.com/reviews/fond-peace-reviews">AmbitionBox</a>
+                <a href="https://www.instagram.com/fondpeacetecho/">Instagram</a>
+               <a href="https://x.com/FondPeaceTech">Twitter</a>
+             
+             
+             
+
               </div>
             </div>
 
