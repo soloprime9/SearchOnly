@@ -88,13 +88,17 @@ export default function Village({ initialPosts = [] }) {
     const title = post.title || "";
     const titleText = isExpanded ? title : title.slice(0, 100) + (title.length > 100 ? "..." : "");
 
-    return (
-  <article key={post._id} className="bg-white mb-4 sm:mb-8 sm:rounded-xl overflow-hidden sm:border border-gray-200">
+   return (
+  <article 
+    key={post._id} 
+    className="bg-white w-full max-w-[600px] mx-auto mb-4 sm:mb-8 sm:rounded-lg overflow-hidden border-y sm:border border-gray-200 shadow-sm"
+  >
     
-    {/* 1. HEADER - Exactly like Instagram */}
-    <div className="flex items-center justify-between p-3">
+    {/* 1. HEADER - Clean & Compact */}
+    <div className="flex items-center justify-between p-3 h-[56px]">
       <div className="flex items-center gap-3">
-        <Link href={`/profile/${post.userId?.username}`} className="relative">
+        <Link href={`/profile/${post.userId?.username}`} className="relative group">
+          {/* Story-style gradient ring */}
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full p-[1.5px] bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
             <div className="bg-white p-[1.5px] rounded-full w-full h-full">
               <img 
@@ -106,33 +110,37 @@ export default function Village({ initialPosts = [] }) {
           </div>
         </Link>
         <Link href={`/profile/${post.userId?.username}`} className="flex flex-col">
-          <span className="text-sm font-bold text-gray-900 leading-none hover:text-gray-600">
+          <span className="text-sm font-bold text-gray-900 leading-none hover:underline">
             {post.userId?.username || "Unknown"}
           </span>
-          <span className="text-[11px] text-gray-500 mt-0.5">Community Member</span>
+          <span className="text-[11px] text-gray-500 mt-0.5 font-medium">Community Member</span>
         </Link>
       </div>
-      <button onClick={() => toast("Options coming soon 🚀")} className="text-gray-500 hover:text-black px-2">
-        <span className="text-lg">•••</span>
+      <button onClick={() => toast("Options coming soon 🚀")} className="text-gray-500 hover:text-black px-2 transition-colors">
+        <span className="text-lg tracking-widest font-bold">•••</span>
       </button>
     </div>
 
-    {/* 2. MEDIA SECTION - Edge-to-Edge with correct aspect ratio */}
+    {/* 2. MEDIA SECTION - No more "Ugly" stretching */}
     {post.media && (
       <div className="relative w-full bg-black flex items-center justify-center overflow-hidden min-h-[300px] max-h-[750px]">
-        <Link href={isVideo ? `/short/${post._id}` : `/post/${post._id}`} className="w-full h-full">
+        <Link 
+          href={isVideo ? `/short/${post._id}` : `/post/${post._id}`} 
+          className="w-full h-full flex items-center justify-center bg-black"
+        >
           {isVideo ? (
             <video
               ref={(ref) => (videoRefs.current[index] = ref)}
               src={post.media}
               loop playsInline muted
-              className="w-full h-full object-contain"
+              /* h-auto + object-contain prevents distorted faces/shapes */
+              className="w-full h-auto max-h-[750px] object-contain block mx-auto"
             />
           ) : (
             <img 
               src={post.media} 
               alt={post.title} 
-              className="w-full h-full object-contain" 
+              className="w-full h-auto max-h-[750px] object-contain block mx-auto" 
             />
           )}
         </Link>
@@ -140,94 +148,96 @@ export default function Village({ initialPosts = [] }) {
         {isVideo && (
           <button 
             onClick={(e) => { e.preventDefault(); toggleMute(index); }}
-            className="absolute bottom-4 right-4 bg-black/60 text-white p-2 rounded-full backdrop-blur-sm"
+            className="absolute bottom-4 right-4 bg-black/60 text-white p-2 rounded-full backdrop-blur-md hover:bg-black/80 transition"
           >
-            {mutedMap[index] ? <FaVolumeMute size={14} /> : <FaVolumeUp size={14} />}
+            {mutedMap[index] ? <FaVolumeMute size={12} /> : <FaVolumeUp size={12} />}
           </button>
         )}
       </div>
     )}
 
-    {/* 3. INTERACTION BAR - Icons directly under image */}
-    <div className="px-3 pt-3">
-      <div className="flex items-center justify-between">
+    {/* 3. INTERACTION & CONTENT AREA */}
+    <div className="px-3 pt-3 pb-4">
+      {/* Action Icons */}
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-4">
           <button onClick={() => handleLikePost(post._id)} className="transition-transform active:scale-125">
             {hasLikedPost(post) ? (
-              <FaHeart className="text-red-500 text-2xl" />
+              <FaHeart className="text-red-500 text-[26px]" />
             ) : (
-              <FaRegHeart className="text-2xl text-gray-800 hover:text-gray-500" />
+              <FaRegHeart className="text-[26px] text-gray-800 hover:text-gray-500" />
             )}
           </button>
           <button onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: !commentBoxOpen[post._id]}))}>
-            <FaCommentDots className="text-2xl text-gray-800 hover:text-gray-500" />
+            <FaCommentDots className="text-[24px] text-gray-800 hover:text-gray-500" />
           </button>
           <button onClick={() => handleShare(post)}>
-            <FaShareAlt className="text-xl text-gray-800 hover:text-gray-500" />
+            <FaShareAlt className="text-[22px] text-gray-800 hover:text-gray-500" />
           </button>
         </div>
-        <div className="flex items-center gap-1 text-gray-500">
-          <FaEye size={16} />
-          <span className="text-xs font-semibold">{post.views || 0}</span>
+        <div className="flex items-center gap-1.5 text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
+          <FaEye size={14} />
+          <span className="text-[11px] font-bold">{post.views || 0}</span>
         </div>
       </div>
 
-      {/* 4. LIKES COUNT */}
-      <div className="mt-2">
-        <span className="text-sm font-bold text-gray-900">
+      {/* Stats and Caption */}
+      <div className="space-y-1.5">
+        <p className="text-sm font-bold text-gray-900">
           {post.likes?.length || 0} likes
-        </span>
-      </div>
-
-      {/* 5. CAPTION (TITLE) - Below likes, exactly like Insta */}
-      <div className="mt-1 mb-2">
-        <p className="text-sm text-gray-900 leading-snug">
-          <span className="font-bold mr-2">{post.userId?.username || "Unknown"}</span>
+        </p>
+        
+        <div className="text-sm text-gray-900 leading-snug">
+          <span className="font-bold mr-2 hover:underline cursor-pointer">
+            {post.userId?.username || "Unknown"}
+          </span>
           <span className="whitespace-pre-wrap">{titleText}</span>
           {title.length > 100 && (
             <button 
               onClick={() => setExpandedPosts(p => ({...p, [post._id]: !isExpanded}))} 
-              className="text-gray-500 font-medium ml-1"
+              className="text-gray-500 font-medium ml-1 hover:text-gray-700"
             >
-              {isExpanded ? " less" : "...more"}
+              {isExpanded ? " show less" : "...more"}
             </button>
           )}
-        </p>
+        </div>
+
+        {/* Comment Preview Logic */}
+        {post.comments?.length > 0 && !commentBoxOpen[post._id] && (
+          <button 
+            onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: true}))}
+            className="text-sm text-gray-500 block hover:text-gray-400 transition"
+          >
+            View all {post.comments.length} comments
+          </button>
+        )}
       </div>
 
-      {/* 6. COMMENTS PREVIEW */}
-      {post.comments?.length > 0 && !commentBoxOpen[post._id] && (
-        <button 
-          onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: true}))}
-          className="text-sm text-gray-500 mb-2"
-        >
-          View all {post.comments.length} comments
-        </button>
-      )}
-
-      {/* 7. ACTIVE COMMENT SECTION */}
+      {/* Active Comments Dropdown */}
       {commentBoxOpen[post._id] && (
-        <div className="mt-2 py-2 border-t border-gray-50">
-          <div className="space-y-2 mb-3 max-h-32 overflow-y-auto">
+        <div className="mt-4 pt-3 border-t border-gray-100">
+          <div className="space-y-3 mb-4 max-h-48 overflow-y-auto custom-scrollbar">
             {post.comments?.map((cmt, i) => (
-              <p key={i} className="text-sm">
-                <span className="font-bold mr-2">{cmt?.userId?.username || "User"}</span>
-                {cmt?.CommentText}
-              </p>
+              <div key={i} className="flex gap-2 text-sm items-start">
+                <span className="font-bold whitespace-nowrap">{cmt?.userId?.username || "User"}</span>
+                <span className="text-gray-700 leading-tight">{cmt?.CommentText}</span>
+              </div>
             ))}
           </div>
-          <div className="flex items-center gap-2">
+          
+          {/* New Comment Input Field */}
+          <div className="flex items-center gap-3 mt-2 border border-gray-100 rounded-full px-4 py-2 bg-gray-50 focus-within:bg-white focus-within:border-blue-200 transition-all">
             <input
               type="text"
               placeholder="Add a comment..."
               value={commentTextMap[post._id] || ""}
               onChange={(e) => setCommentTextMap(p => ({...p, [post._id]: e.target.value}))}
-              className="flex-1 text-sm outline-none bg-transparent"
+              className="flex-1 text-sm bg-transparent outline-none text-gray-800"
             />
             <button 
               onClick={() => handleComment(post._id)}
-              disabled={!commentTextMap[post._id]}
-              className="text-blue-500 text-sm font-bold disabled:opacity-50"
+              disabled={!commentTextMap[post._id]?.trim()}
+              className="text-blue-500 text-sm font-bold disabled:opacity-30 hover:text-blue-700 transition"
             >
               Post
             </button>
@@ -235,7 +245,6 @@ export default function Village({ initialPosts = [] }) {
         </div>
       )}
     </div>
-    <div className="h-2 bg-transparent"></div> {/* Spacing at bottom of card */}
   </article>
 );
   }, [commentTextMap, commentBoxOpen, expandedPosts, userId, mutedMap]);
