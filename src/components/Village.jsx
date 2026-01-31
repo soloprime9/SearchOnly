@@ -89,131 +89,155 @@ export default function Village({ initialPosts = [] }) {
     const titleText = isExpanded ? title : title.slice(0, 100) + (title.length > 100 ? "..." : "");
 
     return (
-      <article key={post._id} className="bg-white border border-gray-100 sm:border-gray-200 sm:rounded-xl mb-4 sm:mb-8 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+  <article key={post._id} className="bg-white mb-4 sm:mb-8 sm:rounded-xl overflow-hidden sm:border border-gray-200">
+    
+    {/* 1. HEADER - Exactly like Instagram */}
+    <div className="flex items-center justify-between p-3">
+      <div className="flex items-center gap-3">
+        <Link href={`/profile/${post.userId?.username}`} className="relative">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full p-[1.5px] bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
+            <div className="bg-white p-[1.5px] rounded-full w-full h-full">
+              <img 
+                src="https://www.fondpeace.com/og-image.jpg" 
+                alt="profile" 
+                className="w-full h-full rounded-full object-cover" 
+              />
+            </div>
+          </div>
+        </Link>
+        <Link href={`/profile/${post.userId?.username}`} className="flex flex-col">
+          <span className="text-sm font-bold text-gray-900 leading-none hover:text-gray-600">
+            {post.userId?.username || "Unknown"}
+          </span>
+          <span className="text-[11px] text-gray-500 mt-0.5">Community Member</span>
+        </Link>
+      </div>
+      <button onClick={() => toast("Options coming soon 🚀")} className="text-gray-500 hover:text-black px-2">
+        <span className="text-lg">•••</span>
+      </button>
+    </div>
+
+    {/* 2. MEDIA SECTION - Edge-to-Edge with correct aspect ratio */}
+    {post.media && (
+      <div className="relative w-full bg-black flex items-center justify-center overflow-hidden min-h-[300px] max-h-[750px]">
+        <Link href={isVideo ? `/short/${post._id}` : `/post/${post._id}`} className="w-full h-full">
+          {isVideo ? (
+            <video
+              ref={(ref) => (videoRefs.current[index] = ref)}
+              src={post.media}
+              loop playsInline muted
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <img 
+              src={post.media} 
+              alt={post.title} 
+              className="w-full h-full object-contain" 
+            />
+          )}
+        </Link>
         
-        {/* HEADER */}
-        <div className="flex items-center justify-between p-3 sm:p-4">
-          <Link href={`/profile/${post.userId?.username}`} className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-blue-500 p-0.5">
-              <img src="https://www.fondpeace.com/og-image.jpg" alt="profile" className="w-full h-full rounded-full object-cover" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-sm sm:text-base text-gray-900 group-hover:text-blue-600 transition-colors">
-                {post.userId?.username || "Unknown"}
-              </span>
-              <span className="text-[10px] sm:text-xs text-gray-500 uppercase font-medium tracking-wider">Community Member</span>
-            </div>
-          </Link>
-          <button onClick={() => toast("Options coming soon 🚀")} className="text-gray-400 hover:text-gray-900 transition-colors p-2">
-            <span className="text-xl">⋮</span>
+        {isVideo && (
+          <button 
+            onClick={(e) => { e.preventDefault(); toggleMute(index); }}
+            className="absolute bottom-4 right-4 bg-black/60 text-white p-2 rounded-full backdrop-blur-sm"
+          >
+            {mutedMap[index] ? <FaVolumeMute size={14} /> : <FaVolumeUp size={14} />}
+          </button>
+        )}
+      </div>
+    )}
+
+    {/* 3. INTERACTION BAR - Icons directly under image */}
+    <div className="px-3 pt-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button onClick={() => handleLikePost(post._id)} className="transition-transform active:scale-125">
+            {hasLikedPost(post) ? (
+              <FaHeart className="text-red-500 text-2xl" />
+            ) : (
+              <FaRegHeart className="text-2xl text-gray-800 hover:text-gray-500" />
+            )}
+          </button>
+          <button onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: !commentBoxOpen[post._id]}))}>
+            <FaCommentDots className="text-2xl text-gray-800 hover:text-gray-500" />
+          </button>
+          <button onClick={() => handleShare(post)}>
+            <FaShareAlt className="text-xl text-gray-800 hover:text-gray-500" />
           </button>
         </div>
-
-        {/* TEXT CONTENT */}
-        <div className="px-4 pb-3">
-          <p className="text-gray-800 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
-            {titleText}
-            {title.length > 100 && (
-              <button onClick={() => setExpandedPosts(p => ({...p, [post._id]: !isExpanded}))} className="text-blue-600 font-semibold ml-1 hover:underline">
-                {isExpanded ? " Show less" : " ...read more"}
-              </button>
-            )}
-          </p>
+        <div className="flex items-center gap-1 text-gray-500">
+          <FaEye size={16} />
+          <span className="text-xs font-semibold">{post.views || 0}</span>
         </div>
+      </div>
 
-        {/* MEDIA SECTION */}
-        {post.media && (
-          <div className="relative bg-black w-full flex items-center justify-center min-h-[300px] max-h-[700px] overflow-hidden">
-            <Link href={isVideo ? `/short/${post._id}` : `/post/${post._id}`} className="w-full h-full">
-              {isVideo ? (
-                <video
-                  ref={(ref) => (videoRefs.current[index] = ref)}
-                  src={post.media}
-                  loop playsInline muted
-                  className="w-full max-h-[700px] object-contain"
-                />
-              ) : (
-                <img src={post.media} alt={post.title} className="w-full h-auto max-h-[700px] object-contain" />
-              )}
-            </Link>
-            
-            {isVideo && (
-              <button 
-                onClick={(e) => { e.preventDefault(); toggleMute(index); }}
-                className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md text-white p-3 rounded-full hover:bg-black/70 transition"
-              >
-                {mutedMap[index] ? <FaVolumeMute /> : <FaVolumeUp />}
-              </button>
-            )}
-          </div>
-        )}
+      {/* 4. LIKES COUNT */}
+      <div className="mt-2">
+        <span className="text-sm font-bold text-gray-900">
+          {post.likes?.length || 0} likes
+        </span>
+      </div>
 
-        {/* INTERACTION BAR */}
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-6">
-              <button onClick={() => handleLikePost(post._id)} className="flex items-center gap-2 group">
-                {hasLikedPost(post) ? (
-                  <FaHeart className="text-red-500 text-xl sm:text-2xl animate-heartbeat" />
-                ) : (
-                  <FaRegHeart className="text-xl sm:text-2xl group-hover:scale-110 transition-transform text-gray-700" />
-                )}
-                <span className="font-bold text-sm">{post.likes?.length || 0}</span>
-              </button>
-
-              <button onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: !commentBoxOpen[post._id]}))} className="flex items-center gap-2 group">
-                <FaCommentDots className="text-xl sm:text-2xl group-hover:scale-110 transition-transform text-gray-700" />
-                <span className="font-bold text-sm">{post.comments?.length || 0}</span>
-              </button>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5 text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                <FaEye className="text-sm" />
-                <span className="text-xs font-bold">{post.views || 0}</span>
-              </div>
-              <button onClick={() => handleShare(post)} className="text-gray-700 hover:text-blue-600 transition-colors p-1">
-                <FaShareAlt className="text-xl" />
-              </button>
-            </div>
-          </div>
-
-          {/* COMMENTS SECTION */}
-          {commentBoxOpen[post._id] && (
-            <div className="mt-4 pt-4 border-t border-gray-100 space-y-4">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Add a comment..."
-                  value={commentTextMap[post._id] || ""}
-                  onChange={(e) => setCommentTextMap(p => ({...p, [post._id]: e.target.value}))}
-                  className="flex-1 bg-gray-50 border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                />
-                <button 
-                  onClick={() => handleComment(post._id)}
-                  className="text-blue-600 font-bold text-sm px-2 disabled:opacity-50"
-                  disabled={!commentTextMap[post._id]}
-                >
-                  Post
-                </button>
-              </div>
-              
-              <div className="max-h-60 overflow-y-auto space-y-3 custom-scrollbar">
-                {post.comments?.map((cmt, i) => (
-                  <div key={i} className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0" />
-                    <div className="bg-gray-50 rounded-2xl px-3 py-2 text-sm">
-                      <p className="font-bold text-gray-900">{cmt?.userId?.username || "User"}</p>
-                      <p className="text-gray-700">{cmt?.CommentText}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* 5. CAPTION (TITLE) - Below likes, exactly like Insta */}
+      <div className="mt-1 mb-2">
+        <p className="text-sm text-gray-900 leading-snug">
+          <span className="font-bold mr-2">{post.userId?.username || "Unknown"}</span>
+          <span className="whitespace-pre-wrap">{titleText}</span>
+          {title.length > 100 && (
+            <button 
+              onClick={() => setExpandedPosts(p => ({...p, [post._id]: !isExpanded}))} 
+              className="text-gray-500 font-medium ml-1"
+            >
+              {isExpanded ? " less" : "...more"}
+            </button>
           )}
+        </p>
+      </div>
+
+      {/* 6. COMMENTS PREVIEW */}
+      {post.comments?.length > 0 && !commentBoxOpen[post._id] && (
+        <button 
+          onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: true}))}
+          className="text-sm text-gray-500 mb-2"
+        >
+          View all {post.comments.length} comments
+        </button>
+      )}
+
+      {/* 7. ACTIVE COMMENT SECTION */}
+      {commentBoxOpen[post._id] && (
+        <div className="mt-2 py-2 border-t border-gray-50">
+          <div className="space-y-2 mb-3 max-h-32 overflow-y-auto">
+            {post.comments?.map((cmt, i) => (
+              <p key={i} className="text-sm">
+                <span className="font-bold mr-2">{cmt?.userId?.username || "User"}</span>
+                {cmt?.CommentText}
+              </p>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Add a comment..."
+              value={commentTextMap[post._id] || ""}
+              onChange={(e) => setCommentTextMap(p => ({...p, [post._id]: e.target.value}))}
+              className="flex-1 text-sm outline-none bg-transparent"
+            />
+            <button 
+              onClick={() => handleComment(post._id)}
+              disabled={!commentTextMap[post._id]}
+              className="text-blue-500 text-sm font-bold disabled:opacity-50"
+            >
+              Post
+            </button>
+          </div>
         </div>
-      </article>
-    );
+      )}
+    </div>
+    <div className="h-2 bg-transparent"></div> {/* Spacing at bottom of card */}
+  </article>
+);
   }, [commentTextMap, commentBoxOpen, expandedPosts, userId, mutedMap]);
 
   return (
