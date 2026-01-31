@@ -113,7 +113,7 @@ export default function Village({ initialPosts = [] }) {
           <span className="text-sm font-bold text-gray-900 leading-none hover:underline">
             {post.userId?.username || "Unknown"}
           </span>
-          <span className="text-[11px] text-gray-500 mt-0.5 font-medium">Community Member</span>
+          <span className="text-[11px] text-gray-500 mt-0.5 font-medium">{new Date(post.createdAt).toLocaleDateString()}</span>
         </Link>
       </div>
       <button onClick={() => toast("Options coming soon 🚀")} className="text-gray-500 hover:text-black px-2 transition-colors">
@@ -175,7 +175,7 @@ export default function Village({ initialPosts = [] }) {
   )}
 </button>
 
-          <button onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: !commentBoxOpen[post._id]}))}>
+          <button onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: !commentBoxOpen[post._id]}))} className="flex items-center gap-1 transition-transform active:scale-125">
             <FaCommentDots className="text-[24px] text-gray-800 hover:text-gray-500" /> 
             <span>{post.comments?.length || 0}</span>
           </button>
