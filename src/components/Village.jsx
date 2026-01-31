@@ -161,14 +161,20 @@ export default function Village({ initialPosts = [] }) {
       {/* Action Icons */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-4">
-          <button onClick={() => handleLikePost(post._id)} className="transition-transform active:scale-125">
-            {hasLikedPost(post) ? (
-              <FaHeart className="text-red-500 text-[26px]" />
-            ) : (
-              <FaRegHeart className="text-[26px] text-gray-800 hover:text-gray-500" />
-              <span>{post.likes?.length || 0}</span>
-            )}
-          </button>
+          <button onClick={() => handleLikePost(post._id)} className="flex items-center gap-1 transition-transform active:scale-125">
+  {hasLikedPost(post) ? (
+    <div className="flex items-center gap-1">
+      <FaHeart className="text-red-500 text-[26px]" />
+      <span>{post.likes?.length || 0}</span>
+    </div>
+  ) : (
+    <div className="flex items-center gap-1">
+      <FaRegHeart className="text-[26px] text-gray-800 hover:text-gray-500" />
+      <span>{post.likes?.length || 0}</span>
+    </div>
+  )}
+</button>
+
           <button onClick={() => setCommentBoxOpen(p => ({...p, [post._id]: !commentBoxOpen[post._id]}))}>
             <FaCommentDots className="text-[24px] text-gray-800 hover:text-gray-500" /> 
             <span>{post.comments?.length || 0}</span>
