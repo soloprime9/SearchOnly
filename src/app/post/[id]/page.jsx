@@ -99,13 +99,13 @@ function buildCommentInteractionSchema(comment) {
 
 function buildDescription(post) {
   const author = post?.userId?.username || "FondPeace";
+  const views = viewsCount(post);
   const likes = likesCount(post);
   const comments = commentsCount(post);
-  const views = viewsCount(post);
 
-  // SEO-friendly, high-CTR, single flowing paragraph without periods
-  return `🔥 ${views} Views, ${likes} Likes, ${comments} Comments, watch "${post.title}" uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
+  return `${post.title} by ${author} on FondPeace with ${views} views ${likes} likes and ${comments} comments`;
 }
+
 
 function extractKeywords(post) {
   if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
@@ -287,17 +287,18 @@ const jsonLdRedditStyle = {
           "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
         },
         "interactionStatistic": [
-          {
-            "@type": "InteractionCounter",
-            "interactionType": "https://schema.org/LikeAction",
-            "userInteractionCount": c.likes || 0
-          },
-          {
-            "@type": "InteractionCounter",
-            "interactionType": "https://schema.org/ReplyAction",
-            "userInteractionCount": c.replies?.length || 0
-          }
-        ],
+  {
+    "@type": "InteractionCounter",
+    "interactionType": "https://schema.org/LikeAction",
+    "userInteractionCount": Array.isArray(c.likes) ? c.likes.length : 0
+  },
+  {
+    "@type": "InteractionCounter",
+    "interactionType": "https://schema.org/ReplyAction",
+    "userInteractionCount": Array.isArray(c.replies) ? c.replies.length : 0
+  }
+],
+
         "comment": (c.replies || []).map((r) => ({
           "@type": "Comment",
           "@id": `${pageUrl}#reply-${r._id}`,
@@ -311,12 +312,13 @@ const jsonLdRedditStyle = {
           },
           
           "interactionStatistic": [
-            {
-              "@type": "InteractionCounter",
-              "interactionType": "https://schema.org/LikeAction",
-              "userInteractionCount": r.likes || 0
-            }
-          ]
+  {
+    "@type": "InteractionCounter",
+    "interactionType": "https://schema.org/LikeAction",
+    "userInteractionCount": Array.isArray(r.likes) ? r.likes.length : 0
+  }
+]
+
         }))
       })),
 
@@ -2127,6 +2129,7 @@ const jsonLdRedditStyle = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
