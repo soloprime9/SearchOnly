@@ -47,7 +47,41 @@ export default function Village({ initialPosts = [] }) {
     .catch(() => {});
 }, [page]);
 
+  
+  const viewedPosts = useRef(new Set());
 
+const increaseView = useCallback((postId) => {
+  if (viewedPosts.current.has(postId)) return;
+
+  viewedPosts.current.add(postId);
+
+  axios.post(`${API_BASE}/post/view/${postId}`).catch(() => {});
+}, []);
+
+// 👁️ VIEW OBSERVER
+const viewObserver = useRef(null);
+
+const viewPostRef = useCallback(
+  (node, postId) => {
+    if (!node) return;
+
+    if (viewObserver.current) viewObserver.current.disconnect();
+
+    viewObserver.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          increaseView(postId); // 🔥 VIEW COUNT HERE
+        }
+      },
+      { threshold: 0.6 }
+    );
+
+    viewObserver.current.observe(node);
+  },
+  [increaseView]
+);
+
+  
   useEffect(() => {
     if (!posts.length) return;
     const observer = new IntersectionObserver(
@@ -298,15 +332,21 @@ export default function Village({ initialPosts = [] }) {
   return (
     <div className="max-w-2xl mx-auto w-full">
       {posts.map((post, idx) => {
-  if (idx === posts.length - 1) {
-    return (
-      <div ref={lastPostRef} key={post._id}>
-        {renderPost(post, idx)}
-      </div>
-    );
-  }
-  return <div key={post._id}>{renderPost(post, idx)}</div>;
+  const isLast = idx === posts.length - 1;
+
+  return (
+    <div
+      key={post._id}
+      ref={(node) => {
+        viewPostRef(node, post._id); // 👁️ VIEW
+        if (isLast) lastPostRef(node); // ⬇️ LOAD MORE
+      }}
+    >
+      {renderPost(post, idx)}
+    </div>
+  );
 })}
+
 
     </div>
   );
