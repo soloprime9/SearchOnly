@@ -6,7 +6,7 @@ import Link from "next/link";
 import jwt from "jsonwebtoken";
 import toast from "react-hot-toast";
 import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
-const viewObserver = useRef(null);
+
 
 export default function Village({ initialPosts = [] }) {
   const [posts, setPosts] = useState(initialPosts);
@@ -22,7 +22,8 @@ export default function Village({ initialPosts = [] }) {
   const videoRefs = useRef([]);
   const router = useRouter();
   const API_BASE = "https://backend-k.vercel.app";
-
+  const viewObserver = useRef(null);
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
