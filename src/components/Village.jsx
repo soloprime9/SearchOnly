@@ -9,6 +9,10 @@ import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye, FaVolumeMute, Fa
 
 export default function Village({ initialPosts = [] }) {
   const [posts, setPosts] = useState(initialPosts);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const observerRef = useRef(null);
+
   const [commentTextMap, setCommentTextMap] = useState({});
   const [commentBoxOpen, setCommentBoxOpen] = useState({});
   const [expandedPosts, setExpandedPosts] = useState({});
@@ -28,6 +32,21 @@ export default function Village({ initialPosts = [] }) {
       }
     } catch (e) { console.error("Token error"); }
   }, []);
+  useEffect(() => {
+  if (page === 1) return;
+
+  axios
+    .get(`${API_BASE}/post/mango/getall?page=${page}`)
+    .then((res) => {
+      if (!res.data.length) {
+        setHasMore(false);
+      } else {
+        setPosts((prev) => [...prev, ...res.data]);
+      }
+    })
+    .catch(() => {});
+}, [page]);
+
 
   useEffect(() => {
     if (!posts.length) return;
@@ -81,6 +100,23 @@ export default function Village({ initialPosts = [] }) {
       setMutedMap(prev => ({ ...prev, [index]: video.muted }));
     }
   };
+  const lastPostRef = useCallback(
+  (node) => {
+    if (!hasMore) return;
+
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setPage((prev) => prev + 1); // ✅ LOAD NEXT PAGE
+      }
+    });
+
+    if (node) observerRef.current.observe(node);
+  },
+  [hasMore]
+);
+
 
   const renderPost = useCallback((post, index) => {
     const isExpanded = expandedPosts[post._id];
@@ -132,7 +168,11 @@ export default function Village({ initialPosts = [] }) {
             <video
               ref={(ref) => (videoRefs.current[index] = ref)}
               src={post.media}
-              loop playsInline muted
+              autoPlay
+              loop
+              playsInline
+             muted
+             preload="none"
               /* h-auto + object-contain prevents distorted faces/shapes */
               className="w-full h-auto max-h-[750px] object-contain block mx-auto"
             />
@@ -257,7 +297,17 @@ export default function Village({ initialPosts = [] }) {
 
   return (
     <div className="max-w-2xl mx-auto w-full">
-      {posts.map((post, idx) => renderPost(post, idx))}
+      {posts.map((post, idx) => {
+  if (idx === posts.length - 1) {
+    return (
+      <div ref={lastPostRef} key={post._id}>
+        {renderPost(post, idx)}
+      </div>
+    );
+  }
+  return <div key={post._id}>{renderPost(post, idx)}</div>;
+})}
+
     </div>
   );
 }
