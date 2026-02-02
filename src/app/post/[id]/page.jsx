@@ -225,7 +225,7 @@ const jsonLdRedditStyle = {
       "headline": post.title,
       "description": post.title,
       "articleBody": post.title,
-      "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl }
+      "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
 
       "datePublished": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
@@ -2134,6 +2134,7 @@ const jsonLdRedditStyle = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
