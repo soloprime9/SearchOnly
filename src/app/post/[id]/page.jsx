@@ -219,12 +219,14 @@ const jsonLdRedditStyle = {
 
     // 2️⃣ Discussion Forum Post
     {
-      "@type": "DiscussionForumPosting",
+      "@type": "SocialMediaPosting",
       "@id": `${pageUrl}#post`,
       "url": pageUrl,
       "headline": post.title,
       "description": post.title,
       "articleBody": post.title,
+      "name": post.title,
+      "text": post.title,
       "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
 
       "datePublished": new Date(post.createdAt).toISOString(),
@@ -236,6 +238,8 @@ const jsonLdRedditStyle = {
         "url": `${SITE_ROOT}/profile/${authorName}`,
         "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
       },
+      
+
       "publisher": {
         "@type": "Organization",
         "name": "FondPeace",
@@ -2134,6 +2138,7 @@ const jsonLdRedditStyle = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
