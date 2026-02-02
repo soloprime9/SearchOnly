@@ -6,6 +6,7 @@ import Link from "next/link";
 import jwt from "jsonwebtoken";
 import toast from "react-hot-toast";
 import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+const viewObserver = useRef(null);
 
 export default function Village({ initialPosts = [] }) {
   const [posts, setPosts] = useState(initialPosts);
@@ -50,36 +51,16 @@ export default function Village({ initialPosts = [] }) {
   
   const viewedPosts = useRef(new Set());
 
-const increaseView = useCallback((postId) => {
-  if (viewedPosts.current.has(postId)) return;
+const increaseView = useCallback(
+  (postId) => {
+    if (viewedPosts.current.has(postId)) return;
 
-  viewedPosts.current.add(postId);
-  console.log(viewedPosts.current.add(postId));
+    viewedPosts.current.add(postId);
+    console.log("VIEW +1:", postId);
 
-  axios.post(`${API_BASE}/post/view/${postId}`).catch(() => {});
-}, []);
-
-// 👁️ VIEW OBSERVER
-const viewObserver = useRef(null);
-
-const viewPostRef = useCallback(
-  (node, postId) => {
-    if (!node) return;
-
-    if (viewObserver.current) viewObserver.current.disconnect();
-
-    viewObserver.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          increaseView(postId); // 🔥 VIEW COUNT HERE
-        }
-      },
-      { threshold: 0.6 }
-    );
-
-    viewObserver.current.observe(node);
+    axios.post(`${API_BASE}/post/view/${postId}`).catch(() => {});
   },
-  [increaseView]
+  [API_BASE]
 );
 
   
@@ -151,6 +132,22 @@ const viewPostRef = useCallback(
   },
   [hasMore]
 );
+
+  useEffect(() => {
+  viewObserver.current = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const postId = entry.target.dataset.postid;
+          if (postId) increaseView(postId);
+        }
+      });
+    },
+    { threshold: 0.6 }
+  );
+
+  return () => viewObserver.current?.disconnect();
+}, [increaseView]);
 
 
   const renderPost = useCallback((post, index) => {
@@ -336,15 +333,17 @@ const viewPostRef = useCallback(
   const isLast = idx === posts.length - 1;
 
   return (
-    <div
-      key={post._id}
-      ref={(node) => {
-        viewPostRef(node, post._id); // 👁️ VIEW
-        if (isLast) lastPostRef(node); // ⬇️ LOAD MORE
-      }}
-    >
-      {renderPost(post, idx)}
-    </div>
+      <div
+  key={post._id}
+  data-postid={post._id}
+  ref={(node) => {
+    if (node) viewObserver.current?.observe(node);
+    if (isLast) lastPostRef(node);
+  }}
+>
+  {renderPost(post, idx)}
+</div>
+
   );
 })}
 
