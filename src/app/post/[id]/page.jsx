@@ -103,7 +103,7 @@ function buildDescription(post) {
   const likes = likesCount(post);
   const comments = commentsCount(post);
 
-  return `${post.title} by ${author} on FondPeace with ${views} views ${likes} likes and ${comments} comments`;
+  return `${post.title}`;
 }
 
 
@@ -134,17 +134,17 @@ export async function generateMetadata({ params }) {
 
 
     const titleTag = `${post.title} - FondPeace`;
-
+    const description = post.title;
 
     return {
       title: titleTag,
-      description: buildDescription(post),
+      description: description,
       keywords: extractKeywords(post),
       alternates: { canonical: pageUrl },
 
       openGraph: {
   title: titleTag,
-  description: buildDescription(post),
+  description: description,
   url: pageUrl,
   type: isVideo ? "video.other" : "article",
   images: [{ url: thumb }],
@@ -162,7 +162,7 @@ export async function generateMetadata({ params }) {
 twitter: {
   card: isVideo ? "player" : "summary_large_image",
   title: titleTag,
-  description: buildDescription(post),
+  description: description,
   image: thumb,
   ...(isVideo && { player: mediaUrl })
 },
@@ -223,7 +223,10 @@ const jsonLdRedditStyle = {
       "@id": `${pageUrl}#post`,
       "url": pageUrl,
       "headline": post.title,
+      "description": post.title,
       "articleBody": post.title,
+      "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl }
+
       "datePublished": new Date(post.createdAt).toISOString(),
       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
       "author": {
@@ -509,10 +512,7 @@ const jsonLdRedditStyle = {
           </button>
         </div>
 
-        {/* Post Title */}
-<h1 className="text-gray-800 mb-4 whitespace-pre-line">
-  {post.title}
-</h1>
+        
 
 
         {/* Media Section */}
@@ -531,6 +531,11 @@ const jsonLdRedditStyle = {
             loading="lazy"
           />
         ) : null}
+
+        {/* Post Title */}
+<h1 className="text-gray-800 mb-4 whitespace-pre-line">
+  {post.title}
+</h1>
 
         {/* Post Content */}
         <SinglePostPage initialPost={post} />
@@ -658,7 +663,7 @@ const jsonLdRedditStyle = {
 //   ];
 // }
 
-// function buildDescription(post) {
+// function description {
 //   const title = post?.title || "";
 //   const author = post?.userId?.username;
 //   if (title && author) return `${title} uploaded by ${author}. Watch, like, and comment on FondPeace.`;
@@ -788,7 +793,7 @@ const jsonLdRedditStyle = {
 //     const extraImages = Array.isArray(post.extraImages) ? post.extraImages.map(toAbsolute) : [];
 //     const isVideo = Boolean(post.mediaType?.startsWith("video") || (mediaUrl && mediaUrl.endsWith(".mp4")));
 //     const titleTag = post.title ? `${post.title} | FondPeace` : "Post | FondPeace";
-//     const desc = buildDescription(post);
+//     const desc = description;
 //     const keywords = extractKeywords(post);
 
 //     // genre + hashtags
@@ -923,7 +928,7 @@ const jsonLdRedditStyle = {
 //           // url: pageUrl, <-- REMOVED THIS CONFLICTING LINE
 //           name: post.title,
 //           headline: post.title,
-//           description: buildDescription(post),
+//           description: description,
 //           thumbnailUrl: thumbnail,
 //           contentUrl: mediaUrl || undefined, // Video URL #1
 //           embedUrl: pageUrl, // Explicitly set the player URL to address "not on a watch page"
@@ -950,7 +955,7 @@ const jsonLdRedditStyle = {
 //           url: pageUrl,
 //           name: post.title,
 //           headline: post.title,
-//           description: buildDescription(post),
+//           description: description,
 //           contentUrl: mediaUrl || undefined,
 //           thumbnailUrl: thumbnail,
 //           datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
@@ -972,7 +977,7 @@ const jsonLdRedditStyle = {
 //           url: pageUrl,
 //           name: post.title,
 //           headline: post.title,
-//           description: buildDescription(post),
+//           description: description,
 //           image: [thumbnail, ...extraImages],
 //           datePublished: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
 //           dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
@@ -2129,6 +2134,7 @@ const jsonLdRedditStyle = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
