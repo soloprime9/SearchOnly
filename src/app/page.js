@@ -20,7 +20,7 @@ export const metadata = {
     "share ideas",
     "Indian community platform",
   ],
-  applicationName: "FondPeace",
+
   themeColor: "#1A73E8",
   robots: {
     index: true,
@@ -95,11 +95,12 @@ const structuredData = {
       alternateName: "FondPeace Community",
       url: "https://fondpeace.com",
       logo: {
-        "@type": "ImageObject",
-        url: "https://fondpeace.com/FondPeace-1200x630.jpg",
-        width: 1200,
-        height: 630,
-      },
+     "@type": "ImageObject",
+      url: "https://fondpeace.com/android-chrome-512x512.png",
+     width: 512,
+     height: 512,
+   },
+
       foundingDate: "2024",
       founder: { "@id": "https://fondpeace.com/#author" },
       sameAs: [
