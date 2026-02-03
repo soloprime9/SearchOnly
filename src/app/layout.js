@@ -1,10 +1,7 @@
-// app/layout.js
+// app/layout.jsx
 import { Inter } from "next/font/google";
 import "./globals.css";
-import StatusBar from "@/components/StatusBar";
-import Link from "next/link";
 import { Analytics } from "@vercel/analytics/react";
-import { FaSearch } from "react-icons/fa";
 import Script from "next/script";
 
 const inter = Inter({
@@ -12,12 +9,52 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+export const metadata = {
+  metadataBase: new URL("https://fondpeace.com"),
+
+  title: {
+    default: "FondPeace",
+    template: "%s | FondPeace",
+  },
+
+  applicationName: "FondPeace",
+
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+
+  manifest: "/site.webmanifest",
+
+  openGraph: {
+    type: "website",
+    siteName: "FondPeace",
+    images: [
+      {
+        url: "/android-chrome-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "FondPeace",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    images: ["/android-chrome-512x512.png"],
+  },
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head>
+      <body className={`${inter.variable} bg-gray-50`}>
 
-            {/* Google Analytics */}
+        {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-VTZGD645EG"
           strategy="afterInteractive"
@@ -30,36 +67,10 @@ export default function RootLayout({ children }) {
             gtag('config', 'G-VTZGD645EG');
           `}
         </Script>
-    
-      </head>
-      <body className={`${inter.variable} bg-gray-50`}>
 
-        {/* ===== HEADER ===== 
-       <header className="w-full fixed top-0 left-0 z-50 flex justify-center items-center px-4 py-3 md:py-4 border-b border-gray-200 bg-white shadow-md backdrop-blur-sm">
-
-  
-  <h1 className="font-bold text-lg sm:text-xl md:text-2xl text-blue-600 text-center">
-    <Link href="/" className="hover:text-blue-700 transition">
-      FondPeace.com
-    </Link>
-  </h1>
-
-</header>
-
-*/}
-
-        
-
-        {/* ===== PAGE CONTENT ===== */}
-        <div className="pt- md:px-0 max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {children}
         </div>
-
-        {/* ===== STATUS BAR ===== 
-        <div className="mt-8 px-4 md:px-0">
-          <StatusBar />
-        </div>
-        */}
 
         <Analytics />
       </body>
