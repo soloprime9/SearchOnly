@@ -12,11 +12,6 @@ const inter = Inter({
 export const metadata = {
   metadataBase: new URL("https://fondpeace.com"),
 
-  title: {
-    default: "FondPeace",
-    template: "%s | FondPeace",
-  },
-
   applicationName: "FondPeace",
 
   icons: {
@@ -30,23 +25,7 @@ export const metadata = {
 
   manifest: "/site.webmanifest",
 
-  openGraph: {
-    type: "website",
-    siteName: "FondPeace",
-    images: [
-      {
-        url: "/android-chrome-512x512.png",
-        width: 512,
-        height: 512,
-        alt: "FondPeace",
-      },
-    ],
-  },
 
-  twitter: {
-    card: "summary_large_image",
-    images: ["/android-chrome-512x512.png"],
-  },
 };
 
 export default function RootLayout({ children }) {
