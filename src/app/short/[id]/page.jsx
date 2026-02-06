@@ -94,35 +94,35 @@ function buildDescription(post) {
     return `${title} uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
 }
 
-function mapComments(post, pageUrl) {
-  return (post.comments || []).map((c) => ({
-    "@type": "Comment",
-    "@id": `${pageUrl}#comment-${c._id}`,
-    text: c.CommentText || "",
-    dateCreated: new Date(c.createdAt).toISOString(),
-    author: {
-      "@type": "Person",
-      "@id": `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}#person`,
-      name: c.userId?.username || "FondPeace",
-      url: `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}`,
-    },
-    interactionStatistic: buildCommentInteractionSchema(c),
-    comment: (c.replies || []).map((r) => ({
-      "@type": "Comment",
-      "@id": `${pageUrl}#reply-${r._id}`,
-      parentItem: { "@id": `${pageUrl}#comment-${c._id}` },
-      text: r.replyText || "",
-      dateCreated: new Date(r.createdAt).toISOString(),
-      author: {
-        "@type": "Person",
-        "@id": `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}#person`,
-        name: r.userId?.username || "FondPeace",
-        url: `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}`,
-      },
-      interactionStatistic: buildCommentInteractionSchema(r),
-    })),
-  }));
-}
+// function mapComments(post, pageUrl) {
+//   return (post.comments || []).map((c) => ({
+//     "@type": "Comment",
+//     "@id": `${pageUrl}#comment-${c._id}`,
+//     text: c.CommentText || "",
+//     dateCreated: new Date(c.createdAt).toISOString(),
+//     author: {
+//       "@type": "Person",
+//       "@id": `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}#person`,
+//       name: c.userId?.username || "FondPeace",
+//       url: `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}`,
+//     },
+//     interactionStatistic: buildCommentInteractionSchema(c),
+//     comment: (c.replies || []).map((r) => ({
+//       "@type": "Comment",
+//       "@id": `${pageUrl}#reply-${r._id}`,
+//       parentItem: { "@id": `${pageUrl}#comment-${c._id}` },
+//       text: r.replyText || "",
+//       dateCreated: new Date(r.createdAt).toISOString(),
+//       author: {
+//         "@type": "Person",
+//         "@id": `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}#person`,
+//         name: r.userId?.username || "FondPeace",
+//         url: `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}`,
+//       },
+//       interactionStatistic: buildCommentInteractionSchema(r),
+//     })),
+//   }));
+// }
 
 
 // --- Metadata Generator (Google Indexing Focus) ---
@@ -226,15 +226,38 @@ export default async function Page({ params }) {
 
         const authorId = `${SITE_ROOT}/profile/${post.userId?.username}#person`;
 
-// This is the cleaned, 100% Video-Focused Schema
+const videoSchema = {
+            "@context": "https://schema.org",
+            "@type": "VideoObject",
+            name: post.title || "FondPeace Video",
+            headline: post.title || "FondPeace Video",
+            description: buildDescription(post),
+            thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+            ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
+            embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
+            uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+            // ... (rest of the schema properties)
+            duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
+            author: { "@type": "Person", name: authorName, url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`, },
+            interactionStatistic: buildInteractionSchema(post),
+            keywords: extractKeywords(post),
+            inLanguage: "en-US",
+            potentialAction: { "@type": "WatchAction", target: pageUrl },
+            mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+        };
 
          
   return (
   <main className="w-full min-h-screen bg-white">
 
     {/* JSON-LD */}
+       <script
+                    key="video-jsonld"
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+                />
    
-<script
+{/* <script
   type="application/ld+json"
   dangerouslySetInnerHTML={{
     __html: JSON.stringify({
@@ -305,7 +328,7 @@ export default async function Page({ params }) {
       ],
     }),
   }}
-/>
+/> */}
 
 
 
