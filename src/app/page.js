@@ -2,7 +2,7 @@ import Link from "next/link";
 import { FaSearch } from "react-icons/fa";
 import VillageClient from "@/components/VillageClient";
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
-
+ 
 const API_BASE = "https://backend-k.vercel.app";
  
 /* =========================
