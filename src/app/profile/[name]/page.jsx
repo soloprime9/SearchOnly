@@ -1,6 +1,6 @@
 // app/profile/[username]/page.jsx
 import Profile from "@/components/Profile";
-
+ 
 const SITE_ROOT = "https://www.fondpeace.com";
 
 // ---------- METADATA (SEO HEAD) ----------
