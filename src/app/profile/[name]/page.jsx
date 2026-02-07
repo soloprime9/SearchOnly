@@ -25,7 +25,7 @@ export async function generateMetadata({ params }) {
     return {
       title: `${user.username} (@${user.username}) on FondPeace`,
       description:
-        user.bio ||
+        
         `View ${user.username}'s profile on FondPeace. Watch videos, posts, and updates.`,
       alternates: {
         canonical: `${SITE_ROOT}/profile/${user.username}`,
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }) {
       openGraph: {
         title: `${user.username} on FondPeace`,
         description:
-          user.bio ||
+          
           `Explore posts and videos shared by ${user.username} on FondPeace.`,
         url: `${SITE_ROOT}/profile/${user.username}`,
         images: [
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }) {
       twitter: {
         card: "summary",
         title: `${user.username} on FondPeace`,
-        description: user.bio || "",
+        description: `Explore posts and videos shared by ${user.username} on FondPeace.`,
         images: [user.profilePicture || `${SITE_ROOT}/Fondpeace.jpg`],
       },
     };
@@ -63,6 +63,7 @@ export default async function Page({ params }) {
   const username = name;
   console.log(username);
   let user = null;
+  
 
   try {
     const res = await fetch(
@@ -100,8 +101,7 @@ export default async function Page({ params }) {
                   "@id": `${SITE_ROOT}/profile/${username}#person`,
                   "name": user.username,
                   "alternateName": `@${user.username}`,
-                  "description":
-                    user.bio || "Creator on FondPeace",
+                  "description": `Explore posts and videos shared by ${user.username} on FondPeace.`,
                   "image":
                     user.profilePicture ||
                     `${SITE_ROOT}/Fondpeace.jpg`,
