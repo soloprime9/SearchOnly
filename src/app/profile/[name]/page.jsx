@@ -13,6 +13,7 @@ export async function generateMetadata({ params }) {
       { cache: "no-store" }
     );
 
+    console.log(res);
     if (!res.ok) {
       return { title: "Profile not found | FondPeace" };
     }
