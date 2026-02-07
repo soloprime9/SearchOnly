@@ -4,7 +4,7 @@ import VillageClient from "@/components/VillageClient";
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
  
 const API_BASE = "https://backend-k.vercel.app";
- 
+  
 /* =========================
    METADATA (GOOGLE SAFE)
 ========================= */
@@ -21,7 +21,6 @@ export const metadata = {
     "Indian community platform",
   ],
 
-  themeColor: "#1A73E8",
   robots: {
     index: true,
     follow: true,
