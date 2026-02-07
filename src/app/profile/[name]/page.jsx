@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
   console.log(username);
   try {
     const res = await fetch(
-      `https://backend-k.vercel.app/user/profile/${username}`,
+      `https://backend-k.vercel.app/user/profile-public/${username}`,
       { cache: "no-store" }
     );
 
@@ -66,7 +66,7 @@ export default async function Page({ params }) {
 
   try {
     const res = await fetch(
-      `https://backend-k.vercel.app/user/profile/${username}`,
+      `https://backend-k.vercel.app/user/profile-public/${username}`,
       { cache: "no-store" }
     );
 
