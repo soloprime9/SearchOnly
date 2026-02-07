@@ -2,7 +2,7 @@
 import Profile from "@/components/Profile";
  
 const SITE_ROOT = "https://www.fondpeace.com";
-
+ 
 // ---------- METADATA (SEO HEAD) ----------
 export async function generateMetadata({ params }) {
   const { username } = params;
