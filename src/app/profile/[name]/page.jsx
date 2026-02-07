@@ -6,7 +6,7 @@ const SITE_ROOT = "https://www.fondpeace.com";
 // ---------- METADATA (SEO HEAD) ----------
 export async function generateMetadata({ params }) {
   const { username } = params;
-
+  console.log(username);
   try {
     const res = await fetch(
       `https://backend-k.vercel.app/user/profile/${username}`,
