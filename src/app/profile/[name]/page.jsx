@@ -5,7 +5,8 @@ const SITE_ROOT = "https://www.fondpeace.com";
  
 // ---------- METADATA (SEO HEAD) ----------
 export async function generateMetadata({ params }) {
-  const { username } = params;
+  const { name } = params;
+  const username = name;
   console.log(username);
   try {
     const res = await fetch(
@@ -58,8 +59,9 @@ export async function generateMetadata({ params }) {
 
 // ---------- PAGE (STRUCTURED DATA + UI) ----------
 export default async function Page({ params }) {
-  const { username } = params;
-
+  const { name } = params;
+  const username = name;
+  console.log(username);
   let user = null;
 
   try {
