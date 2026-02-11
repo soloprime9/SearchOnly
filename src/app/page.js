@@ -182,7 +182,7 @@ export default async function HomePage() {
     "
   >
     {/* Left Sidebar */}
-    <aside className="hidden lg:block">
+    <aside className="">
       <LeftSidebar />
     </aside>
 
@@ -207,20 +207,42 @@ export default async function HomePage() {
             </div>
 
 
-            <div className="mt-8 text-xs text-gray-500">
-  <div className="flex flex-wrap gap-x-4 justify-evenn gap-y-2">
-    <Link href="/" className="hover:underline">About</Link>
-    <Link href="/" className="hover:underline">Accessibility</Link>
-    <Link href="/" className="hover:underline">Help Center</Link>
-    <Link href="/" className="hover:underline">Privacy & Terms</Link>
-    <Link href="/" className="hover:underline">Ad Choices</Link>
-    <Link href="/" className="hover:underline">Advertising</Link>
-    <Link href="/" className="hover:underline">Business Services</Link>
-    <Link href="/" className="hover:underline">Get the App</Link>
-    <Link href="/" className="hover:underline">More</Link>
+            <div className="flex flex-wrap justify-center p-6 mt- text-xs text-gray-500">
+  <div className="flex flex-wrap gap-y-2 gap-x-4 justify-around">
+    <Link href="/aboutus" className="hover:underline">About Us</Link>
+    <Link href="/contactus" className="hover:underline">Contact Us</Link>
+    <Link href="/blog" className="hover:underline">Blog</Link>
+    <Link href="/privacypolicy" className="hover:underline">Privacy Policy</Link>
+    <Link href="/termcondition" className="hover:underline">Terms & Conditions</Link>
+    <Link href="/disclaimer" className="hover:underline">Dislaimer</Link>
+    <Link href="/JobTension" className="hover:underline">Jobs & Careers</Link>
+    <Link href="/signup" className="hover:underline">Signup</Link>
+    <Link href="/login" className="hover:underline">Login</Link>
+    <Link href="https://x.com/FondPeaceTech" className="hover:underline">Twitter</Link>
+    <Link href="https://www.instagram.com/fondpeacetecho/" className="hover:underline">Instagram</Link>
+    <Link href="https://www.facebook.com/people/FondPeace-Social/61583656988052/" className="hover:underline">Facebook</Link>
+    <Link href="https://www.youtube.com/@FondPeaceUpdate/" className="hover:underline">Youtube</Link>
+    <Link href="https://www.threads.com/@fondpeacetecho" className="hover:underline">Threads</Link>
+    <Link href="https://www.linkedin.com/company/fondpeace/" className="hover:underline">Linkedin</Link>
+    <Link href="https://www.ambitionbox.com/overview/fond-peace-overview" className="hover:underline">AmbitionBox</Link>
+    <Link href="/searchbro" className="hover:underline">Search Now</Link>
+    <Link href="/upload" className="hover:underline">Upload</Link>
+    <Link href="/Reducer" className="hover:underline">Image Reducer Tool</Link>
+    <Link href="https://news.fondpeace.com/" className="hover:underline">FondPeace News</Link>
+    <Link href="/IntroList" className="hover:underline">IntroList</Link>
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
   </div>
- <div className="mt-3 text-gray-400">
-    © {new Date().getFullYear()} FondPeace Corporation
+ <div className="mt-3 text-blue-900 text-md text-bold">
+    © {new Date().getFullYear()} FondPeace. All rights reserved.
   </div>
 </div>
 
