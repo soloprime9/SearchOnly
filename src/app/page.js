@@ -209,15 +209,15 @@ export default async function HomePage() {
 
             <div className="mt-8 text-xs text-gray-500">
   <div className="flex flex-wrap gap-x-4 justify-evenn gap-y-2">
-    <a href="/" className="hover:underline">About</a>
-    <a href="/" className="hover:underline">Accessibility</a>
-    <a href="/" className="hover:underline">Help Center</a>
-    <a href="/" className="hover:underline">Privacy & Terms</a>
-    <a href="/" className="hover:underline">Ad Choices</a>
-    <a href="/" className="hover:underline">Advertising</a>
-    <a href="/" className="hover:underline">Business Services</a>
-    <a href="/" className="hover:underline">Get the App</a>
-    <a href="/" className="hover:underline">More</a>
+    <Link href="/" className="hover:underline">About</Link>
+    <Link href="/" className="hover:underline">Accessibility</Link>
+    <Link href="/" className="hover:underline">Help Center</Link>
+    <Link href="/" className="hover:underline">Privacy & Terms</Link>
+    <Link href="/" className="hover:underline">Ad Choices</Link>
+    <Link href="/" className="hover:underline">Advertising</Link>
+    <Link href="/" className="hover:underline">Business Services</Link>
+    <Link href="/" className="hover:underline">Get the App</Link>
+    <Link href="/" className="hover:underline">More</Link>
   </div>
  <div className="mt-3 text-gray-400">
     © {new Date().getFullYear()} FondPeace Corporation
