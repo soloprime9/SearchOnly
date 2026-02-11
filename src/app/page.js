@@ -188,7 +188,7 @@ export default async function HomePage() {
 
     {/* Main Feed (WIDER) */}
     <section className="w-full mt-6">
-      <Village initialPosts={posts} />
+      <VillageClient initialPosts={posts} />
     </section>
 
     {/* Right Sidebar */}
