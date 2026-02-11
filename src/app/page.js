@@ -2,7 +2,7 @@ import Link from "next/link";
 import { FaSearch } from "react-icons/fa";
 import VillageClient from "@/components/VillageClient";
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
- 
+ import LeftSidebar from "@//components/LeftSidebar"
 const API_BASE = "https://backend-k.vercel.app";
    
 /* =========================
@@ -166,98 +166,162 @@ export default async function HomePage() {
       />
 
      {/* Optimized responsive layout with SEO and Feed Focus */}
-<main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
-  <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    {/* ===== HERO / HEADER ===== */}
-    <header className="py-6 md:py-10 text-center">
-      <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900">
-        FondPeace
-      </h1>
-      <p className="mt-2 text-gray-500 text-sm md:text-base">Experience the community feed</p>
-    </header>
+{/* MAIN CONTENT (SPACE RESERVED FOR SIDEBAR) */}
+    <main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
+  <div
+    className="
+      grid 
+      grid-cols-1 
+      lg:grid-cols-[220px_minmax(0,1fr)_300px] 
+      max-w-7xl 
+      mx-auto
+      gap-4
+      md:px-2
+    "
+  >
+    {/* Left Sidebar */}
+    <aside className="hidden lg:block">
+      <LeftSidebar />
+    </aside>
 
-    {/* ===== SEARCH - Wider on Desktop ===== */}
-    <section className="mb-8 flex justify-center">
-      <Link
-        href="/searchbro"
-        aria-label="Search FondPeace"
-        className="flex items-center gap-3 w-full max-w-4xl p-4 border border-gray-200 rounded-2xl bg-white text-gray-600 shadow-sm hover:shadow-lg hover:border-blue-300 transition-all duration-300"
-      >
-        <FaSearch className="text-blue-500" />
-        <span className="font-medium">Search posts, videos, or people...</span>
-      </Link>
+    {/* Main Feed (WIDER) */}
+    <section className="w-full mt-6">
+      <Village initialPosts={posts} />
     </section>
 
-    {/* ===== CLIENT UI (WhatsApp Style) ===== */}
-    <div className="mb-8 flex justify-center w-full">
-      <div className="w-full max-w-4xl">
-         <WhatsAppClientUI />
-      </div>
-    </div>
+    {/* Right Sidebar */}
+    <aside className="hidden lg:block  rounded:md">
+      <div className=" mt-20 fixed">
+        <div  className="bg-blue-600 rounded-xl p-6 text-white shadow-xl shadow-blue-100">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="h-[2px] flex-grow bg-blue-400/50"></div>
+              <span className="text-xl font-black">FondPeace</span>
+              <div className="h-[2px] flex-grow bg-blue-400/50"></div>
+            </div>
+            <div className="space-y-3 text-sm leading-relaxed text-blue-50">
+              
+              <p className="opacity-80">FondPeace is an independent, community-driven social media and discussion platform built to support meaningful conversations, original content creation, and transparent online interaction.</p>
+            </div>
+            </div>
 
-    {/* ===== FEED (VillageClient) - The "Instagram" Style Layout ===== */}
-    <section className="w-full max-w-4xl mx-auto space-y-6">
-      <h2 className="sr-only">Community Feed</h2> 
-      {/* VillageClient should handle its own grid/flex for posts/videos internally */}
-      <VillageClient initialPosts={posts} />
-    </section>
 
-    {/* ===== FOOTER - Improved Desktop Grid ===== */}
-    <footer className="mt-16 border-t border-gray-200 pt-12 pb-8 w-full">
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-8 mb-10">
+            <div className="mt-8 text-xs text-gray-500">
+  <div className="flex flex-wrap gap-x-4 justify-evenn gap-y-2">
+    <a href="/" className="hover:underline">About</a>
+    <a href="/" className="hover:underline">Accessibility</a>
+    <a href="/" className="hover:underline">Help Center</a>
+    <a href="/" className="hover:underline">Privacy & Terms</a>
+    <a href="/" className="hover:underline">Ad Choices</a>
+    <a href="/" className="hover:underline">Advertising</a>
+    <a href="/" className="hover:underline">Business Services</a>
+    <a href="/" className="hover:underline">Get the App</a>
+    <a href="/" className="hover:underline">More</a>
+  </div>
+ <div className="mt-3 text-gray-400">
+    © {new Date().getFullYear()} FondPeace Corporation
+  </div>
+</div>
 
-        <nav aria-label="Platform links">
-          <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Platform</h4>
-          <div className="space-y-3">
-            <Link className="block hover:text-blue-600 transition" href="/aboutus">About</Link>
-            <Link className="block hover:text-blue-600 transition" href="/contactus">Contact</Link>
-            <Link className="block hover:text-blue-600 transition" href="/blog">Blog</Link>
+
           </div>
-        </nav>
-
-        <nav aria-label="Legal links">
-          <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Legal</h4>
-          <div className="space-y-3">
-            <Link className="block hover:text-blue-600 transition" href="/privacypolicy">Privacy Policy</Link>
-            <Link className="block hover:text-blue-600 transition" href="/termcondition">Terms & Conditions</Link>
-            <Link className="block hover:text-blue-600 transition" href="/disclaimer">Disclaimer</Link>
-          </div>
-        </nav>
-
-        <nav aria-label="Account links">
-          <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Join Us</h4>
-          <div className="space-y-3">
-            <Link className="block hover:text-blue-600 transition" href="/signup">Signup</Link>
-            <Link className="block hover:text-blue-600 transition" href="/login">Login</Link>
-          </div>
-        </nav>
-
-        <nav aria-label="Social links">
-          <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Follow</h4>
-          <div className="grid grid-cols-1 gap-3 break-all">
-            <a className="hover:text-blue-600 transition" href="https://www.linkedin.com/company/108773259/">LinkedIn</a>
-            <a className="hover:text-red-600 transition" href="https://www.youtube.com/@FondPeaceUpdate/">YouTube</a>
-            <a className="hover:text-blue-700 transition" href="https://www.facebook.com/people/FondPeace-Social/61583656988052/">Facebook</a>
-            <a className="hover:text-pink-600 transition" href="https://www.instagram.com/fondpeacetecho/">Instagram</a>
-            <a className="hover:text-black transition" href="https://x.com/FondPeaceTech">Twitter</a>
-          </div>
-        </nav>
-
-      </div>
-
-      <div className="border-t border-gray-100 pt-8 text-center">
-        <p className="text-gray-500 text-sm">
-          Operated independently by <strong>FondPeace</strong> · Built with transparency and trust
-        </p>
-        <p className="mt-2 text-gray-400 text-xs">
-          © {new Date().getFullYear()} FondPeace. All rights reserved.
-        </p>
-      </div>
-    </footer>
-
+    </aside>
   </div>
 </main>
+
+
+// <main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
+//   <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+
+//     {/* ===== HERO / HEADER ===== */}
+//     <header className="py-6 md:py-10 text-center">
+//       <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900">
+//         FondPeace
+//       </h1>
+//       <p className="mt-2 text-gray-500 text-sm md:text-base">Experience the community feed</p>
+//     </header>
+
+//     {/* ===== SEARCH - Wider on Desktop ===== */}
+//     <section className="mb-8 flex justify-center">
+//       <Link
+//         href="/searchbro"
+//         aria-label="Search FondPeace"
+//         className="flex items-center gap-3 w-full max-w-4xl p-4 border border-gray-200 rounded-2xl bg-white text-gray-600 shadow-sm hover:shadow-lg hover:border-blue-300 transition-all duration-300"
+//       >
+//         <FaSearch className="text-blue-500" />
+//         <span className="font-medium">Search posts, videos, or people...</span>
+//       </Link>
+//     </section>
+
+//     {/* ===== CLIENT UI (WhatsApp Style) ===== */}
+//     <div className="mb-8 flex justify-center w-full">
+//       <div className="w-full max-w-4xl">
+//          <WhatsAppClientUI />
+//       </div>
+//     </div>
+
+//     {/* ===== FEED (VillageClient) - The "Instagram" Style Layout ===== */}
+//     <section className="w-full max-w-4xl mx-auto space-y-6">
+//       <h2 className="sr-only">Community Feed</h2> 
+//       {/* VillageClient should handle its own grid/flex for posts/videos internally */}
+//       <VillageClient initialPosts={posts} />
+//     </section>
+
+//     {/* ===== FOOTER - Improved Desktop Grid ===== */}
+//     <footer className="mt-16 border-t border-gray-200 pt-12 pb-8 w-full">
+//       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-8 mb-10">
+
+//         <nav aria-label="Platform links">
+//           <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Platform</h4>
+//           <div className="space-y-3">
+//             <Link className="block hover:text-blue-600 transition" href="/aboutus">About</Link>
+//             <Link className="block hover:text-blue-600 transition" href="/contactus">Contact</Link>
+//             <Link className="block hover:text-blue-600 transition" href="/blog">Blog</Link>
+//           </div>
+//         </nav>
+
+//         <nav aria-label="Legal links">
+//           <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Legal</h4>
+//           <div className="space-y-3">
+//             <Link className="block hover:text-blue-600 transition" href="/privacypolicy">Privacy Policy</Link>
+//             <Link className="block hover:text-blue-600 transition" href="/termcondition">Terms & Conditions</Link>
+//             <Link className="block hover:text-blue-600 transition" href="/disclaimer">Disclaimer</Link>
+//           </div>
+//         </nav>
+
+//         <nav aria-label="Account links">
+//           <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Join Us</h4>
+//           <div className="space-y-3">
+//             <Link className="block hover:text-blue-600 transition" href="/signup">Signup</Link>
+//             <Link className="block hover:text-blue-600 transition" href="/login">Login</Link>
+//           </div>
+//         </nav>
+
+//         <nav aria-label="Social links">
+//           <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wider text-xs">Follow</h4>
+//           <div className="grid grid-cols-1 gap-3 break-all">
+//             <a className="hover:text-blue-600 transition" href="https://www.linkedin.com/company/108773259/">LinkedIn</a>
+//             <a className="hover:text-red-600 transition" href="https://www.youtube.com/@FondPeaceUpdate/">YouTube</a>
+//             <a className="hover:text-blue-700 transition" href="https://www.facebook.com/people/FondPeace-Social/61583656988052/">Facebook</a>
+//             <a className="hover:text-pink-600 transition" href="https://www.instagram.com/fondpeacetecho/">Instagram</a>
+//             <a className="hover:text-black transition" href="https://x.com/FondPeaceTech">Twitter</a>
+//           </div>
+//         </nav>
+
+//       </div>
+
+//       <div className="border-t border-gray-100 pt-8 text-center">
+//         <p className="text-gray-500 text-sm">
+//           Operated independently by <strong>FondPeace</strong> · Built with transparency and trust
+//         </p>
+//         <p className="mt-2 text-gray-400 text-xs">
+//           © {new Date().getFullYear()} FondPeace. All rights reserved.
+//         </p>
+//       </div>
+//     </footer>
+
+//   </div>
+// </main>
 
 
     </>
