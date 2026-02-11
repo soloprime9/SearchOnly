@@ -157,17 +157,18 @@ export default async function HomePage() {
     console.error("Homepage feed fetch failed", err);
   }
 
-  return (
-    <>
-      {/* Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
+    return (
+  <>
+    {/* Structured Data */}
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
 
-     {/* Optimized responsive layout with SEO and Feed Focus */}
+    {/* FIXED LEFT SIDEBAR */}
+    
 
-{/* MAIN CONTENT (SPACE RESERVED FOR SIDEBAR) */}
+    {/* MAIN CONTENT (SPACE RESERVED FOR SIDEBAR) */}
     <main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
   <div
     className="
@@ -229,6 +230,11 @@ export default async function HomePage() {
   </div>
 </main>
 
+  </>
+
+)
+
+};
 
 // <main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
 //   <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -324,9 +330,9 @@ export default async function HomePage() {
 // </main>
 
 
-    </>
-  );
-}
+//     </>
+//   );
+// }
 
 
 
