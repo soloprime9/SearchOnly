@@ -213,7 +213,7 @@ const increaseView = useCallback(
             <img 
               src={post.media} 
               alt={post.title} 
-              className="w-full max-w-[540px] aspect-[4/5] object-cover block mx-auto" 
+              className="w-full max-w-[540px] aspect-[4/5] object-contain block mx-auto" 
             />
           )}
         </Link>
