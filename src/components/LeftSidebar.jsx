@@ -1,4 +1,8 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import jwtDecode from "jwt-decode";
 import {
   FaHome,
   FaSearch,
@@ -10,18 +14,45 @@ import {
   FaShareAlt,
 } from "react-icons/fa";
 
-const menu = [
-  { icon: FaHome, label: "Home" },
-  { icon: FaSearch, label: "Search" },
-  { icon: FaUser, label: "Profile" },
-  { icon: FaVideo, label: "Shorts" },
-  { icon: FaUpload, label: "Upload" },
-  { icon: FaHeart, label: "Activity" },
-  { icon: FaShareAlt, label: "Social" },
-  { icon: FaCog, label: "Settings" },
-];
-
 export default function LeftSidebar() {
+  const [userId, setUserId] = useState(null);
+
+  // ✅ Get userId from token
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const decoded = jwtDecode(token);
+
+      if (decoded.exp * 1000 > Date.now()) {
+        setUserId(decoded.username);
+      } else {
+        localStorage.removeItem("token");
+      }
+    } catch (error) {
+      console.error("Invalid token");
+    }
+  }, []);
+
+  // ✅ Menu INSIDE component (so it can access userId)
+  const menu = [
+    { icon: FaHome, label: "Home", href: "/" },
+    { icon: FaSearch, label: "Search", href: "/searchbro" },
+    
+    { icon: FaVideo, label: "Shorts", href: "/shorts/698c432d0a8059958d20a4f4" },
+    { icon: FaUpload, label: "Upload", href: "/upload" },
+    
+    
+    {
+      icon: FaUser,
+      label: "Profile",
+      href: userId ? `/profile/${userId}` : "/login",
+    },
+    { icon: FaShareAlt, label: "Social", href: "/aboutus" },
+    
+  ];
+
   return (
     <>
       {/* DESKTOP SIDEBAR */}
@@ -35,13 +66,14 @@ export default function LeftSidebar() {
           z-30
           group
           transition-all duration-300
-          w-16 hover:w-56 left-0
+          w-16 hover:w-56
         "
       >
         <nav className="flex flex-col gap-1 mt-20 w-full">
           {menu.map((item, i) => (
-            <button
+            <Link
               key={i}
+              href={item.href}
               className="
                 flex items-center gap-4
                 px-4 py-3
@@ -53,7 +85,6 @@ export default function LeftSidebar() {
             >
               <item.icon className="text-xl shrink-0" />
 
-              {/* Label (shows on hover) */}
               <span
                 className="
                   whitespace-nowrap
@@ -64,7 +95,7 @@ export default function LeftSidebar() {
               >
                 {item.label}
               </span>
-            </button>
+            </Link>
           ))}
         </nav>
       </aside>
@@ -82,12 +113,13 @@ export default function LeftSidebar() {
         "
       >
         {menu.slice(0, 5).map((item, i) => (
-          <button
+          <Link
             key={i}
+            href={item.href}
             className="flex flex-col items-center text-gray-600 hover:text-black transition"
           >
             <item.icon className="text-xl" />
-          </button>
+          </Link>
         ))}
       </nav>
     </>
