@@ -108,7 +108,15 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      
+      {/* ===== HEADER ===== */}
+      <header className="w-full sticky top-0 left-0 z-50 bg-white">
+        <div >
+          {/* H1 */}
+      <h1 className="text-3xl font-bold text-center mb-4"><a href="/" className="text-blue-600 ">
+          FondPeace Blog
+        </a></h1>
+        </div>
+      </header>
 
       {/* Latest Posts */}
       <section>
@@ -144,7 +152,10 @@ export default function Home() {
         )}
       </section>
 
-      
+      {/* Footer */}
+      <footer className="mt-12 border-t pt-6 text-center text-gray-500 text-sm">
+        © {new Date().getFullYear()} FondPeace Blog. All Rights Reserved.
+      </footer>
     </main>
   );
 }
