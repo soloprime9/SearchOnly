@@ -23,6 +23,7 @@
     "react-markdown": "^8.0.0",
     "react-hot-toast": "^2.4.1",
     "rehype-raw": "^7.0.0",
+    "gray-matter": "^4.0.3",
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
