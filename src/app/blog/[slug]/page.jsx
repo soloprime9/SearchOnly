@@ -129,10 +129,10 @@ export default function Page({ params }) {
   return (
     <>
       {/* ===== HEADER ===== */}
-      <header className="w-full sticky top-0 left-0 z-50 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 flex items-center h-14">
+      <header className="w-full sticky top-0 left-0 z-50 bg-white">
+        <div ">
           {/* H1 */}
-      <h1 className="text-3xl font-bold text-center mb-6"><a href="/" className="text-blue-600 ">
+      <h1 className="text-3xl font-bold text-center mb-4"><a href="/" className="text-blue-600 ">
           FondPeace Blog
         </a></h1>
         </div>
