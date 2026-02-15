@@ -126,5 +126,25 @@ export default function Page({ params }) {
     author: data.author?.name ? { name: data.author.name } : { name: "FondPeace Blog" },
   };
 
-  return <SeoArticle {...props} />;
+  return (
+    <>
+      {/* ===== HEADER ===== */}
+      <header className="w-full sticky top-0 left-0 z-50 bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 flex items-center h-14">
+          {/* H1 */}
+      <h1 className="text-3xl font-bold text-center mb-6"><a href="/" className="text-blue-600 ">
+          FondPeace Blog
+        </a></h1>
+        </div>
+      </header>
+
+      <SeoArticle {...props} />
+      
+      {/* Footer */}
+      <footer className="mt-12 border-t pt-6 text-center text-gray-500 text-sm">
+        © {new Date().getFullYear()} FondPeace Blog. All Rights Reserved.
+      </footer>
+    </>
+  );
+  return ;
 }
