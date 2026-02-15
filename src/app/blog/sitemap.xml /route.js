@@ -4,7 +4,7 @@ import path from "path";
 
 const POSTS_DIR = path.join(process.cwd(), "src", "app", "posts");
 const SITE_URL = "https://fondpeace.com/blog";
-const SITE = "https://fondpeace.com
+const SITE = "https://fondpeace.com"
 
 export async function GET() {
   const files = fs.existsSync(POSTS_DIR)
