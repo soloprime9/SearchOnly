@@ -7,10 +7,10 @@ tags:
   - "Anupama 16th February 2026"
   - "Star Plus"
   - "Yeh Rishta Kya Kehlata Hai"
-canonical: "https://todaywrittenupdate.blog/yeh-rishta-kya-kehlata-hai-16th-february-2026-written-update"
+canonical: "https://fondpeace.com/blog/yeh-rishta-kya-kehlata-hai-16th-february-2026-written-update"
 ogImage: "/Images/Yrkkh.jpg"
 author:
-  name: "todaywrittenupdate team"
+  name: "FondPeace Blog"
 
 ---
 
@@ -40,7 +40,7 @@ Other side we see that Kaveri thinking about arman and abhira, and saying that t
 
 ## Next Episode Update
 
-Next we see tha rin upcoming episode that where Myra is thinking about her own mother, she is so unconfortable and break down in tear. Who will help Myra? For all these you can connect with us on [Today Written Update](https://www.todaywrittenupdate.blog/).
+Next we see tha rin upcoming episode that where Myra is thinking about her own mother, she is so unconfortable and break down in tear. Who will help Myra? For all these you can connect with us on [FondPeace Blog](https://www.fondpeace.com/blog/).
 
 ---
 
@@ -54,6 +54,13 @@ Next we see tha rin upcoming episode that where Myra is thinking about her own m
 - [IWMBuzz — Written Updates](https://www.iwmbuzz.com/)
 - [Telly Update](https://www.tellyupdate.com)
 - [Zee TV](https://www.zee5.com/)
-- [FondPeace.com](https://fondpeace.com/) 
+- [FondPeace.com](https://fondpeace.com/)
+- [TellyBooster](https://www.tellyboosters.com/)
+- [TellyReviews](https://tellyreviews.com/)
+- [JustShowBiz](https://www.justshowbiz.net/)
+- [Serial Gossip](https://www.serialgossip.com/)
+- [Free Press Journal](https://www.freepressjournal.in/)
+- [Filmibeat](https://www.filmibeat.com/)
+- [Times Of India](https://timesofindia.indiatimes.com/)
 
 ---
