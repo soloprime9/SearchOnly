@@ -108,7 +108,7 @@ export default function LeftSidebar() {
           bg-white
           border-t
           flex justify-around
-          py-2
+          py-4
           lg:hidden
         "
       >
@@ -118,7 +118,7 @@ export default function LeftSidebar() {
             href={item.href}
             className="flex flex-col items-center text-gray-600 hover:text-black transition"
           >
-            <item.icon className="text-xl" />
+            <item.icon className="text-2xl" />
           </Link>
         ))}
       </nav>
