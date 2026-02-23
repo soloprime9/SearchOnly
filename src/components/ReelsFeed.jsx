@@ -1273,7 +1273,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 
-const API_URL = "[https://backend-k.vercel.app/post/shorts](https://backend-k.vercel.app/post/shorts)";
+const API_URL = "https://backend-k.vercel.app/post/shorts";
 const DEFAULT_THUMB = "/fondpeace.jpg"; // fallback thumbnail
 
 const isBotUserAgent = () => {
@@ -1341,7 +1341,7 @@ if (loading || bot) return;
 setLoading(true);
 try {
 pageRef.current += 1;
-const res = await fetch(`${API_URL}?page=${pageRef.current}&limit=6`);
+const res = await fetch(`${API_URL}?page=${pageRef.current}&limit=15`);
 const data = await res.json();
 setPosts(prev => {
 const ids = new Set(prev.map(x => x._id));
