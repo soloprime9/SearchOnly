@@ -194,7 +194,7 @@ const increaseView = useCallback(
     {post.media && (
       <div className="relative w-full h-4/5 bg-black flex items-center justify-center overflow-hidden min-h-[300px] max-h--[750px]">
         <Link 
-          href={isVideo ? `/short/${post._id}` : `/post/${post._id}`} 
+          href={isVideo ? `/shorts/${post._id}` : `/post/${post._id}`} 
           className="w-full h-auto flex items-center justify-center bg-black"
         >
           {isVideo ? (
