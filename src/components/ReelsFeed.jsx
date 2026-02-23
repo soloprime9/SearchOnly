@@ -1395,7 +1395,7 @@ muted
 playsInline
 preload="metadata"
 loop
-className="object-contain w-full h-full"
+className="object-contain w-full h-full bg-black"
 /> <div className="absolute left-4 bottom-24 text-white max-w-[70%]"> <p className="font-semibold">@{item.userId?.username}</p> <p className="text-sm line-clamp-2 mt-1">{item.title}</p> </div> </div>
 );
 })} <div className="p-6 text-center"> <button
