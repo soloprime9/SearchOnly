@@ -1390,7 +1390,7 @@ style={{ position: "relative" }}
 ref={el => (videoRefs.current[index] = el)}
 src={videoUrl}
 poster={item.thumbnail || DEFAULT_THUMB}
-muted
+
       autoPlay
 playsInline
 preload="metadata"
