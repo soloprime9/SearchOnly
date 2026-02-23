@@ -2,6 +2,8 @@
 // app/short/[id]/page.jsx
 
 import StatusBar from "@/components/StatusBar";
+import LeftSidebar from "@/components/LeftSidebar";
+
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -213,7 +215,7 @@ export default async function Page({ params }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
         />
 
-        <StatusBar />
+        <LeftSidebar />
         <section className="max-w-3xl mx-auto px-4 py-6">
           {/* Server-rendered hidden <video> so crawlers detect video content even though player is client */}
           {mediaUrl && (
