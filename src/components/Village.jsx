@@ -19,6 +19,7 @@ export default function Village({ initialPosts = [] }) {
   const [expandedPosts, setExpandedPosts] = useState({});
   const [userId, setUserId] = useState(null);
   const [mutedMap, setMutedMap] = useState({});
+  const [copiedPostId, setCopiedPostId] = useState(null);
   const videoRefs = useRef([]);
   const router = useRouter();
   const API_BASE = "https://backend-k.vercel.app";
@@ -150,30 +151,26 @@ const increaseView = useCallback(
   return () => viewObserver.current?.disconnect();
 }, [increaseView]);
 
-const handleShare = async () => {
+const handleShare = async (postData) => {
   try {
-    // 1. Check if it's a video or image based on mimetype
-    // Mimetype usually looks like "video/mp4" or "image/jpeg"
-    const isVideo = post.mtype?.startsWith('video'); 
-    const path = isVideo ? 'short' : 'post';
+    // Correctly checking if it's a video/short
+    const isVideo = postData.mediaType?.startsWith('video') || postData.mtype?.startsWith('video'); 
+    const path = isVideo ? 'shorts' : 'post'; // URL path logic
 
-    // 2. Construct the dynamic URL
-    const url = `${window.location.origin}/${path}/${post._id}`;
-    
-    // 3. Prepare the text to copy
-    const shareText = `${post.title || 'Check this out!'}\n${url}`;
+    const url = `${window.location.origin}/${path}/${postData._id}`;
+    const shareText = `${postData.title || 'Check this out!'}\n${url}`;
 
-    // 4. Use Clipboard API
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(shareText);
-      alert("Link copied to clipboard!");
-    } else {
-      // Fallback for older browsers
-      throw new Error("Clipboard API not available");
+      
+      // Show "Copied" text for this specific post
+      setCopiedPostId(postData._id);
+      
+      // 2 seconds baad hide kar dein
+      setTimeout(() => setCopiedPostId(null), 2000);
     }
   } catch (err) {
     console.error("Failed to copy:", err);
-    alert("Could not copy link. Please try manually.");
   }
 };
   
@@ -279,13 +276,22 @@ const handleShare = async () => {
             <span>{post.comments?.length || 0}</span>
           </button>
           
-          <button 
-  onClick={handleShare}
-  title="Share post"
-  className="p-2 transition-colors duration-200"
->
-  <FaShareAlt className="text-[22px] text-gray-800 hover:text-gray-500" />
-</button>
+        <div className="relative flex items-center">
+  <button 
+    onClick={() => handleShare(post)} 
+    title="Share post"
+    className="p-2 transition-colors duration-200 relative group"
+  >
+    <FaShareAlt className="text-[22px] text-gray-800 hover:text-gray-500 transition-transform active:scale-125" />
+    
+    {/* Floating "Copied" Message */}
+    {copiedPostId === post._id && (
+      <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[9px] px-2 py-0.5 rounded font-bold whitespace-nowrap z-50 shadow-sm">
+        COPIED!
+      </span>
+    )}
+  </button>
+</div>
           
         </div>
         <div className="flex items-center gap-1.5 text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
