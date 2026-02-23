@@ -276,17 +276,16 @@ const handleShare = async (postData) => {
             <span>{post.comments?.length || 0}</span>
           </button>
           
-        <div className="relative flex items-center">
+       <div className="relative flex items-center justify-center">
   <button 
     onClick={() => handleShare(post)} 
-    title="Share post"
-    className="p-2 transition-colors duration-200 relative group"
+    className="p-2 relative flex items-center justify-center"
   >
     <FaShareAlt className="text-[22px] text-gray-800 hover:text-gray-500 transition-transform active:scale-125" />
     
-    {/* Floating "Copied" Message */}
+    {/* Copied Alert - Increased Z-index and adjusted position */}
     {copiedPostId === post._id && (
-      <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[9px] px-2 py-0.5 rounded font-bold whitespace-nowrap z-50 shadow-sm">
+      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-black text-yellow text-[10px] px-2 py-1 rounded shadow-xl z-[9999] whitespace-nowrap font-bold">
         COPIED!
       </span>
     )}
