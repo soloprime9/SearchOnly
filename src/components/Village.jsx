@@ -151,10 +151,31 @@ const increaseView = useCallback(
 }, [increaseView]);
 
 const handleShare = async () => {
-    const url = `${window.location.origin}/post/${post._id}`;
-    await navigator.clipboard.writeText(`${post.title}\n${url}`);
-    alert("Link copied");
-  };
+  try {
+    // 1. Check if it's a video or image based on mimetype
+    // Mimetype usually looks like "video/mp4" or "image/jpeg"
+    const isVideo = post.mtype?.startsWith('video'); 
+    const path = isVideo ? 'short' : 'post';
+
+    // 2. Construct the dynamic URL
+    const url = `${window.location.origin}/${path}/${post._id}`;
+    
+    // 3. Prepare the text to copy
+    const shareText = `${post.title || 'Check this out!'}\n${url}`;
+
+    // 4. Use Clipboard API
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(shareText);
+      alert("Link copied to clipboard!");
+    } else {
+      // Fallback for older browsers
+      throw new Error("Clipboard API not available");
+    }
+  } catch (err) {
+    console.error("Failed to copy:", err);
+    alert("Could not copy link. Please try manually.");
+  }
+};
   
   const renderPost = useCallback((post, index) => {
     const isExpanded = expandedPosts[post._id];
@@ -257,9 +278,15 @@ const handleShare = async () => {
             <FaCommentDots className="text-[24px] text-gray-800 hover:text-gray-500" /> 
             <span>{post.comments?.length || 0}</span>
           </button>
-          <button onClick={handleShare}>
-            <FaShareAlt className="text-[22px] text-gray-800 hover:text-gray-500" />
-          </button>
+          
+          <button 
+  onClick={handleShare}
+  title="Share post"
+  className="p-2 transition-colors duration-200"
+>
+  <FaShareAlt className="text-[22px] text-gray-800 hover:text-gray-500" />
+</button>
+          
         </div>
         <div className="flex items-center gap-1.5 text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
           <FaEye size={14} />
