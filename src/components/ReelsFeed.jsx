@@ -1527,7 +1527,7 @@ const ReelsFeed = ({ initialPost, initialRelated }) => {
      ====================================================== */
   const handleVideoVisible = (id) => {
     if (bot) return; // Googlebot sees ONLY the main clean URL
-    router.replace(`/short/${id}`, { scroll: false });
+    router.replace(`/shorts/${id}`, { scroll: false });
   };
 
   // Track visible video
