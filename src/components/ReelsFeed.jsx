@@ -1,264 +1,264 @@
-"use client";
+// "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import axios from "axios";
-import jwt from "jsonwebtoken";
-import { useRouter } from "next/navigation";
-import {
-  FaHeart,
-  FaRegHeart,
-  FaCommentDots,
-  FaShareAlt,
-  FaEye,
-  FaEllipsisH,
-  FaPlay,
-  FaPause,FaArrowLeft,
-} from "react-icons/fa";
-import { IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
+// import { useEffect, useRef, useState } from "react";
+// import Link from "next/link";
+// import axios from "axios";
+// import jwt from "jsonwebtoken";
+// import { useRouter } from "next/navigation";
+// import {
+//   FaHeart,
+//   FaRegHeart,
+//   FaCommentDots,
+//   FaShareAlt,
+//   FaEye,
+//   FaEllipsisH,
+//   FaPlay,
+//   FaPause,FaArrowLeft,
+// } from "react-icons/fa";
+// import { IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
 
-const API_BASE = "https://backend-k.vercel.app";
-const DEFAULT_THUMB = "/Fondpeace.jpg";
-const DEFAULT_AVATAR = "/Fondpeace.jpg";
+// const API_BASE = "https://backend-k.vercel.app";
+// const DEFAULT_THUMB = "/Fondpeace.jpg";
+// const DEFAULT_AVATAR = "/Fondpeace.jpg";
 
-export default function SingleReel({ initialPost }) {
-  const videoRef = useRef(null);
+// export default function SingleReel({ initialPost }) {
+//   const videoRef = useRef(null);
 
-  const [post, setPost] = useState(initialPost);
-  const [userId, setUserId] = useState(null);
-  const [comment, setComment] = useState("");
-  const [muted, setMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [showPlayIcon, setShowPlayIcon] = useState(false);
+//   const [post, setPost] = useState(initialPost);
+//   const [userId, setUserId] = useState(null);
+//   const [comment, setComment] = useState("");
+//   const [muted, setMuted] = useState(true);
+//   const [isPlaying, setIsPlaying] = useState(true);
+//   const [showPlayIcon, setShowPlayIcon] = useState(false);
 
-  /* USER */
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    const decoded = jwt.decode(token);
-    if (decoded?.UserId) setUserId(decoded.UserId);
-  }, []);
+//   /* USER */
+//   useEffect(() => {
+//     const token = localStorage.getItem("token");
+//     if (!token) return;
+//     const decoded = jwt.decode(token);
+//     if (decoded?.UserId) setUserId(decoded.UserId);
+//   }, []);
 
-  /* AUTOPLAY */
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = muted;
-      videoRef.current.play().catch(() => {});
-    }
-  }, [muted]);
+//   /* AUTOPLAY */
+//   useEffect(() => {
+//     if (videoRef.current) {
+//       videoRef.current.muted = muted;
+//       videoRef.current.play().catch(() => {});
+//     }
+//   }, [muted]);
 
-  if (!post) {
-    return <div className="py-20 text-center">Video not found</div>;
-  }
+//   if (!post) {
+//     return <div className="py-20 text-center">Video not found</div>;
+//   }
 
-  const hasLiked = post.likes?.some(
-    (id) => id?.toString() === userId?.toString()
-  );
+//   const hasLiked = post.likes?.some(
+//     (id) => id?.toString() === userId?.toString()
+//   );
 
-  /* LIKE */
-  const handleLike = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Please login");
+//   /* LIKE */
+//   const handleLike = async () => {
+//     const token = localStorage.getItem("token");
+//     if (!token) return alert("Please login");
 
-    const res = await axios.post(
-      `${API_BASE}/post/like/${post._id}`,
-      {},
-      { headers: { "x-auth-token": token } }
-    );
-    setPost((p) => ({ ...p, likes: res.data.likes }));
-  };
+//     const res = await axios.post(
+//       `${API_BASE}/post/like/${post._id}`,
+//       {},
+//       { headers: { "x-auth-token": token } }
+//     );
+//     setPost((p) => ({ ...p, likes: res.data.likes }));
+//   };
 
-  /* COMMENT */
-  const handleComment = async () => {
-    if (!comment.trim()) return;
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Please login");
+//   /* COMMENT */
+//   const handleComment = async () => {
+//     if (!comment.trim()) return;
+//     const token = localStorage.getItem("token");
+//     if (!token) return alert("Please login");
 
-    const res = await axios.post(
-      `${API_BASE}/post/comment/${post._id}`,
-      { CommentText: comment, userId },
-      { headers: { "x-auth-token": token } }
-    );
-    setPost((p) => ({ ...p, comments: res.data.comments }));
-    setComment("");
-  };
+//     const res = await axios.post(
+//       `${API_BASE}/post/comment/${post._id}`,
+//       { CommentText: comment, userId },
+//       { headers: { "x-auth-token": token } }
+//     );
+//     setPost((p) => ({ ...p, comments: res.data.comments }));
+//     setComment("");
+//   };
 
-  /* SHARE */
-  const handleShare = async () => {
-    await navigator.clipboard.writeText(window.location.href);
-    alert("Link copied");
-  };
+//   /* SHARE */
+//   const handleShare = async () => {
+//     await navigator.clipboard.writeText(window.location.href);
+//     alert("Link copied");
+//   };
 
-  /* PLAY / PAUSE */
-  const togglePlayPause = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPlaying(true);
-    } else {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    }
-    setShowPlayIcon(true);
-    setTimeout(() => setShowPlayIcon(false), 600);
-  };
+//   /* PLAY / PAUSE */
+//   const togglePlayPause = () => {
+//     if (!videoRef.current) return;
+//     if (videoRef.current.paused) {
+//       videoRef.current.play();
+//       setIsPlaying(true);
+//     } else {
+//       videoRef.current.pause();
+//       setIsPlaying(false);
+//     }
+//     setShowPlayIcon(true);
+//     setTimeout(() => setShowPlayIcon(false), 600);
+//   };
 
-  /* MUTE */
-  const toggleMute = (e) => {
-    e.stopPropagation();
-    videoRef.current.muted = !muted;
-    setMuted(!muted);
-  };
+//   /* MUTE */
+//   const toggleMute = (e) => {
+//     e.stopPropagation();
+//     videoRef.current.muted = !muted;
+//     setMuted(!muted);
+//   };
 
-  return (
-    <>
+//   return (
+//     <>
 
       
       
-      {/* USER HEADER */}
-      <div className="flex items-center justify-between mb-5">
-        <Link
-          href={`/profile/${post.userId?.username}`}
-          className="flex items-center gap-3"
-        >
-          <img
-            src={post.userId?.avatar || DEFAULT_AVATAR}
-            className="w-11 h-11 rounded-full object-cover border"
-          />
-          <div>
-            <p className="font-semibold text-gray-800">
-              {post.userId?.username || "fondpeace"}
-            </p>
-            <p className="text-gray-500 text-sm">
-              {new Date(post.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-        </Link>
-        <FaEllipsisH className="text-gray-500" />
-      </div>
+//       {/* USER HEADER */}
+//       <div className="flex items-center justify-between mb-5">
+//         <Link
+//           href={`/profile/${post.userId?.username}`}
+//           className="flex items-center gap-3"
+//         >
+//           <img
+//             src={post.userId?.avatar || DEFAULT_AVATAR}
+//             className="w-11 h-11 rounded-full object-cover border"
+//           />
+//           <div>
+//             <p className="font-semibold text-gray-800">
+//               {post.userId?.username || "fondpeace"}
+//             </p>
+//             <p className="text-gray-500 text-sm">
+//               {new Date(post.createdAt).toLocaleDateString()}
+//             </p>
+//           </div>
+//         </Link>
+//         <FaEllipsisH className="text-gray-500" />
+//       </div>
 
-      {/* VIDEO */}
-      <div
-        className="relative w-full bg-black rounded-xl overflow-hidden mb-4"
-        onClick={togglePlayPause}
-      >
-        <video
-          ref={videoRef}
-          src={post.media}
-          poster={post.thumbnail || DEFAULT_THUMB}
-          autoPlay
-          loop
-          playsInline
-          muted={muted}
-          className="w-full max-h-[480px] object-contain bg-black"
-        />
+//       {/* VIDEO */}
+//       <div
+//         className="relative w-full bg-black rounded-xl overflow-hidden mb-4"
+//         onClick={togglePlayPause}
+//       >
+//         <video
+//           ref={videoRef}
+//           src={post.media}
+//           poster={post.thumbnail || DEFAULT_THUMB}
+//           autoPlay
+//           loop
+//           playsInline
+//           muted={muted}
+//           className="w-full max-h-[480px] object-contain bg-black"
+//         />
 
-        {showPlayIcon && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            {isPlaying ? (
-              <FaPause className="text-white text-6xl" />
-            ) : (
-              <FaPlay className="text-white text-6xl" />
-            )}
-          </div>
-        )}
+//         {showPlayIcon && (
+//           <div className="absolute inset-0 flex items-center justify-center">
+//             {isPlaying ? (
+//               <FaPause className="text-white text-6xl" />
+//             ) : (
+//               <FaPlay className="text-white text-6xl" />
+//             )}
+//           </div>
+//         )}
 
-        <button
-          onClick={toggleMute}
-          className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full text-white"
-        >
-          {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
-        </button>
-      </div>
+//         <button
+//           onClick={toggleMute}
+//           className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full text-white"
+//         >
+//           {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
+//         </button>
+//       </div>
 
-      {/* INTERACTIONS */}
-      <div className="flex justify-between items-center mb-3 border-2 rounded-lg p-2 bg-gray-100">
-        <div className="flex gap-6 items-center">
-          <button onClick={handleLike} className="flex items-center gap-1">
-            {hasLiked ? (
-              <FaHeart className="text-red-600 text-xl" />
-            ) : (
-              <FaRegHeart className="text-xl" />
-            )}
-            {post.likes?.length || 0}
-          </button>
+//       {/* INTERACTIONS */}
+//       <div className="flex justify-between items-center mb-3 border-2 rounded-lg p-2 bg-gray-100">
+//         <div className="flex gap-6 items-center">
+//           <button onClick={handleLike} className="flex items-center gap-1">
+//             {hasLiked ? (
+//               <FaHeart className="text-red-600 text-xl" />
+//             ) : (
+//               <FaRegHeart className="text-xl" />
+//             )}
+//             {post.likes?.length || 0}
+//           </button>
 
-          <div className="flex items-center gap-1">
-            <FaCommentDots className="text-xl" />
-            {post.comments?.length || 0}
-          </div>
+//           <div className="flex items-center gap-1">
+//             <FaCommentDots className="text-xl" />
+//             {post.comments?.length || 0}
+//           </div>
 
-          <button onClick={handleShare}>
-            <FaShareAlt className="text-xl" />
-          </button>
-        </div>
+//           <button onClick={handleShare}>
+//             <FaShareAlt className="text-xl" />
+//           </button>
+//         </div>
 
-        <div className="flex items-center gap-1 text-sm text-gray-600">
-          <FaEye />
-          {post.views || 0}
-        </div>
-      </div>
+//         <div className="flex items-center gap-1 text-sm text-gray-600">
+//           <FaEye />
+//           {post.views || 0}
+//         </div>
+//       </div>
 
-      {/* CAPTION */}
-      <div className="text-sm mb-4">
-        <span className="font-semibold mr-1">
-          {post.userId?.username || "fondpeace"}
-        </span>
-        {post.title}
-      </div>
+//       {/* CAPTION */}
+//       <div className="text-sm mb-4">
+//         <span className="font-semibold mr-1">
+//           {post.userId?.username || "fondpeace"}
+//         </span>
+//         {post.title}
+//       </div>
 
-      {/* COMMENTS */}
-      <div className="bg-gray-50 border-t pt-4 ">
-        <div className="flex items-center gap-3 mb-4">
-          <img
-            src={DEFAULT_AVATAR}
-            className="w-8 h-8 rounded-full object-cover"
-          />
-          <input
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Add a comment..."
-            className="flex-1 bg-white border rounded-full px-4 py-2 text-sm"
-          />
-          <button
-            onClick={handleComment}
-            className="text-white font-bold text-md border-2 bg-blue-800 p-2 rounded-lg"
-          >
-            Post
-          </button>
-        </div>
+//       {/* COMMENTS */}
+//       <div className="bg-gray-50 border-t pt-4 ">
+//         <div className="flex items-center gap-3 mb-4">
+//           <img
+//             src={DEFAULT_AVATAR}
+//             className="w-8 h-8 rounded-full object-cover"
+//           />
+//           <input
+//             value={comment}
+//             onChange={(e) => setComment(e.target.value)}
+//             placeholder="Add a comment..."
+//             className="flex-1 bg-white border rounded-full px-4 py-2 text-sm"
+//           />
+//           <button
+//             onClick={handleComment}
+//             className="text-white font-bold text-md border-2 bg-blue-800 p-2 rounded-lg"
+//           >
+//             Post
+//           </button>
+//         </div>
 
-        {/* Show Comments */}
-<div className="space-y-2">
-  {post.comments?.map((cmt, i) => (
-    <div
-      key={i}
-      className="flex gap-3 bg-gray-100 p-3 rounded-md"
-    >
-      {/* Avatar */}
-      <img
-        src={cmt.userId?.avatar || DEFAULT_AVATAR}
-        alt="user"
-        className="w-8 h-8 rounded-full object-cover"
-      />
+//         {/* Show Comments */}
+// <div className="space-y-2">
+//   {post.comments?.map((cmt, i) => (
+//     <div
+//       key={i}
+//       className="flex gap-3 bg-gray-100 p-3 rounded-md"
+//     >
+//       {/* Avatar */}
+//       <img
+//         src={cmt.userId?.avatar || DEFAULT_AVATAR}
+//         alt="user"
+//         className="w-8 h-8 rounded-full object-cover"
+//       />
 
-      {/* Comment Content */}
-      <div>
-        <p className="font-semibold text-gray-800 text-sm">
-          {cmt.userId?.username || "User"}
-        </p>
-        <p className="text-gray-700 text-sm">
-          {cmt.CommentText}
-        </p>
-      </div>
-    </div>
-  ))}
-</div>
+//       {/* Comment Content */}
+//       <div>
+//         <p className="font-semibold text-gray-800 text-sm">
+//           {cmt.userId?.username || "User"}
+//         </p>
+//         <p className="text-gray-700 text-sm">
+//           {cmt.CommentText}
+//         </p>
+//       </div>
+//     </div>
+//   ))}
+// </div>
 
-      </div>
-    </>
-  );
-}
+//       </div>
+//     </>
+//   );
+// }
 
 
 
@@ -948,127 +948,127 @@ export default function SingleReel({ initialPost }) {
 
 
 
-// // // src/components/ReelsFeed.jsx
-// // 'use client';
+// src/components/ReelsFeed.jsx
+'use client';
 
-// // import React, { useState, useEffect, useRef, useCallback } from 'react';
-// // import { useRouter } from 'next/navigation';
-// // import toast from 'react-hot-toast';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
-// // const API_URL = "https://backend-k.vercel.app/post/shorts";
-// // const DEFAULT_THUMB = "/fondpeace.jpg";
+const API_URL = "https://backend-k.vercel.app/post/shorts";
+const DEFAULT_THUMB = "/fondpeace.jpg";
 
-// // // Bot User Agent Detection
-// // const isBotUserAgent = () => {
-// //     if (typeof navigator === "undefined") return true;
-// //     const ua = navigator.userAgent.toLowerCase();
-// //     return (
-// //         ua.includes("googlebot") || 
-// //         ua.includes("adsbot") || 
-// //         ua.includes("bingbot") ||
-// //         ua.includes("duckduckbot") || 
-// //         ua.includes("yandex") || 
-// //         ua.includes("baiduspider")
-// //     );
-// // };
+// Bot User Agent Detection
+const isBotUserAgent = () => {
+    if (typeof navigator === "undefined") return true;
+    const ua = navigator.userAgent.toLowerCase();
+    return (
+        ua.includes("googlebot") || 
+        ua.includes("adsbot") || 
+        ua.includes("bingbot") ||
+        ua.includes("duckduckbot") || 
+        ua.includes("yandex") || 
+        ua.includes("baiduspider")
+    );
+};
 
-// // const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
-// //     const router = useRouter();
-// //     const bot = isBotUserAgent();
+const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
+    const router = useRouter();
+    const bot = isBotUserAgent();
 
-// //     const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
-// //     const [loading, setLoading] = useState(false);
-// //     const videoRefs = useRef([]);
-// //     const pageRef = useRef(1);
+    const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
+    const [loading, setLoading] = useState(false);
+    const videoRefs = useRef([]);
+    const pageRef = useRef(1);
 
-// //     // --- Core Logic: Autoplay and URL Change ---
-// //     const handleAutoPlay = useCallback(
-// //         (entries) => {
-// //             if (bot) return; // <<-- यही लाइन Google Bot को URL बदलने से रोकती है
+    // --- Core Logic: Autoplay and URL Change ---
+    const handleAutoPlay = useCallback(
+        (entries) => {
+            if (bot) return; // <<-- यही लाइन Google Bot को URL बदलने से रोकती है
 
-// //             entries.forEach(entry => {
-// //                 const video = entry.target;
-// //                 const index = parseInt(video.dataset.index, 10);
-// //                 const post = posts[index];
+            entries.forEach(entry => {
+                const video = entry.target;
+                const index = parseInt(video.dataset.index, 10);
+                const post = posts[index];
 
-// //                 if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
-// //                     // 1. वीडियो प्ले/पॉज़ लॉजिक
-// //                     videoRefs.current.forEach(v => v && v !== video && v.pause());
-// //                     video.play().catch(() => {});
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
+                    // 1. वीडियो प्ले/पॉज़ लॉजिक
+                    videoRefs.current.forEach(v => v && v !== video && v.pause());
+                    video.play().catch(() => {});
                     
-// //                     // 2. Soft Navigation (URL Change)
-// //                     const id = post._id;
-// //                     if (id) {
-// //                         // USER के लिए URL बदलें (पेज रीलोड नहीं होगा)
-// //                         router.replace(`/short/${id}`, { scroll: false });
+                    // 2. Soft Navigation (URL Change)
+                    const id = post._id;
+                    if (id) {
+                        // USER के लिए URL बदलें (पेज रीलोड नहीं होगा)
+                        router.replace(`/short/${id}`, { scroll: false });
                         
-// //                         // **नोट:** यहाँ आपको JS से ब्राउज़र का टाइटल भी अपडेट करना होगा 
-// //                         // ताकि यूजर को पता चले कि वे किस वीडियो पर हैं।
-// //                     }
-// //                 } else {
-// //                     video.pause();
-// //                 }
-// //             });
-// //         },
-// //         [bot, router, posts]
-// //     );
+                        // **नोट:** यहाँ आपको JS से ब्राउज़र का टाइटल भी अपडेट करना होगा 
+                        // ताकि यूजर को पता चले कि वे किस वीडियो पर हैं।
+                    }
+                } else {
+                    video.pause();
+                }
+            });
+        },
+        [bot, router, posts]
+    );
 
-// //     // --- useEffects (unchanged logic, only runs if not bot) ---
-// //     useEffect(() => {
-// //         if (bot || posts.length === 0) return;
-// //         const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
-// //         videoRefs.current.forEach(v => v && observer.observe(v));
-// //         return () => observer.disconnect();
-// //     }, [posts, handleAutoPlay, bot]);
+    // --- useEffects (unchanged logic, only runs if not bot) ---
+    useEffect(() => {
+        if (bot || posts.length === 0) return;
+        const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
+        videoRefs.current.forEach(v => v && observer.observe(v));
+        return () => observer.disconnect();
+    }, [posts, handleAutoPlay, bot]);
 
-// //     // ... (rest of loadMorePosts and infinite scroll logic) ...
+    // ... (rest of loadMorePosts and infinite scroll logic) ...
 
-// //     if (!posts || posts.length === 0) {
-// //         return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-// //     }
+    if (!posts || posts.length === 0) {
+        return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
+    }
 
-// //     return (
-// //         <div 
-// //             className="reels-container w-full h-screen snap-y snap-mandatory" 
-// //             style={{ overflowY: bot ? "hidden" : "scroll" }} // Bot can't scroll
-// //         >
-// //             {posts.map((item, index) => {
-// //                 // ... (video rendering logic) ...
-// //                 const videoUrl = item.media || item.mediaUrl;
-// //                 const isLast = index === posts.length - 1;
+    return (
+        <div 
+            className="reels-container w-full h-screen snap-y snap-mandatory" 
+            style={{ overflowY: bot ? "hidden" : "scroll" }} // Bot can't scroll
+        >
+            {posts.map((item, index) => {
+                // ... (video rendering logic) ...
+                const videoUrl = item.media || item.mediaUrl;
+                const isLast = index === posts.length - 1;
 
-// //                 return (
-// //                     <div
-// //                         key={item._id || index}
-// //                         className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
-// //                         data-id={item._id}
-// //                         data-index={index}
-// //                     >
-// //                         <video
-// //                             ref={el => (videoRefs.current[index] = el)}
-// //                             src={videoUrl}
-// //                             poster={item.thumbnail || DEFAULT_THUMB}
-// //                             muted
-// //                             playsInline
-// //                             preload="metadata"
-// //                             loop
-// //                             className="object-contain w-full h-full bg-black"
-// //                         />
+                return (
+                    <div
+                        key={item._id || index}
+                        className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
+                        data-id={item._id}
+                        data-index={index}
+                    >
+                        <video
+                            ref={el => (videoRefs.current[index] = el)}
+                            src={videoUrl}
+                            poster={item.thumbnail || DEFAULT_THUMB}
+                            muted
+                            playsInline
+                            preload="metadata"
+                            loop
+                            className="object-contain w-full h-full bg-black"
+                        />
                         
-// //                         {!bot && (
-// //                             <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
-// //                                 <p className="font-bold text-lg">@{item.userId?.username}</p>
-// //                                 <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
-// //                             </div>
-// //                         )}
-// //                     </div>
-// //                 );
-// //             })}
-// //         </div>
-// //     );
-// // };
+                        {!bot && (
+                            <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
+                                <p className="font-bold text-lg">@{item.userId?.username}</p>
+                                <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
 
-// // export default ReelsFeed;
+export default ReelsFeed;
 
 
 
