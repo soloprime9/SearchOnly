@@ -150,7 +150,12 @@ const increaseView = useCallback(
   return () => viewObserver.current?.disconnect();
 }, [increaseView]);
 
-
+const handleShare = async () => {
+    const url = `${window.location.origin}/post/${post._id}`;
+    await navigator.clipboard.writeText(`${post.title}\n${url}`);
+    alert("Link copied");
+  };
+  
   const renderPost = useCallback((post, index) => {
     const isExpanded = expandedPosts[post._id];
     const isVideo = post.mediaType?.startsWith("video");
@@ -252,7 +257,7 @@ const increaseView = useCallback(
             <FaCommentDots className="text-[24px] text-gray-800 hover:text-gray-500" /> 
             <span>{post.comments?.length || 0}</span>
           </button>
-          <button onClick={() => handleShare(post)}>
+          <button onClick={handleShare}>
             <FaShareAlt className="text-[22px] text-gray-800 hover:text-gray-500" />
           </button>
         </div>
