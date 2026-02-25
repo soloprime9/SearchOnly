@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import {
@@ -15,8 +15,7 @@ import {
 const API_BASE = "https://backend-k.vercel.app";
 const safeArray = (v) => (Array.isArray(v) ? v : []);
 
-export default function ReelInteractions({ post }) {
-
+export default function ReelInteractions({ post, updatePost }) {
   const [data, setData] = useState({
     ...post,
     likes: safeArray(post?.likes),
@@ -29,7 +28,16 @@ export default function ReelInteractions({ post }) {
   const [replyText, setReplyText] = useState({});
   const [activeReply, setActiveReply] = useState(null);
 
-  // ================= AUTH =================
+  // Sync with parent updates
+  useEffect(() => {
+    setData({
+      ...post,
+      likes: safeArray(post?.likes),
+      comments: safeArray(post?.comments),
+    });
+  }, [post]);
+
+  // Get logged user
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -37,22 +45,21 @@ export default function ReelInteractions({ post }) {
     if (decoded?.UserId) setUserId(String(decoded.UserId));
   }, []);
 
-  const hasLikedPost = () =>
-    userId &&
-    safeArray(data.likes).some((id) => String(id) === userId);
+  const syncParent = useCallback(
+    (updated) => {
+      setData(updated);
+      if (updatePost) updatePost(updated);
+    },
+    [updatePost]
+  );
 
-  const hasLikedComment = (likes) =>
-    userId &&
-    safeArray(likes).some((id) => String(id) === userId);
+  const hasLiked = (likes) =>
+    userId && safeArray(likes).some((id) => String(id) === userId);
 
-  const hasLikedReply = (likes) =>
-    userId &&
-    safeArray(likes).some((id) => String(id) === userId);
-
-  // ================= LIKE POST =================
+  // ===== LIKE POST =====
   const handleLike = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return alert("Login required");
+    if (!token) return;
 
     const res = await axios.post(
       `${API_BASE}/post/like/${data._id}`,
@@ -60,18 +67,18 @@ export default function ReelInteractions({ post }) {
       { headers: { "x-auth-token": token } }
     );
 
-    setData((p) => ({
-      ...p,
+    syncParent({
+      ...data,
       likes: safeArray(res.data.likes),
-    }));
+    });
   };
 
-  // ================= ADD COMMENT =================
+  // ===== ADD COMMENT =====
   const handleComment = async () => {
     if (!comment.trim()) return;
 
     const token = localStorage.getItem("token");
-    if (!token) return alert("Login required");
+    if (!token) return;
 
     const res = await axios.post(
       `${API_BASE}/post/comment/${data._id}`,
@@ -79,15 +86,15 @@ export default function ReelInteractions({ post }) {
       { headers: { "x-auth-token": token } }
     );
 
-    setData((p) => ({
-      ...p,
+    syncParent({
+      ...data,
       comments: safeArray(res.data.comments),
-    }));
+    });
 
     setComment("");
   };
 
-  // ================= COMMENT LIKE =================
+  // ===== LIKE COMMENT =====
   const handleCommentLike = async (commentId) => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -98,24 +105,24 @@ export default function ReelInteractions({ post }) {
       { headers: { "x-auth-token": token } }
     );
 
-    setData((p) => ({
-      ...p,
-      comments: p.comments.map((c) =>
+    const updated = {
+      ...data,
+      comments: data.comments.map((c) =>
         c._id === commentId
           ? {
               ...c,
               likes: res.data.liked
                 ? [...safeArray(c.likes), userId]
-                : safeArray(c.likes).filter(
-                    (id) => String(id) !== userId
-                  ),
+                : safeArray(c.likes).filter((id) => String(id) !== userId),
             }
           : c
       ),
-    }));
+    };
+
+    syncParent(updated);
   };
 
-  // ================= ADD REPLY =================
+  // ===== ADD REPLY =====
   const submitReply = async (commentId) => {
     if (!replyText[commentId]?.trim()) return;
 
@@ -128,20 +135,21 @@ export default function ReelInteractions({ post }) {
       { headers: { "x-auth-token": token } }
     );
 
-    setData((p) => ({
-      ...p,
-      comments: p.comments.map((c) =>
+    const updated = {
+      ...data,
+      comments: data.comments.map((c) =>
         c._id === commentId
           ? { ...c, replies: safeArray(res.data) }
           : c
       ),
-    }));
+    };
 
+    syncParent(updated);
     setReplyText((r) => ({ ...r, [commentId]: "" }));
     setActiveReply(null);
   };
 
-  // ================= REPLY LIKE =================
+  // ===== LIKE REPLY =====
   const handleReplyLike = async (commentId, replyId) => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -152,9 +160,9 @@ export default function ReelInteractions({ post }) {
       { headers: { "x-auth-token": token } }
     );
 
-    setData((p) => ({
-      ...p,
-      comments: p.comments.map((c) =>
+    const updated = {
+      ...data,
+      comments: data.comments.map((c) =>
         c._id === commentId
           ? {
               ...c,
@@ -173,24 +181,22 @@ export default function ReelInteractions({ post }) {
             }
           : c
       ),
-    }));
+    };
+
+    syncParent(updated);
   };
 
-  // ================= SHARE =================
   const handleShare = async () => {
     const url = `${window.location.origin}/shorts/${data._id}`;
     await navigator.clipboard.writeText(url);
-    alert("Link copied");
   };
 
-  // ================= UI =================
   return (
     <>
-      {/* RIGHT SIDE BAR */}
       <div className="absolute right-4 bottom-24 flex flex-col items-center gap-6 text-white">
 
         <button onClick={handleLike}>
-          {hasLikedPost() ? (
+          {hasLiked(data.likes) ? (
             <FaHeart className="text-red-500 text-3xl" />
           ) : (
             <FaRegHeart className="text-3xl" />
@@ -213,24 +219,18 @@ export default function ReelInteractions({ post }) {
         </button>
       </div>
 
-      {/* COMMENT MODAL */}
       {showComments && (
         <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-end md:items-center justify-center">
-
-          <div className="bg-white w-full md:max-w-md h-[70vh] md:h-[80vh] rounded-t-2xl md:rounded-2xl p-4 overflow-y-auto relative">
-
+          <div className="bg-white w-full md:max-w-md h-[75vh] rounded-t-2xl md:rounded-2xl p-4 overflow-y-auto relative">
             <button
               onClick={() => setShowComments(false)}
-              className="absolute top-4 right-4 text-gray-600"
+              className="absolute top-4 right-4"
             >
               <FaTimes />
             </button>
 
-            <h2 className="text-lg font-semibold mb-4">
-              Comments
-            </h2>
+            <h2 className="text-lg font-semibold mb-4">Comments</h2>
 
-            {/* Add Comment */}
             <div className="flex gap-2 mb-4">
               <input
                 value={comment}
@@ -246,89 +246,14 @@ export default function ReelInteractions({ post }) {
               </button>
             </div>
 
-            {/* Comment List */}
             {safeArray(data.comments).map((cmt) => (
               <div key={cmt._id} className="mb-4 border-b pb-3">
-
                 <p className="font-semibold text-sm">
                   {cmt.userId?.username || "User"}
                 </p>
                 <p className="text-sm">{cmt.CommentText}</p>
-
-                <div className="flex gap-4 text-xs mt-2">
-
-                  <button onClick={() => handleCommentLike(cmt._id)}>
-                    {hasLikedComment(cmt.likes) ? (
-                      <FaHeart className="text-red-500 inline" />
-                    ) : (
-                      <FaRegHeart className="inline" />
-                    )}
-                    {" "}
-                    {safeArray(cmt.likes).length}
-                  </button>
-
-                  <button onClick={() => setActiveReply(cmt._id)}>
-                    Reply
-                  </button>
-
-                </div>
-
-                {/* Reply Input */}
-                {activeReply === cmt._id && (
-                  <div className="flex gap-2 mt-2">
-                    <input
-                      value={replyText[cmt._id] || ""}
-                      onChange={(e) =>
-                        setReplyText({
-                          ...replyText,
-                          [cmt._id]: e.target.value,
-                        })
-                      }
-                      placeholder="Write reply..."
-                      className="flex-1 border px-2 py-1 rounded"
-                    />
-                    <button
-                      onClick={() => submitReply(cmt._id)}
-                      className="bg-gray-800 text-white px-3 rounded"
-                    >
-                      Send
-                    </button>
-                  </div>
-                )}
-
-                {/* Replies */}
-                <div className="ml-4 mt-2 space-y-2">
-                  {safeArray(cmt.replies).map((rep) => (
-                    <div key={rep._id} className="text-sm">
-
-                      <p className="font-semibold">
-                        {rep.userId?.username || "User"}
-                      </p>
-
-                      <p>{rep.replyText}</p>
-
-                      <button
-                        onClick={() =>
-                          handleReplyLike(cmt._id, rep._id)
-                        }
-                        className="text-xs mt-1"
-                      >
-                        {hasLikedReply(rep.likes) ? (
-                          <FaHeart className="text-red-500 inline" />
-                        ) : (
-                          <FaRegHeart className="inline" />
-                        )}
-                        {" "}
-                        {safeArray(rep.likes).length}
-                      </button>
-
-                    </div>
-                  ))}
-                </div>
-
               </div>
             ))}
-
           </div>
         </div>
       )}
