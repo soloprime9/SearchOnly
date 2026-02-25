@@ -207,30 +207,41 @@ export default async function Page({ params }) {
     };
 
     return (
-      <main className="min-h-screen bg-white">
-        {/* JSON-LD inserted server-side for crawlers */}
+      
+        
+
+        <main className="min-h-screen bg-black flex overflow-x-hidden">
+
+           {/* JSON-LD inserted server-side for crawlers */}
         <script
           key="video-jsonld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
         />
+           
+  {/* LEFT SIDEBAR */}
+  <div className="hidden lg:block w-[220px]">
+    <LeftSidebar />
+  </div>
 
-        <LeftSidebar />
-        <section className="max-w-3xl mx-auto px-4 py-6">
-          {/* Server-rendered hidden <video> so crawlers detect video content even though player is client */}
-          {mediaUrl && (
-            <video
-              src={mediaUrl}
-              poster={thumbnail}
-              preload="metadata"
-              style={{ display: "none" }}
-            />
-          )}
+  {/* CENTER REELS */}
+  <div className="flex-1 flex justify-center">
+    <div className="w-full max-w-[480px] h-screen">
+      <ReelsFeedWrapper
+        initialPost={post}
+        initialRelated={related}
+      />
+    </div>
+  </div>
 
-          {/* Client component: loads only on client (no-SSR) to avoid breaking crawler */}
-           <ReelsFeedWrapper initialPost={post} initialRelated={related} />
-        </section>
-      </main>
+  {/* RIGHT SIDEBAR */}
+  <div className="hidden lg:block w-[300px] px-4">
+    <aside className="sticky top-20">
+      {/* your right sidebar content */}
+    </aside>
+  </div>
+
+</main>
     );
   } catch (e) {
     console.error("Page component error:", e);
