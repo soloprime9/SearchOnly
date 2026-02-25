@@ -1,4 +1,4 @@
-   
+    
 // app/short/[id]/page.jsx
 
 import StatusBar from "@/components/StatusBar";
