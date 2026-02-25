@@ -124,7 +124,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
   return (
     <div className="flex justify-center bg-black">
-      <div className="w-full h-screen snap-y snap-mandatory overflow-x-hidden relative">
+      <div className="w-full h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory relative">
         {posts.map((item, index) => {
           const isLast = index === posts.length - 1;
 
@@ -143,14 +143,14 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                 <video
                   ref={(el) => (videoRefs.current[index] = el)}
                   src={item.media || item.mediaUrl}
-                  poster={item.thumbnail || DEFAULT_THUMB}
+                  
                   data-id={item._id}
                   autoPlay
                   loop
                   playsInline
                   muted={isMuted}
-                  preload="metadata"
-                  className="w-full h-full object-contain bg-black"
+                  preload="none"
+                className="w-full max-w-[540px] aspect-[4/5] object-contain block mx-auto bg-black" 
                   
                 />
 
