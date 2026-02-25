@@ -306,7 +306,7 @@ export default async function Page({ params }) {
           </div>
     </aside>
   </div>
-
+   </div>
 </main>
     );
   } catch (e) {
