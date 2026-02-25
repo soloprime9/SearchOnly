@@ -151,7 +151,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                   muted={isMuted}
                   preload="metadata"
                   className="w-full h-full object-contain bg-black"
-                  {/* className="w-full max-w-[540px] aspect-[4/5] object-contain block mx-auto bg-black" */}
+                  
                 />
 
                 {/* Volume Icon (only when clicked) */}
