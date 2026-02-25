@@ -1,8 +1,7 @@
 "use client";
 
 import ReelInteractions from "./ReelInteractions";
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 
@@ -10,54 +9,59 @@ const API_URL = "https://backend-k.vercel.app/post/shorts";
 const DEFAULT_THUMB = "/fondpeace.jpg";
 
 export default function ReelsFeed({ initialPost, initialRelated = [] }) {
-  const router = useRouter();
-
   const [posts, setPosts] = useState(
     initialPost ? [initialPost, ...initialRelated] : []
   );
 
-const [isMuted, setIsMuted] = useState(false); // First video unmuted
+  const [isMuted, setIsMuted] = useState(false); // first video unmuted
+  const [showVolumeIcon, setShowVolumeIcon] = useState(false);
 
   const videoRefs = useRef([]);
   const pageRef = useRef(1);
-  const activeIndex = useRef(null);
+  const loadingRef = useRef(false);
 
-  // ===== AUTOPLAY =====
-  const handleAutoPlay = useCallback(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-
-        const video = entry.target;
-        const index = Number(video.dataset.index);
-
-        if (activeIndex.current === index) return;
-        activeIndex.current = index;
-
-        videoRefs.current.forEach((v) => v && v.pause());
-
-        video.play().then(() => {
-  video.muted = isMuted;
-}).catch(() => {});
-
-        const id = video.dataset.id;
-        if (id) router.replace(`/shorts/${id}`, { scroll: false });
-      });
-    },
-    [router,isMuted]
-  );
-
+  /* ==============================
+     AUTOPLAY (STABLE VERSION)
+  ============================== */
   useEffect(() => {
-    const observer = new IntersectionObserver(handleAutoPlay, {
-      threshold: 0.75,
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+
+          if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
+            // pause others
+            videoRefs.current.forEach((v) => {
+              if (v && v !== video) v.pause();
+            });
+
+            video.muted = isMuted;
+
+            video.play().catch(() => {});
+
+            // change URL without rerender or scroll reset
+            const id = video.dataset.id;
+            if (id) {
+              window.history.replaceState(null, "", `/shorts/${id}`);
+            }
+          }
+        });
+      },
+      { threshold: 0.7 }
+    );
 
     videoRefs.current.forEach((v) => v && observer.observe(v));
-    return () => observer.disconnect();
-  }, [posts, handleAutoPlay]);
 
-  // ===== LOAD MORE =====
+    return () => observer.disconnect();
+  }, [isMuted]);
+
+  /* ==============================
+     LOAD MORE (INFINITE SCROLL)
+  ============================== */
   const loadMorePosts = async () => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+
     try {
       pageRef.current += 1;
       const res = await fetch(
@@ -75,22 +79,44 @@ const [isMuted, setIsMuted] = useState(false); // First video unmuted
     } catch {
       toast.error("Failed loading more videos");
     }
+
+    loadingRef.current = false;
   };
 
-  const toggleMute = () => {
-  const newMuteState = !isMuted;
-  setIsMuted(newMuteState);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMorePosts();
+        }
+      },
+      { rootMargin: "200px" }
+    );
 
-  videoRefs.current.forEach((video) => {
-    if (video) {
-      video.muted = newMuteState;
-    }
-  });
-};
+    const last = document.querySelector(".last-feed-item");
+    if (last) observer.observe(last);
+
+    return () => observer.disconnect();
+  }, [posts]);
+
+  /* ==============================
+     GLOBAL MUTE TOGGLE
+  ============================== */
+  const toggleMute = () => {
+    const newState = !isMuted;
+    setIsMuted(newState);
+
+    videoRefs.current.forEach((video) => {
+      if (video) video.muted = newState;
+    });
+
+    setShowVolumeIcon(true);
+    setTimeout(() => setShowVolumeIcon(false), 800);
+  };
 
   if (!posts.length) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center bg-black text-white">
         No videos
       </div>
     );
@@ -109,38 +135,47 @@ const [isMuted, setIsMuted] = useState(false); // First video unmuted
                 isLast ? "last-feed-item" : ""
               }`}
             >
+              {/* VIDEO */}
               <div
-                className="relative w-full h-full"
-                onClick={() => toggleMute(index)}
+                className="relative w-full h-full flex items-center justify-center"
+                onClick={toggleMute}
               >
                 <video
                   ref={(el) => (videoRefs.current[index] = el)}
                   src={item.media || item.mediaUrl}
                   poster={item.thumbnail || DEFAULT_THUMB}
                   data-id={item._id}
-                  data-index={index}
                   autoPlay
                   loop
                   playsInline
-                  muted={isMuted}  // ✅ FIRST VIDEO UNMUTED
+                  muted={isMuted}
                   preload="metadata"
-                  className="w-full h-full object-contain bg-black"
+                  className="w-full max-w-[540px] aspect-[4/5] object-contain block mx-auto bg-black"
                 />
 
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  {isMuted ? (
-  <FaVolumeMute className="text-white text-5xl opacity-80" />
-) : (
-  <FaVolumeUp className="text-white text-5xl opacity-80" />
-)}
-                </div>
+                {/* Volume Icon (only when clicked) */}
+                {showVolumeIcon && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    {isMuted ? (
+                      <FaVolumeMute className="text-white text-5xl opacity-80" />
+                    ) : (
+                      <FaVolumeUp className="text-white text-5xl opacity-80" />
+                    )}
+                  </div>
+                )}
               </div>
 
+              {/* LEFT TEXT */}
               <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
-                <p className="font-semibold">@{item.userId?.username}</p>
-                <p className="text-sm mt-1">{item.title}</p>
+                <p className="font-semibold">
+                  @{item.userId?.username}
+                </p>
+                <p className="text-sm mt-1 line-clamp-2">
+                  {item.title}
+                </p>
               </div>
 
+              {/* RIGHT SIDE INTERACTIONS */}
               <ReelInteractions
                 post={item}
                 updatePost={(updatedPost) => {
@@ -158,9 +193,6 @@ const [isMuted, setIsMuted] = useState(false); // First video unmuted
     </div>
   );
 }
-
-
-
 
 
 
