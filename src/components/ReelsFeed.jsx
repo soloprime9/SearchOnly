@@ -124,7 +124,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
   return (
     <div className="flex justify-center bg-black">
-      <div className="w-full max-w-[480px] h-screen overflow-y-auto snap-y snap-mandatory relative">
+      <div className="w-full h-screen snap-y snap-mandatory overflow-x-hidden relative">
         {posts.map((item, index) => {
           const isLast = index === posts.length - 1;
 
@@ -150,7 +150,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                   playsInline
                   muted={isMuted}
                   preload="metadata"
-                  className="w-full max-w-[540px] aspect-[4/5] object-contain block mx-auto bg-black"
+                  className="w-full h-full object-contain bg-black"
+                  {/* className="w-full max-w-[540px] aspect-[4/5] object-contain block mx-auto bg-black" */}
                 />
 
                 {/* Volume Icon (only when clicked) */}
