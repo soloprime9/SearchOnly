@@ -210,7 +210,7 @@ export default async function Page({ params }) {
       
         
 
-        <main className="min-h-screen bg-black flex overflow-x-hidden">
+        <main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
 
            {/* JSON-LD inserted server-side for crawlers */}
         <script
@@ -220,19 +220,31 @@ export default async function Page({ params }) {
         />
            
   {/* LEFT SIDEBAR */}
-  <div className="hidden lg:block w-[220px]">
-    <LeftSidebar />
-  </div>
+  <div
+    className="
+      grid 
+      grid-cols-1 
+      lg:grid-cols-[220px_minmax(0,1fr)_300px] 
+      max-w-7xl 
+      mx-auto
+      gap-4
+      md:px-2
+    "
+  >
+    {/* Left Sidebar */}
+    <aside className="">
+      <LeftSidebar />
+    </aside>
 
   {/* CENTER REELS */}
-  <div className="flex-1 flex justify-center">
-    <div className="w-full max-w-[480px] h-screen">
+
+      <section className="w-full mt-6">
       <ReelsFeedWrapper
         initialPost={post}
         initialRelated={related}
       />
-    </div>
-  </div>
+    </section>
+  
 
   {/* RIGHT SIDEBAR */}
   <div className="hidden lg:block w-[300px] px-4">
