@@ -330,7 +330,7 @@ const jsonLdRedditStyle = {
       })),
 
       // 4️⃣ Related Links
-      "relatedLink": (related || []).map((r) => `${SITE_ROOT}/short/${r._id}`)
+      "relatedLink": (related || []).map((r) => `${SITE_ROOT}/shorts/${r._id}`)
     }
   ]
 };
@@ -562,7 +562,7 @@ const jsonLdRedditStyle = {
         return (
           <a
             key={r._id}
-            href={`/short/${r._id}`}
+            href={`/shorts/${r._id}`}
             className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
           >
             {/* ✅ THUMBNAIL CONTAINER FIX */}
@@ -2138,6 +2138,7 @@ const jsonLdRedditStyle = {
 // //     </main>
 // //   );
 // // }
+
 
 
 
