@@ -168,9 +168,14 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
               {/* LEFT TEXT */}
               <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
-                <p className="font-semibold">
+                
+                <Link
+                  href={`/profile/${item.userId?.username}`}
+                  className="font-semibold hover:underline"
+                >
                   @{item.userId?.username}
-                </p>
+                </Link>
+                
                 <p className="text-sm mt-1 line-clamp-2">
                   {item.title}
                 </p>
