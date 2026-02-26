@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import ReelInteractions from "./ReelInteractions";
 import React, { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
