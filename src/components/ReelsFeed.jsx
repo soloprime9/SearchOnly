@@ -123,19 +123,22 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   }
 
   return (
-    <div className="flex justify-center bg-black">
-      <div className="w-full h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory relative">
+    <div className="bg-black w-full h-screen flex justify-center overflow-hidden">
+  <div className="w-full max-w-[540px] h-screen overflow-y-auto snap-y snap-mandatory relative">
         {posts.map((item, index) => {
           const isLast = index === posts.length - 1;
 
           return (
 
             <div
-              key={item._id}
-              className={`snap-start h-screen relative flex items-center justify-center ${
-                isLast ? "last-feed-item" : ""
-              }`}
-            >
+  key={item._id}
+  className={[
+    "snap-start h-screen relative flex items-center justify-center",
+    isLast && "last-feed-item"
+  ]
+    .filter(Boolean)
+    .join(" ")}
+>
               {/* VIDEO */}
               <div
                 className="relative w-full h-full flex items-center justify-center"
