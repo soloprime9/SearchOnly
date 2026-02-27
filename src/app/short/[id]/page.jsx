@@ -234,7 +234,7 @@ const videoSchema = {
             description: buildDescription(post),
             thumbnailUrl: [thumbnail || DEFAULT_THUMB],
             ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
-            embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
+            embedUrl: `${SITE_ROOT}/short/${post._id || id}`,
             uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
             // ... (rest of the schema properties)
             duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
