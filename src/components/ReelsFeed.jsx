@@ -131,11 +131,11 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
           return (
 
             <div
-  key={item._id}
-  className={`snap-start min-h-dvh relative flex items-center justify-center ${
-    isLast ? "last-feed-item" : ""
-  }`}
->
+              key={item._id}
+              className={`snap-start h-screen relative flex items-center justify-center ${
+                isLast ? "last-feed-item" : ""
+              }`}
+            >
               {/* VIDEO */}
               <div
                 className="relative w-full h-full flex items-center justify-center"
