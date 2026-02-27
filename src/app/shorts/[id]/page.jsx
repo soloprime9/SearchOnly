@@ -62,7 +62,7 @@ function buildDescription(post) {
   const views = viewsCount(post);
   const title = post?.title || "FondPeace Video";
   // SEO-friendly single flowing sentence (no periods)
-  return `${title} by ${author} on FondPeace. Watch this engaging short video featuring trending entertainment, creative moments, and social media highlights.`;
+  return `${title} shared by ${author} on FondPeace. Watch this short video and discover trending highlights and engaging moments.`;
 }
 
 function extractKeywords(post) {
