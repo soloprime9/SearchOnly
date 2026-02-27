@@ -154,7 +154,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                   playsInline
                   muted={isMuted}
                   preload="none"
-                className="h-full w-full max-w-[540px] object-cover mx-auto bg-black" 
+                className="h-full w-full max-w-[540px] object-cove mx-auto bg-black" 
                   
                 />
 
