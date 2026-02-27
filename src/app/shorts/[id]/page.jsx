@@ -276,7 +276,7 @@ export default async function Page({ params }) {
       
         
 
-        <main className="w-full min-h-dvh bg-gray-50 overflow-x-hidden">
+        <main className="w-full h-screen bg-gray-50 overflow-x-hidden">
 
            {/* JSON-LD inserted server-side for crawlers */}
         <script
