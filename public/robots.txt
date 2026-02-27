@@ -3,3 +3,4 @@ Allow: /
 
 Sitemap: https://www.fondpeace.com/sitemap.xml
 Sitemap: https://www.fondpeace.com/video-sitemap.xml
+Sitemap: https://www.fondpeace.com/shortsvideo-sitemap.xml
