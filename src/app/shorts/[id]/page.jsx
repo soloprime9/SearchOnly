@@ -306,7 +306,7 @@ export default async function Page({ params }) {
 
   {/* CENTER REELS */}
 
-      <section className="w-full mt-6">
+      <section className="w-full">
       <ReelsFeedWrapper
         initialPost={post}
         initialRelated={related}
