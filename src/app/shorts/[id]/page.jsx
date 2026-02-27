@@ -295,7 +295,7 @@ export default async function Page({ params }) {
       lg:grid-cols-[220px_minmax(0,1fr)_300px] 
       max-w-7xl 
       mx-auto
-      gap-4
+      gap-
       md:px-2
     "
   >
