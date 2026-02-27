@@ -123,8 +123,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   }
 
   return (
-    <div className="bg-black w-full min-h-dvh flex justify-center overflow-hidden">
-  <div className="w-full max-w-[540px] min-h-dvh overflow-y-auto snap-y snap-mandatory relative">
+    <div className="flex justify-center bg-black">
+      <div className="w-full h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory relative">
         {posts.map((item, index) => {
           const isLast = index === posts.length - 1;
 
