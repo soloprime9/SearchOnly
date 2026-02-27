@@ -280,10 +280,12 @@ export default async function Page({ params }) {
 
            {/* JSON-LD inserted server-side for crawlers */}
         <script
-          key="video-jsonld"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
-        />
+  key="blog-jsonld"
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify(blogSchema),
+  }}
+/>
            
   {/* LEFT SIDEBAR */}
   <div
