@@ -123,15 +123,15 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   }
 
   return (
-    <div className="flex justify-center bg-black">
-      <div className="w-full h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory relative">
+    <div className="bg-black w-full min-h-dvh flex justify-center overflow-hidden">
+  <div className="w-full max-w-[540px] min-h-dvh overflow-y-auto snap-y snap-mandatory relative">
         {posts.map((item, index) => {
           const isLast = index === posts.length - 1;
 
           return (
             <div
               key={item._id}
-              className={`snap-start h-screen relative flex items-center justify-center ${
+              className="snap-start min-h-dvh relative flex items-center justify-center" ${
                 isLast ? "last-feed-item" : ""
               }`}
             >
@@ -150,7 +150,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                   playsInline
                   muted={isMuted}
                   preload="none"
-                className="w-full max-w-[540px] aspect-[4/5] object-contain block mx-auto bg-black" 
+                className="h-full w-full max-w-[540px] object-cover mx-auto bg-black" 
                   
                 />
 
