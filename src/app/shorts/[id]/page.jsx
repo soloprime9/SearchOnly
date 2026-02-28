@@ -313,8 +313,8 @@ export default async function Page({ params }) {
       />
     </section>
   
-
-  {/* RIGHT SIDEBAR */}
+{/* 
+   RIGHT SIDEBAR 
   <div className="hidden lg:block w-[300px] px-4">
     <aside className="sticky top-20">
        <div className=" mt-20 fixed">
@@ -373,7 +373,7 @@ export default async function Page({ params }) {
 
           </div>
     </aside>
-  </div>
+  </div> */}
    </div>
 </main>
     );
