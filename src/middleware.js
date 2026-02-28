@@ -5,7 +5,7 @@ export function middleware(request) {
 
   // Block China (CN) and Singapore (SG)
   if (country === "CN" || country === "SG") {
-    return new NextResponse("Access Denied", { status: 404 });
+    return new NextResponse("Access Denied", { status: 403 });
   }
 
   return NextResponse.next();
