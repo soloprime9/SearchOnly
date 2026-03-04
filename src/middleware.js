@@ -8,7 +8,7 @@ export function middleware(request) {
   console.log("MiddleWare Check - Country:", country);
 
   // China (CN) aur Singapore (SG) ko block karna
-  const blockedCountries = ["CN", "SG", "IN"];
+  const blockedCountries = ["CN", "SG"];
 
   if (blockedCountries.includes(country)) {
     return new NextResponse(
