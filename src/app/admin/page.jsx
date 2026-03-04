@@ -10,25 +10,13 @@ async function getInitialData() {
       "https://backend-k.vercel.app/analytics/mango/getall",
       { cache: "no-store" }
     );
-
-    if (!res.ok) return [];
-
     return res.json();
-  } catch (err) {
+  } catch {
     return [];
   }
 }
 
 export default async function AdminPage() {
-  const cookieStore = cookies();
-  const token = cookieStore.get("token");
-
-  // 🔐 Protect Admin Route
-  if (!token) {
-    redirect("/");
-  }
-
   const initialPosts = await getInitialData();
-
   return <AdminClient initialPosts={initialPosts} />;
 }
