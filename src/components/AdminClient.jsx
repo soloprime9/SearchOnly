@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import io from "socket.io-client";
+import jwt from "jsonwebtoken";
 
 const BACKEND = "https://backend-k.vercel.app/analytics";
 
@@ -11,6 +13,39 @@ export default function AdminClient({ initialPosts }) {
   const [postDetails, setPostDetails] = useState(null);
   const [loading, setLoading] = useState(false);
 
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const decoded = jwt.decode(token);
+
+      if (!decoded || !decoded.exp) {
+        localStorage.removeItem("token");
+        router.push("/login");
+        return;
+      }
+
+      if (decoded.exp * 1000 < Date.now()) {
+        localStorage.removeItem("token");
+        router.push("/login");
+        return;
+      }
+
+      setAuthorized(true);
+    } catch (err) {
+      localStorage.removeItem("token");
+      router.push("/login");
+    }
+  }, []);
+
+  
   /* ================= SOCKET ================= */
 
   useEffect(() => {
