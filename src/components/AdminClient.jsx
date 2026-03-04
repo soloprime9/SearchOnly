@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import io from "socket.io-client";
-import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";/
 
 const BACKEND = "https://backend-k.vercel.app/analytics";
 
