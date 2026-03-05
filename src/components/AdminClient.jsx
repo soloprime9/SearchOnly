@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import io from "socket.io-client";
+import {io} from "socket.io-client";
 import jwt from "jsonwebtoken";
 
 const BACKEND = "https://backendk-z915.onrender.com/analytics";
