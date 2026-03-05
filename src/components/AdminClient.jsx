@@ -5,6 +5,7 @@ import {io} from "socket.io-client";
 import jwt from "jsonwebtoken";
 
 const BACKEND = "https://backendk-z915.onrender.com/analytics";
+const Socket_Backend = "https://backendk-z915.onrender.com";
 
 export default function AdminClient({ initialPosts }) {
   const router = useRouter();
@@ -70,7 +71,7 @@ export default function AdminClient({ initialPosts }) {
   /* ================= SOCKET ================= */
 
  useEffect(() => {
-  const socket = io(BACKEND, {
+  const socket = io(Socket_Backend, {
     transports: ["websocket"], // ✅ Force websocket only
     withCredentials: true,
     secure: true,
