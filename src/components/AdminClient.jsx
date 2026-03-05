@@ -69,15 +69,29 @@ export default function AdminClient({ initialPosts }) {
   
   /* ================= SOCKET ================= */
 
-  useEffect(() => {
-    const socket = io(BACKEND);
+ useEffect(() => {
+  const socket = io(BACKEND, {
+    transports: ["websocket"], // ✅ Force websocket only
+    withCredentials: true,
+    secure: true,
+  });
 
-    socket.on("newViewGlobal", () => {
-      refreshData();
-    });
+  socket.on("connect", () => {
+    console.log("✅ Socket connected:", socket.id);
+  });
 
-    return () => socket.disconnect();
-  }, []);
+  socket.on("connect_error", (err) => {
+    console.error("❌ Socket connection error:", err.message);
+  });
+
+  socket.on("newViewGlobal", () => {
+    refreshData();
+  });
+
+  return () => {
+    socket.disconnect();
+  };
+}, []);
 
   /* ================= TAB CHANGE ================= */
 
