@@ -38,6 +38,31 @@ export default function SinglePostInteractions({ initialPost }) {
     if (decoded?.UserId) setUserId(String(decoded.UserId));
   }, []);
 
+
+   /* ================= TRACK POST VIEW ================= */
+  useEffect(() => {
+    const trackView = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/analytics/view/${post._id}`, {
+          method: "POST",
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          // Update local post views immediately
+          setPost((p) => ({ ...p, views: data.postViews }));
+          console.log("Total post views:", data.postViews);
+          console.log("This view analytics:", data.analytics);
+        }
+      } catch (err) {
+        console.error("Error tracking view:", err);
+      }
+    };
+
+    trackView();
+  }, [post._id]);
+
+  
   /* ================= HELPERS ================= */
   const hasLikedPost = () =>
     !!userId &&
