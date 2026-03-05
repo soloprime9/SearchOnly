@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import {
@@ -26,6 +27,7 @@ export default function SinglePostInteractions({ initialPost }) {
   const [userId, setUserId] = useState(null);
   const [activeReply, setActiveReply] = useState(null);
   const [replyText, setReplyText] = useState({});
+  const router = useRouter();
 
   const API_BASE = "https://backend-k.vercel.app";
 
@@ -40,27 +42,36 @@ export default function SinglePostInteractions({ initialPost }) {
 
 
    /* ================= TRACK POST VIEW ================= */
+  export default function TrackPostView() {
+  const router = useRouter();
+
   useEffect(() => {
     const trackView = async () => {
       try {
-        const res = await fetch(`${API_BASE}/analytics/view/${post._id}`, {
+        // Get post ID from URL, e.g., /post/[id]
+        const postId = window.location.pathname.split("/").pop();
+        console.log("PostId: ", postId);
+
+        if (!postId) return;
+
+        // Call your backend view API
+        await fetch(`${API_BASE}/analytics/view/${postId}`, {
           method: "POST",
         });
-        const data = await res.json();
 
-        if (data.success) {
-          // Update local post views immediately
-          setPost((p) => ({ ...p, views: data.postViews }));
-          console.log("Total post views:", data.postViews);
-          console.log("This view analytics:", data.analytics);
-        }
+        // Successfully sent to backend, nothing else to do
+        console.log("Post view tracked successfully");
+
       } catch (err) {
-        console.error("Error tracking view:", err);
+        console.error("Error tracking post view:", err);
       }
     };
 
     trackView();
-  }, [post._id]);
+  }, []);
+
+  return null; // This component doesn't render anything
+}
 
   
   /* ================= HELPERS ================= */
