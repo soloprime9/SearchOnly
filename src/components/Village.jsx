@@ -60,7 +60,7 @@ const increaseView = useCallback(
     viewedPosts.current.add(postId);
     console.log("VIEW +1:", postId);
 
-    axios.post(`${API_BASE}/post/view/${postId}`).catch(() => {});
+    axios.post(`${API_BASE}/analytics/view/${postId}`).catch(() => {});
   },
   [API_BASE]
 );
