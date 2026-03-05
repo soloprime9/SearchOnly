@@ -41,27 +41,18 @@ export default function SinglePostInteractions({ initialPost }) {
   }, []);
 
 
-   /* ================= TRACK POST VIEW ================= */
-  export default function TrackPostView() {
-  const router = useRouter();
-
+  /* ================= TRACK POST VIEW ================= */
   useEffect(() => {
     const trackView = async () => {
       try {
-        // Get post ID from URL, e.g., /post/[id]
         const postId = window.location.pathname.split("/").pop();
-        console.log("PostId: ", postId);
-
         if (!postId) return;
 
-        // Call your backend view API
         await fetch(`${API_BASE}/analytics/view/${postId}`, {
           method: "POST",
         });
 
-        // Successfully sent to backend, nothing else to do
         console.log("Post view tracked successfully");
-
       } catch (err) {
         console.error("Error tracking post view:", err);
       }
@@ -69,10 +60,6 @@ export default function SinglePostInteractions({ initialPost }) {
 
     trackView();
   }, []);
-
-  return null; // This component doesn't render anything
-}
-
   
   /* ================= HELPERS ================= */
   const hasLikedPost = () =>
