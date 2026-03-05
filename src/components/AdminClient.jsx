@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 const BACKEND = "https://backend-k.vercel.app/analytics";
 
 export default function AdminClient({ initialPosts }) {
+  const router = useRouter();
   const [posts, setPosts] = useState(initialPosts || []);
   const [activeTab, setActiveTab] = useState("latest");
   const [selectedPost, setSelectedPost] = useState(null);
