@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 import jwt from "jsonwebtoken";
 
 const BACKEND = "https://backendk-z915.onrender.com/analytics";
-const Socket_Backend = "https://backendk-z915.onrender.com";
+const SOCKET_BACKEND = "https://backendk-z915.onrender.com";
 
 export default function AdminClient({ initialPosts }) {
   const router = useRouter();
@@ -28,7 +28,8 @@ export default function AdminClient({ initialPosts }) {
         return router.push("/login");
       }
       setAuthorized(true);
-    } catch {
+    } catch (err) {
+      console.error("Token decode error:", err);
       localStorage.removeItem("token");
       router.push("/login");
     }
@@ -36,7 +37,7 @@ export default function AdminClient({ initialPosts }) {
 
   /* ================= SOCKET.IO ================= */
   useEffect(() => {
-    const socket = io(Socket_Backend, {
+    const socket = io(SOCKET_BACKEND, {
       transports: ["websocket"],
       withCredentials: true,
       secure: true,
@@ -54,13 +55,12 @@ export default function AdminClient({ initialPosts }) {
   const refreshData = async () => {
     try {
       setLoading(true);
-      const url = `${BACKEND}/admin/live-traffic?time=${activeTab}`;
-      const res = await fetch(url);
+      const res = await fetch(`${BACKEND}/admin/live-traffic?time=${activeTab}`);
       const data = await res.json();
       setPosts(data.traffic || []);
       setLoading(false);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching live traffic:", err);
       setLoading(false);
     }
   };
@@ -72,21 +72,27 @@ export default function AdminClient({ initialPosts }) {
       const data = await res.json();
       setPostDetails(data);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching post details:", err);
     }
   };
 
   const openDetails = (post) => {
+    const postId = post._id || post.postId;
     setSelectedPost(post);
-    fetchPostDetails(post._id || post.postId);
+    fetchPostDetails(postId);
   };
 
-  /* ================= SHARE ================= */
+  /* ================= SHARE FUNCTION ================= */
   const handleShare = async (post) => {
-    const postId = post._id || post.postId;
-    const text = `${post.title}\n${window.location.origin}/post/${postId}`;
-    await navigator.clipboard.writeText(text);
-    alert("Copied!");
+    try {
+      const postId = post._id || post.postId;
+      const text = `${post.title}\n${window.location.origin}/post/${postId}`;
+      await navigator.clipboard.writeText(text);
+      alert("✅ Copied to clipboard!");
+    } catch (err) {
+      console.error("Share failed:", err);
+      alert("❌ Failed to copy!");
+    }
   };
 
   /* ================= TIME TABS ================= */
@@ -100,7 +106,7 @@ export default function AdminClient({ initialPosts }) {
     { key: "7d", label: "7 Days" },
   ];
 
-  if (!authorized) return null; // prevent rendering before auth
+  if (!authorized) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -131,23 +137,25 @@ export default function AdminClient({ initialPosts }) {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {!loading &&
           posts.map((post, i) => {
-            const postData = post._id || post; // support trending & live format
+            const postData = post._id || post; // support different formats
             return (
               <div
                 key={i}
                 className="bg-white rounded-2xl shadow-md hover:shadow-xl transition relative overflow-hidden"
-                onMouseEnter={() => fetchPostDetails(postData._id || postData.postId)}
+                onMouseEnter={() =>
+                  fetchPostDetails(postData._id || postData.postId)
+                }
               >
                 <img
                   src={postData.thumbnail}
                   className="w-full h-44 object-cover"
                   alt={postData.title}
+                  loading="lazy"
                 />
                 <div className="p-4">
                   <h2 className="font-semibold text-lg line-clamp-1">{postData.title}</h2>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Views: {postData.views || 0}
-                  </p>
+                  <p className="text-gray-500 text-sm mt-1">Views: {postData.views || 0}</p>
+
                   <div className="flex justify-between mt-4">
                     <button
                       onClick={() => openDetails(postData)}
@@ -170,7 +178,10 @@ export default function AdminClient({ initialPosts }) {
                   selectedPost?._id === postData._id && (
                     <div className="absolute top-0 left-0 bg-white bg-opacity-90 p-2 text-xs max-h-40 overflow-y-auto z-10">
                       {postDetails.locations.map((loc, idx) => (
-                        <div key={idx} className="flex justify-between border-b border-gray-200">
+                        <div
+                          key={idx}
+                          className="flex justify-between border-b border-gray-200"
+                        >
                           <span>
                             {loc._id.country}, {loc._id.city} ({loc.count})
                           </span>
@@ -185,7 +196,7 @@ export default function AdminClient({ initialPosts }) {
 
       {/* MODAL */}
       {selectedPost && postDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-3xl rounded-2xl p-6 overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">{selectedPost.title} Analytics</h2>
@@ -210,12 +221,15 @@ export default function AdminClient({ initialPosts }) {
               ))}
             </div>
 
-            {/* COUNTRIES + CITIES */}
+            {/* LOCATIONS */}
             <div>
               <h3 className="font-semibold mb-2">🌍 Top Locations</h3>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {postDetails.locations.map((loc, i) => (
-                  <div key={i} className="flex justify-between bg-gray-50 p-2 rounded">
+                  <div
+                    key={i}
+                    className="flex justify-between bg-gray-50 p-2 rounded"
+                  >
                     <span>
                       {loc._id.country}, {loc._id.city}
                     </span>
@@ -230,9 +244,6 @@ export default function AdminClient({ initialPosts }) {
     </div>
   );
 }
-
-
-
 
 
 
