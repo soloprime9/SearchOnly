@@ -13,39 +13,59 @@ export default function AdminClient({ initialPosts }) {
   const [selectedPost, setSelectedPost] = useState(null);
   const [postDetails, setPostDetails] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
 
-
+/* ================= TOCKEN CHECKUP ================= */
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+  console.log("🔍 Checking token...");
 
-    if (!token) {
+  const token = localStorage.getItem("token");
+  console.log("Token from localStorage:", token);
+
+  if (!token) {
+    console.log("❌ No token found. Redirecting...");
+    router.push("/login");
+    return;
+  }
+
+  try {
+    const decoded = jwt.decode(token);
+    console.log("Decoded token:", decoded);
+
+    if (!decoded) {
+      console.log("❌ Token decode failed");
+      localStorage.removeItem("token");
       router.push("/login");
       return;
     }
 
-    try {
-      const decoded = jwt.decode(token);
-
-      if (!decoded || !decoded.exp) {
-        localStorage.removeItem("token");
-        router.push("/login");
-        return;
-      }
-
-      if (decoded.exp * 1000 < Date.now()) {
-        localStorage.removeItem("token");
-        router.push("/login");
-        return;
-      }
-
-      setAuthorized(true);
-    } catch (err) {
+    if (!decoded.exp) {
+      console.log("❌ No expiration in token");
       localStorage.removeItem("token");
       router.push("/login");
+      return;
     }
-  }, []);
 
+    console.log("Token expiry:", decoded.exp * 1000);
+    console.log("Current time:", Date.now());
+
+    if (decoded.exp * 1000 < Date.now()) {
+      console.log("❌ Token expired");
+      localStorage.removeItem("token");
+      router.push("/login");
+      return;
+    }
+
+    console.log("✅ Token valid");
+    setAuthorized(true);
+
+  } catch (err) {
+    console.log("❌ Token invalid:", err);
+    localStorage.removeItem("token");
+    router.push("/login");
+  }
+}, []);
   
   /* ================= SOCKET ================= */
 
