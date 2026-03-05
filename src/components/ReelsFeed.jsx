@@ -4,6 +4,9 @@ import ReelInteractions from "./ReelInteractions";
 import React, { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+import axios from "axios";
+
+const ANALYTICS_API = "https://backend-k.vercel.app/analytics/view";
 
 const API_URL = "https://backend-k.vercel.app/post/shorts";
 const DEFAULT_THUMB = "/fondpeace.jpg";
@@ -15,7 +18,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
   const [isMuted, setIsMuted] = useState(false); // first video unmuted
   const [showVolumeIcon, setShowVolumeIcon] = useState(false);
-
+  
+const viewedPosts = useRef(new Set());
   const videoRefs = useRef([]);
   const pageRef = useRef(1);
   const loadingRef = useRef(false);
@@ -30,21 +34,30 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
           const video = entry.target;
 
           if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
-            // pause others
-            videoRefs.current.forEach((v) => {
-              if (v && v !== video) v.pause();
-            });
+  // pause others
+  videoRefs.current.forEach((v) => {
+    if (v && v !== video) v.pause();
+  });
 
-            video.muted = isMuted;
+  video.muted = isMuted;
+  video.play().catch(() => {});
 
-            video.play().catch(() => {});
+  const id = video.dataset.id;
 
-            // change URL without rerender or scroll reset
-            const id = video.dataset.id;
-            if (id) {
-              window.history.replaceState(null, "", `/shorts/${id}`);
-            }
-          }
+  if (id) {
+    // change URL
+    window.history.replaceState(null, "", `/shorts/${id}`);
+
+    // ✅ CALL ANALYTICS ONLY ONCE
+    if (!viewedPosts.current.has(id)) {
+      viewedPosts.current.add(id);
+
+      axios
+        .post(`${ANALYTICS_API}/${id}`)
+        .catch(() => {});
+    }
+  }
+}
         });
       },
       { threshold: 0.7 }
