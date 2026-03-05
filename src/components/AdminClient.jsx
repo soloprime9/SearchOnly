@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import io from "socket.io-client";
 import jwt from "jsonwebtoken";
 
-const BACKEND = "https://backend-k.vercel.app/analytics";
+const BACKEND = "https://backendk-z915.onrender.com/analytics";
 
 export default function AdminClient({ initialPosts }) {
   const router = useRouter();
