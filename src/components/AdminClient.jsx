@@ -10,7 +10,7 @@ const Socket_Backend = "https://backendk-z915.onrender.com";
 export default function AdminClient({ initialPosts }) {
   const router = useRouter();
   const [posts, setPosts] = useState(initialPosts || []);
-  const [activeTab, setActiveTab] = useState("1m"); // default live 1 min
+  const [activeTab, setActiveTab] = useState("1m");
   const [selectedPost, setSelectedPost] = useState(null);
   const [postDetails, setPostDetails] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -20,9 +20,10 @@ export default function AdminClient({ initialPosts }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return router.push("/login");
+
     try {
       const decoded = jwt.decode(token);
-      if (!decoded || !decoded.exp || decoded.exp * 1000 < Date.now()) {
+      if (!decoded?.exp || decoded.exp * 1000 < Date.now()) {
         localStorage.removeItem("token");
         return router.push("/login");
       }
@@ -33,7 +34,7 @@ export default function AdminClient({ initialPosts }) {
     }
   }, []);
 
-  /* ================= SOCKET ================= */
+  /* ================= SOCKET.IO ================= */
   useEffect(() => {
     const socket = io(Socket_Backend, {
       transports: ["websocket"],
@@ -53,7 +54,7 @@ export default function AdminClient({ initialPosts }) {
   const refreshData = async () => {
     try {
       setLoading(true);
-      const url = `${BACKEND}/admin/traffic?time=${activeTab}`;
+      const url = `${BACKEND}/admin/live-traffic?time=${activeTab}`;
       const res = await fetch(url);
       const data = await res.json();
       setPosts(data.traffic || []);
@@ -77,17 +78,18 @@ export default function AdminClient({ initialPosts }) {
 
   const openDetails = (post) => {
     setSelectedPost(post);
-    fetchPostDetails(post.postId);
+    fetchPostDetails(post._id || post.postId);
   };
 
   /* ================= SHARE ================= */
   const handleShare = async (post) => {
-    const text = `${post.title}\n${window.location.origin}/post/${post.postId}`;
+    const postId = post._id || post.postId;
+    const text = `${post.title}\n${window.location.origin}/post/${postId}`;
     await navigator.clipboard.writeText(text);
     alert("Copied!");
   };
 
-  /* ================= TAB LABELS ================= */
+  /* ================= TIME TABS ================= */
   const timeTabs = [
     { key: "1m", label: "1 Min" },
     { key: "2m", label: "2 Min" },
@@ -97,6 +99,8 @@ export default function AdminClient({ initialPosts }) {
     { key: "24h", label: "24 Hours" },
     { key: "7d", label: "7 Days" },
   ];
+
+  if (!authorized) return null; // prevent rendering before auth
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -126,52 +130,57 @@ export default function AdminClient({ initialPosts }) {
       {/* POSTS GRID */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {!loading &&
-          posts.map((post, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition relative overflow-hidden"
-              onMouseEnter={() => fetchPostDetails(post.postId)}
-            >
-              <img
-                src={post.thumbnail}
-                className="w-full h-44 object-cover"
-                alt={post.title}
-              />
-              <div className="p-4">
-                <h2 className="font-semibold text-lg line-clamp-1">{post.title}</h2>
-                <p className="text-gray-500 text-sm mt-1">Views: {post.views}</p>
-                <div className="flex justify-between mt-4">
-                  <button
-                    onClick={() => openDetails(post)}
-                    className="text-blue-600 text-sm"
-                  >
-                    Analytics
-                  </button>
-                  <button
-                    onClick={() => handleShare(post)}
-                    className="text-green-600 text-sm"
-                  >
-                    Share
-                  </button>
-                </div>
-              </div>
-
-              {/* Hover Locations */}
-              {postDetails &&
-                postDetails.locations?.length > 0 &&
-                selectedPost?.postId === post.postId && (
-                  <div className="absolute top-0 left-0 bg-white bg-opacity-90 p-2 text-xs max-h-40 overflow-y-auto z-10">
-                    {postDetails.locations.map((loc, idx) => (
-                      <div key={idx} className="flex justify-between border-b border-gray-200">
-                        <span>
-                          {loc._id.country}, {loc._id.city} ({loc.count})
-                        </span>
-                      </div>
-                    ))}
+          posts.map((post, i) => {
+            const postData = post._id || post; // support trending & live format
+            return (
+              <div
+                key={i}
+                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition relative overflow-hidden"
+                onMouseEnter={() => fetchPostDetails(postData._id || postData.postId)}
+              >
+                <img
+                  src={postData.thumbnail}
+                  className="w-full h-44 object-cover"
+                  alt={postData.title}
+                />
+                <div className="p-4">
+                  <h2 className="font-semibold text-lg line-clamp-1">{postData.title}</h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Views: {postData.views || 0}
+                  </p>
+                  <div className="flex justify-between mt-4">
+                    <button
+                      onClick={() => openDetails(postData)}
+                      className="text-blue-600 text-sm"
+                    >
+                      Analytics
+                    </button>
+                    <button
+                      onClick={() => handleShare(postData)}
+                      className="text-green-600 text-sm"
+                    >
+                      Share
+                    </button>
                   </div>
-                )}
-            </div>
-          ))}
+                </div>
+
+                {/* Hover Locations */}
+                {postDetails &&
+                  postDetails.locations?.length > 0 &&
+                  selectedPost?._id === postData._id && (
+                    <div className="absolute top-0 left-0 bg-white bg-opacity-90 p-2 text-xs max-h-40 overflow-y-auto z-10">
+                      {postDetails.locations.map((loc, idx) => (
+                        <div key={idx} className="flex justify-between border-b border-gray-200">
+                          <span>
+                            {loc._id.country}, {loc._id.city} ({loc.count})
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+              </div>
+            );
+          })}
       </div>
 
       {/* MODAL */}
@@ -180,7 +189,13 @@ export default function AdminClient({ initialPosts }) {
           <div className="bg-white w-full max-w-3xl rounded-2xl p-6 overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">{selectedPost.title} Analytics</h2>
-              <button onClick={() => { setSelectedPost(null); setPostDetails(null); }} className="text-red-500">
+              <button
+                onClick={() => {
+                  setSelectedPost(null);
+                  setPostDetails(null);
+                }}
+                className="text-red-500"
+              >
                 Close
               </button>
             </div>
@@ -209,16 +224,12 @@ export default function AdminClient({ initialPosts }) {
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       )}
     </div>
   );
 }
-
-
-
 
 
 
