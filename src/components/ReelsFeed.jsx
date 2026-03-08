@@ -77,9 +77,14 @@ const viewedPosts = useRef(new Set());
 
     try {
       pageRef.current += 1;
+      
+      const excludeIds = posts.map((p) => p._id).join(",");
+
       const res = await fetch(
-        `${API_URL}?page=${pageRef.current}&limit=8`
-      );
+      `${API_URL}?page=${pageRef.current}&limit=8&exclude=${excludeIds}`
+    );
+
+      
       const data = await res.json();
 
       setPosts((prev) => {
