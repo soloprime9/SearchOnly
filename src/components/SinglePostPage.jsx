@@ -31,14 +31,32 @@ export default function SinglePostInteractions({ initialPost }) {
 
   const API_BASE = "https://backend-k.vercel.app";
 
-  /* ================= AUTH ================= */
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
 
-    const decoded = jwt.decode(token);
-    if (decoded?.UserId) setUserId(String(decoded.UserId));
-  }, []);
+  /* ================= AUTH ================= */
+useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    // Redirect to login page after 2 seconds
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 2000);
+    return;
+  }
+
+  const decoded = jwt.decode(token);
+  if (decoded?.UserId) setUserId(String(decoded.UserId));
+}, []);
+
+  
+  // /* ================= AUTH ================= */
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) return;
+
+  //   const decoded = jwt.decode(token);
+  //   if (decoded?.UserId) setUserId(String(decoded.UserId));
+  // }, []);
 
 
   /* ================= TRACK POST VIEW ================= */
