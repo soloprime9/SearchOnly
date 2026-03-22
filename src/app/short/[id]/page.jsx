@@ -242,7 +242,7 @@ export default async function Page({ params }) {
   ],
 
   // ✅ MUST (VERY IMPORTANT)
-  contentUrl: mediaUrl || `${SITE_ROOT}/short/69bf77af76bf1129fa9c6873`,
+  contentUrl: mediaUrl ,
 
   embedUrl: `${SITE_ROOT}/short/${post._id || id}`,
 
@@ -288,7 +288,7 @@ export default async function Page({ params }) {
   },
 };
 
-        
+        console.log("videoSchema: ",videoSchema);
 // const videoSchema = {
 //             "@context": "https://schema.org",
 //             "@type": "VideoObject",
