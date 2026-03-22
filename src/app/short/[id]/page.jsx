@@ -408,8 +408,8 @@ export default async function Page({ params }) {
   return (
   <main className="w-full min-h-screen bg-white">
 
-    {/* JSON-LD */}
-   <script
+{/* JSON-LD inserted server-side for crawlers */}
+<script
   key="video-jsonld"
   type="application/ld+json"
   dangerouslySetInnerHTML={{
