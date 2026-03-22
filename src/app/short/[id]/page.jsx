@@ -226,25 +226,88 @@ export default async function Page({ params }) {
 
         const authorId = `${SITE_ROOT}/profile/${post.userId?.username}#person`;
 
-const videoSchema = {
-            "@context": "https://schema.org",
-            "@type": "VideoObject",
-            name: post.title || "FondPeace Video",
-            headline: post.title || "FondPeace Video",
-            description: buildDescription(post),
-            thumbnailUrl: [thumbnail || DEFAULT_THUMB],
-            ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
-            embedUrl: `${SITE_ROOT}/short/${post._id || id}`,
-            uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-            // ... (rest of the schema properties)
-            duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
-            author: { "@type": "Person", name: authorName, url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`, },
-            interactionStatistic: buildInteractionSchema(post),
-            keywords: extractKeywords(post),
-            inLanguage: "en-US",
-            potentialAction: { "@type": "WatchAction", target: pageUrl },
-            mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
-        };
+        const videoSchema = {
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+
+  "@id": `${pageUrl}#video`,
+
+  name: post.title,
+  headline: post.title,
+
+  description: buildDescription(post),
+
+  thumbnailUrl: [
+    thumbnail || `${SITE_ROOT}/Fondpeace.jpg`
+  ],
+
+  // ✅ MUST (VERY IMPORTANT)
+  contentUrl: mediaUrl || `${SITE_ROOT}/short/69bf77af76bf1129fa9c6873`,
+
+  embedUrl: `${SITE_ROOT}/short/${post._id || id}`,
+
+  url: pageUrl,
+
+  uploadDate: new Date(
+    post.createdAt || Date.now()
+  ).toISOString(),
+
+  duration: secToISO(Number(post.duration || 30)),
+
+  inLanguage: "en",
+
+  isFamilyFriendly: true,
+  isAccessibleForFree: true,
+
+  author: {
+    "@type": "Person",
+    name: authorName || "FondPeace",
+    url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`,
+  },
+
+  publisher: {
+    "@type": "Organization",
+    name: "FondPeace",
+    url: SITE_ROOT,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_ROOT}/Fondpeace.jpg`,
+    },
+  },
+
+  interactionStatistic: buildInteractionSchema(post) || [],
+
+  potentialAction: {
+    "@type": "WatchAction",
+    target: pageUrl,
+  },
+
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": pageUrl,
+  },
+};
+
+        
+// const videoSchema = {
+//             "@context": "https://schema.org",
+//             "@type": "VideoObject",
+//             name: post.title || "FondPeace Video",
+//             headline: post.title || "FondPeace Video",
+//             description: buildDescription(post),
+//             thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+//             ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
+//             embedUrl: `${SITE_ROOT}/short/${post._id || id}`,
+//             uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+//             // ... (rest of the schema properties)
+//             duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
+//             author: { "@type": "Person", name: authorName, url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`, },
+//             interactionStatistic: buildInteractionSchema(post),
+//             keywords: extractKeywords(post),
+//             inLanguage: "en-US",
+//             potentialAction: { "@type": "WatchAction", target: pageUrl },
+//             mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+//         };
 
 //         const jsonLd = {
 //   "@context": "https://schema.org",
@@ -346,7 +409,7 @@ const videoSchema = {
   <main className="w-full min-h-screen bg-white">
 
     {/* JSON-LD */}
-    <script
+   <script
   key="video-jsonld"
   type="application/ld+json"
   dangerouslySetInnerHTML={{
