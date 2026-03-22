@@ -32,14 +32,6 @@ export default function SinglePostInteractions({ initialPost }) {
   const API_BASE = "https://backend-k.vercel.app";
 
 
-  /* ================= AUTH ================= */
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const decoded = jwt.decode(token);
-    if (decoded?.UserId) setUserId(String(decoded.UserId));
-  }, []);
 
   
 
@@ -55,19 +47,19 @@ export default function SinglePostInteractions({ initialPost }) {
 //     return;
 //   }
 
-  const decoded = jwt.decode(token);
-  if (decoded?.UserId) setUserId(String(decoded.UserId));
-}, []);
+//   const decoded = jwt.decode(token);
+//   if (decoded?.UserId) setUserId(String(decoded.UserId));
+// }, []);
 
   
-  // /* ================= AUTH ================= */
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) return;
+  /* ================= AUTH ================= */
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-  //   const decoded = jwt.decode(token);
-  //   if (decoded?.UserId) setUserId(String(decoded.UserId));
-  // }, []);
+    const decoded = jwt.decode(token);
+    if (decoded?.UserId) setUserId(String(decoded.UserId));
+  }, []);
 
 
   /* ================= TRACK POST VIEW ================= */
