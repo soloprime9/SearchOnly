@@ -94,35 +94,35 @@ function buildDescription(post) {
     return `${title} uploaded by ${author} on FondPeace, join now to watch latest videos and updates`;
 }
 
-// function mapComments(post, pageUrl) {
-//   return (post.comments || []).map((c) => ({
-//     "@type": "Comment",
-//     "@id": `${pageUrl}#comment-${c._id}`,
-//     text: c.CommentText || "",
-//     dateCreated: new Date(c.createdAt).toISOString(),
-//     author: {
-//       "@type": "Person",
-//       "@id": `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}#person`,
-//       name: c.userId?.username || "FondPeace",
-//       url: `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}`,
-//     },
-//     interactionStatistic: buildCommentInteractionSchema(c),
-//     comment: (c.replies || []).map((r) => ({
-//       "@type": "Comment",
-//       "@id": `${pageUrl}#reply-${r._id}`,
-//       parentItem: { "@id": `${pageUrl}#comment-${c._id}` },
-//       text: r.replyText || "",
-//       dateCreated: new Date(r.createdAt).toISOString(),
-//       author: {
-//         "@type": "Person",
-//         "@id": `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}#person`,
-//         name: r.userId?.username || "FondPeace",
-//         url: `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}`,
-//       },
-//       interactionStatistic: buildCommentInteractionSchema(r),
-//     })),
-//   }));
-// }
+function mapComments(post, pageUrl) {
+  return (post.comments || []).map((c) => ({
+    "@type": "Comment",
+    "@id": `${pageUrl}#comment-${c._id}`,
+    text: c.CommentText || "",
+    dateCreated: new Date(c.createdAt).toISOString(),
+    author: {
+      "@type": "Person",
+      "@id": `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}#person`,
+      name: c.userId?.username || "FondPeace",
+      url: `${SITE_ROOT}/profile/${c.userId?.username || "FondPeace"}`,
+    },
+    interactionStatistic: buildCommentInteractionSchema(c),
+    comment: (c.replies || []).map((r) => ({
+      "@type": "Comment",
+      "@id": `${pageUrl}#reply-${r._id}`,
+      parentItem: { "@id": `${pageUrl}#comment-${c._id}` },
+      text: r.replyText || "",
+      dateCreated: new Date(r.createdAt).toISOString(),
+      author: {
+        "@type": "Person",
+        "@id": `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}#person`,
+        name: r.userId?.username || "FondPeace",
+        url: `${SITE_ROOT}/profile/${r.userId?.username || "FondPeace"}`,
+      },
+      interactionStatistic: buildCommentInteractionSchema(r),
+    })),
+  }));
+}
 
 
 // --- Metadata Generator (Google Indexing Focus) ---
@@ -246,16 +246,44 @@ const videoSchema = {
             mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
         };
 
-         
+         const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: SITE_ROOT
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: authorName || "Profile",
+      item: `${SITE_ROOT}/profile/${authorName || "user"}`
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: post.title,
+      item: pageUrl
+    }
+  ]
+};
+        
   return (
   <main className="w-full min-h-screen bg-white">
 
     {/* JSON-LD */}
         <script
-                    key="video-jsonld"
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
-                /> 
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+/>
+
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+/>
    
 {/* <script
   type="application/ld+json"
