@@ -251,11 +251,11 @@ const videoSchema = {
   <main className="w-full min-h-screen bg-white">
 
     {/* JSON-LD */}
-       {/* <script
+        <script
                     key="video-jsonld"
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
-                /> */}
+                /> 
    
 {/* <script
   type="application/ld+json"
