@@ -226,50 +226,121 @@ export default async function Page({ params }) {
 
         const authorId = `${SITE_ROOT}/profile/${post.userId?.username}#person`;
 
-const videoSchema = {
-            "@context": "https://schema.org",
-            "@type": "VideoObject",
-            name: post.title || "FondPeace Video",
-            headline: post.title || "FondPeace Video",
-            description: buildDescription(post),
-            thumbnailUrl: [thumbnail || DEFAULT_THUMB],
-            ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
-            embedUrl: `${SITE_ROOT}/short/${post._id || id}`,
-            uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-            // ... (rest of the schema properties)
-            duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
-            author: { "@type": "Person", name: authorName, url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`, },
-            interactionStatistic: buildInteractionSchema(post),
-            keywords: extractKeywords(post),
-            inLanguage: "en-US",
-            potentialAction: { "@type": "WatchAction", target: pageUrl },
-            mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
-        };
+// const videoSchema = {
+//             "@context": "https://schema.org",
+//             "@type": "VideoObject",
+//             name: post.title || "FondPeace Video",
+//             headline: post.title || "FondPeace Video",
+//             description: buildDescription(post),
+//             thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+//             ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
+//             embedUrl: `${SITE_ROOT}/short/${post._id || id}`,
+//             uploadDate: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+//             // ... (rest of the schema properties)
+//             duration: post.duration ? (Number(post.duration) ? secToISO(Number(post.duration)) : post.duration) : undefined,
+//             author: { "@type": "Person", name: authorName, url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`, },
+//             interactionStatistic: buildInteractionSchema(post),
+//             keywords: extractKeywords(post),
+//             inLanguage: "en-US",
+//             potentialAction: { "@type": "WatchAction", target: pageUrl },
+//             mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+//         };
 
-         const breadcrumbSchema = {
+        const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
+  "@graph": [
+    // 🔹 BREADCRUMB
     {
-      "@type": "ListItem",
-      position: 1,
-      name: "Home",
-      item: SITE_ROOT
+      "@type": "BreadcrumbList",
+      "@id": `${pageUrl}#breadcrumb`,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "FondPeace",
+          item: SITE_ROOT,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: authorName || "Profile",
+          item: `${SITE_ROOT}/profile/${authorName || "user"}`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: post.title || "Video",
+          item: pageUrl,
+        },
+      ],
     },
+
+    // 🔹 VIDEO OBJECT (FULL POWER)
     {
-      "@type": "ListItem",
-      position: 2,
-      name: authorName || "Profile",
-      item: `${SITE_ROOT}/profile/${authorName || "user"}`
+      "@type": "VideoObject",
+      "@id": `${pageUrl}#video`,
+
+      name: post.title || "FondPeace Video",
+      headline: post.title || "FondPeace Video",
+      description: buildDescription(post),
+
+      thumbnailUrl: [thumbnail || DEFAULT_THUMB],
+
+      ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
+
+      embedUrl: `${SITE_ROOT}/short/${post._id || id}`,
+
+      uploadDate: post.createdAt
+        ? new Date(post.createdAt).toISOString()
+        : new Date().toISOString(),
+
+      duration: post.duration
+        ? secToISO(Number(post.duration))
+        : "PT0M30S",
+
+      inLanguage: "en-US",
+
+      isFamilyFriendly: true,
+      isAccessibleForFree: true,
+
+      author: {
+        "@type": "Person",
+        "@id": `${SITE_ROOT}/profile/${authorName || "FondPeace"}#person`,
+        name: authorName || "FondPeace",
+        url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`,
+      },
+
+      publisher: {
+        "@type": "Organization",
+        name: "FondPeace",
+        url: SITE_ROOT,
+        logo: {
+          "@type": "ImageObject",
+          url: `${SITE_ROOT}/Fondpeace.jpg`,
+        },
+      },
+
+      interactionStatistic: buildInteractionSchema(post),
+
+      keywords: extractKeywords(post),
+
+      potentialAction: {
+        "@type": "WatchAction",
+        target: pageUrl,
+      },
+
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": pageUrl,
+      },
+
+      // 🔥 BONUS (SEO BOOST)
+      url: pageUrl,
     },
-    {
-      "@type": "ListItem",
-      position: 3,
-      name: post.title,
-      item: pageUrl
-    }
-  ]
+  ],
 };
+
+        
         
   return (
   <main className="w-full min-h-screen bg-white">
@@ -277,12 +348,9 @@ const videoSchema = {
     {/* JSON-LD */}
         <script
   type="application/ld+json"
-  dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
-/>
-
-<script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify(jsonLd),
+  }}
 />
    
 {/* <script
