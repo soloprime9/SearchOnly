@@ -75,7 +75,7 @@ export default function AdminClient({ initialPosts }) {
 
   /* ================= HELPERS ================= */
   const handleShare = async (post) => {
-    const text = `${post.title}\n${window.location.origin}/post/${post._id}`;
+    const text = `${window.location.origin}/post/${post._id}`;
     await navigator.clipboard.writeText(text);
     alert("URL Copied!");
   };
