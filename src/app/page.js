@@ -4,42 +4,30 @@ import VillageClient from "@/components/VillageClient";
 import WhatsAppClientUI from "@/components/WhatsAppClientUI";
  import LeftSidebar from "@//components/LeftSidebar"
 const API_BASE = "https://backend-k.vercel.app";
-   
+   const SITE_URL = "https://fondpeace.com";
 /* =========================
    METADATA (GOOGLE SAFE)
 ========================= */
 export const metadata = {
-  title: "FondPeace", // Brand-first title
+  title: "FondPeace",
   description:
     "FondPeace is an independent community platform for thoughtful discussions, idea sharing, and meaningful conversations built on trust and transparency.",
+
   keywords: [
-    "FondPeace",
-    "community platform",
-    "open conversations",
-    "online discussions",
-    "share ideas",
-    "Indian community platform",
+    "Trending",
+    "Viral Videos",
+    "Today News",
+    "Fondpeace",
+    "Videos",
+    "Viral Posts",
+    "India",
+    "Latest Update",
   ],
 
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-snippet": -1,
-      "max-image-preview": "large",
-      "max-video-preview": -1,
-    },
-  },
-  alternates: {
-    canonical: "https://fondpeace.com",
-    languages: {
-      "en-IN": "https://fondpeace.com",
-      en: "https://fondpeace.com",
-      "x-default": "https://fondpeace.com",
-    },
-  },
+  authors: [{ name: "Aman Kumar" }],
+
+  robots: "index, follow",
+
   openGraph: {
     type: "website",
     siteName: "FondPeace",
@@ -56,6 +44,7 @@ export const metadata = {
       },
     ],
   },
+
   twitter: {
     card: "summary_large_image",
     title: "FondPeace",
@@ -65,68 +54,35 @@ export const metadata = {
   },
 };
 
-/* =========================
-   STRUCTURED DATA JSON-LD
-========================= */
-const structuredData = {
+
+
+  const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
-    // Founder
-    {
-      "@type": "Person",
-      "@id": "https://fondpeace.com/#author",
-      name: "Aman Kumar",
-      url: "https://fondpeace.com/about",
-      jobTitle: "Founder & Platform Editor",
-      sameAs: [
-        "http://www.youtube.com/@FondPeaceUpdate",
-        "https://www.instagram.com/fondpeacetecho/",
-         "https://x.com/FondPeaceTech",
-         "https://news.fondpeace.com/"
-         
-      ],
-    },
-    // Organization
-    {
-      "@type": "Organization",
-      "@id": "https://fondpeace.com/#organization",
-      name: "FondPeace",
-      alternateName: "FondPeace Community",
-      url: "https://fondpeace.com",
-      logo: {
-     "@type": "ImageObject",
-      url: "https://fondpeace.com/android-chrome-512x512.png",
-     width: 512,
-     height: 512,
-   },
-
-      foundingDate: "2024",
-      founder: { "@id": "https://fondpeace.com/#author" },
-      sameAs: [
-         "http://www.youtube.com/@FondPeaceUpdate",
-        "https://www.instagram.com/fondpeacetecho/",
-         "https://x.com/FondPeaceTech",
-         "https://news.fondpeace.com/"
-         
-         
-      ],
-    },
-    // WebSite
     {
       "@type": "WebSite",
       "@id": "https://fondpeace.com/#website",
-      url: "https://fondpeace.com",
       name: "FondPeace",
-      alternateName: "FondPeace",
-      publisher: { "@id": "https://fondpeace.com/#organization" },
-      potentialAction: {
-        "@type": "SearchAction",
-        target: "https://fondpeace.com/searchbro?q={search_term_string}",
-        "query-input": "required name=search_term_string",
+      url: "https://fondpeace.com",
+      description:
+        "FondPeace is an independent community platform for thoughtful discussions, idea sharing, and meaningful conversations built on trust and transparency.",
+
+      publisher: {
+        "@type": "Organization",
+        "@id": "https://fondpeace.com/#organization",
+        name: "FondPeace",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://fondpeace.com/android-chrome-512x512.png",
+        },
+      },
+
+      author: {
+        "@type": "Person",
+        name: "Aman Kumar",
       },
     },
-    
-    // Single Breadcrumb for Homepage
+
     {
       "@type": "BreadcrumbList",
       "@id": "https://fondpeace.com/#breadcrumb",
@@ -150,7 +106,7 @@ export default async function HomePage() {
 
   try {
     const res = await fetch(`${API_BASE}/post/mango/getall`, {
-      cache: "no-store",
+       next: { revalidate: 60 },
     });
     posts = await res.json();
   } catch (err) {
@@ -162,7 +118,7 @@ export default async function HomePage() {
     {/* Structured Data */}
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
 
     {/* FIXED LEFT SIDEBAR */}
@@ -170,6 +126,12 @@ export default async function HomePage() {
 
     {/* MAIN CONTENT (SPACE RESERVED FOR SIDEBAR) */}
     <main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
+
+     {/* ✅ SEO H1 (VERY IMPORTANT) */}
+  <h1 className="hidden">
+    FondPeace - Community Platform for Discussions & Ideas
+  </h1>
+
   <div
     className="
       grid 
