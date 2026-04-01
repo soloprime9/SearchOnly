@@ -484,23 +484,28 @@ const jsonLdRedditStyle = {
 
 
         {/* User Profile */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <img
-              src={post.user?.profilePic || "/Fondpeace.jpg"}
-              alt={post.userId?.username || "User"}
-              className="w-11 h-11 rounded-full object-cover border"
-              loading="lazy"
-            />
-            <div>
-              <span className="font-semibold text-gray-800 block">
-                {post.userId?.username || "Anonymous"}
-              </span>
-              <span className="text-gray-500 text-sm">
-                {new Date(post.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-          </div>
+<div className="flex items-center justify-between mb-5">
+  <Link
+    href={`/profile/${post.userId?.username}`}
+    className="flex items-center gap-3"
+  >
+    <img
+      src={post.userId?.profilePic || "/Fondpeace.jpg"}
+      alt={post.userId?.username || "User"}
+      className="w-11 h-11 rounded-full object-cover border"
+      loading="lazy"
+    />
+
+    <div>
+      <span className="font-semibold text-gray-800 block">
+        {post.userId?.username || "Anonymous"}
+      </span>
+      <span className="text-gray-500 text-sm">
+        {new Date(post.createdAt).toLocaleDateString()}
+      </span>
+    </div>
+  </Link>
+</div>
 
           {/* Menu button */}
           <button className="text-gray-500 hover:text-black transition">
