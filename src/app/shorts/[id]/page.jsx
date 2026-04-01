@@ -75,63 +75,63 @@ function extractKeywords(post) {
 }
 
 /* Server-side metadata: Next will call this for each /shorts/[id] request */
-export async function generateMetadata({ params }) {
-  const id = params?.id;
-  if (!id) return { title: "Invalid Video" };
+// export async function generateMetadata({ params }) {
+//   const id = params?.id;
+//   if (!id) return { title: "Invalid Video" };
 
-  try {
-    const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
-    if (!res.ok) return { title: "Fondpeace Video" };
-    const data = await res.json();
-    const post = data?.post;
-    if (!post) return { title: "Video Not Found" };
+//   try {
+//     const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
+//     if (!res.ok) return { title: "Fondpeace Video" };
+//     const data = await res.json();
+//     const post = data?.post;
+//     if (!post) return { title: "Video Not Found" };
 
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
-    const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-    const title = (post.title).slice(0, 160);
+//     const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
+//     const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+//     const title = (post.title).slice(0, 160);
 
-    // robust isVideo detection
-    const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("video"));
+//     // robust isVideo detection
+//     const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("video"));
 
-    // Build metadata object (keep it minimal & safe)
-    const metadata = {
-      title,
-      description: buildDescription(post),
-      keywords: extractKeywords(post),
-      alternates: { canonical: `${SITE_ROOT}/shorts/${id}` },
-      openGraph: {
-        title,
-        description: buildDescription(post),
-        url: `${SITE_ROOT}/shorts/${id}`,
-        type: isVideo ? "video.other" : "article",
-        images: [img],
-        ...(isVideo && {
-          // Next/OpenGraph accepts a video array; include only when we have a valid mediaUrl
-          video: [
-            {
-              url: mediaUrl,
-              type: "video/mp4",
-              width: 1280,
-              height: 720
-            }
-          ]
-        })
-      },
-      twitter: {
-        card: isVideo ? "player" : "summary_large_image",
-        title,
-        description: buildDescription(post),
-        image: img,
-        ...(isVideo && { player: mediaUrl })
-      },
-    };
+//     // Build metadata object (keep it minimal & safe)
+//     const metadata = {
+//       title,
+//       description: buildDescription(post),
+//       keywords: extractKeywords(post),
+//       alternates: { canonical: `${SITE_ROOT}/shorts/${id}` },
+//       openGraph: {
+//         title,
+//         description: buildDescription(post),
+//         url: `${SITE_ROOT}/shorts/${id}`,
+//         type: isVideo ? "video.other" : "article",
+//         images: [img],
+//         ...(isVideo && {
+//           // Next/OpenGraph accepts a video array; include only when we have a valid mediaUrl
+//           video: [
+//             {
+//               url: mediaUrl,
+//               type: "video/mp4",
+//               width: 1280,
+//               height: 720
+//             }
+//           ]
+//         })
+//       },
+//       twitter: {
+//         card: isVideo ? "player" : "summary_large_image",
+//         title,
+//         description: buildDescription(post),
+//         image: img,
+//         ...(isVideo && { player: mediaUrl })
+//       },
+//     };
 
-    return metadata;
-  } catch (e) {
-    console.error("generateMetadata error:", e);
-    return { title: "Fondpeace Video" };
-  }
-}
+//     return metadata;
+//   } catch (e) {
+//     console.error("generateMetadata error:", e);
+//     return { title: "Fondpeace Video" };
+//   }
+// }
 
 
 export async function generateMetadata({ params }) {
