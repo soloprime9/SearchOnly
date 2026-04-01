@@ -483,8 +483,9 @@ const jsonLdRedditStyle = {
 
 
 
-        {/* User Profile */}
+       {/* User Profile */}
 <div className="flex items-center justify-between mb-5">
+
   <Link
     href={`/profile/${post.userId?.username}`}
     className="flex items-center gap-3"
@@ -505,22 +506,26 @@ const jsonLdRedditStyle = {
       </span>
     </div>
   </Link>
+
+  {/* Menu button MUST be inside same flex */}
+  <button className="text-gray-500 hover:text-black transition">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 6v.01M12 12v.01M12 18v.01"
+      />
+    </svg>
+  </button>
+
 </div>
-
-          {/* Menu button */}
-          <button className="text-gray-500 hover:text-black transition">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v.01M12 12v.01M12 18v.01" />
-            </svg>
-          </button>
-        </div>
-
         
 
 
