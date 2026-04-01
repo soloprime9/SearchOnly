@@ -128,7 +128,7 @@ export async function generateMetadata({ params }) {
 
     const mediaUrl = toAbsolute(post.media || post.mediaUrl);
     const thumb = toAbsolute(post.thumbnail || mediaUrl);
-
+const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
     const isVideo = mediaUrl?.endsWith(".mp4");
     const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
@@ -197,9 +197,9 @@ const related = data?.related ?? [];
 
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
-  const mediaUrl = toAbsolute(post.media || post.mediaUrl);
+  const mediaUrl = toAbsolute(post.media || post.mediaUrl || post.thumbnail);
   const authorName = post.userId?.username || "FondPeace";
-
+const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
   const isVideo = mediaUrl?.endsWith(".mp4");
   const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
