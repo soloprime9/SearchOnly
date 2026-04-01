@@ -1,5 +1,5 @@
 // app/short/[id]/page.jsx
-import { notFound } from "next/navigation";
+import { notFound } from "next/navigation"; 
 import Link from "next/link";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import { redirect } from "next/navigation";
