@@ -9,6 +9,33 @@ import { redirect } from "next/navigation";
 const API_BASE = "https://backend-k.vercel.app";
 const SITE_ROOT = "https://fondpeace.com";
 const DEFAULT_AVATAR = "https://fondpeace.com/Fondpeace.jpg";
+import Linkify from "linkify-react";
+
+
+const options = {
+  target: "_blank",
+  rel: "noopener noreferrer nofollow", // ✅ SEO safe
+  className: "text-blue-600 hover:underline font-medium break-words",
+
+  format: (value, type) => {
+    if (type === "url") {
+      try {
+        const url = new URL(value);
+
+        // ✅ clean domain (no www)
+        return url.hostname.replace("www.", "");
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  },
+
+  // ✅ optional: validate only real links
+  validate: {
+    url: (value) => value.startsWith("http"),
+  },
+};
 
 
 /* ---------------------- HELPERS ---------------------- */
@@ -546,9 +573,15 @@ const jsonLdRedditStyle = {
           />
         ) : null}
 
-        {/* Post Title */}
+        {/* Post Title 
 <h1 className="text-gray-800 mb-4 whitespace-pre-line">
   {post.title}
+</h1>
+*/}
+        <h1 className="text-gray-800 mb-4 whitespace-pre-line break-words">
+  <Linkify options={options}>
+    {post.title}
+  </Linkify>
 </h1>
 
         {/* Post Content */}
