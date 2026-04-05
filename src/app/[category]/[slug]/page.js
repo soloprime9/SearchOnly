@@ -62,5 +62,6 @@ export default async function Page({ params }) {
     //   relatedPosts={related || []}
     //   canonical={`${SITE_URL}/${category}/${slug}`}
     // />
+    <div> ggg </div>
   );
 }
