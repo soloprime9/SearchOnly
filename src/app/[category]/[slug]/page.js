@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
   const { category, slug } = params;
 
   const res = await fetch(
-    `${API_BASE}/post/${category}/${slug}`,
+    `${API_BASE}/post/blog/${category}/${slug}`,
     { cache: "no-store" }
   );
 
@@ -49,7 +49,7 @@ export default async function Page({ params }) {
   const { category, slug } = params;
 
   const res = await fetch(
-    `${API_BASE}/post/${category}/${slug}`,
+    `${API_BASE}/post/blog/${category}/${slug}`,
     { cache: "no-store" }
   );
 
