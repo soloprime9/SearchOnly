@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import SeoArticle from "@/Components/SeoArticle";
+// import SeoArticle from "@/components/SeoArticle";
 
 const SITE_URL = "https://fondpeace.com"; // change
 
@@ -57,10 +57,10 @@ export default async function Page({ params }) {
   const { post, related } = await res.json();
 
   return (
-    <SeoArticle
-      post={post}
-      relatedPosts={related || []}
-      canonical={`${SITE_URL}/${category}/${slug}`}
-    />
+    // <SeoArticle
+    //   post={post}
+    //   relatedPosts={related || []}
+    //   canonical={`${SITE_URL}/${category}/${slug}`}
+    // />
   );
 }
