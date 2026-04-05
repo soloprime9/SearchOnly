@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Link from "next/link";
-import MarkdownRenderer from "@/Components/MarkdownRenderer";
-import FaqItem from "@/Components/FaqItem";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
+import FaqItem from "@/components/FaqItem";
 
 function formatHuman(iso) {
   try {
