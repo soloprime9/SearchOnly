@@ -164,10 +164,10 @@ export default function SeoArticle({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {relatedPosts.map((p) => (
                 <Link
-                  key={p.slug}
-                  href={`/${p.category}/${p.slug}`}
-                  className="border rounded-lg overflow-hidden hover:shadow-lg transition"
-                >
+  key={p.slug}
+  href={`/${p.category.toLowerCase().replace(/\s+/g, "-")}/${p.slug}`}
+  className="border rounded-lg overflow-hidden hover:shadow-lg transition"
+>
                   <img
                     src={p.thumbnail}
                     className="h-40 w-full object-cover"
