@@ -2,6 +2,33 @@ import Head from "next/head";
 import Link from "next/link";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import FaqItem from "@/components/FaqItem";
+import Linkify from "linkify-react";
+
+
+const options = {
+  target: "_blank",
+  rel: "noopener noreferrer nofollow", // ✅ SEO safe
+  className: "text-blue-600 hover:underline font-medium break-words",
+
+  format: (value, type) => {
+    if (type === "url") {
+      try {
+        const url = new URL(value);
+
+        // ✅ clean domain (no www)
+        return url.hostname.replace("www.", "");
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  },
+
+  // ✅ optional: validate only real links
+  validate: {
+    url: (value) => value.startsWith("http"),
+  },
+};
 
 function formatHuman(iso) {
   try {
@@ -99,7 +126,11 @@ export default function SeoArticle({
             />
           )}
 
-          <h1 className="text-3xl md:text-4xl font-bold">{title}</h1>
+           <h1 className="text-gray-800 mb-4 whitespace-pre-line break-words">
+  <Linkify options={options}>
+    {post.title}
+  </Linkify>
+</h1>
 
           <div className="text-sm text-gray-600 mt-2">
             By <strong>{authorName}</strong> •{" "}
