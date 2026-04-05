@@ -10,7 +10,7 @@ const UploadPost = () => {
   const [preview, setPreview] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-
+  const [category, setCategory] = useState("Entertainment");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -109,6 +109,7 @@ const processFile = (selectedFile) => {
     formData.append("file", file);
     formData.append("title", title);
     formData.append("tags", extractedTags.join(","));
+    formData.append("category", category);
 
     try {
       const token = localStorage.getItem("token");
@@ -264,6 +265,27 @@ const handleDrop = (e) => {
         </div>
       )}
 
+      <select
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+  className="w-full mt-4 p-3 border-2 border-white bg-blue-700 text-white rounded"
+>
+  <option>TV Shows</option>
+  <option>Reality Shows</option>
+  <option>Written Updates</option>
+  <option>Celebrity News</option>
+  <option>Movie News</option>
+  <option>Entertainment</option>
+  <option>Cricket</option>
+  <option>Stock Market</option>
+  <option>Technology</option>
+  <option>Job Updates</option>
+  <option>Health</option>
+  <option>Astrology</option>
+  <option>Viral News</option>
+  <option>Trending News</option>
+</select>
+      
       {/* Submit Button */}
       <button
         type="submit"
