@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-// import SeoArticle from "@/components/SeoArticle";
+import SeoArticle from "@/components/SeoArticle";
  
 const SITE_URL = "https://fondpeace.com"; // change
 
