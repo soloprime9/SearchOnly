@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 // import SeoArticle from "@/components/SeoArticle";
-
+ 
 const SITE_URL = "https://fondpeace.com"; // change
 
 // ❌ no static params (dynamic from API)
