@@ -265,26 +265,57 @@ const handleDrop = (e) => {
         </div>
       )}
 
-      <select
-  value={category}
-  onChange={(e) => setCategory(e.target.value)}
-  className="w-full mt-4 p-3 border-2 border-white bg-blue-700 text-white rounded"
->
-  <option>TV Shows</option>
-  <option>Reality Shows</option>
-  <option>Written Updates</option>
-  <option>Celebrity News</option>
-  <option>Movie News</option>
-  <option>Entertainment</option>
-  <option>Cricket</option>
-  <option>Stock Market</option>
-  <option>Technology</option>
-  <option>Job Updates</option>
-  <option>Health</option>
-  <option>Astrology</option>
-  <option>Viral News</option>
-  <option>Trending News</option>
-</select>
+    <div className="w-full mt-5">
+  <label className="block text-sm sm:text-base font-semibold mb-2 text-white">
+    Select Category
+  </label>
+
+  <div className="relative">
+    <select
+      value={category}
+      onChange={(e) => setCategory(e.target.value)}
+      className="
+        w-full
+        px-4
+        py-3
+        text-sm sm:text-base
+        bg-blue-700
+        text-white
+        border border-white/60
+        rounded-lg
+        focus:outline-none
+        focus:ring-2 focus:ring-yellow-400
+        focus:border-yellow-400
+        appearance-none
+        transition-all duration-200
+      "
+    >
+      <option value="Entertainment">Entertainment</option> {/* ✅ default first */}
+
+      <option value="TV Shows">TV Shows</option>
+      <option value="Reality Shows">Reality Shows</option>
+      <option value="Written Updates">Written Updates</option>
+      <option value="Celebrity News">Celebrity News</option>
+      <option value="Movie News">Movie News</option>
+
+      <option value="Cricket">Cricket</option>
+      <option value="Stock Market">Stock Market</option>
+      <option value="Technology">Technology</option>
+      <option value="Job Updates">Job Updates</option>
+
+      <option value="Health">Health</option>
+      <option value="Astrology">Astrology</option>
+
+      <option value="Viral News">Viral News</option>
+      <option value="Trending News">Trending News</option>
+    </select>
+
+    {/* Arrow */}
+    <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-white text-xs sm:text-sm">
+      ▼
+    </div>
+  </div>
+</div>
       
       {/* Submit Button */}
       <button
