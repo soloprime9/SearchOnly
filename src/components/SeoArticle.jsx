@@ -3,7 +3,7 @@ import Link from "next/link";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import FaqItem from "@/components/FaqItem";
 import Linkify from "linkify-react";
- 
+  
 
 const options = {
   target: "_blank",
