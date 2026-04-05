@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import SeoArticle from "@/components/SeoArticle";
  
 const SITE_URL = "https://fondpeace.com"; // change
+const API_BASE = "https://backend-k.vercel.app";
 
 // ❌ no static params (dynamic from API)
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ export async function generateMetadata({ params }) {
   const { category, slug } = params;
 
   const res = await fetch(
-    `${process.env.API_URL}/post/${category}/${slug}`,
+    `${API_BASE}/post/${category}/${slug}`,
     { cache: "no-store" }
   );
 
@@ -48,7 +49,7 @@ export default async function Page({ params }) {
   const { category, slug } = params;
 
   const res = await fetch(
-    `${process.env.API_URL}/post/${category}/${slug}`,
+    `${API_BASE}/post/${category}/${slug}`,
     { cache: "no-store" }
   );
 
