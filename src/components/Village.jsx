@@ -9,7 +9,7 @@ import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye, FaVolumeMute, Fa
 
 
 export default function Village({ initialPosts = [] }) {
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState(Array.isArray(initialPosts) ? initialPosts : []);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observerRef = useRef(null);
@@ -41,12 +41,14 @@ export default function Village({ initialPosts = [] }) {
   axios
     .get(`${API_BASE}/post/mango/getall?page=${page}`)
     .then((res) => {
-      if (!res.data.length) {
-        setHasMore(false);
-      } else {
-        setPosts((prev) => [...prev, ...res.data]);
-      }
-    })
+  const data = res.data;
+
+  if (!Array.isArray(data) || data.length === 0) {
+    setHasMore(false);
+  } else {
+    setPosts((prev) => [...prev, ...data]);
+  }
+})
     .catch(() => {});
 }, [page]);
 
