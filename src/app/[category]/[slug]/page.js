@@ -57,11 +57,11 @@ export default async function Page({ params }) {
   const { post, related } = await res.json();
 
   return (
-    // <SeoArticle
-    //   post={post}
-    //   relatedPosts={related || []}
-    //   canonical={`${SITE_URL}/${category}/${slug}`}
-    // />
-    <div> ggg </div>
+    <SeoArticle
+      post={post}
+      relatedPosts={related || []}
+      canonical={`${SITE_URL}/${category}/${slug}`}
+    />
+    
   );
 }
