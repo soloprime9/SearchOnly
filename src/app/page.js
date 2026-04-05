@@ -108,7 +108,8 @@ export default async function HomePage() {
     const res = await fetch(`${API_BASE}/post/mango/getall`, {
        next: { revalidate: 60 },
     });
-    posts = await res.json();
+    const data = await res.json();
+    posts = Array.isArray(data) ? data : [];
   } catch (err) {
     console.error("Homepage feed fetch failed", err);
   }
