@@ -26,9 +26,16 @@ export async function GET() {
 
 ${posts
   .map((post) => {
-    if (!post?._id || !post?.media) return "";
+  if (!post?._id || !post?.media) return "";
 
-    return `
+  const durationNum = Number(post.duration);
+
+  const isValidDuration =
+    Number.isFinite(durationNum) &&
+    durationNum >= 1 &&
+    durationNum <= 28800;
+
+  return `
   <url>
     <loc>${SITE_URL}/shorts/${post._id}</loc>
 
@@ -37,7 +44,9 @@ ${posts
         ${post.thumbnail || `${SITE_URL}/Fondpeace.jpg`}
       </video:thumbnail_loc>
 
-      <video:title><![CDATA[${post.title || "FondPeace Shorts Video"}]]></video:title>
+      <video:title><![CDATA[${
+        post.title || "FondPeace Shorts Video"
+      }]]></video:title>
 
       <video:description><![CDATA[${
         post.title || "FondPeace video short"
@@ -47,7 +56,11 @@ ${posts
         ${post.media}
       </video:content_loc>
 
-      <video:duration>${post.duration || 30}</video:duration>
+      ${
+        isValidDuration
+          ? `<video:duration>${durationNum}</video:duration>`
+          : ""
+      }
 
       <video:publication_date>
         ${new Date(post.createdAt || Date.now()).toISOString()}
@@ -55,7 +68,7 @@ ${posts
 
     </video:video>
   </url>`;
-  })
+})
   .join("")}
 
 </urlset>`;
