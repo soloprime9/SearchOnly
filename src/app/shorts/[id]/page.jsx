@@ -74,7 +74,7 @@ function extractKeywords(post) {
   return "fondpeace,shorts,video";
 }
 
- Server-side metadata: Next will call this for each /shorts/[id] request */
+ /*Server-side metadata: Next will call this for each /shorts/[id] request */
  export async function generateMetadata({ params }) {
    const id = params?.id;
    if (!id) return { title: "Invalid Video" };
