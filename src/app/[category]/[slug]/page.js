@@ -56,7 +56,7 @@ export default async function Page({ params }) {
   if (!res.ok) return notFound();
 
   const { post, related } = await res.json();
-
+  console.log("full post:", post);
   return (
     <SeoArticle
       post={post}
