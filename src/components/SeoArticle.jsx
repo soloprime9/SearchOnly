@@ -40,7 +40,7 @@ export default function SeoArticle({
     category = "Entertainment",
   } = post;
 
-  const authorName = userId?.name;
+  const authorName = userId?.username;
 
   // ✅ Convert title → structured content
   const paragraphs = title
