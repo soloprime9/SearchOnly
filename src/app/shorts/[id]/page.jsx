@@ -74,122 +74,122 @@ function extractKeywords(post) {
   return "fondpeace,shorts,video";
 }
 
-/* Server-side metadata: Next will call this for each /shorts/[id] request */
+ Server-side metadata: Next will call this for each /shorts/[id] request */
+ export async function generateMetadata({ params }) {
+   const id = params?.id;
+   if (!id) return { title: "Invalid Video" };
+
+   try {
+     const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
+     if (!res.ok) return { title: "Fondpeace Video" };
+     const data = await res.json();
+     const post = data?.post;
+     if (!post) return { title: "Video Not Found" };
+
+     const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
+     const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+     const title = (post.title).slice(0, 160);
+
+     // robust isVideo detection
+     const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("video"));
+
+     // Build metadata object (keep it minimal & safe)
+     const metadata = {
+       title,
+       description: buildDescription(post),
+       keywords: extractKeywords(post),
+       alternates: { canonical: `${SITE_ROOT}/shorts/${id}` },
+       openGraph: {
+         title,
+         description: buildDescription(post),
+         url: `${SITE_ROOT}/shorts/${id}`,
+         type: isVideo ? "video.other" : "article",
+         images: [img],
+         ...(isVideo && {
+           // Next/OpenGraph accepts a video array; include only when we have a valid mediaUrl
+           video: [
+             {
+               url: mediaUrl,
+               type: "video/mp4",
+               width: 1280,
+               height: 720
+             }
+           ]
+         })
+       },
+       twitter: {
+         card: isVideo ? "player" : "summary_large_image",
+         title,
+         description: buildDescription(post),
+         image: img,
+         ...(isVideo && { player: mediaUrl })
+       },
+     };
+
+     return metadata;
+   } catch (e) {
+     console.error("generateMetadata error:", e);
+     return { title: "Fondpeace Video" };
+   }
+ }
+
+
 // export async function generateMetadata({ params }) {
 //   const id = params?.id;
-//   if (!id) return { title: "Invalid Video" };
+//   if (!id) return { title: "FondPeace" };
 
 //   try {
-//     const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
-//     if (!res.ok) return { title: "Fondpeace Video" };
+//     const res = await fetch(`${API_SINGLE}${id}`, {
+//       next: { revalidate: 60 },
+//     });
+
+//     if (!res.ok) return { title: "FondPeace" };
+
 //     const data = await res.json();
 //     const post = data?.post;
-//     if (!post) return { title: "Video Not Found" };
+//     if (!post) return { title: "FondPeace" };
 
-//     const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
 //     const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-//     const title = (post.title).slice(0, 160);
 
-//     // robust isVideo detection
-//     const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || mediaUrl.includes("video"));
+//     const title = (post.title || "FondPeace Update").slice(0, 160);
+//     const description = buildDescription(post);
 
-//     // Build metadata object (keep it minimal & safe)
-//     const metadata = {
-//       title,
-//       description: buildDescription(post),
+//     return {
+//       // 🔥 BLOG STYLE TITLE
+//       title: `${title} | FondPeace`,
+
+//       description: description,
+
 //       keywords: extractKeywords(post),
-//       alternates: { canonical: `${SITE_ROOT}/shorts/${id}` },
-//       openGraph: {
-//         title,
-//         description: buildDescription(post),
-//         url: `${SITE_ROOT}/shorts/${id}`,
-//         type: isVideo ? "video.other" : "article",
-//         images: [img],
-//         ...(isVideo && {
-//           // Next/OpenGraph accepts a video array; include only when we have a valid mediaUrl
-//           video: [
-//             {
-//               url: mediaUrl,
-//               type: "video/mp4",
-//               width: 1280,
-//               height: 720
-//             }
-//           ]
-//         })
+
+//       alternates: {
+//         canonical: `${SITE_ROOT}/shorts/${id}`,
 //       },
+
+//       // 🔥 FORCE ARTICLE TYPE (IMPORTANT)
+//       openGraph: {
+//         type: "article",
+//         siteName: "FondPeace",
+
+//         title: title,
+//         description: description,
+//         url: `${SITE_ROOT}/shorts/${id}`,
+
+//         images: [img],
+//       },
+
 //       twitter: {
-//         card: isVideo ? "player" : "summary_large_image",
-//         title,
-//         description: buildDescription(post),
-//         image: img,
-//         ...(isVideo && { player: mediaUrl })
+//         card: "summary_large_image",
+//         title: title,
+//         description: description,
+//         images: [img],
 //       },
 //     };
-
-//     return metadata;
 //   } catch (e) {
 //     console.error("generateMetadata error:", e);
-//     return { title: "Fondpeace Video" };
+//     return { title: "FondPeace" };
 //   }
 // }
-
-
-export async function generateMetadata({ params }) {
-  const id = params?.id;
-  if (!id) return { title: "FondPeace" };
-
-  try {
-    const res = await fetch(`${API_SINGLE}${id}`, {
-      next: { revalidate: 60 },
-    });
-
-    if (!res.ok) return { title: "FondPeace" };
-
-    const data = await res.json();
-    const post = data?.post;
-    if (!post) return { title: "FondPeace" };
-
-    const img = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-
-    const title = (post.title || "FondPeace Update").slice(0, 160);
-    const description = buildDescription(post);
-
-    return {
-      // 🔥 BLOG STYLE TITLE
-      title: `${title} | FondPeace`,
-
-      description: description,
-
-      keywords: extractKeywords(post),
-
-      alternates: {
-        canonical: `${SITE_ROOT}/shorts/${id}`,
-      },
-
-      // 🔥 FORCE ARTICLE TYPE (IMPORTANT)
-      openGraph: {
-        type: "article",
-        siteName: "FondPeace",
-
-        title: title,
-        description: description,
-        url: `${SITE_ROOT}/shorts/${id}`,
-
-        images: [img],
-      },
-
-      twitter: {
-        card: "summary_large_image",
-        title: title,
-        description: description,
-        images: [img],
-      },
-    };
-  } catch (e) {
-    console.error("generateMetadata error:", e);
-    return { title: "FondPeace" };
-  }
-}
 
 
 /* Server component renders initial HTML and passes initial post to client player */
@@ -219,117 +219,117 @@ export default async function Page({ params }) {
     const isVideo = !!mediaUrl && (mediaUrl.endsWith(".mp4") || (post.mediaType && String(post.mediaType).startsWith("video")));
 
     // JSON-LD for VideoObject (server-inserted so crawlers see it)
-//     const blogSchema = {
-//   "@context": "https://schema.org",
-//   "@graph": [
-//     {
-//       "@type": "BlogPosting",
-//       "@id": `${pageUrl}#article`,
-//       "mainEntityOfPage": {
-//         "@type": "WebPage",
-//         "@id": pageUrl
-//       },
+    const blogSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": `${pageUrl}#article`,
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": pageUrl
+      },
 
-//       "headline": post.title,
-//       "description": buildDescription(post),
+      "headline": post.title,
+      "description": buildDescription(post),
 
-//       "image": {
-//         "@type": "ImageObject",
-//         "url": thumbnail || DEFAULT_THUMB,
-//         "width": post.width || 1280,
-//         "height": post.height || 720
-//       },
+      "image": {
+        "@type": "ImageObject",
+        "url": thumbnail || DEFAULT_THUMB,
+        "width": post.width || 1280,
+        "height": post.height || 720
+      },
 
-//       "author": {
-//         "@type": "Person",
-//         "name": authorName,
-//         "url": `${SITE_ROOT}/profile/${post?.userId?.username || ""}`
-//       },
+      "author": {
+        "@type": "Person",
+        "name": authorName,
+        "url": `${SITE_ROOT}/profile/${post?.userId?.username || ""}`
+      },
 
-//       "publisher": {
-//         "@type": "Organization",
-//         "name": "FondPeace",
-//         "url": SITE_ROOT,
-//         "logo": {
-//           "@type": "ImageObject",
-//           "url": `${SITE_ROOT}/fondpeace.jpg`,
-//           "width": 512,
-//           "height": 512
-//         }
-//       },
+      "publisher": {
+        "@type": "Organization",
+        "name": "FondPeace",
+        "url": SITE_ROOT,
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${SITE_ROOT}/fondpeace.jpg`,
+          "width": 512,
+          "height": 512
+        }
+      },
 
-//       "datePublished": new Date(
-//         post.createdAt || Date.now()
-//       ).toISOString(),
+      "datePublished": new Date(
+        post.createdAt || Date.now()
+      ).toISOString(),
 
-//       "dateModified": new Date(
-//         post.updatedAt || post.createdAt || Date.now()
-//       ).toISOString(),
+      "dateModified": new Date(
+        post.updatedAt || post.createdAt || Date.now()
+      ).toISOString(),
 
-//       "inLanguage": "en-US",
+      "inLanguage": "en-US",
 
-//       "keywords": extractKeywords(post),
+      "keywords": extractKeywords(post),
       
-//       "wordCount": post.title
-//         ? post.title.split(/\s+/).length
-//         : undefined,
+      "wordCount": post.title
+        ? post.title.split(/\s+/).length
+        : undefined,
 
-//       ...(isVideo && mediaUrl
-//         ? {
-//             "video": {
-//               "@type": "VideoObject",
-//               "@id": `${pageUrl}#video`,
-//               "name": post.title ,
-//               "description": buildDescription(post),
+      ...(isVideo && mediaUrl
+        ? {
+            "video": {
+              "@type": "VideoObject",
+              "@id": `${pageUrl}#video`,
+              "name": post.title ,
+              "description": buildDescription(post),
 
-//               "thumbnailUrl": thumbnail || DEFAULT_THUMB,
-//               "contentUrl": mediaUrl,
+              "thumbnailUrl": thumbnail || DEFAULT_THUMB,
+              "contentUrl": mediaUrl,
 
-//               // ✅ Same URL for embed (cleaner canonical consistency)
-//               "embedUrl": pageUrl,
+              // ✅ Same URL for embed (cleaner canonical consistency)
+              "embedUrl": pageUrl,
 
-//               "uploadDate": new Date(
-//                 post.createdAt || Date.now()
-//               ).toISOString(),
+              "uploadDate": new Date(
+                post.createdAt || Date.now()
+              ).toISOString(),
 
-//               "duration": post.duration
-//                 ? Number(post.duration)
-//                   ? secToISO(Number(post.duration))
-//                   : post.duration
-//                 : "PT30S",
+              "duration": post.duration
+                ? Number(post.duration)
+                  ? secToISO(Number(post.duration))
+                  : post.duration
+                : "PT30S",
 
-//               "width": post.width || 1280,
-//               "height": post.height || 720,
+              "width": post.width || 1280,
+              "height": post.height || 720,
 
-//               "encodingFormat": "video/mp4",
-//               "isAccessibleForFree": true,
+              "encodingFormat": "video/mp4",
+              "isAccessibleForFree": true,
 
-//               "interactionStatistic": buildInteractionSchema(post)
-//             }
-//           }
-//         : {})
-//     },
+              "interactionStatistic": buildInteractionSchema(post)
+            }
+          }
+        : {})
+    },
 
-//     {
-//       "@type": "BreadcrumbList",
-//       "@id": `${pageUrl}#breadcrumb`,
-//       "itemListElement": [
-//         {
-//           "@type": "ListItem",
-//           "position": 1,
-//           "name": "FondPeace",
-//           "item": SITE_ROOT
-//         },
-//         {
-//           "@type": "ListItem",
-//           "position": 2,
-//           "name": post.title ,
-//           "item": pageUrl
-//         }
-//       ]
-//     }
-//   ]
-// };
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${pageUrl}#breadcrumb`,
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "FondPeace",
+          "item": SITE_ROOT
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": post.title ,
+          "item": pageUrl
+        }
+      ]
+    }
+  ]
+};
 
     return (
       
@@ -338,13 +338,13 @@ export default async function Page({ params }) {
         <main className="w-full h-screen bg-gray-50 overflow-x-hidden">
 
            {/* JSON-LD inserted server-side for crawlers */}
-        {/* <script
+         <script
   key="blog-jsonld"
   type="application/ld+json"
   dangerouslySetInnerHTML={{
     __html: JSON.stringify(blogSchema),
   }}
-/> */}
+/> 
            
   {/* LEFT SIDEBAR */}
   <div
