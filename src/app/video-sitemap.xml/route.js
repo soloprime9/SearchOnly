@@ -28,6 +28,13 @@ ${posts
   .map((post) => {
     if (!post?._id || !post?.media) return "";
 
+    // ✅ SAFE DURATION (no error ever)
+    const durationNum = Number(post.duration);
+    const isValidDuration =
+      Number.isFinite(durationNum) &&
+      durationNum >= 1 &&
+      durationNum <= 28800;
+
     return `
   <url>
     <loc>${SITE_URL}/short/${post._id}</loc>
@@ -37,7 +44,9 @@ ${posts
         ${post.thumbnail || `${SITE_URL}/Fondpeace.jpg`}
       </video:thumbnail_loc>
 
-      <video:title><![CDATA[${post.title || "FondPeace Short Video"}]]></video:title>
+      <video:title><![CDATA[${
+        post.title || "FondPeace Short Video"
+      }]]></video:title>
 
       <video:description><![CDATA[${
         post.description || post.title || "FondPeace video short"
@@ -47,7 +56,11 @@ ${posts
         ${post.media}
       </video:content_loc>
 
-      <video:duration>${post.duration || 30}</video:duration>
+      ${
+        isValidDuration
+          ? `<video:duration>${durationNum}</video:duration>`
+          : ""
+      }
 
       <video:publication_date>
         ${new Date(post.createdAt || Date.now()).toISOString()}
