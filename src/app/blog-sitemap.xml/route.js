@@ -7,7 +7,7 @@ export async function GET() {
   try {
     // 🔥 IMPORTANT: fetch ALL posts with slug + category
     const res = await fetch(`${API_BASE}/post/all-slugs`, {
-      next: { revalidate: 3600 }, // ✅ best for production
+      cache: "no-store", // ✅ best for production
     });
 
     const posts = await res.json();
