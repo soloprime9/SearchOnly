@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Link from 'next/link';
-
+import PhoneField from "@/components/PhoneField";
 const SignUp = () => {
   const [formData, setFormData] = useState({
     username: "",
@@ -12,7 +12,11 @@ const SignUp = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [phoneData, setPhoneData] = useState({
+  phone: "",
+  country: "",
+  city: ""
+});
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -27,7 +31,12 @@ const SignUp = () => {
     setIsSubmitting(true);
 
     try {
-      const result = await axios.post("https://backendk-z915.onrender.com/user/add", formData);
+      const result = await axios.post("https://backendk-z915.onrender.com/user/add", {
+  ...formData,
+  phone: phoneData.phone,
+  country: phoneData.country,
+  city: phoneData.city
+});
       console.log("Result: ", result);
 
       setSuccessMessage("✅ Account created successfully! Redirecting to login...");
@@ -94,6 +103,15 @@ const SignUp = () => {
             />
           </div>
 
+
+          <div>
+  <label className="block text-gray-700 font-medium mb-1">
+    Phone Number
+  </label>
+
+  <PhoneField onChangeFinal={setPhoneData} />
+</div>
+          
           <div>
             <label htmlFor="password" className="block text-gray-700 font-medium mb-1">
               Password
