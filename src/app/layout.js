@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
+import AuthGuard from "@/components/AuthGuard";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -48,7 +49,9 @@ export default function RootLayout({ children }) {
         </Script>
 
         <div className="max-w-5xl mx-auto">
+          <AuthGuard>
           {children}
+          </AuthGuard>
         </div>
 
         <Analytics />
