@@ -28,6 +28,11 @@ const SignUp = () => {
     e.preventDefault();
     setSuccessMessage("");
     setErrorMessage("");
+
+    if (!phoneData.phone || !phoneData.isValid) {
+  setErrorMessage("Enter valid phone number");
+  return;
+    }
     setIsSubmitting(true);
 
     try {
