@@ -4,9 +4,12 @@ import "react-phone-input-2/lib/style.css";
 
 function PhoneField({ onChangeFinal }) {
   const [phone, setPhone] = useState("");
-  const [countryCode, setCountryCode] = useState("in"); // fallback
+  const [countryCode, setCountryCode] = useState("in");
+  const [geoData, setGeoData] = useState({
+    country: "",
+    city: ""
+  });
 
-  // 🔹 Step 1: Auto detect country via IP
   useEffect(() => {
     fetch("https://ipapi.co/json/")
       .then(res => res.json())
@@ -14,27 +17,46 @@ function PhoneField({ onChangeFinal }) {
         if (data.country_code) {
           setCountryCode(data.country_code.toLowerCase());
         }
+
+        setGeoData({
+          country: data.country_name || "",
+          city: data.city || ""
+        });
       })
       .catch(() => {
-        console.log("IP detect failed, using default");
+        console.log("IP detect failed");
       });
   }, []);
 
-  // 🔹 Step 2: Handle phone change
   const handleChange = (value) => {
     const fullPhone = "+" + value;
     setPhone(fullPhone);
-    onChangeFinal(fullPhone);
+
+    // ✅ send ALL data to parent
+    onChangeFinal({
+      phone: fullPhone,
+      country: geoData.country,
+      city: geoData.city
+    });
   };
 
   return (
     <PhoneInput
-      country={countryCode}   // auto detected
+      country={countryCode}
       value={phone}
       onChange={handleChange}
-      enableSearch={true}     // user can change country
+      enableSearch={true}
       countryCodeEditable={false}
-      inputStyle={{ width: "100%", height: "45px" }}
+      inputStyle={{
+        width: "100%",
+        height: "48px",
+        borderRadius: "12px",
+        border: "2px solid #d1d5db"
+      }}
+      buttonStyle={{
+        borderTopLeftRadius: "12px",
+        borderBottomLeftRadius: "12px"
+      }}
     />
   );
 }
