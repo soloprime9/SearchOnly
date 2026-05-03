@@ -159,9 +159,9 @@ export default async function JobsPage() {
           __html: JSON.stringify(jobListSchema),
         }}
       />
-      <JobAuthGate>
+      
       <JobsPageView jobs={jobs} />
-      </JobAuthGate>
+     
     </>
   );
 }
