@@ -11,7 +11,7 @@ export default function JobAuthGate({ children }) {
 
     // ❌ No token
     if (!token || token === "undefined" || token === "null") {
-      router.replace("/JobTension/register");
+      router.replace("/signup");
       return;
     }
 
@@ -19,7 +19,7 @@ export default function JobAuthGate({ children }) {
     const parts = token.split(".");
     if (parts.length !== 3) {
       localStorage.removeItem("token");
-      router.replace("/JobTension/register");
+      router.replace("/signup");
       return;
     }
 
