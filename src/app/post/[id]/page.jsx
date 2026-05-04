@@ -187,12 +187,12 @@ const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
   })
 },
 twitter: {
-  card: isVideo ? "player" : "summary_large_image",
-  title: titleTag,
-  description: description,
-  image: thumb,
-  ...(isVideo && { player: mediaUrl })
-},
+        // Card type hamesha summary_large_image rakho best preview ke liye
+        card: "summary_large_image", 
+        title: titleTag,
+        description: description,
+        images: [thumb], // Next.js ke liye ye 'images' (plural) hona chahiye
+      },
 
     };
   } catch {
