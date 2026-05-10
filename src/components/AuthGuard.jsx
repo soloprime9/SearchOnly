@@ -15,7 +15,7 @@ export default function AuthGuard({ children }) {
     // 🔴 NO TOKEN → go login
     if (!token) {
       if (pathname !== "/login" && pathname !== "/signup") {
-        setTimeout(() => router.push("/login"), 5000);
+        setTimeout(() => router.push("/login"), 20000);
       }
       setLoading(false);
       return;
