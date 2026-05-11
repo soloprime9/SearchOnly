@@ -32,7 +32,7 @@ export default function TestThumbnail() {
             <div className="flex justify-between h-16 items-center">
               <div className="flex items-center">
                 <h1>
-                  <a href="/" className="text-2xl font-bold text-red-600">
+                  <a href="https://fondpeace.com/" className="text-2xl font-bold text-red-600">
                     YouTube Thumbnail Tester
                   </a>
                 </h1>
@@ -131,7 +131,7 @@ export default function TestThumbnail() {
               <li>Download the optimized thumbnail if needed.</li>
             </ol>
             <p className="mt-4">
-              <a href="https://fondpeace.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+              <a href="https://fondpeace.com/" className="text-blue-600 hover:underline">
                 Visit Fondpeace for more tools & resources.
               </a>
             </p>
