@@ -27,6 +27,10 @@ export const metadata = {
   authors: [{ name: "Aman Kumar" }],
 
   robots: "index, follow",
+  // Is line ko add karne se User-declared canonical fix ho jayega
+  alternates: {
+    canonical: "https://fondpeace.com",
+  },
 
   openGraph: {
     type: "website",
