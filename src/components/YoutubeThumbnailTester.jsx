@@ -91,7 +91,7 @@ export default function TestThumbnail() {
                 <button type="submit" className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded">
                   Test Thumbnail
                 </button>
-                <a href="https://reduceimages-sigma.vercel.app/" className="text-blue-600 hover:underline">
+                <a href="https://fondpeace.com/" className="text-blue-600 hover:underline">
                   Reduce Image Size
                 </a>
               </div>
