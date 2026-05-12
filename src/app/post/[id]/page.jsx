@@ -3,6 +3,7 @@
 // ✓ FIXES "VIDEO ISN’T ON WATCH PAGE" ERROR
 
 import SinglePostPage from "@/components/SinglePostPage";
+import RelatedPosts from "@/components/RelatedPosts";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -590,7 +591,10 @@ const jsonLdRedditStyle = {
     </section>
 
 
+      // server file
+<RelatedPosts related={related} />
 
+{/* 
     
     {Array.isArray(related) && related.length > 0 && (
   <aside className="max-w-5xl mx-auto mt-10 px-4">
@@ -608,7 +612,7 @@ const jsonLdRedditStyle = {
             href={`/shorts/${r._id}`}
             className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
           >
-            {/* ✅ THUMBNAIL CONTAINER FIX */}
+            
             <div className="w-full aspect-video bg-gray-200 overflow-hidden relative">
   <img
     src={thumb}
@@ -639,7 +643,7 @@ const jsonLdRedditStyle = {
   </aside>
 )}
 
-
+ */}
 
   </main>
 );
