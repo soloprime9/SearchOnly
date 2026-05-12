@@ -72,7 +72,7 @@ export default function RelatedPosts({ related }) {
   return (
     <aside className="max-w-5xl mx-auto mt-10 px-4">
       <p className="text-xl font-semibold mb-4 text-gray-900">
-        Related Posts
+        Related Postsv Here
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
