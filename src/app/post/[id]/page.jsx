@@ -592,13 +592,7 @@ const jsonLdRedditStyle = {
 
 
       // server file
-<RelatedPosts
-  related={related}
-  toAbsolute={toAbsolute}
-  likesCount={likesCount}
-  commentsCount={commentsCount}
-  viewsCount={viewsCount}
-/>
+<RelatedPosts related={related} />
 
 
     
