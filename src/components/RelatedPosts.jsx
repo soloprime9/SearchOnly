@@ -57,7 +57,7 @@ function AutoPlayVideo({ video, thumb }) {
       poster={thumb}
       muted
       loop
-      AutoPlay
+      autoPlay
       controls
       playsInline
       preload="metadata"
@@ -68,19 +68,41 @@ function AutoPlayVideo({ video, thumb }) {
 
 export default function RelatedPosts({ related }) {
   console.log("RELATED POSTS:", related);
+
   if (!Array.isArray(related) || related.length === 0) return null;
-  
 
   return (
     <aside className="max-w-5xl mx-auto mt-10 px-4">
       <p className="text-xl font-semibold mb-4 text-gray-900">
-        Related Postsv Here
+        Related Posts
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {related.map((r) => {
-          const thumb = toAbsolute(r.thumbnail || "");
-          const video = toAbsolute(r.video || "");
+
+          // 🔥 detect all possible media fields
+          const media = toAbsolute(
+            r.video ||
+            r.videoUrl ||
+            r.media ||
+            r.image ||
+            r.file ||
+            ""
+          );
+
+          const thumb = toAbsolute(
+            r.thumbnail ||
+            r.thumb ||
+            r.image ||
+            ""
+          );
+
+          // 🔥 detect media type
+          const isVideo =
+            media?.match(/\.(mp4|webm|ogg|mov)$/i);
+
+          const isImage =
+            media?.match(/\.(jpg|jpeg|png|webp|gif)$/i);
 
           return (
             <a
@@ -90,20 +112,33 @@ export default function RelatedPosts({ related }) {
             >
               <div className="w-full aspect-video bg-gray-200 overflow-hidden relative">
 
-                {video ? (
+                {/* VIDEO */}
+                {isVideo ? (
                   <AutoPlayVideo
-                    video={video}
+                    video={media}
                     thumb={thumb}
                   />
+                ) : isImage ? (
+
+                  /* IMAGE */
+                  <img
+                    src={media}
+                    alt={r.title}
+                    className="w-full h-full object-cover object-center"
+                    loading="lazy"
+                  />
+
                 ) : (
+
+                  /* FALLBACK */
                   <img
                     src={thumb}
                     alt={r.title}
                     className="w-full h-full object-cover object-center"
                     loading="lazy"
                   />
-                )}
 
+                )}
               </div>
 
               <div className="p-3">
@@ -112,11 +147,18 @@ export default function RelatedPosts({ related }) {
                 </p>
 
                 <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
-                  <FaHeart className="text-red-500" /> {likesCount(r)}
+                  <FaHeart className="text-red-500" />
+                  {likesCount(r)}
+
                   <span>•</span>
-                  <FaCommentDots /> {commentsCount(r)}
+
+                  <FaCommentDots />
+                  {commentsCount(r)}
+
                   <span>•</span>
-                  <FaEye /> {viewsCount(r)}
+
+                  <FaEye />
+                  {viewsCount(r)}
                 </div>
               </div>
             </a>
