@@ -3,6 +3,26 @@
 import { useEffect, useRef } from "react";
 import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
 
+function toAbsolute(url) {
+  if (!url) return "";
+
+  if (url.startsWith("http")) return url;
+
+  return `${process.env.NEXT_PUBLIC_API_URL}${url}`;
+}
+
+function likesCount(post) {
+  return post?.likes?.length || 0;
+}
+
+function commentsCount(post) {
+  return post?.comments?.length || 0;
+}
+
+function viewsCount(post) {
+  return post?.views || 0;
+}
+
 function AutoPlayVideo({ video, thumb }) {
   const videoRef = useRef(null);
 
@@ -44,13 +64,9 @@ function AutoPlayVideo({ video, thumb }) {
   );
 }
 
-export default function RelatedPosts({
-  related,
-  toAbsolute,
-  likesCount,
-  commentsCount,
-  viewsCount,
-}) {
+export default function RelatedPosts({ related }) {
+  if (!Array.isArray(related) || related.length === 0) return null;
+
   return (
     <aside className="max-w-5xl mx-auto mt-10 px-4">
       <p className="text-xl font-semibold mb-4 text-gray-900">
@@ -83,6 +99,7 @@ export default function RelatedPosts({
                     loading="lazy"
                   />
                 )}
+
               </div>
 
               <div className="p-3">
@@ -95,7 +112,7 @@ export default function RelatedPosts({
                   <span>•</span>
                   <FaCommentDots /> {commentsCount(r)}
                   <span>•</span>
-                  <FaEye /> {viewsCount(r) || 0}
+                  <FaEye /> {viewsCount(r)}
                 </div>
               </div>
             </a>
