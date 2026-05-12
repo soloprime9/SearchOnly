@@ -67,7 +67,9 @@ function AutoPlayVideo({ video, thumb }) {
 }
 
 export default function RelatedPosts({ related }) {
+  console.log("RELATED POSTS:", related);
   if (!Array.isArray(related) || related.length === 0) return null;
+  
 
   return (
     <aside className="max-w-5xl mx-auto mt-10 px-4">
