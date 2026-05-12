@@ -592,9 +592,9 @@ const jsonLdRedditStyle = {
 
 
       // server file
-<RelatedPosts related={related} />
+{/* <RelatedPosts related={related} /> */}
 
-{/* 
+
     
     {Array.isArray(related) && related.length > 0 && (
   <aside className="max-w-5xl mx-auto mt-10 px-4">
@@ -643,7 +643,7 @@ const jsonLdRedditStyle = {
   </aside>
 )}
 
- */}
+ 
 
   </main>
 );
