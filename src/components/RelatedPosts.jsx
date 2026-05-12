@@ -57,6 +57,8 @@ function AutoPlayVideo({ video, thumb }) {
       poster={thumb}
       muted
       loop
+      AutoPlay
+      controls
       playsInline
       preload="metadata"
       className="w-full h-full object-cover object-center"
