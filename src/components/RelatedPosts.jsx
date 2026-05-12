@@ -110,7 +110,7 @@ export default function RelatedPosts({ related }) {
               href={`/shorts/${r._id}`}
               className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
             >
-              <div className="w-full aspect-video bg-gray-200 overflow-hidden relative">
+              <div className="w-full h-80 bg-gray-200 overflow-hidden relative">
 
                 {/* VIDEO */}
                 {isVideo ? (
