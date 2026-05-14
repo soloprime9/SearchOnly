@@ -54,11 +54,12 @@ export default function AuthGuard({ children }) {
   }, [pathname, router]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Checking authentication...</p>
-      </div>
-    );
+    return 
+    //   (
+    //   <div className="flex justify-center items-center h-screen">
+    //     <p>Checking authentication...</p>
+    //   </div>
+    // );
   }
 
   return children;
