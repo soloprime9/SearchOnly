@@ -40,8 +40,8 @@ export default function AuthGuard({ children }) {
 
       // 👉 If user is on login/signup → redirect to home
       if (pathname === "/login" || pathname === "/signup") {
-        // return router.push("/");
-        return;
+        return router.push("/");
+        
       }
 
     } catch (err) {
@@ -55,11 +55,11 @@ export default function AuthGuard({ children }) {
 
   if (loading) {
     return 
-    //   (
-    //   <div className="flex justify-center items-center h-screen">
-    //     <p>Checking authentication...</p>
-    //   </div>
-    // );
+      (
+      <div className="flex justify-center items-center h-screen">
+        <p>Checking authentication...</p>
+      </div>
+    );
   }
 
   return children;
