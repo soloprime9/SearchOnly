@@ -29,7 +29,7 @@ export default function FindFriends() {
       const phones = normalizedContacts.map(c => c.phone);
       console.log("Numbers with details: ", normalizedContacts,phones);
 
-      const res = await fetch("https://backend-k.vercel.app/number/sync-contacts", {
+      const res = await fetch("https://backend-k.vercel.app/post/number/sync-contacts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
