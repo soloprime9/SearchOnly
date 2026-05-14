@@ -5,47 +5,91 @@ export default function FindFriends() {
   const [friends, setFriends] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("Idle");
 
   async function handleFindFriends() {
-    try {
-      setLoading(true);
+    console.log("🚀 BUTTON CLICKED");
+    setStatus("Button clicked");
+    setLoading(true);
 
-      if (!("contacts" in navigator)) {
-        alert("Contact Picker not supported");
+    try {
+
+      // STEP 1
+      console.log("STEP 1: Checking Contacts API");
+      setStatus("Checking Contacts API...");
+
+      if (!navigator.contacts || !navigator.contacts.select) {
+        console.error("❌ Contacts API not supported");
+        setStatus("Contacts API not supported");
+        alert("This device/browser does not support Contacts API");
         return;
       }
+
+      console.log("✅ Contacts API supported");
+      setStatus("Contacts API supported");
+
+      // STEP 2
+      console.log("STEP 2: Opening contact picker...");
+      setStatus("Opening contact picker...");
 
       const contacts = await navigator.contacts.select(
         ["name", "tel"],
         { multiple: true }
       );
 
-      const normalizedContacts = contacts.map(c => ({
-        name: c.name?.[0] || "",
-        phone: (c.tel?.[0] || "").replace(/\s/g, "")
-      }));
+      console.log("STEP 3: Contacts received", contacts);
+      setStatus(`Got ${contacts.length} contacts`);
 
-      // extract phones
-      const phones = normalizedContacts.map(c => c.phone);
-      console.log("Numbers with details: ", normalizedContacts,phones);
+      // STEP 3
+      const normalizedContacts = contacts.map((c, i) => {
+        const data = {
+          name: c.name?.[0] || "No Name",
+          phone: (c.tel?.[0] || "").replace(/\s/g, "")
+        };
 
-      const res = await fetch("https://backend-k.vercel.app/post/number/sync-contacts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contacts: normalizedContacts
-        })
+        console.log(`📞 Contact ${i}:`, data);
+        return data;
       });
 
+      console.log("STEP 4: Normalized contacts", normalizedContacts);
+
+      // STEP 5
+      console.log("STEP 5: Sending to backend...");
+      setStatus("Sending to backend...");
+
+      const res = await fetch(
+        "https://backend-k.vercel.app/post/number/sync-contacts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            contacts: normalizedContacts
+          })
+        }
+      );
+
+      console.log("STEP 6: Response received", res);
+
+      if (!res.ok) {
+        throw new Error(`Backend error: ${res.status}`);
+      }
+
       const data = await res.json();
+
+      console.log("STEP 7: Backend JSON", data);
 
       setFriends(data.matchedUsers || []);
       setSuggestions(data.suggestions || []);
 
+      setStatus("Sync complete ✅");
+
     } catch (err) {
-      console.log(err);
+
+      console.error("❌ ERROR:", err);
+      setStatus("Error occurred ❌");
+
     } finally {
       setLoading(false);
     }
@@ -58,18 +102,23 @@ export default function FindFriends() {
         {loading ? "Syncing..." : "Find Friends"}
       </button>
 
-      {/* ================= FRIENDS ================= */}
+      {/* LIVE STATUS (VERY IMPORTANT FOR MOBILE DEBUGGING) */}
+      <p style={{ marginTop: 10, color: "blue" }}>
+        Status: {status}
+      </p>
+
+      {/* FRIENDS */}
       <h3>Friends on App</h3>
 
-      {friends.map(u => (
-        <div key={u.phone}>
+      {friends.map((u, i) => (
+        <div key={i}>
           <img src={u.profilePic} width="40" />
           <b>{u.name}</b>
           <p>{u.phone}</p>
         </div>
       ))}
 
-      {/* ================= SUGGESTIONS ================= */}
+      {/* SUGGESTIONS */}
       <h3>Suggested Usernames</h3>
 
       {suggestions.map((s, i) => (
