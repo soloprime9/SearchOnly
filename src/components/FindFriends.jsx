@@ -79,7 +79,7 @@ export default function FindFriends() {
 
       // 🔥 SHOW ERROR ON SCREEN
       setError(err.message || "Something went wrong");
-      setStatus(err);
+      setStatus("ggg");
 
     } finally {
       setLoading(false);
