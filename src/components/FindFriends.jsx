@@ -27,6 +27,7 @@ export default function FindFriends() {
 
       // extract phones
       const phones = normalizedContacts.map(c => c.phone);
+      console.log("Numbers with details: ", normalizedContacts,phones);
 
       const res = await fetch("http://localhost:5000/api/sync-contacts", {
         method: "POST",
