@@ -40,7 +40,8 @@ export default function AuthGuard({ children }) {
 
       // 👉 If user is on login/signup → redirect to home
       if (pathname === "/login" || pathname === "/signup") {
-        return router.push("/");
+        // return router.push("/");
+        return;
       }
 
     } catch (err) {
