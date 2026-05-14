@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import FindFriends from "@/components/FindFriends";
+
 
 const Login = () => {
   const [successMessage, setSuccessMessage] = useState("");
@@ -89,6 +91,7 @@ const Login = () => {
           </button>
         </form>
 
+        <FindFriends />
         {/* Link to Create Account */}
         <div className="mt-6 text-center text-white/90">
           Don't have an account?{" "}
