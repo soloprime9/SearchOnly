@@ -89,7 +89,7 @@ export default function FindFriends() {
     } catch (err) {
 
       console.error("❌ ERROR:", err);
-      setStatus("Error occurred ❌");
+      setStatus("Error occurred ❌",err);
 
     } finally {
       setLoading(false);
