@@ -120,12 +120,12 @@ export default async function HomePage() {
 
     return (
   <>
-    {/* Structured Data */}
+    {/* Structured Data 
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
-
+*/}
     {/* FIXED LEFT SIDEBAR */}
     
 
