@@ -8,7 +8,7 @@ export default function HomePage() {
   return (
     <div>
       <LeftSidebar/>
-      
+<Dashboard />
     </div>
   );
 }
