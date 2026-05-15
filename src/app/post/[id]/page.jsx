@@ -475,12 +475,12 @@ const jsonLdRedditStyle = {
   return (
     <main className="w-full min-h-screen bg-white">
 
-      {/* JSON-LD */}
+      {/* JSON-LD 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdRedditStyle) }}
       />
-    
+    */}
 
        {/* HEADER – Instagram style */}
 <header className="bg-white  sticky top-0 z-50">
