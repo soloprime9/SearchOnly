@@ -1,24 +1,27 @@
-// components/PostTitle.jsx
+"use client";
 
-'use client';
-
-import { useState } from "react";
 import Linkify from "linkify-react";
+import { useState } from "react";
 
-export default function PostTitle({ title, options }) {
+export default function PostTitle({ title }) {
 
   const [expanded, setExpanded] = useState(false);
 
-  const text =
-    expanded
-      ? title
-      : title.slice(0, 100) + (title.length > 100 ? "..." : "");
+  const titleText = expanded
+    ? title
+    : title.slice(0, 100) + (title.length > 100 ? "..." : "");
+
+  const options = {
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "text-blue-500 hover:underline",
+  };
 
   return (
     <div className="text-gray-800 mb-4 whitespace-pre-line break-words">
 
       <Linkify options={options}>
-        {text}
+        {titleText}
       </Linkify>
 
       {title.length > 100 && (
