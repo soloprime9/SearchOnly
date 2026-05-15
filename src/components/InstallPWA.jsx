@@ -63,7 +63,7 @@ export default function InstallPWA() {
       e.target.style.display = 'none'; // Agar image na mile toh icon hide ho jaye aur niche wala 'F' dikhe
     }}
   />
-  <span className="absolute">F</span> 
+  <span className="absolute">FP</span> 
 </div>
             </div>
           </div>
