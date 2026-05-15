@@ -54,9 +54,17 @@ export default function InstallPWA() {
             <div className="absolute inset-0 bg-blue-500 rounded-2xl rotate-3 opacity-10"></div>
             <div className="relative w-full h-full bg-white border-[1.5px] border-gray-100 shadow-xl rounded-2xl flex items-center justify-center overflow-hidden">
                {/* Replace with your actual logo */}
-               <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-lg flex items-center justify-center text-white font-black text-xl shadow-lg">
-                 F
-               </div>
+               <div className="w-16 h-16 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg overflow-hidden">
+  <img 
+    src="/android-chrome-512x512.png" 
+    alt="FondPeace Logo"
+    className="w-full h-full object-cover"
+    onError={(e) => {
+      e.target.style.display = 'none'; // Agar image na mile toh icon hide ho jaye aur niche wala 'F' dikhe
+    }}
+  />
+  <span className="absolute">F</span> 
+</div>
             </div>
           </div>
 
