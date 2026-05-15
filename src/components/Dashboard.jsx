@@ -13,7 +13,7 @@ export default function Dashboard() {
   useEffect(() => {
 
     fetch(
-      "http://localhost:5000/api/pwa/stats"
+      "https://backend-k.vercel.app/api/pwa/stats"
     )
       .then((res) => res.json())
       .then((data) => {
