@@ -11,9 +11,8 @@ export default function InstallPWA() {
       e.preventDefault();
       setDeferredPrompt(e);
       setShowBanner(true);
-      setTimeout(() => setIsVisible(true), 150);
+      setTimeout(() => setIsVisible(true), 100);
     };
-
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
@@ -22,87 +21,75 @@ export default function InstallPWA() {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const choice = await deferredPrompt.userChoice;
-    if (choice.outcome === "accepted") console.log("Installed");
-    closeUI();
+    if (choice.outcome === "accepted") closeUI();
   };
 
   const closeUI = () => {
     setIsVisible(false);
-    setTimeout(() => setShowBanner(false), 600);
+    setTimeout(() => setShowBanner(false), 500);
   };
 
   if (!showBanner) return null;
 
   return (
-    <div className={`fixed inset-x-0 bottom-6 z-[100] flex justify-center px-4 transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] ${isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-32 opacity-0 scale-90'}`}>
+    // Overlay for PC dominance
+    <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 transition-all duration-700 ${isVisible ? 'bg-slate-950/40 backdrop-blur-md' : 'bg-transparent backdrop-blur-0 pointer-events-none'}`}>
       
-      {/* The Main Container: Holographic Glass */}
-      <div className="relative group max-w-[500px] w-full">
+      <div className={`relative w-full max-w-xl bg-[#0a0a0c] border border-white/10 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] ${isVisible ? 'scale-100 opacity-100' : 'scale-90 opacity-0'}`}>
         
-        {/* Animated Border Gradient (The "Glow" effect) */}
-        <div className="absolute -inset-[1.5px] bg-gradient-to-r from-blue-600 via-purple-500 to-cyan-400 rounded-[2.5rem] blur-[2px] opacity-40 group-hover:opacity-100 group-hover:blur-[4px] transition-all duration-700 animate-pulse"></div>
+        {/* Top Accent Line */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"></div>
 
-        <div className="relative bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-2 pr-4 flex items-center justify-between overflow-hidden shadow-2xl">
-          
-          {/* Animated Background Mesh */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-[50%] -left-[10%] w-64 h-64 bg-blue-500/20 rounded-full blur-[80px] animate-blob"></div>
-            <div className="absolute -bottom-[50%] -right-[10%] w-64 h-64 bg-purple-500/20 rounded-full blur-[80px] animate-blob animation-delay-2000"></div>
-          </div>
-
-          <div className="flex items-center gap-4 relative z-10">
-            {/* 3D-Like App Icon */}
-            <div className="relative w-16 h-16 m-1">
-              <div className="absolute inset-0 bg-blue-600 rounded-[1.8rem] rotate-6 group-hover:rotate-12 transition-transform duration-500"></div>
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent backdrop-blur-md border border-white/30 rounded-[1.8rem] flex items-center justify-center shadow-inner">
-                 <span className="text-2xl font-black text-white italic drop-shadow-md">FP</span>
+        <div className="p-8 md:p-12">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            
+            {/* App Branding Section */}
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2rem] flex items-center justify-center shadow-[0_20px_40px_rgba(37,99,235,0.3)] transform -rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                <span className="text-4xl md:text-5xl font-black text-white italic">FP</span>
+              </div>
+              <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-[#0a0a0c] flex items-center justify-center">
+                 <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
               </div>
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-blue-400 tracking-[0.2em] uppercase mb-0.5">Experience Ultra</span>
-              <h2 className="text-white font-bold text-lg leading-tight tracking-tight">FondPeace AI</h2>
-              <p className="text-slate-400 text-[11px] font-medium leading-none">Next-Gen Interface</p>
+            {/* Text Content */}
+            <div className="text-center md:text-left space-y-3">
+              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter leading-none">
+                GET THE <span className="text-blue-500">NATIVE</span> APP
+              </h2>
+              <p className="text-slate-400 text-sm md:text-base font-medium max-w-sm">
+                Install <span className="text-white font-bold">FondPeace</span> for lightning-fast speeds, offline access, and an immersive full-screen experience.
+              </p>
+              
+              <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2 text-[10px] font-bold text-slate-500 tracking-widest uppercase">
+                <span className="px-2 py-1 bg-white/5 rounded-md border border-white/5">0% Ads</span>
+                <span className="px-2 py-1 bg-white/5 rounded-md border border-white/5">Fast Load</span>
+                <span className="px-2 py-1 bg-white/5 rounded-md border border-white/5">Secure</span>
+              </div>
             </div>
           </div>
 
-          {/* Action Hub */}
-          <div className="flex items-center gap-2 relative z-10">
-            <button 
-              onClick={closeUI}
-              className="px-4 py-2 text-slate-500 hover:text-white text-xs font-bold transition-colors"
-            >
-              SKIP
-            </button>
-            
+          {/* Action Buttons */}
+          <div className="mt-10 flex flex-col sm:flex-row gap-4">
             <button
               onClick={handleInstall}
-              className="relative group/btn bg-white px-6 py-3 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all duration-300 active:scale-90"
+              className="flex-1 bg-white text-black font-black py-5 rounded-2xl text-sm tracking-widest hover:bg-blue-500 hover:text-white transition-all duration-300 active:scale-95 shadow-xl"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"></div>
-              <span className="relative z-10 text-slate-950 group-hover/btn:text-white font-black text-xs tracking-tighter">
-                INSTALL NOW
-              </span>
+              ADD TO HOME SCREEN
+            </button>
+            <button
+              onClick={closeUI}
+              className="px-8 py-5 text-slate-500 hover:text-white font-bold text-sm transition-colors border border-white/5 hover:border-white/20 rounded-2xl"
+            >
+              DISMISS
             </button>
           </div>
-
         </div>
-      </div>
 
-      <style jsx>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite alternate;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
+        {/* Subtle Background Glow */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none"></div>
+      </div>
     </div>
   );
 }
