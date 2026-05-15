@@ -133,8 +133,8 @@ export default async function HomePage() {
     <main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
 
      {/* ✅ SEO H1 (VERY IMPORTANT) */}
-  <h1 className="hidden">
-    FondPeace - Community Platform for Discussions & Ideas
+  <h1 className="">
+    FondPeace.com
   </h1>
 
   <div
