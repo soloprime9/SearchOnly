@@ -4,6 +4,7 @@ import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import FindFriends from "@/components/FindFriends";
+import LeftSidebar from "@//components/LeftSidebar"
 
 
 const Login = () => {
@@ -34,6 +35,8 @@ const Login = () => {
   });
 
   return (
+    <div>
+    <LeftSidebar/>
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-sm p-6 sm:p-8 rounded-xl border-4 border-white bg-orange-500 shadow-2xl">
         <h2 className="font-extrabold text-white text-center text-3xl sm:text-4xl mb-6">
@@ -100,6 +103,7 @@ const Login = () => {
           </Link>
         </div>
       </div>
+    </div>
     </div>
   );
 };
