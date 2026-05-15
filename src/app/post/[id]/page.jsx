@@ -3,6 +3,7 @@
 // ✓ FIXES "VIDEO ISN’T ON WATCH PAGE" ERROR
 
 import SinglePostPage from "@/components/SinglePostPage";
+import PostTitle from "@/components/PostTitle";
 import RelatedPosts from "@/components/RelatedPosts";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
@@ -506,8 +507,8 @@ const jsonLdRedditStyle = {
 </header>
 
 
-    <section className="max-w-3xl mx-auto px-4 py-8">
-      <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
+    <section className="max-w-3xl mx-auto px- py-">
+      <article className="bg-white shadow-md rounded-2xl overflow-hidden p-2">
 
 
 
@@ -579,11 +580,10 @@ const jsonLdRedditStyle = {
   {post.title}
 </h1>
 */}
-        <h1 className="text-gray-800 mb-4 whitespace-pre-line break-words">
-  <Linkify options={options}>
-    {post.title}
-  </Linkify>
-</h1>
+       <PostTitle
+  title={post.title}
+  options={options}
+/>
 
         {/* Post Content */}
         <SinglePostPage initialPost={post} />
