@@ -580,10 +580,7 @@ const jsonLdRedditStyle = {
   {post.title}
 </h1>
 */}
-       <PostTitle
-  title={post.title}
-  options={options}
-/>
+       <PostTitle title={post.title} />
 
         {/* Post Content */}
         <SinglePostPage initialPost={post} />
