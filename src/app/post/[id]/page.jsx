@@ -496,9 +496,9 @@ const jsonLdRedditStyle = {
     </Link>
 
     {/* Center Title */}
-    <p className="text-md font-semibold text-gray-900">
-      Post
-    </p>
+    <Link href="/" className="text-md font-semibold text-gray-900" aria-label="Go to Home">
+      FondPeace.com
+    </Link>
 
     {/* Right Spacer (for symmetry like Instagram) */}
     <div className="w-6" />
