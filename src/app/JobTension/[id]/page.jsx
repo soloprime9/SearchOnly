@@ -23,19 +23,19 @@ export async function generateMetadata({ params }) {
 
   const title = `${job.jobTitle} at ${job.companyName} | ${job.jobLocation}`;
   const description = job.aboutJob.slice(0, 160);
-  const imageUrl ="https://todaywrittenupdate.blog/Today.jpg";
+  const imageUrl ="https://fondpeace.com/Fondpeace.jpg
 
   return {
     title,
     description,
     alternates: {
-      canonical: `https://todaywrittenupdate.blog/job/${job._id}`,
+      canonical: `https://fondpeace.com/JobTension/${job._id}`,
     },
     openGraph: {
       title,
       description,
-      url: `https://todaywrittenupdate.blog/job/${job._id}`,
-      siteName: "Job Tension",
+      url: `https://fondpeace.com/JobTension/${job._id}`,
+      siteName: "FondPeace",
       images: [
         {
           url: imageUrl,
@@ -133,7 +133,7 @@ export default async function JobDetailPage({ params }) {
 
           {/* <nav className="flex items-center gap-6 text-blue-700 font-semibold text-lg">
             <Link href="/" className="hover:underline">
-              Job Tension
+              Fondpeace.com
             </Link>
           </nav> */}
         </div>
