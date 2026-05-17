@@ -1,7 +1,7 @@
 // app/layout.jsx
 import { Inter } from "next/font/google";
 import InstallPWA from "@/components/InstallPWA";
-
+import WhatsAppClientUI from "@/components/WhatsAppClientUI";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
@@ -54,6 +54,7 @@ export default function RootLayout({ children }) {
           <AuthGuard>
           {children}
           </AuthGuard>
+          WhatsAppClientUI
           <InstallPWA />
         </div>
 
