@@ -55,7 +55,7 @@ export default function RootLayout({ children }) {
           {children}
           </AuthGuard>
           <WhatsAppClientUI />
-          <InstallPWA />
+          
         </div>
 
         <Analytics />
