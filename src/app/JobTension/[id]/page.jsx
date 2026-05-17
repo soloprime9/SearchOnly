@@ -23,18 +23,18 @@ export async function generateMetadata({ params }) {
 
   const title = `${job.jobTitle} at ${job.companyName} | ${job.jobLocation}`;
   const description = job.aboutJob.slice(0, 160);
-  const imageUrl ="https://www.fondpeace.com/Fondpeace.jpg";
+  const imageUrl ="https://todaywrittenupdate.blog/Today.jpg";
 
   return {
     title,
     description,
     alternates: {
-      canonical: `https://www.fondpeace.com/JobTension/${job._id}`,
+      canonical: `https://todaywrittenupdate.blog/job/${job._id}`,
     },
     openGraph: {
       title,
       description,
-      url: `https://www.fondpeace.com/JobTension/${job._id}`,
+      url: `https://todaywrittenupdate.blog/job/${job._id}`,
       siteName: "Job Tension",
       images: [
         {
@@ -133,7 +133,7 @@ export default async function JobDetailPage({ params }) {
 
           {/* <nav className="flex items-center gap-6 text-blue-700 font-semibold text-lg">
             <Link href="/" className="hover:underline">
-              FondPeace
+              Job Tension
             </Link>
           </nav> */}
         </div>
@@ -146,7 +146,7 @@ export default async function JobDetailPage({ params }) {
             The job you are looking for does not exist or has been removed.
           </p>
           <Link
-            href="/JobTension"
+            href="/"
             className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
           >
             Browse Other Jobs
