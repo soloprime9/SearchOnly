@@ -23,7 +23,7 @@ export async function generateMetadata({ params }) {
 
   const title = `${job.jobTitle} at ${job.companyName} | ${job.jobLocation}`;
   const description = job.aboutJob.slice(0, 160);
-  const imageUrl ="https://fondpeace.com/Fondpeace.jpg
+  const imageUrl ="https://fondpeace.com/Fondpeace.jpg"
 
   return {
     title,
