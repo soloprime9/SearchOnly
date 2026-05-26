@@ -588,7 +588,7 @@ const jsonLdRedditStyle = {
     </section>
 
 
-      // server file
+    
 <RelatedPosts related={related} />
 
 
