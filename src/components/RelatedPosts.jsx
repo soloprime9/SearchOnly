@@ -26,6 +26,15 @@ function viewsCount(post) {
 function AutoPlayVideo({ video, thumb }) {
   const videoRef = useRef(null);
 
+
+  useEffect(() => {
+  window.scrollTo({
+    top: window.innerHeight / 1.2,
+    behavior: "smooth",
+  });
+}, []);
+
+  
   useEffect(() => {
     const currentVideo = videoRef.current;
 
