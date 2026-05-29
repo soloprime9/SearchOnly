@@ -51,10 +51,7 @@ export default function RootLayout({ children }) {
         </Script>
 
         <div className="max-w-5xl mx-auto">
-          <AuthGuard>
           {children}
-          </AuthGuard>
-          <InstallPWA />
           
         </div>
 
