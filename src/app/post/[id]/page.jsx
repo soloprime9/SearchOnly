@@ -1,854 +1,773 @@
+
+
+
+
+
+// ✓ GOOGLE-OPTIMIZED POST PAGE (VIDEO + IMAGE + ARTICLE) 
+// ✓ AUTO DETECT MEDIA TYPE
+// ✓ FIXES "VIDEO ISN’T ON WATCH PAGE" ERROR
+
+import SinglePostPage from "@/components/SinglePostPage";
+import PostTitle from "@/components/PostTitle";
 import RelatedPosts from "@/components/RelatedPosts";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+const API_BASE = "https://backend-k.vercel.app";
+const SITE_ROOT = "https://fondpeace.com";
+const DEFAULT_AVATAR = "https://fondpeace.com/Fondpeace.jpg";
+import Linkify from "linkify-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-k.vercel.app";
 
-export default async function ShortsPage({ params }) {
-  const { id } = params;
+const options = {
+  target: "_blank",
+  rel: "noopener noreferrer nofollow", // ✅ SEO safe
+  className: "text-blue-600 hover:underline font-medium break-words",
 
-  try {
-    // Fetch main post from server
-    const mainRes = await fetch(`${API_BASE}/image/${id}`, {
-      cache: "no-store",
-    });
+  format: (value, type) => {
+    if (type === "url") {
+      try {
+        const url = new URL(value);
 
-    if (!mainRes.ok) throw new Error("Post not found");
-
-    const mainData = await mainRes.json();
-
-    // Fetch related videos from server
-    const relatedRes = await fetch(
-      `${API_BASE}/posts/related-videos?postId=${id}&limit=15`,
-      {
-        cache: "no-store",
+        // ✅ clean domain (no www)
+        return url.hostname.replace("www.", "");
+      } catch {
+        return value;
       }
-    );
+    }
+    return value;
+  },
 
-    const relatedData = await relatedRes.json();
+  // ✅ optional: validate only real links
+  validate: {
+    url: (value) => value.startsWith("http"),
+  },
+};
 
-    return (
-      <main className="w-full min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        {/* Premium Header */}
-        <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm z-40">
-          <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-            <Link
-              href="/"
-              className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-all duration-200 group"
-            >
-              <FaArrowLeft className="text-xl text-gray-900 group-hover:scale-110" />
-            </Link>
 
-            <Link
-              href="/"
-              className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-            >
-              FondPeace
-            </Link>
-            <div className="w-9" />
-          </div>
-        </header>
+/* ---------------------- HELPERS ---------------------- */
+function toAbsolute(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
+  return `${SITE_ROOT}/${url}`;
+}
 
-        {/* Content Area with padding for sticky header */}
-        <section className="pt-20 pb-12">
-          <PremiumFeedClient
-            mainPost={mainData?.post}
-            relatedPosts={relatedData?.related || []}
-          />
-        </section>
-      </main>
-    );
-  } catch (error) {
-    console.error("Error:", error);
-    return (
-      <div className="w-full h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Post Not Found
-          </h1>
-          <Link
-            href="/"
-            className="text-blue-600 font-semibold hover:underline"
-          >
-            ← Go back home
-          </Link>
-        </div>
-      </div>
-    );
-  }
+function secToISO(sec) { 
+  const s = Number(sec);
+
+  if (!Number.isFinite(s) || s <= 0) return undefined;
+
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const secLeft = Math.floor(s % 60);
+
+  let iso = "PT";
+  if (h > 0) iso += `${h}H`;
+  if (m > 0) iso += `${m}M`;
+  if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
+
+  return iso;
 }
 
 
+function likesCount(post) {
+  if (Array.isArray(post.likes)) return post.likes.length;
+  if (typeof post.likes === "number") return post.likes;
+  return 0;
+}
+
+function commentsCount(post) {
+  if (Array.isArray(post.comments)) return post.comments.length;
+  if (typeof post.commentCount === "number") return post.commentCount;
+  return 0;
+}
+
+function viewsCount(post) {
+  if (typeof post.views === "number") return post.views;
+  return 0;
+}
+
+// Build interaction statistics for the post itself
+function buildInteractionSchema(post) {
+  return [
+    {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/LikeAction",
+      "userInteractionCount": likesCount(post)
+    },
+    {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/CommentAction",
+      "userInteractionCount": commentsCount(post)
+    },
+    {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/ViewAction",
+      "userInteractionCount": viewsCount(post)
+    }
+  ];
+}
+
+// Build interaction statistics for a single comment
+function buildCommentInteractionSchema(comment) {
+  return [
+    {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/LikeAction",
+      "userInteractionCount": Array.isArray(comment.likes) ? comment.likes.length : 0
+    },
+    {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/ReplyAction",
+      "userInteractionCount": Array.isArray(comment.replies) ? comment.replies.length : 0
+    },
+    {
+      "@type": "InteractionCounter",
+      "interactionType": "https://schema.org/ViewAction",
+      "userInteractionCount": comment.views || 0
+    }
+  ];
+}
+
+
+function buildDescription(post) {
+  const author = post?.userId?.username || "FondPeace";
+  const views = viewsCount(post);
+  const likes = likesCount(post);
+  const comments = commentsCount(post);
+
+  return `${post.title}`;
+}
+
+
+function extractKeywords(post) {
+  if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
+  if (Array.isArray(post.hashtags) && post.hashtags.length)
+    return post.hashtags.map(h => h.replace("#", "")).join(", ");
+  return post.title.split(" ").slice(0, 10).join(", ");
+}
+
+/* ------------------------- generateMetadata ------------------------- */
+export async function generateMetadata({ params }) {
+  const id = params?.id;
+  const pageUrl = `${SITE_ROOT}/post/${id}`;
+
+  try {
+    const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
+    const data = await res.json();
+    const post = data?.post;
+
+    if (!post) return { title: "Post Not Found | FondPeace" };
+
+    const mediaUrl = toAbsolute(post.media || post.mediaUrl);
+    const thumb = toAbsolute(post.thumbnail || mediaUrl);
+const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+    const isVideo = mediaUrl?.endsWith(".mp4");
+    const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
+
+
+    const titleTag = `${post.title} - FondPeace`;
+    const description = post.title;
+
+    return {
+      title: titleTag,
+      description: description,
+      keywords: extractKeywords(post),
+      alternates: { canonical: pageUrl },
+
+      openGraph: {
+  title: titleTag,
+  description: description,
+  url: pageUrl,
+  type: isVideo ? "video.other" : "article",
+  images: [{ url: thumb }],
+  ...(isVideo && {
+    video: [
+      {
+        url: mediaUrl,
+        type: "video/mp4",
+        width: 1280,
+        height: 720
+      }
+    ]
+  })
+},
+twitter: {
+        // Card type hamesha summary_large_image rakho best preview ke liye
+        card: "summary_large_image", 
+        title: titleTag,
+        description: description,
+        images: [thumb], // Next.js ke liye ye 'images' (plural) hona chahiye
+      },
+
+    };
+  } catch {
+    return { title: "Post | FondPeace" };
+  }
+}
+
+/* ------------------------------ PAGE ------------------------------ */
+/* ------------------------------ PAGE ------------------------------ */
+export default async function Page({ params }) {
+  const id = params?.id;
+  const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
+
+  if (!res.ok) {
+  console.error("API ERROR:", res.status, await res.text());
+  redirect("/");
+}
+
+const data = await res.json();
+const post = data?.post;
+
+if (!post) {
+  console.error("POST IS NULL OR UNDEFINED", data);
+  redirect("/");
+}
+
+const related = data?.related ?? [];
 
 
 
+  const pageUrl = `${SITE_ROOT}/post/${post._id}`;
+  const mediaUrl = toAbsolute(post.media || post.mediaUrl || post.thumbnail);
+  const authorName = post.userId?.username || "FondPeace";
+const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+  const isVideo = mediaUrl?.endsWith(".mp4");
+  const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
+const jsonLdRedditStyle = {
+  "@context": "https://schema.org",
+  "@graph": [
+    // 1️⃣ Breadcrumb
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${pageUrl}#breadcrumb`,
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
+        { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
+        { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": pageUrl }
+      ]
+    },
 
-// // ✓ GOOGLE-OPTIMIZED POST PAGE (VIDEO + IMAGE + ARTICLE) 
-// // ✓ AUTO DETECT MEDIA TYPE
-// // ✓ FIXES "VIDEO ISN’T ON WATCH PAGE" ERROR
+    // 2️⃣ Discussion Forum Post
+    {
+      "@type": "SocialMediaPosting",
+      "@id": `${pageUrl}#post`,
+      "url": pageUrl,
+      "headline": post.title,
+      "description": post.title,
+      "articleBody": post.title,
+      "name": post.title,
+      "text": post.title,
+      "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
 
-// import SinglePostPage from "@/components/SinglePostPage";
-// import PostTitle from "@/components/PostTitle";
-// import RelatedPosts from "@/components/RelatedPosts";
-// import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
-// import Link from "next/link";
-// import { redirect } from "next/navigation";
-// const API_BASE = "https://backend-k.vercel.app";
-// const SITE_ROOT = "https://fondpeace.com";
-// const DEFAULT_AVATAR = "https://fondpeace.com/Fondpeace.jpg";
-// import Linkify from "linkify-react";
-
-
-// const options = {
-//   target: "_blank",
-//   rel: "noopener noreferrer nofollow", // ✅ SEO safe
-//   className: "text-blue-600 hover:underline font-medium break-words",
-
-//   format: (value, type) => {
-//     if (type === "url") {
-//       try {
-//         const url = new URL(value);
-
-//         // ✅ clean domain (no www)
-//         return url.hostname.replace("www.", "");
-//       } catch {
-//         return value;
-//       }
-//     }
-//     return value;
-//   },
-
-//   // ✅ optional: validate only real links
-//   validate: {
-//     url: (value) => value.startsWith("http"),
-//   },
-// };
-
-
-// /* ---------------------- HELPERS ---------------------- */
-// function toAbsolute(url) {
-//   if (!url) return null;
-//   if (url.startsWith("http")) return url;
-//   if (url.startsWith("/")) return `${SITE_ROOT}${url}`;
-//   return `${SITE_ROOT}/${url}`;
-// }
-
-// function secToISO(sec) { 
-//   const s = Number(sec);
-
-//   if (!Number.isFinite(s) || s <= 0) return undefined;
-
-//   const h = Math.floor(s / 3600);
-//   const m = Math.floor((s % 3600) / 60);
-//   const secLeft = Math.floor(s % 60);
-
-//   let iso = "PT";
-//   if (h > 0) iso += `${h}H`;
-//   if (m > 0) iso += `${m}M`;
-//   if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
-
-//   return iso;
-// }
-
-
-// function likesCount(post) {
-//   if (Array.isArray(post.likes)) return post.likes.length;
-//   if (typeof post.likes === "number") return post.likes;
-//   return 0;
-// }
-
-// function commentsCount(post) {
-//   if (Array.isArray(post.comments)) return post.comments.length;
-//   if (typeof post.commentCount === "number") return post.commentCount;
-//   return 0;
-// }
-
-// function viewsCount(post) {
-//   if (typeof post.views === "number") return post.views;
-//   return 0;
-// }
-
-// // Build interaction statistics for the post itself
-// function buildInteractionSchema(post) {
-//   return [
-//     {
-//       "@type": "InteractionCounter",
-//       "interactionType": "https://schema.org/LikeAction",
-//       "userInteractionCount": likesCount(post)
-//     },
-//     {
-//       "@type": "InteractionCounter",
-//       "interactionType": "https://schema.org/CommentAction",
-//       "userInteractionCount": commentsCount(post)
-//     },
-//     {
-//       "@type": "InteractionCounter",
-//       "interactionType": "https://schema.org/ViewAction",
-//       "userInteractionCount": viewsCount(post)
-//     }
-//   ];
-// }
-
-// // Build interaction statistics for a single comment
-// function buildCommentInteractionSchema(comment) {
-//   return [
-//     {
-//       "@type": "InteractionCounter",
-//       "interactionType": "https://schema.org/LikeAction",
-//       "userInteractionCount": Array.isArray(comment.likes) ? comment.likes.length : 0
-//     },
-//     {
-//       "@type": "InteractionCounter",
-//       "interactionType": "https://schema.org/ReplyAction",
-//       "userInteractionCount": Array.isArray(comment.replies) ? comment.replies.length : 0
-//     },
-//     {
-//       "@type": "InteractionCounter",
-//       "interactionType": "https://schema.org/ViewAction",
-//       "userInteractionCount": comment.views || 0
-//     }
-//   ];
-// }
-
-
-// function buildDescription(post) {
-//   const author = post?.userId?.username || "FondPeace";
-//   const views = viewsCount(post);
-//   const likes = likesCount(post);
-//   const comments = commentsCount(post);
-
-//   return `${post.title}`;
-// }
-
-
-// function extractKeywords(post) {
-//   if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
-//   if (Array.isArray(post.hashtags) && post.hashtags.length)
-//     return post.hashtags.map(h => h.replace("#", "")).join(", ");
-//   return post.title.split(" ").slice(0, 10).join(", ");
-// }
-
-// /* ------------------------- generateMetadata ------------------------- */
-// export async function generateMetadata({ params }) {
-//   const id = params?.id;
-//   const pageUrl = `${SITE_ROOT}/post/${id}`;
-
-//   try {
-//     const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
-//     const data = await res.json();
-//     const post = data?.post;
-
-//     if (!post) return { title: "Post Not Found | FondPeace" };
-
-//     const mediaUrl = toAbsolute(post.media || post.mediaUrl);
-//     const thumb = toAbsolute(post.thumbnail || mediaUrl);
-// const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-//     const isVideo = mediaUrl?.endsWith(".mp4");
-//     const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
-
-
-//     const titleTag = `${post.title} - FondPeace`;
-//     const description = post.title;
-
-//     return {
-//       title: titleTag,
-//       description: description,
-//       keywords: extractKeywords(post),
-//       alternates: { canonical: pageUrl },
-
-//       openGraph: {
-//   title: titleTag,
-//   description: description,
-//   url: pageUrl,
-//   type: isVideo ? "video.other" : "article",
-//   images: [{ url: thumb }],
-//   ...(isVideo && {
-//     video: [
-//       {
-//         url: mediaUrl,
-//         type: "video/mp4",
-//         width: 1280,
-//         height: 720
-//       }
-//     ]
-//   })
-// },
-// twitter: {
-//         // Card type hamesha summary_large_image rakho best preview ke liye
-//         card: "summary_large_image", 
-//         title: titleTag,
-//         description: description,
-//         images: [thumb], // Next.js ke liye ye 'images' (plural) hona chahiye
-//       },
-
-//     };
-//   } catch {
-//     return { title: "Post | FondPeace" };
-//   }
-// }
-
-// /* ------------------------------ PAGE ------------------------------ */
-// /* ------------------------------ PAGE ------------------------------ */
-// export default async function Page({ params }) {
-//   const id = params?.id;
-//   const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
-
-//   if (!res.ok) {
-//   console.error("API ERROR:", res.status, await res.text());
-//   redirect("/");
-// }
-
-// const data = await res.json();
-// const post = data?.post;
-
-// if (!post) {
-//   console.error("POST IS NULL OR UNDEFINED", data);
-//   redirect("/");
-// }
-
-// const related = data?.related ?? [];
-
-
-
-//   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
-//   const mediaUrl = toAbsolute(post.media || post.mediaUrl || post.thumbnail);
-//   const authorName = post.userId?.username || "FondPeace";
-// const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-//   const isVideo = mediaUrl?.endsWith(".mp4");
-//   const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
-
-// const jsonLdRedditStyle = {
-//   "@context": "https://schema.org",
-//   "@graph": [
-//     // 1️⃣ Breadcrumb
-//     {
-//       "@type": "BreadcrumbList",
-//       "@id": `${pageUrl}#breadcrumb`,
-//       "itemListElement": [
-//         { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
-//         { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
-//         { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": pageUrl }
-//       ]
-//     },
-
-//     // 2️⃣ Discussion Forum Post
-//     {
-//       "@type": "SocialMediaPosting",
-//       "@id": `${pageUrl}#post`,
-//       "url": pageUrl,
-//       "headline": post.title,
-//       "description": post.title,
-//       "articleBody": post.title,
-//       "name": post.title,
-//       "text": post.title,
-//       "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
-
-//       "datePublished": new Date(post.createdAt).toISOString(),
-//       "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-//       "author": {
-//         "@type": "Person",
-//         "@id": `${SITE_ROOT}/profile/${authorName}#person`,
-//         "name": authorName,
-//         "url": `${SITE_ROOT}/profile/${authorName}`,
-//         "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
-//       },
+      "datePublished": new Date(post.createdAt).toISOString(),
+      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+      "author": {
+        "@type": "Person",
+        "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+        "name": authorName,
+        "url": `${SITE_ROOT}/profile/${authorName}`,
+        "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+      },
       
 
-//       "publisher": {
-//         "@type": "Organization",
-//         "name": "FondPeace",
-//         "logo": {
-//           "@type": "ImageObject",
-//           "url": `${SITE_ROOT}/Fondpeace.jpg`
-//         }
-//       },
-//       "image": {
-//         "@type": "ImageObject",
-//         "url": mediaUrl
+      "publisher": {
+        "@type": "Organization",
+        "name": "FondPeace",
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${SITE_ROOT}/Fondpeace.jpg`
+        }
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": mediaUrl
         
-//       },
-//       "interactionStatistic": [
-//         {
-//           "@type": "InteractionCounter",
-//           "interactionType": "https://schema.org/LikeAction",
-//           "userInteractionCount": post.likes?.length || 0
-//         },
-//         {
-//           "@type": "InteractionCounter",
-//           "interactionType": "https://schema.org/ViewAction",
-//           "userInteractionCount": post.views || 0
-//         },
-//         {
-//           "@type": "InteractionCounter",
-//           "interactionType": "https://schema.org/CommentAction",
-//           "userInteractionCount": post.comments?.length || 0
-//         }
-//       ],
-//       "commentCount": post.comments?.length || 0,
-//       "isPartOf": {
-//         "@type": "WebPage",
-//         "name": "FondPeace",
-//         "url": "https://fondpeace.com"
-//       },
-//       "about": {
-//         "@type": "Thing",
-//         "name": post.title,
-//         "description": post.title
-//       },
+      },
+      "interactionStatistic": [
+        {
+          "@type": "InteractionCounter",
+          "interactionType": "https://schema.org/LikeAction",
+          "userInteractionCount": post.likes?.length || 0
+        },
+        {
+          "@type": "InteractionCounter",
+          "interactionType": "https://schema.org/ViewAction",
+          "userInteractionCount": post.views || 0
+        },
+        {
+          "@type": "InteractionCounter",
+          "interactionType": "https://schema.org/CommentAction",
+          "userInteractionCount": post.comments?.length || 0
+        }
+      ],
+      "commentCount": post.comments?.length || 0,
+      "isPartOf": {
+        "@type": "WebPage",
+        "name": "FondPeace",
+        "url": "https://fondpeace.com"
+      },
+      "about": {
+        "@type": "Thing",
+        "name": post.title,
+        "description": post.title
+      },
 
-//       // 3️⃣ Nested Comments + Replies
-//       "comment": (post.comments || []).map((c) => ({
-//         "@type": "Comment",
-//         "@id": `${pageUrl}#comment-${c._id}`,
-//         "text": c.CommentText || "",
-//         "dateCreated": new Date(c.createdAt).toISOString(),
-//         "author": {
-//           "@type": "Person",
-//           "name": c.userId?.username || "User",
-//           "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
-//         },
-//         "interactionStatistic": [
-//   {
-//     "@type": "InteractionCounter",
-//     "interactionType": "https://schema.org/LikeAction",
-//     "userInteractionCount": Array.isArray(c.likes) ? c.likes.length : 0
-//   },
-//   {
-//     "@type": "InteractionCounter",
-//     "interactionType": "https://schema.org/ReplyAction",
-//     "userInteractionCount": Array.isArray(c.replies) ? c.replies.length : 0
-//   }
-// ],
+      // 3️⃣ Nested Comments + Replies
+      "comment": (post.comments || []).map((c) => ({
+        "@type": "Comment",
+        "@id": `${pageUrl}#comment-${c._id}`,
+        "text": c.CommentText || "",
+        "dateCreated": new Date(c.createdAt).toISOString(),
+        "author": {
+          "@type": "Person",
+          "name": c.userId?.username || "User",
+          "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+        },
+        "interactionStatistic": [
+  {
+    "@type": "InteractionCounter",
+    "interactionType": "https://schema.org/LikeAction",
+    "userInteractionCount": Array.isArray(c.likes) ? c.likes.length : 0
+  },
+  {
+    "@type": "InteractionCounter",
+    "interactionType": "https://schema.org/ReplyAction",
+    "userInteractionCount": Array.isArray(c.replies) ? c.replies.length : 0
+  }
+],
 
-//         "comment": (c.replies || []).map((r) => ({
-//           "@type": "Comment",
-//           "@id": `${pageUrl}#reply-${r._id}`,
-//           "parentItem": { "@id": `${pageUrl}#comment-${c._id}` },
-//           "text": r.replyText || "",
-//           "dateCreated": new Date(r.createdAt).toISOString(),
-//           "author": {
-//             "@type": "Person",
-//             "name": r.userId?.username || "User",
-//             "url": `${SITE_ROOT}/profile/${r.userId?.username || "User"}`
-//           },
+        "comment": (c.replies || []).map((r) => ({
+          "@type": "Comment",
+          "@id": `${pageUrl}#reply-${r._id}`,
+          "parentItem": { "@id": `${pageUrl}#comment-${c._id}` },
+          "text": r.replyText || "",
+          "dateCreated": new Date(r.createdAt).toISOString(),
+          "author": {
+            "@type": "Person",
+            "name": r.userId?.username || "User",
+            "url": `${SITE_ROOT}/profile/${r.userId?.username || "User"}`
+          },
           
-//           "interactionStatistic": [
-//   {
-//     "@type": "InteractionCounter",
-//     "interactionType": "https://schema.org/LikeAction",
-//     "userInteractionCount": Array.isArray(r.likes) ? r.likes.length : 0
-//   }
-// ]
+          "interactionStatistic": [
+  {
+    "@type": "InteractionCounter",
+    "interactionType": "https://schema.org/LikeAction",
+    "userInteractionCount": Array.isArray(r.likes) ? r.likes.length : 0
+  }
+]
 
-//         }))
-//       })),
+        }))
+      })),
 
-//       // 4️⃣ Related Links
-//       "relatedLink": (related || []).map((r) => `${SITE_ROOT}/shorts/${r._id}`)
-//     }
-//   ]
-// };
+      // 4️⃣ Related Links
+      "relatedLink": (related || []).map((r) => `${SITE_ROOT}/shorts/${r._id}`)
+    }
+  ]
+};
 
   
-//   // /* ---------------------- JSON-LD for Reddit-style Social Post ---------------------- */
-// //   const jsonLdRedditStyle = {
-// //     "@context": "https://schema.org",
-// //     "@graph": [
+  // /* ---------------------- JSON-LD for Reddit-style Social Post ---------------------- */
+//   const jsonLdRedditStyle = {
+//     "@context": "https://schema.org",
+//     "@graph": [
 
-// //       // 1️⃣ WebPage
-// //       {
-// //         "@type": "WebPage",
-// //         "@id": `${pageUrl}#webpage`,
-// //         "url": pageUrl,
-// //         "name": post.title || "FondPeace Post",
-// //         "mainEntity": { "@id": `${pageUrl}#post` },
-// //         "breadcrumb": { "@id": `${pageUrl}#breadcrumb` }
-// //       },
+//       // 1️⃣ WebPage
+//       {
+//         "@type": "WebPage",
+//         "@id": `${pageUrl}#webpage`,
+//         "url": pageUrl,
+//         "name": post.title || "FondPeace Post",
+//         "mainEntity": { "@id": `${pageUrl}#post` },
+//         "breadcrumb": { "@id": `${pageUrl}#breadcrumb` }
+//       },
 
-// //       // 2️⃣ Media Object (if exists)
-// //       ...(isImage || isVideo
-// //         ? [
-// //             {
-// //               "@type": isVideo ? "VideoObject" : "ImageObject",
-// //               "@id": `${pageUrl}#media`,
-// //               "url": mediaUrl,
-// //               "uploadDate": new Date(post.createdAt).toISOString(),
-// //               ...(isVideo
-// //                 ? { "contentUrl": mediaUrl, "duration": post.duration ? secToISO(Number(post.duration)) : undefined }
-// //                 : { "width": 1080, "height": 1350, "caption": post.title || "FondPeace Image Post" }),
-// //               "author": {
-// //                 "@type": "Person",
-// //                 "@id": `${SITE_ROOT}/profile/${authorName}#person`,
-// //                 "name": authorName,
-// //                 "url": `${SITE_ROOT}/profile/${authorName}`,
-// //                 "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
-// //               }
-// //             }
-// //           ]
-// //         : []),
+//       // 2️⃣ Media Object (if exists)
+//       ...(isImage || isVideo
+//         ? [
+//             {
+//               "@type": isVideo ? "VideoObject" : "ImageObject",
+//               "@id": `${pageUrl}#media`,
+//               "url": mediaUrl,
+//               "uploadDate": new Date(post.createdAt).toISOString(),
+//               ...(isVideo
+//                 ? { "contentUrl": mediaUrl, "duration": post.duration ? secToISO(Number(post.duration)) : undefined }
+//                 : { "width": 1080, "height": 1350, "caption": post.title || "FondPeace Image Post" }),
+//               "author": {
+//                 "@type": "Person",
+//                 "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+//                 "name": authorName,
+//                 "url": `${SITE_ROOT}/profile/${authorName}`,
+//                 "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+//               }
+//             }
+//           ]
+//         : []),
 
-// //       // 3️⃣ SocialMediaPosting
-// //       {
-// //   "@type": "SocialMediaPosting",
-// //   "@id": `${pageUrl}#post`,
-// //   "url": pageUrl,
-// //   "headline": post.title || "FondPeace Post",
-// //   "articleBody": post.content || post.title || "",
-// //   "dateCreated": new Date(post.createdAt).toISOString(),
-// //   "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-// //   "mainEntityOfPage": { "@id": `${pageUrl}#webpage` },
+//       // 3️⃣ SocialMediaPosting
+//       {
+//   "@type": "SocialMediaPosting",
+//   "@id": `${pageUrl}#post`,
+//   "url": pageUrl,
+//   "headline": post.title || "FondPeace Post",
+//   "articleBody": post.content || post.title || "",
+//   "dateCreated": new Date(post.createdAt).toISOString(),
+//   "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
+//   "mainEntityOfPage": { "@id": `${pageUrl}#webpage` },
 
-// //   ...(isImage || isVideo
-// //     ? { "sharedContent": { "@id": `${pageUrl}#media` } }
-// //     : {}),
+//   ...(isImage || isVideo
+//     ? { "sharedContent": { "@id": `${pageUrl}#media` } }
+//     : {}),
 
-// //   ...(isImage
-// //     ? {
-// //         image: {
-// //           "@type": "ImageObject",
-// //           "url": mediaUrl,
-// //           "width": 1080,
-// //           "height": 1350
-// //         }
-// //       }
-// //     : isVideo
-// //     ? {
-// //         image: {
-// //           "@type": "ImageObject",
-// //           "url": post.thumbnail || DEFAULT_THUMB
-// //         }
-// //       }
-// //     : {}),
+//   ...(isImage
+//     ? {
+//         image: {
+//           "@type": "ImageObject",
+//           "url": mediaUrl,
+//           "width": 1080,
+//           "height": 1350
+//         }
+//       }
+//     : isVideo
+//     ? {
+//         image: {
+//           "@type": "ImageObject",
+//           "url": post.thumbnail || DEFAULT_THUMB
+//         }
+//       }
+//     : {}),
 
-// //   "author": {
-// //     "@type": "Person",
-// //     "@id": `${SITE_ROOT}/profile/${authorName}#person`,
-// //     "name": authorName,
-// //     "url": `${SITE_ROOT}/profile/${authorName}`,
-// //     "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
-// //   },
+//   "author": {
+//     "@type": "Person",
+//     "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+//     "name": authorName,
+//     "url": `${SITE_ROOT}/profile/${authorName}`,
+//     "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
+//   },
 
-// //   "interactionStatistic": buildInteractionSchema(post),
-// //   "commentCount": commentsCount(post),
+//   "interactionStatistic": buildInteractionSchema(post),
+//   "commentCount": commentsCount(post),
 
-// //   "comment": (post.comments || []).map((c) => ({
-// //     "@type": "Comment",
-// //     "@id": `${pageUrl}#comment-${c._id}`,
-// //     "text": c.CommentText || "",
-// //     "dateCreated": new Date(c.createdAt).toISOString(),
-// //     "author": {
-// //       "@type": "Person",
-// //       "name": c.userId?.username || "User",
-// //       "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
-// //     },
-// //     "interactionStatistic": buildCommentInteractionSchema(c)
-// //   }))
-// // },
+//   "comment": (post.comments || []).map((c) => ({
+//     "@type": "Comment",
+//     "@id": `${pageUrl}#comment-${c._id}`,
+//     "text": c.CommentText || "",
+//     "dateCreated": new Date(c.createdAt).toISOString(),
+//     "author": {
+//       "@type": "Person",
+//       "name": c.userId?.username || "User",
+//       "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+//     },
+//     "interactionStatistic": buildCommentInteractionSchema(c)
+//   }))
+// },
 
-// //       // 4️⃣ Breadcrumb
-// //       {
-// //         "@type": "BreadcrumbList",
-// //         "@id": `${pageUrl}#breadcrumb`,
-// //         "itemListElement": [
-// //           { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
-// //           { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
-// //           { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": pageUrl }
-// //         ]
-// //       }
-// //     ]
-// //   };
+//       // 4️⃣ Breadcrumb
+//       {
+//         "@type": "BreadcrumbList",
+//         "@id": `${pageUrl}#breadcrumb`,
+//         "itemListElement": [
+//           { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
+//           { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
+//           { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": pageUrl }
+//         ]
+//       }
+//     ]
+//   };
 
-// //   return (
-// //     <main className="w-full min-h-screen bg-white">
+//   return (
+//     <main className="w-full min-h-screen bg-white">
 
-// //       {/* JSON-LD 
-// //       <script
-// //         type="application/ld+json"
-// //         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdRedditStyle) }}
-// //       />
-// //     */}
+//       {/* JSON-LD 
+//       <script
+//         type="application/ld+json"
+//         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdRedditStyle) }}
+//       />
+//     */}
 
-// //        {/* HEADER – Instagram style */}
-// // <header className="bg-white  sticky top-0 z-50">
-// //   <div className="max-w-3xl mx-auto px-1 mb-2 h-12 flex items-center justify-between">
+//        {/* HEADER – Instagram style */}
+// <header className="bg-white  sticky top-0 z-50">
+//   <div className="max-w-3xl mx-auto px-1 mb-2 h-12 flex items-center justify-between">
     
-// //     {/* Back Button → Home */}
-// //     <Link
-// //       href="/"
-// //       className="p-2 -ml-2"
-// //       aria-label="Go to home"
-// //     >
-// //       <FaArrowLeft className="text-lg text-gray-900" />
-// //     </Link>
+//     {/* Back Button → Home */}
+//     <Link
+//       href="/"
+//       className="p-2 -ml-2"
+//       aria-label="Go to home"
+//     >
+//       <FaArrowLeft className="text-lg text-gray-900" />
+//     </Link>
 
-// //     {/* Center Title */}
-// //     <Link href="/" className="text-md font-semibold text-gray-900" aria-label="Go to Home">
-// //       FondPeace.com
-// //     </Link>
+//     {/* Center Title */}
+//     <Link href="/" className="text-md font-semibold text-gray-900" aria-label="Go to Home">
+//       FondPeace.com
+//     </Link>
 
-// //     {/* Right Spacer (for symmetry like Instagram) */}
-// //     <div className="w-6" />
-// //   </div>
-// // </header>
-
-
-// //     <section className="max-w-3xl mx-auto px- py-">
-// //       <article className="bg-white shadow-md rounded-2xl overflow-hidden p-2">
+//     {/* Right Spacer (for symmetry like Instagram) */}
+//     <div className="w-6" />
+//   </div>
+// </header>
 
 
+//     <section className="max-w-3xl mx-auto px- py-">
+//       <article className="bg-white shadow-md rounded-2xl overflow-hidden p-2">
 
-// //        {/* User Profile */}
-// // <div className="flex items-center justify-between mb-5">
 
-// //   <Link
-// //     href={`/profile/${post.userId?.username}`}
-// //     className="flex items-center gap-3"
-// //   >
-// //     <img
-// //       src={post.userId?.profilePic || "/Fondpeace.jpg"}
-// //       alt={post.userId?.username || "User"}
-// //       className="w-11 h-11 rounded-full object-cover border"
-// //       loading="lazy"
-// //     />
 
-// //     <div>
-// //       <span className="font-semibold text-gray-800 block">
-// //         {post.userId?.username || "Anonymous"}
-// //       </span>
-// //       <span className="text-gray-500 text-sm">
-// //         {new Date(post.createdAt).toLocaleDateString()}
-// //       </span>
-// //     </div>
-// //   </Link>
+//        {/* User Profile */}
+// <div className="flex items-center justify-between mb-5">
 
-// //   {/* Menu button MUST be inside same flex */}
-// //   <button className="text-gray-500 hover:text-black transition">
-// //     <svg
-// //       xmlns="http://www.w3.org/2000/svg"
-// //       className="h-6 w-6"
-// //       fill="none"
-// //       viewBox="0 0 24 24"
-// //       stroke="currentColor"
-// //     >
-// //       <path
-// //         strokeLinecap="round"
-// //         strokeLinejoin="round"
-// //         strokeWidth={2}
-// //         d="M12 6v.01M12 12v.01M12 18v.01"
-// //       />
-// //     </svg>
-// //   </button>
+//   <Link
+//     href={`/profile/${post.userId?.username}`}
+//     className="flex items-center gap-3"
+//   >
+//     <img
+//       src={post.userId?.profilePic || "/Fondpeace.jpg"}
+//       alt={post.userId?.username || "User"}
+//       className="w-11 h-11 rounded-full object-cover border"
+//       loading="lazy"
+//     />
 
-// // </div>
+//     <div>
+//       <span className="font-semibold text-gray-800 block">
+//         {post.userId?.username || "Anonymous"}
+//       </span>
+//       <span className="text-gray-500 text-sm">
+//         {new Date(post.createdAt).toLocaleDateString()}
+//       </span>
+//     </div>
+//   </Link>
+
+//   {/* Menu button MUST be inside same flex */}
+//   <button className="text-gray-500 hover:text-black transition">
+//     <svg
+//       xmlns="http://www.w3.org/2000/svg"
+//       className="h-6 w-6"
+//       fill="none"
+//       viewBox="0 0 24 24"
+//       stroke="currentColor"
+//     >
+//       <path
+//         strokeLinecap="round"
+//         strokeLinejoin="round"
+//         strokeWidth={2}
+//         d="M12 6v.01M12 12v.01M12 18v.01"
+//       />
+//     </svg>
+//   </button>
+
+// </div>
         
 
 
-// //         {/* Media Section */}
-// //         {isVideo ? (
-// //           <video
-// //             src={mediaUrl}
-// //             poster={thumbnail}
-// //             controls
-// //             className="rounded-xl w-full max-h-[480px] bg-black"
-// //           />
-// //         ) : isImage ? (
-// //           <img
-// //             src={mediaUrl}
-// //             alt={post.title}
-// //             className="rounded-xl w-full object-cover"
-// //             loading="lazy"
-// //           />
-// //         ) : null}
+//         {/* Media Section */}
+//         {isVideo ? (
+//           <video
+//             src={mediaUrl}
+//             poster={thumbnail}
+//             controls
+//             className="rounded-xl w-full max-h-[480px] bg-black"
+//           />
+//         ) : isImage ? (
+//           <img
+//             src={mediaUrl}
+//             alt={post.title}
+//             className="rounded-xl w-full object-cover"
+//             loading="lazy"
+//           />
+//         ) : null}
 
-// //         {/* Post Title 
-// // <h1 className="text-gray-800 mb-4 whitespace-pre-line">
-// //   {post.title}
-// // </h1>
-// // */}
-// //        <PostTitle title={post.title} />
+//         {/* Post Title 
+// <h1 className="text-gray-800 mb-4 whitespace-pre-line">
+//   {post.title}
+// </h1>
+// */}
+//        <PostTitle title={post.title} />
 
-// //         {/* Post Content */}
-// //         <SinglePostPage initialPost={post} />
-// //       </article>
-// //     </section>
-
-
-    
-// // <RelatedPosts related={related} />
+//         {/* Post Content */}
+//         <SinglePostPage initialPost={post} />
+//       </article>
+//     </section>
 
 
     
-// //       { /* {Array.isArray(related) && related.length > 0 && (
-// //   <aside className="max-w-5xl mx-auto mt-10 px-4">
-// //     <p className="text-xl font-semibold mb-4 text-gray-900">
-// //       Related Posts
-// //     </p>
+// <RelatedPosts related={related} />
 
-// //     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-// //       {related.map((r) => {
-// //         const thumb = toAbsolute(r.thumbnail || "");
 
-// //         return (
-// //           <a
-// //             key={r._id}
-// //             href={`/shorts/${r._id}`}
-// //             className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
-// //           >
+    
+//       { /* {Array.isArray(related) && related.length > 0 && (
+//   <aside className="max-w-5xl mx-auto mt-10 px-4">
+//     <p className="text-xl font-semibold mb-4 text-gray-900">
+//       Related Posts
+//     </p>
+
+//     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+//       {related.map((r) => {
+//         const thumb = toAbsolute(r.thumbnail || "");
+
+//         return (
+//           <a
+//             key={r._id}
+//             href={`/shorts/${r._id}`}
+//             className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden border"
+//           >
             
-// //             <div className="w-full aspect-video bg-gray-200 overflow-hidden relative">
-// //   <img
-// //     src={thumb}
-// //     alt={r.title}
-// //     className="w-full h-full object-cover object-center"
-// //     loading="lazy"
-// //   />
-// // </div>
+//             <div className="w-full aspect-video bg-gray-200 overflow-hidden relative">
+//   <img
+//     src={thumb}
+//     alt={r.title}
+//     className="w-full h-full object-cover object-center"
+//     loading="lazy"
+//   />
+// </div>
 
 
-// //             <div className="p-3">
-// //               <p className="font-medium text-gray-900 line-clamp-2 text-sm">
-// //                 {r.title}
-// //               </p>
+//             <div className="p-3">
+//               <p className="font-medium text-gray-900 line-clamp-2 text-sm">
+//                 {r.title}
+//               </p>
 
-// //               <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
-// //                 <FaHeart className="text-red-500" /> {likesCount(r)}
-// //                 <span>•</span>
-// //                 <FaCommentDots /> {commentsCount(r)}
-// //                 <span>•</span>
-// //                 <FaEye /> {viewsCount(r) || 0}
-// //               </div>
-// //             </div>
-// //           </a>
-// //         );
-// //       })}
-// //     </div>
-// //   </aside>
-// // )}
+//               <div className="flex items-center gap-3 text-gray-500 text-xs mt-2">
+//                 <FaHeart className="text-red-500" /> {likesCount(r)}
+//                 <span>•</span>
+//                 <FaCommentDots /> {commentsCount(r)}
+//                 <span>•</span>
+//                 <FaEye /> {viewsCount(r) || 0}
+//               </div>
+//             </div>
+//           </a>
+//         );
+//       })}
+//     </div>
+//   </aside>
+// )}
 
-// //   */}
+//   */}
 
-// //   </main>
-// // );
+//   </main>
+// );
 
 
-//   return (
-//     <main className="w-full min-h-screen bg-gray-50 pb-12">
-//       {/* HEADER – Instagram style with modern sticky blur */}
-//       <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm">
-//         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-//           {/* Back Button */}
-//           <Link
-//             href="/"
-//             className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
-//             aria-label="Go to home"
-//           >
-//             <FaArrowLeft className="text-xl text-gray-900" />
-//           </Link>
+  return (
+    <main className="w-full min-h-screen bg-gray-50 pb-12">
+      {/* HEADER – Instagram style with modern sticky blur */}
+      <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm">
+        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+          {/* Back Button */}
+          <Link
+            href="/"
+            className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="Go to home"
+          >
+            <FaArrowLeft className="text-xl text-gray-900" />
+          </Link>
 
-//           {/* Center Title */}
-//           <Link
-//             href="/"
-//             className="text-lg font-bold text-gray-900 tracking-tight"
-//             aria-label="Go to Home"
-//           >
-//             FondPeace.com
-//           </Link>
+          {/* Center Title */}
+          <Link
+            href="/"
+            className="text-lg font-bold text-gray-900 tracking-tight"
+            aria-label="Go to Home"
+          >
+            FondPeace.com
+          </Link>
 
-//           {/* Right Spacer (for perfect center symmetry) */}
-//           <div className="w-9" />
-//         </div>
-//       </header>
+          {/* Right Spacer (for perfect center symmetry) */}
+          <div className="w-9" />
+        </div>
+      </header>
 
-//       {/* MAIN POST SECTION */}
-//       {/* Edge-to-edge on mobile (px-0), rounded card on larger screens (sm:px-4) */}
-//       <section className="max-w-3xl mx-auto px-0 sm:px-4 py-0 sm:py-6">
-//         <article className="bg-white sm:shadow-lg sm:rounded-2xl overflow-hidden sm:border border-gray-100">
+      {/* MAIN POST SECTION */}
+      {/* Edge-to-edge on mobile (px-0), rounded card on larger screens (sm:px-4) */}
+      <section className="max-w-3xl mx-auto px-0 sm:px-4 py-0 sm:py-6">
+        <article className="bg-white sm:shadow-lg sm:rounded-2xl overflow-hidden sm:border border-gray-100">
           
-//           {/* User Profile Header */}
-//           <div className="flex items-center justify-between p-4 border-b border-gray-50">
-//             <Link
-//               href={`/profile/${post.userId?.username}`}
-//               className="flex items-center gap-3 group"
-//             >
-//               <div className="relative w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-blue-500 to-purple-500">
-//                 <img
-//                   src={post.userId?.profilePic || "/Fondpeace.jpg"}
-//                   alt={post.userId?.username || "User"}
-//                   className="w-full h-full rounded-full object-cover border-2 border-white"
-//                   loading="lazy"
-//                 />
-//               </div>
+          {/* User Profile Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-50">
+            <Link
+              href={`/profile/${post.userId?.username}`}
+              className="flex items-center gap-3 group"
+            >
+              <div className="relative w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-blue-500 to-purple-500">
+                <img
+                  src={post.userId?.profilePic || "/Fondpeace.jpg"}
+                  alt={post.userId?.username || "User"}
+                  className="w-full h-full rounded-full object-cover border-2 border-white"
+                  loading="lazy"
+                />
+              </div>
 
-//               <div>
-//                 <span className="font-bold text-gray-900 block group-hover:text-blue-600 transition-colors">
-//                   {post.userId?.username || "Anonymous"}
-//                 </span>
-//                 <span className="text-gray-500 text-xs font-medium">
-//                   {new Date(post.createdAt).toLocaleDateString(undefined, {
-//                     year: 'numeric', month: 'short', day: 'numeric'
-//                   })}
-//                 </span>
-//               </div>
-//             </Link>
+              <div>
+                <span className="font-bold text-gray-900 block group-hover:text-blue-600 transition-colors">
+                  {post.userId?.username || "Anonymous"}
+                </span>
+                <span className="text-gray-500 text-xs font-medium">
+                  {new Date(post.createdAt).toLocaleDateString(undefined, {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                  })}
+                </span>
+              </div>
+            </Link>
 
-//             {/* Menu button */}
-//             <button className="text-gray-400 hover:text-gray-900 hover:bg-gray-100 p-2 rounded-full transition-all">
-//               <svg
-//                 xmlns="http://www.w3.org/2000/svg"
-//                 className="h-6 w-6"
-//                 fill="none"
-//                 viewBox="0 0 24 24"
-//                 stroke="currentColor"
-//               >
-//                 <path
-//                   strokeLinecap="round"
-//                   strokeLinejoin="round"
-//                   strokeWidth={2}
-//                   d="M12 6v.01M12 12v.01M12 18v.01"
-//                 />
-//               </svg>
-//             </button>
-//           </div>
+            {/* Menu button */}
+            <button className="text-gray-400 hover:text-gray-900 hover:bg-gray-100 p-2 rounded-full transition-all">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v.01M12 12v.01M12 18v.01"
+                />
+              </svg>
+            </button>
+          </div>
 
-//           {/* Media Section */}
-//           <div className="w-full bg-black flex justify-center items-center relative">
-//             {isVideo ? (
-//               <video
-//                 src={mediaUrl}
-//                 poster={thumbnail}
-//                 controls
-//                 playsInline
-//                 className="w-full max-h-[75vh] object-contain bg-black"
-//               />
-//             ) : isImage ? (
-//               <img
-//                 src={mediaUrl}
-//                 alt={post.title}
-//                 className="w-full max-h-[75vh] object-contain bg-black"
-//                 loading="lazy"
-//               />
-//             ) : null}
-//           </div>
+          {/* Media Section */}
+          <div className="w-full bg-black flex justify-center items-center relative">
+            {isVideo ? (
+              <video
+                src={mediaUrl}
+                poster={thumbnail}
+                controls
+                playsInline
+                className="w-full max-h-[75vh] object-contain bg-black"
+              />
+            ) : isImage ? (
+              <img
+                src={mediaUrl}
+                alt={post.title}
+                className="w-full max-h-[75vh] object-contain bg-black"
+                loading="lazy"
+              />
+            ) : null}
+          </div>
 
-//           {/* Post Title & Content */}
-//           <div className="p-4 sm:p-5">
-//             <div className="mb-2">
-//               <PostTitle title={post.title} />
-//             </div>
-//             <div className="text-gray-800 text-sm sm:text-base leading-relaxed">
-//               <SinglePostPage initialPost={post} />
-//             </div>
-//           </div>
-//         </article>
-//       </section>
+          {/* Post Title & Content */}
+          <div className="p-4 sm:p-5">
+            <div className="mb-2">
+              <PostTitle title={post.title} />
+            </div>
+            <div className="text-gray-800 text-sm sm:text-base leading-relaxed">
+              <SinglePostPage initialPost={post} />
+            </div>
+          </div>
+        </article>
+      </section>
 
-//       {/* RELATED POSTS SECTION */}
-//       <RelatedPosts related={related} />
-//     </main>
-//   );
+      {/* RELATED POSTS SECTION */}
+      <RelatedPosts />
+    </main>
+  );
 
-// }
+}
 
 
 
