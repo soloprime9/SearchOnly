@@ -16,25 +16,27 @@ import {
   FaVolumeUp,
 } from "react-icons/fa";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-k.vercel.app";
+export default function RelatedPosts() {
+  const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
 
-export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
-  // Combine posts: main first, then related
-  const [posts, setPosts] = useState(
-    [mainPost, ...relatedPosts].filter(Boolean)
-  );
-  const [userId, setUserId] = useState(null);
+  const observerRef = useRef(null);
+  const viewObserver = useRef(null);
+  const videoRefs = useRef({});
+  const viewedPosts = useRef(new Set());
+
   const [commentTextMap, setCommentTextMap] = useState({});
   const [commentBoxOpen, setCommentBoxOpen] = useState({});
   const [expandedPosts, setExpandedPosts] = useState({});
+  const [userId, setUserId] = useState(null);
   const [mutedMap, setMutedMap] = useState({});
   const [copiedPostId, setCopiedPostId] = useState(null);
-  const [likedPostMap, setLikedPostMap] = useState({});
 
-  const videoRefs = useRef({});
-  const viewedPosts = useRef(new Set());
-  const viewObserver = useRef(null);
   const router = useRouter();
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-k.vercel.app";
 
   // ==========================================
   // GET USER ID FROM TOKEN
@@ -42,16 +44,76 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-
     try {
       const decoded = jwt.decode(token);
       if (decoded && decoded.exp * 1000 > Date.now()) {
         setUserId(decoded.UserId);
       }
     } catch (e) {
-      console.error("Token error:", e);
+      console.error("Token error");
     }
   }, []);
+
+  // ==========================================
+  // FETCH POSTS FROM API (Page 1 on mount)
+  // ==========================================
+  useEffect(() => {
+    if (!initialLoad) return;
+
+    setLoading(true);
+    setInitialLoad(false);
+
+    axios
+      .get(`${API_BASE}/post/mango/getall?page=1`)
+      .then((res) => {
+        const data = res.data;
+
+        if (!Array.isArray(data) || data.length === 0) {
+          setHasMore(false);
+          setPosts([]);
+        } else {
+          setPosts(data);
+          setHasMore(true);
+          setPage(1);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching posts:", error);
+        toast.error("Failed to load posts");
+        setHasMore(false);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  // ==========================================
+  // FETCH NEXT PAGE (Pagination)
+  // ==========================================
+  useEffect(() => {
+    if (page === 1 || !hasMore || loading) return;
+
+    setLoading(true);
+
+    axios
+      .get(`${API_BASE}/post/mango/getall?page=${page}`)
+      .then((res) => {
+        const data = res.data;
+
+        if (!Array.isArray(data) || data.length === 0) {
+          setHasMore(false);
+        } else {
+          setPosts((prev) => [...prev, ...data]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching next page:", error);
+        setHasMore(false);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [page]);
 
   // ==========================================
   // INCREASE VIEW (Your exact logic)
@@ -60,13 +122,13 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
     if (viewedPosts.current.has(postId)) return;
 
     viewedPosts.current.add(postId);
-    console.log("VIEW +1:", postId);
+    console.log("📊 VIEW +1:", postId);
 
     axios.post(`${API_BASE}/analytics/view`, { postId }).catch(() => {});
-  }, []);
+  }, [API_BASE]);
 
   // ==========================================
-  // VIEW OBSERVER: Update URL + Analytics
+  // VIEW OBSERVER: Track views + Update URL + Autoplay
   // ==========================================
   useEffect(() => {
     viewObserver.current = new IntersectionObserver(
@@ -79,15 +141,22 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
               increaseView(postId);
 
               // 2. Update URL silently
-              window.history.replaceState(null, "", `/shorts/${postId}`);
+              const post = posts.find((p) => p._id === postId);
+              const isVideo =
+                post?.mediaType?.startsWith("video") ||
+                post?.media?.match(/\.(mp4|mov|webm|mkv)$/i);
+              const path = isVideo ? "shorts" : "post";
+
+              window.history.replaceState(null, "", `/${path}/${postId}`);
 
               // 3. Play video if exists
               const video = videoRefs.current[postId];
               if (video) video.play().catch(() => {});
             }
           } else {
-            // Pause when out of view
-            const video = videoRefs.current[entry.target.dataset.postid];
+            // Pause video when out of view
+            const postId = entry.target.dataset.postid;
+            const video = videoRefs.current[postId];
             if (video) video.pause();
           }
         });
@@ -96,13 +165,13 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
     );
 
     return () => viewObserver.current?.disconnect();
-  }, [increaseView]);
+  }, [increaseView, posts]);
 
   // ==========================================
   // OBSERVE ALL POSTS
   // ==========================================
   useEffect(() => {
-    const elements = document.querySelectorAll(".premium-post-card");
+    const elements = document.querySelectorAll(".feed-post-item");
     elements.forEach((el) => {
       if (viewObserver.current) viewObserver.current.observe(el);
     });
@@ -115,33 +184,54 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
   }, [posts]);
 
   // ==========================================
+  // INFINITE SCROLL - Load next page
+  // ==========================================
+  const lastPostRef = useCallback(
+    (node) => {
+      if (!hasMore || loading) return;
+
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((prev) => prev + 1);
+        }
+      });
+
+      if (node) observerRef.current.observe(node);
+    },
+    [hasMore, loading]
+  );
+
+  // ==========================================
   // HANDLERS
   // ==========================================
+  const hasLikedPost = useCallback(
+    (post) => {
+      if (!userId || !Array.isArray(post.likes)) return false;
+      return post.likes.some((id) => id?.toString() === userId.toString());
+    },
+    [userId]
+  );
+
   const handleLikePost = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("Please login to like");
       return;
     }
-
     try {
       const res = await axios.post(
         `${API_BASE}/post/like/${postId}`,
         {},
         { headers: { "x-auth-token": token } }
       );
-
-      // Update likes in state
       setPosts((prev) =>
         prev.map((p) =>
-          p._id === postId
-            ? { ...p, likes: res.data.likes || p.likes }
-            : p
+          p._id === postId ? { ...p, likes: res.data.likes } : p
         )
       );
-
-      // Optimistic UI
-      setLikedPostMap((prev) => ({ ...prev, [postId]: !prev[postId] }));
+      toast.success("Liked! ❤️");
     } catch (err) {
       toast.error("Failed to like");
     }
@@ -150,7 +240,6 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
   const handleComment = async (postId) => {
     const token = localStorage.getItem("token");
     const comment = commentTextMap[postId]?.trim();
-
     if (!token || !comment) return;
 
     try {
@@ -159,19 +248,15 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
         { CommentText: comment, userId },
         { headers: { "x-auth-token": token } }
       );
-
+      setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
       setPosts((prev) =>
         prev.map((p) =>
-          p._id === postId
-            ? { ...p, comments: res.data.comments || p.comments }
-            : p
+          p._id === postId ? { ...p, comments: res.data.comments } : p
         )
       );
-
-      setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
-      toast.success("Comment added!");
+      toast.success("Comment added! 💬");
     } catch {
-      toast.error("Failed to comment");
+      toast.error("Error adding comment");
     }
   };
 
@@ -184,63 +269,51 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
   };
 
   const handleShare = (post) => {
-    const isVideo = post.mediaType?.startsWith("video") || post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
-    const path = isVideo ? "shorts" : "post";
-    const url = `${window.location.origin}/${path}/${post._id}`;
-    const shareText = `${post.title || "Check this out!"}\n${url}`;
+    try {
+      const isVideo =
+        post.mediaType?.startsWith("video") ||
+        post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
+      const path = isVideo ? "shorts" : "post";
 
-    navigator.clipboard.writeText(shareText);
-    setCopiedPostId(post._id);
-    setTimeout(() => setCopiedPostId(null), 2500);
-  };
+      const url = `${window.location.origin}/${path}/${post._id}`;
+      const shareText = `${post.title || "Check this out!"}\n${url}`;
 
-  const hasLikedPost = (post) => {
-    if (!userId || !Array.isArray(post.likes)) return false;
-    return post.likes.some((id) => id?.toString() === userId?.toString());
+      navigator.clipboard.writeText(shareText);
+      setCopiedPostId(post._id);
+      setTimeout(() => setCopiedPostId(null), 2500);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
   };
 
   // ==========================================
   // RENDER POST CARD
   // ==========================================
   const renderPost = useCallback(
-    (post, isMainPost = false) => {
-      if (!post) return null;
-
+    (post, index) => {
       const isExpanded = expandedPosts[post._id];
-      const isVideo = post.mediaType?.startsWith("video") || post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
+      const isVideo =
+        post.mediaType?.startsWith("video") ||
+        post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
       const title = post.title || "";
-      const titleText = isExpanded ? title : title.slice(0, 100);
-      const liked = hasLikedPost(post) || likedPostMap[post._id];
-      const isMuted = mutedMap[post._id] !== false;
+      const titleText = isExpanded
+        ? title
+        : title.slice(0, 100) + (title.length > 100 ? "..." : "");
 
       return (
         <article
           key={post._id}
           data-postid={post._id}
-          className={`premium-post-card bg-white w-full max-w-[600px] mx-auto mb-4 sm:mb-8 sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-y sm:border ${
-            isMainPost
-              ? "ring-2 ring-blue-400/30 sm:shadow-xl"
-              : "border-gray-100"
-          }`}
+          className="feed-post-item bg-white w-full max-w-[600px] mx-auto mb-2 sm:mb-6 sm:rounded-lg overflow-hidden border-y sm:border border-gray-200 shadow-sm hover:shadow-md transition-all"
         >
-          {/* Main Post Indicator */}
-          {isMainPost && (
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-2.5 flex items-center gap-2 border-b border-blue-100">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-              <span className="text-xs font-semibold text-blue-700 tracking-wide">
-                ORIGINAL POST
-              </span>
-            </div>
-          )}
-
           {/* HEADER */}
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between p-3 sm:p-4 h-[56px]">
+            <div className="flex items-center gap-2">
               <Link
                 href={`/profile/${post.userId?.username}`}
                 className="relative group"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 group-hover:shadow-lg transition-all">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
                   <div className="bg-white p-[1px] rounded-full w-full h-full">
                     <img
                       src={post.userId?.profilePic || "/Fondpeace.jpg"}
@@ -251,87 +324,96 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
                   </div>
                 </div>
               </Link>
-
-              <div>
-                <Link
-                  href={`/profile/${post.userId?.username}`}
-                  className="flex flex-col"
-                >
-                  <span className="text-sm font-bold text-gray-900 hover:text-blue-600 transition-colors">
-                    {post.userId?.username || "Unknown"}
-                  </span>
-                  <span className="text-xs text-gray-500 font-medium">
-                    {new Date(post.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </Link>
-              </div>
+              <Link
+                href={`/profile/${post.userId?.username}`}
+                className="flex flex-col"
+              >
+                <span className="text-sm font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                  {post.userId?.username || "Unknown"}
+                </span>
+                <span className="text-[11px] text-gray-500 mt-0.5 font-medium">
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </span>
+              </Link>
             </div>
-
             <button
-              onClick={() => toast.success("More options coming soon!")}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              onClick={() => toast("Options coming soon 🚀")}
+              className="text-gray-500 hover:text-black px-2 transition-colors"
             >
-              <span className="text-lg font-bold text-gray-600">•••</span>
+              <span className="text-lg tracking-widest font-bold">•••</span>
             </button>
           </div>
 
-          {/* MEDIA SECTION - Premium styling */}
+          {/* MEDIA SECTION */}
           {post.media && (
-            <div className="relative w-full bg-black flex items-center justify-center overflow-hidden min-h-[350px] sm:min-h-[500px]">
-              {isVideo ? (
-                <video
-                  ref={(ref) => (videoRefs.current[post._id] = ref)}
-                  src={post.media}
-                  loop
-                  playsInline
-                  muted={isMuted}
-                  preload="metadata"
-                  className="w-full max-w-[540px] aspect-[4/5] object-contain"
-                />
-              ) : (
-                <img
-                  src={post.media}
-                  alt={post.title}
-                  className="w-full max-w-[540px] aspect-[4/5] object-contain"
-                  loading="lazy"
-                />
-              )}
+            <div className="relative w-full bg-black flex items-center justify-center overflow-hidden min-h-[300px] sm:min-h-[400px]">
+              <Link
+                href={isVideo ? `/shorts/${post._id}` : `/post/${post._id}`}
+                className="w-full h-full flex items-center justify-center bg-black"
+              >
+                {isVideo ? (
+                  <video
+                    ref={(ref) => (videoRefs.current[post._id] = ref)}
+                    src={post.media}
+                    loop
+                    playsInline
+                    muted={mutedMap[post._id] !== false}
+                    preload="metadata"
+                    poster={post.thumbnail || post.image}
+                    className="w-full max-w-[540px] aspect-[4/5] object-contain block mx-auto"
+                  />
+                ) : (
+                  <img
+                    src={post.media}
+                    alt={post.title}
+                    className="w-full max-w-[540px] aspect-[4/5] object-contain block mx-auto"
+                    loading="lazy"
+                  />
+                )}
+              </Link>
 
               {isVideo && (
                 <button
-                  onClick={() => toggleMute(post._id)}
-                  className="absolute bottom-4 right-4 bg-black/70 text-white p-3 rounded-full backdrop-blur-md hover:bg-black/90 transition-all shadow-lg"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleMute(post._id);
+                  }}
+                  className="absolute bottom-4 right-4 bg-black/60 text-white p-2 rounded-full backdrop-blur-md hover:bg-black/80 transition"
                 >
-                  {isMuted ? (
-                    <FaVolumeMute size={16} />
+                  {mutedMap[post._id] ? (
+                    <FaVolumeMute size={14} />
                   ) : (
-                    <FaVolumeUp size={16} />
+                    <FaVolumeUp size={14} />
                   )}
                 </button>
               )}
             </div>
           )}
 
-          {/* INTERACTION AREA - Premium */}
-          <div className="px-4 pt-4 pb-5">
-            {/* Action Buttons */}
-            <div className="flex items-center justify-between mb-4">
+          {/* INTERACTION AREA */}
+          <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-4">
+            {/* Action Icons */}
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-5">
                 <button
                   onClick={() => handleLikePost(post._id)}
-                  className="flex items-center gap-2 transition-all active:scale-125 hover:opacity-70"
+                  className="flex items-center gap-1.5 transition-transform active:scale-125 hover:opacity-70"
                 >
-                  {liked ? (
-                    <FaHeart className="text-red-500 text-[28px]" />
+                  {hasLikedPost(post) ? (
+                    <>
+                      <FaHeart className="text-red-500 text-[26px]" />
+                      <span className="font-bold text-sm">
+                        {post.likes?.length || 0}
+                      </span>
+                    </>
                   ) : (
-                    <FaRegHeart className="text-[28px] text-gray-800" />
+                    <>
+                      <FaRegHeart className="text-[26px] text-gray-800 hover:text-gray-500" />
+                      <span className="font-bold text-sm">
+                        {post.likes?.length || 0}
+                      </span>
+                    </>
                   )}
-                  <span className="font-bold text-sm">
-                    {(post.likes?.length || 0) + (liked && !hasLikedPost(post) ? 1 : 0)}
-                  </span>
                 </button>
 
                 <button
@@ -341,45 +423,46 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
                       [post._id]: !commentBoxOpen[post._id],
                     }))
                   }
-                  className="flex items-center gap-2 transition-all active:scale-125 hover:opacity-70"
+                  className="flex items-center gap-1.5 transition-transform active:scale-125 hover:opacity-70"
                 >
-                  <FaCommentDots className="text-[26px] text-gray-800" />
+                  <FaCommentDots className="text-[24px] text-gray-800 hover:text-gray-500" />
                   <span className="font-bold text-sm">
                     {post.comments?.length || 0}
                   </span>
                 </button>
 
-                <div className="relative">
+                <div className="relative flex items-center justify-center">
                   <button
                     onClick={() => handleShare(post)}
-                    className="flex items-center gap-2 transition-all active:scale-125 hover:opacity-70"
+                    className="flex items-center gap-1.5 transition-transform active:scale-125 hover:opacity-70"
                   >
-                    <FaShareAlt className="text-[24px] text-gray-800" />
+                    <FaShareAlt className="text-[22px] text-gray-800 hover:text-gray-500" />
                   </button>
+
                   {copiedPostId === post._id && (
-                    <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap font-bold shadow-lg z-50">
+                    <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded shadow-xl z-[9999] whitespace-nowrap font-bold">
                       Link copied! 🎉
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* View Count - Premium Badge */}
-              <div className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 px-3 py-2 rounded-full border border-blue-100 shadow-sm">
-                <FaEye className="text-blue-600" size={14} />
-                <span className="font-bold text-sm text-blue-600">
+              {/* View Count Badge */}
+              <div className="flex items-center gap-1.5 text-gray-500 bg-gray-50 px-2.5 py-1.5 rounded-full border border-gray-100">
+                <FaEye size={14} />
+                <span className="text-[12px] font-bold">
                   {post.views?.toLocaleString() || 0}
                 </span>
               </div>
             </div>
 
             {/* Caption */}
-            <div className="space-y-2">
-              <div className="text-sm text-gray-900 leading-relaxed">
-                <span className="font-bold text-gray-900 hover:underline cursor-pointer">
+            <div className="space-y-1.5">
+              <div className="text-sm text-gray-900 leading-snug">
+                <span className="font-bold mr-2 hover:underline cursor-pointer">
                   {post.userId?.username}
                 </span>
-                <span className="ml-2">{titleText}</span>
+                <span className="whitespace-pre-wrap">{titleText}</span>
                 {title.length > 100 && (
                   <button
                     onClick={() =>
@@ -388,19 +471,20 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
                         [post._id]: !isExpanded,
                       }))
                     }
-                    className="text-blue-600 font-semibold ml-1 hover:text-blue-700"
+                    className="text-blue-600 font-medium ml-1 hover:text-blue-700"
                   >
-                    {isExpanded ? "less" : "more"}
+                    {isExpanded ? " show less" : "...more"}
                   </button>
                 )}
               </div>
 
+              {/* View Comments Button */}
               {post.comments?.length > 0 && !commentBoxOpen[post._id] && (
                 <button
                   onClick={() =>
                     setCommentBoxOpen((p) => ({ ...p, [post._id]: true }))
                   }
-                  className="text-sm text-gray-500 font-medium hover:text-gray-700 transition-colors"
+                  className="text-sm text-gray-500 block hover:text-gray-700 transition font-medium"
                 >
                   View all {post.comments.length} comments
                 </button>
@@ -409,27 +493,22 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
 
             {/* Comments Section */}
             {commentBoxOpen[post._id] && (
-              <div className="mt-5 pt-4 border-t border-gray-100 space-y-4">
-                {post.comments?.length > 0 && (
-                  <div className="space-y-3 max-h-48 overflow-y-auto">
-                    {post.comments.map((cmt, i) => (
-                      <div key={i} className="flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0"></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-bold text-gray-900">
-                            {cmt?.userId?.username || "User"}
-                          </p>
-                          <p className="text-sm text-gray-700 leading-tight">
-                            {cmt?.CommentText}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
+                  {post.comments?.map((cmt, i) => (
+                    <div key={i} className="flex gap-2 text-sm items-start">
+                      <span className="font-bold whitespace-nowrap text-xs sm:text-sm">
+                        {cmt?.userId?.username || "User"}
+                      </span>
+                      <span className="text-gray-700 leading-tight text-xs sm:text-sm">
+                        {cmt?.CommentText}
+                      </span>
+                    </div>
+                  ))}
+                </div>
 
-                {/* Comment Input */}
-                <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+                {/* Add Comment Input */}
+                <div className="flex items-center gap-3 mt-3 border border-gray-200 rounded-full px-4 py-2 bg-gray-50 focus-within:bg-white focus-within:border-blue-400 transition-all">
                   <input
                     type="text"
                     placeholder="Add a comment..."
@@ -440,12 +519,12 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
                         [post._id]: e.target.value,
                       }))
                     }
-                    className="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-full px-4 py-2 focus:bg-white focus:border-blue-400 focus:outline-none transition-all"
+                    className="flex-1 text-sm bg-transparent outline-none text-gray-900"
                   />
                   <button
                     onClick={() => handleComment(post._id)}
                     disabled={!commentTextMap[post._id]?.trim()}
-                    className="text-blue-600 font-bold text-sm disabled:opacity-30 hover:text-blue-700 transition-colors"
+                    className="text-blue-600 text-sm font-bold disabled:opacity-30 hover:text-blue-700 transition"
                   >
                     Post
                   </button>
@@ -460,31 +539,80 @@ export default function RelatedPosts({ mainPost, relatedPosts = [] }) {
       commentTextMap,
       commentBoxOpen,
       expandedPosts,
+      userId,
       mutedMap,
       copiedPostId,
-      likedPostMap,
-      userId,
     ]
   );
 
   return (
-    <div className="w-full flex flex-col items-center">
-      {posts.map((post, idx) => {
-        const isMainPost = idx === 0;
-        return (
-          <div key={post._id} ref={(node) => {
-            if (node && viewObserver.current) {
-              viewObserver.current.observe(node);
-            }
-          }}>
-            {renderPost(post, isMainPost)}
+    <div className="max-w-2xl mx-auto w-full">
+      {/* Initial Loading State */}
+      {initialLoad && loading && (
+        <div className="flex items-center justify-center min-h-[600px]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="text-gray-600 font-medium">Loading posts...</p>
           </div>
-        );
-      })}
+        </div>
+      )}
+
+      {/* Posts Feed */}
+      {!initialLoad && posts && posts.length > 0 ? (
+        <>
+          {posts.map((post, idx) => {
+            const isLast = idx === posts.length - 1;
+
+            return (
+              <div
+                key={post._id}
+                ref={(node) => {
+                  if (isLast) lastPostRef(node);
+                }}
+              >
+                {renderPost(post, idx)}
+              </div>
+            );
+          })}
+
+          {/* Loading Indicator for next page */}
+          {loading && !initialLoad && (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          )}
+
+          {/* End of Feed Message */}
+          {!hasMore && posts.length > 0 && (
+            <div className="text-center py-12 text-gray-600">
+              <p className="font-medium text-lg">You've reached the end 🎉</p>
+              <Link href="/" className="text-blue-600 font-semibold hover:text-blue-700 mt-2 block">
+                Explore more on home →
+              </Link>
+            </div>
+          )}
+        </>
+      ) : (
+        !initialLoad &&
+        !loading && (
+          <div className="flex items-center justify-center min-h-[600px]">
+            <div className="text-center">
+              <p className="text-gray-500 font-medium text-lg mb-4">
+                No posts available
+              </p>
+              <Link
+                href="/"
+                className="text-blue-600 font-semibold hover:text-blue-700"
+              >
+                Go back home →
+              </Link>
+            </div>
+          </div>
+        )
+      )}
     </div>
   );
 }
-
 
 
 
