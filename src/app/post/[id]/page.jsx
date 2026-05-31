@@ -651,121 +651,379 @@ const jsonLdRedditStyle = {
 // );
 
 
-  return (
-    <main className="w-full min-h-screen bg-gray-50 pb-12">
-      {/* HEADER – Instagram style with modern sticky blur */}
-      <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          {/* Back Button */}
+
+
+return (
+    <main className="w-full min-h-screen bg-[#f8f7f5]">
+ 
+      {/* ── STICKY HEADER ── */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-black/[0.06]">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link
             href="/"
-            className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
-            aria-label="Go to home"
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/[0.06] active:scale-90 transition-all"
+            aria-label="Back to home"
           >
-            <FaArrowLeft className="text-xl text-gray-900" />
+            <FaArrowLeft className="text-[15px] text-gray-800" />
           </Link>
-
-          {/* Center Title */}
+ 
           <Link
             href="/"
-            className="text-lg font-bold text-gray-900 tracking-tight"
-            aria-label="Go to Home"
+            className="font-black text-[18px] tracking-tighter text-gray-950 hover:opacity-70 transition-opacity select-none"
           >
-            FondPeace.com
+            Fond<span className="text-blue-500">Peace</span>
           </Link>
-
-          {/* Right Spacer (for perfect center symmetry) */}
-          <div className="w-9" />
+ 
+          {/* spacer */}
+          <div className="w-8" />
         </div>
       </header>
-
-      {/* MAIN POST SECTION */}
-      {/* Edge-to-edge on mobile (px-0), rounded card on larger screens (sm:px-4) */}
-      <section className="max-w-3xl mx-auto px-0 sm:px-4 py-0 sm:py-6">
-        <article className="bg-white sm:shadow-lg sm:rounded-2xl overflow-hidden sm:border border-gray-100">
-          
-          {/* User Profile Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-50">
+ 
+      {/* ── POST CARD ── */}
+      <section className="max-w-2xl mx-auto sm:px-4 pt-0 sm:pt-5 pb-4">
+        <article className="bg-white sm:rounded-2xl overflow-hidden sm:border border-black/[0.07] sm:shadow-[0_1px_12px_rgba(0,0,0,0.06)]">
+ 
+          {/* Author row */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-black/[0.04]">
             <Link
-              href={`/profile/${post.userId?.username}`}
+              href={`/profile/${post?.userId?.username}`}
               className="flex items-center gap-3 group"
             >
-              <div className="relative w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-blue-500 to-purple-500">
-                <img
-                  src={post.userId?.profilePic || "/Fondpeace.jpg"}
-                  alt={post.userId?.username || "User"}
-                  className="w-full h-full rounded-full object-cover border-2 border-white"
-                  loading="lazy"
-                />
+              <div className="relative shrink-0">
+                <div className="w-10 h-10 rounded-full ring-2 ring-offset-1 ring-blue-500/30 overflow-hidden">
+                  <img
+                    src={post?.userId?.profilePic || "/Fondpeace.jpg"}
+                    alt={post?.userId?.username || "User"}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                {/* online dot */}
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-white" />
               </div>
-
-              <div>
-                <span className="font-bold text-gray-900 block group-hover:text-blue-600 transition-colors">
-                  {post.userId?.username || "Anonymous"}
+              <div className="flex flex-col min-w-0">
+                <span className="font-semibold text-[13.5px] text-gray-950 group-hover:text-blue-600 transition-colors truncate leading-tight">
+                  {post?.userId?.username || "Anonymous"}
                 </span>
-                <span className="text-gray-500 text-xs font-medium">
-                  {new Date(post.createdAt).toLocaleDateString(undefined, {
-                    year: 'numeric', month: 'short', day: 'numeric'
-                  })}
+                <span className="text-[11px] text-gray-400 mt-0.5 font-medium">
+                  {post?.createdAt
+                    ? new Date(post.createdAt).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : ""}
                 </span>
               </div>
             </Link>
-
-            {/* Menu button */}
-            <button className="text-gray-400 hover:text-gray-900 hover:bg-gray-100 p-2 rounded-full transition-all">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v.01M12 12v.01M12 18v.01"
-                />
+ 
+            <button
+              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-800 hover:bg-black/[0.05] transition-all"
+              aria-label="Options"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+                <circle cx="5" cy="12" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="19" cy="12" r="2" />
               </svg>
             </button>
           </div>
-
-          {/* Media Section */}
-          <div className="w-full bg-black flex justify-center items-center relative">
-            {isVideo ? (
-              <video
-                src={mediaUrl}
-                poster={thumbnail}
-                controls
-                playsInline
-                className="w-full max-h-[75vh] object-contain bg-black"
-              />
-            ) : isImage ? (
-              <img
-                src={mediaUrl}
-                alt={post.title}
-                className="w-full max-h-[75vh] object-contain bg-black"
-                loading="lazy"
-              />
-            ) : null}
-          </div>
-
-          {/* Post Title & Content */}
-          <div className="p-4 sm:p-5">
-            <div className="mb-2">
-              <PostTitle title={post.title} />
+ 
+          {/* Media */}
+          {(isVideo || isImage) && (
+            <div className="w-full bg-black flex items-center justify-center overflow-hidden">
+              {isVideo ? (
+                <video
+                  src={mediaUrl}
+                  poster={thumbnail}
+                  controls
+                  playsInline
+                  className="w-full max-h-[72vh] object-contain"
+                />
+              ) : (
+                <img
+                  src={mediaUrl}
+                  alt={post?.title || "Post image"}
+                  className="w-full max-h-[72vh] object-contain"
+                  loading="lazy"
+                />
+              )}
             </div>
-            <div className="text-gray-800 text-sm sm:text-base leading-relaxed">
+          )}
+ 
+          {/* Caption + body */}
+          <div className="px-4 pt-4 pb-5">
+            {post?.title && (
+              <div className="mb-2">
+                <PostTitle title={post.title} />
+              </div>
+            )}
+            <div className="text-[14px] leading-relaxed text-gray-700">
               <SinglePostPage initialPost={post} />
             </div>
           </div>
         </article>
       </section>
-
-      {/* RELATED POSTS SECTION */}
+ 
+      {/* ── DIVIDER ── */}
+      <div className="max-w-2xl mx-auto px-4 my-5 flex items-center gap-3">
+        <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-gray-400 whitespace-nowrap">
+          More for you
+        </span>
+        <div className="h-px bg-gray-200 flex-1" />
+      </div>
+ 
+      {/* ── RELATED POSTS ── */}
       <RelatedPosts />
+ 
+      {/* bottom padding so mobile nav doesn't cover content */}
+      <div className="h-20 lg:hidden" />
     </main>
   );
+
+
+
+
+
+  
+
+  // return (
+  //   <main className="w-full min-h-screen bg-slate-50 pb-16 selection:bg-blue-500 selection:text-white">
+  //     {/* HEADER – Modern Minimalist Sticky Blur */}
+  //     <header className="bg-white/70 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100/80">
+  //       <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
+  //         {/* Back Button */}
+  //         <Link
+  //           href="/"
+  //           className="p-2.5 -ml-2 rounded-full hover:bg-slate-100/80 active:scale-95 transition-all duration-200"
+  //           aria-label="Go to home"
+  //         >
+  //           <FaArrowLeft className="text-lg text-slate-800" />
+  //         </Link>
+
+  //         {/* Center Title */}
+  //         <Link
+  //           href="/"
+  //           className="text-xl font-black text-slate-900 tracking-tight hover:opacity-80 transition-opacity"
+  //           aria-label="Go to Home"
+  //         >
+  //           FondPeace<span className="text-blue-600">.com</span>
+  //         </Link>
+
+  //         {/* Right Spacer */}
+  //         <div className="w-10" />
+  //       </div>
+  //     </header>
+
+  //     {/* MAIN POST SECTION */}
+  //     <section className="max-w-2xl mx-auto px-0 sm:px-4 pt-0 sm:pt-6 pb-4">
+  //       <article className="bg-white sm:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] sm:rounded-2xl overflow-hidden sm:border border-slate-100">
+          
+  //         {/* User Profile Header */}
+  //         <div className="flex items-center justify-between p-4 border-b border-slate-50">
+  //           <Link
+  //             href={`/profile/${post.userId?.username}`}
+  //             className="flex items-center gap-3.5 group"
+  //           >
+  //             <div className="relative w-11 h-11 rounded-full p-[2px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-500 transition-transform duration-300 group-hover:rotate-12">
+  //               <img
+  //                 src={post.userId?.profilePic || "/Fondpeace.jpg"}
+  //                 alt={post.userId?.username || "User"}
+  //                 className="w-full h-full rounded-full object-cover border-2 border-white"
+  //                 loading="lazy"
+  //               />
+  //             </div>
+
+  //             <div className="flex flex-col">
+  //               <span className="font-semibold text-[15px] text-slate-900 leading-none group-hover:text-blue-600 transition-colors">
+  //                 {post.userId?.username || "Anonymous"}
+  //               </span>
+  //               <span className="text-slate-400 text-xs mt-1 font-medium">
+  //                 {new Date(post.createdAt).toLocaleDateString(undefined, {
+  //                   year: 'numeric', month: 'short', day: 'numeric'
+  //                 })}
+  //               </span>
+  //             </div>
+  //           </Link>
+
+  //           {/* Menu button */}
+  //           <button className="text-slate-400 hover:text-slate-900 hover:bg-slate-50 p-2 rounded-full transition-all duration-200">
+  //             <svg
+  //               xmlns="http://www.w3.org/2000/svg"
+  //               className="h-5 w-5"
+  //               fill="none"
+  //               viewBox="0 0 24 24"
+  //               stroke="currentColor"
+  //             >
+  //               <path
+  //                 strokeLinecap="round"
+  //                 strokeLinejoin="round"
+  //                 strokeWidth={2.5}
+  //                 d="M12 6v.01M12 12v.01M12 18v.01"
+  //               />
+  //             </svg>
+  //           </button>
+  //         </div>
+
+  //         {/* Media Section */}
+  //         <div className="w-full bg-slate-950 flex justify-center items-center relative overflow-hidden group/media">
+  //           {isVideo ? (
+  //             <video
+  //               src={mediaUrl}
+  //               poster={thumbnail}
+  //               controls
+  //               playsInline
+  //               className="w-full max-h-[70vh] object-contain bg-slate-950 shadow-inner"
+  //             />
+  //           ) : isImage ? (
+  //             <img
+  //               src={mediaUrl}
+  //               alt={post.title}
+  //               className="w-full max-h-[70vh] object-contain bg-slate-950 transition-transform duration-700 hover:scale-[1.01]"
+  //               loading="lazy"
+  //             />
+  //           ) : null}
+  //         </div>
+
+  //         {/* Post Title & Content */}
+  //         <div className="p-4 sm:p-6 bg-white">
+  //           <div className="mb-3">
+  //             <PostTitle title={post.title} />
+  //           </div>
+  //           <div className="text-slate-700 text-sm sm:text-[15px] leading-relaxed font-normal">
+  //             <SinglePostPage initialPost={post} />
+  //           </div>
+  //         </div>
+  //       </article>
+  //     </section>
+
+  //     {/* Separator to mark Related Content cleanly */}
+  //     <div className="max-w-2xl mx-auto px-4 my-6 flex items-center gap-3">
+  //       <span className="text-xs font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">More Feed Discoveries</span>
+  //       <div className="h-[1px] bg-slate-200 w-full" />
+  //     </div>
+
+  //     {/* RELATED POSTS SECTION */}
+  //     <RelatedPosts />
+  //   </main>
+  // );
+  
+
+  // return (
+  //   <main className="w-full min-h-screen bg-gray-50 pb-12">
+  //     {/* HEADER – Instagram style with modern sticky blur */}
+  //     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm">
+  //       <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+  //         {/* Back Button */}
+  //         <Link
+  //           href="/"
+  //           className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
+  //           aria-label="Go to home"
+  //         >
+  //           <FaArrowLeft className="text-xl text-gray-900" />
+  //         </Link>
+
+  //         {/* Center Title */}
+  //         <Link
+  //           href="/"
+  //           className="text-lg font-bold text-gray-900 tracking-tight"
+  //           aria-label="Go to Home"
+  //         >
+  //           FondPeace.com
+  //         </Link>
+
+  //         {/* Right Spacer (for perfect center symmetry) */}
+  //         <div className="w-9" />
+  //       </div>
+  //     </header>
+
+  //     {/* MAIN POST SECTION */}
+  //     {/* Edge-to-edge on mobile (px-0), rounded card on larger screens (sm:px-4) */}
+  //     <section className="max-w-3xl mx-auto px-0 sm:px-4 py-0 sm:py-6">
+  //       <article className="bg-white sm:shadow-lg sm:rounded-2xl overflow-hidden sm:border border-gray-100">
+          
+  //         {/* User Profile Header */}
+  //         <div className="flex items-center justify-between p-4 border-b border-gray-50">
+  //           <Link
+  //             href={`/profile/${post.userId?.username}`}
+  //             className="flex items-center gap-3 group"
+  //           >
+  //             <div className="relative w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-blue-500 to-purple-500">
+  //               <img
+  //                 src={post.userId?.profilePic || "/Fondpeace.jpg"}
+  //                 alt={post.userId?.username || "User"}
+  //                 className="w-full h-full rounded-full object-cover border-2 border-white"
+  //                 loading="lazy"
+  //               />
+  //             </div>
+
+  //             <div>
+  //               <span className="font-bold text-gray-900 block group-hover:text-blue-600 transition-colors">
+  //                 {post.userId?.username || "Anonymous"}
+  //               </span>
+  //               <span className="text-gray-500 text-xs font-medium">
+  //                 {new Date(post.createdAt).toLocaleDateString(undefined, {
+  //                   year: 'numeric', month: 'short', day: 'numeric'
+  //                 })}
+  //               </span>
+  //             </div>
+  //           </Link>
+
+  //           {/* Menu button */}
+  //           <button className="text-gray-400 hover:text-gray-900 hover:bg-gray-100 p-2 rounded-full transition-all">
+  //             <svg
+  //               xmlns="http://www.w3.org/2000/svg"
+  //               className="h-6 w-6"
+  //               fill="none"
+  //               viewBox="0 0 24 24"
+  //               stroke="currentColor"
+  //             >
+  //               <path
+  //                 strokeLinecap="round"
+  //                 strokeLinejoin="round"
+  //                 strokeWidth={2}
+  //                 d="M12 6v.01M12 12v.01M12 18v.01"
+  //               />
+  //             </svg>
+  //           </button>
+  //         </div>
+
+  //         {/* Media Section */}
+  //         <div className="w-full bg-black flex justify-center items-center relative">
+  //           {isVideo ? (
+  //             <video
+  //               src={mediaUrl}
+  //               poster={thumbnail}
+  //               controls
+  //               playsInline
+  //               className="w-full max-h-[75vh] object-contain bg-black"
+  //             />
+  //           ) : isImage ? (
+  //             <img
+  //               src={mediaUrl}
+  //               alt={post.title}
+  //               className="w-full max-h-[75vh] object-contain bg-black"
+  //               loading="lazy"
+  //             />
+  //           ) : null}
+  //         </div>
+
+  //         {/* Post Title & Content */}
+  //         <div className="p-4 sm:p-5">
+  //           <div className="mb-2">
+  //             <PostTitle title={post.title} />
+  //           </div>
+  //           <div className="text-gray-800 text-sm sm:text-base leading-relaxed">
+  //             <SinglePostPage initialPost={post} />
+  //           </div>
+  //         </div>
+  //       </article>
+  //     </section>
+
+  //     {/* RELATED POSTS SECTION */}
+  //     <RelatedPosts />
+  //   </main>
+  // );
 
 }
 
