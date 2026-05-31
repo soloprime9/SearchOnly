@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import jwt from "jsonwebtoken";
@@ -16,22 +15,25 @@ import {
   FaVolumeUp,
 } from "react-icons/fa";
 
-// Elegant Shimmer Skeleton Loader Component
+// ─── Skeleton ────────────────────────────────────────────────────────────────
 const PostSkeleton = () => (
-  <div className="w-full max-w-[550px] mx-auto mb-6 bg-white border border-slate-100 sm:rounded-2xl p-4 animate-pulse">
-    <div className="flex items-center gap-3 mb-4">
-      <div className="w-10 h-10 bg-slate-200 rounded-full" />
-      <div className="flex-1 space-y-2">
-        <div className="h-3.5 bg-slate-200 rounded w-1/3" />
-        <div className="h-2.5 bg-slate-200 rounded w-1/4" />
+  <div className="w-full max-w-[560px] mx-auto mb-4 sm:mb-6 bg-white sm:rounded-2xl overflow-hidden border-y sm:border border-black/[0.06] animate-pulse">
+    <div className="flex items-center gap-3 px-4 py-3 border-b border-black/[0.04]">
+      <div className="w-9 h-9 bg-gray-200 rounded-full shrink-0" />
+      <div className="flex-1 space-y-1.5">
+        <div className="h-3 bg-gray-200 rounded-full w-28" />
+        <div className="h-2.5 bg-gray-100 rounded-full w-16" />
       </div>
     </div>
-    <div className="w-full aspect-[4/5] bg-slate-200 rounded-xl mb-4" />
-    <div className="h-4 bg-slate-200 rounded w-3/4 mb-2" />
-    <div className="h-4 bg-slate-200 rounded w-1/2" />
+    <div className="w-full aspect-[4/5] bg-gray-100" />
+    <div className="px-4 pt-3 pb-4 space-y-2">
+      <div className="h-3 bg-gray-200 rounded-full w-3/4" />
+      <div className="h-3 bg-gray-100 rounded-full w-1/2" />
+    </div>
   </div>
 );
 
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function RelatedPosts() {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
@@ -51,33 +53,31 @@ export default function RelatedPosts() {
   const [mutedMap, setMutedMap] = useState({});
   const [copiedPostId, setCopiedPostId] = useState(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-k.vercel.app";
+  const API_BASE =
+    process.env.NEXT_PUBLIC_API_URL || "https://backend-k.vercel.app";
 
-  // Decode User Authentication Status
+  // ── Auth ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
       const decoded = jwt.decode(token);
-      if (decoded && decoded.exp * 1000 > Date.now()) {
-        setUserId(decoded.UserId);
-      }
-    } catch (e) {
-      console.error("Token error");
+      if (decoded?.exp * 1000 > Date.now()) setUserId(decoded.UserId);
+    } catch {
+      /* noop */
     }
   }, []);
 
-  // Fetch Page 1 Data
+  // ── Fetch page 1 ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (!initialLoad) return;
     setLoading(true);
     setInitialLoad(false);
-
     axios
       .get(`${API_BASE}/post/related/mango/getall?page=1`)
       .then((res) => {
         const data = res.data;
-        if (!Array.isArray(data) || data.length === 0) {
+        if (!Array.isArray(data) || !data.length) {
           setHasMore(false);
           setPosts([]);
         } else {
@@ -86,127 +86,102 @@ export default function RelatedPosts() {
           setPage(1);
         }
       })
-      .catch((error) => {
-        console.error("Error fetching posts:", error);
-        toast.error("Failed to load feed pipeline");
+      .catch(() => {
+        toast.error("Could not load feed");
         setHasMore(false);
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, []);
 
-  // Fetch Next Pages
+  // ── Fetch subsequent pages ────────────────────────────────────────────────
   useEffect(() => {
     if (page === 1 || !hasMore || loading) return;
     setLoading(true);
-
     axios
       .get(`${API_BASE}/post/related/mango/getall?page=${page}`)
       .then((res) => {
         const data = res.data;
-        if (!Array.isArray(data) || data.length === 0) {
-          setHasMore(false);
-        } else {
-          setPosts((prev) => [...prev, ...data]);
-        }
+        if (!Array.isArray(data) || !data.length) setHasMore(false);
+        else setPosts((prev) => [...prev, ...data]);
       })
-      .catch((error) => {
-        console.error("Error fetching next page:", error);
-        setHasMore(false);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .catch(() => setHasMore(false))
+      .finally(() => setLoading(false));
   }, [page]);
 
-  const increaseView = useCallback((postId) => {
-    if (viewedPosts.current.has(postId)) return;
-    viewedPosts.current.add(postId);
-    axios.post(`${API_BASE}/analytics/view`, { postId }).catch(() => {});
-  }, [API_BASE]);
+  // ── View tracking ─────────────────────────────────────────────────────────
+  const increaseView = useCallback(
+    (postId) => {
+      if (viewedPosts.current.has(postId)) return;
+      viewedPosts.current.add(postId);
+      axios.post(`${API_BASE}/analytics/view`, { postId }).catch(() => {});
+    },
+    [API_BASE]
+  );
 
-  // View Tracker Observer - Syncs routing links, autoplays, and metadata document titles
   useEffect(() => {
     viewObserver.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          const postId = entry.target.dataset.postid;
+          if (!postId) return;
+          const video = videoRefs.current[postId];
           if (entry.isIntersecting) {
-            const postId = entry.target.dataset.postid;
-            if (postId) {
-              increaseView(postId);
-
-              const post = posts.find((p) => p._id === postId);
-              if (post) {
-                const isVideo =
-                  post.mediaType?.startsWith("video") ||
-                  post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
-                const path = isVideo ? "shorts" : "post";
-
-                // Silent Routing URL Switch
-                window.history.replaceState(null, "", `/${path}/${postId}`);
-
-                // CRITICAL FIX: Update document metadata dynamically when page content focus changes
-                if (post.title) {
-                  document.title = `${post.title}`;
-                }
-              }
-
-              const video = videoRefs.current[postId];
-              if (video) video.play().catch(() => {});
+            increaseView(postId);
+            const post = posts.find((p) => p._id === postId);
+            if (post) {
+              const isVid =
+                post.mediaType?.startsWith("video") ||
+                post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
+              window.history.replaceState(
+                null,
+                "",
+                `/${isVid ? "shorts" : "post"}/${postId}`
+              );
+              if (post.title) document.title = post.title;
             }
+            if (video) video.play().catch(() => {});
           } else {
-            const postId = entry.target.dataset.postid;
-            const video = videoRefs.current[postId];
             if (video) video.pause();
           }
         });
       },
       { threshold: 0.6 }
     );
-
     return () => viewObserver.current?.disconnect();
   }, [increaseView, posts]);
 
   useEffect(() => {
-    const elements = document.querySelectorAll(".feed-post-item");
-    elements.forEach((el) => {
-      if (viewObserver.current) viewObserver.current.observe(el);
-    });
-    return () => {
-      elements.forEach((el) => {
-        if (viewObserver.current) viewObserver.current.unobserve(el);
-      });
-    };
+    const els = document.querySelectorAll(".fp-post-item");
+    els.forEach((el) => viewObserver.current?.observe(el));
+    return () => els.forEach((el) => viewObserver.current?.unobserve(el));
   }, [posts]);
 
+  // ── Infinite scroll ───────────────────────────────────────────────────────
   const lastPostRef = useCallback(
     (node) => {
       if (!hasMore || loading) return;
-      if (observerRef.current) observerRef.current.disconnect();
-
+      observerRef.current?.disconnect();
       observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          setPage((prev) => prev + 1);
-        }
+        if (entries[0].isIntersecting) setPage((p) => p + 1);
       });
       if (node) observerRef.current.observe(node);
     },
     [hasMore, loading]
   );
 
-  const hasLikedPost = useCallback(
-    (post) => {
-      if (!userId || !Array.isArray(post.likes)) return false;
-      return post.likes.some((id) => id?.toString() === userId.toString());
-    },
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  const hasLiked = useCallback(
+    (post) =>
+      !!userId &&
+      Array.isArray(post.likes) &&
+      post.likes.some((id) => id?.toString() === userId.toString()),
     [userId]
   );
 
-  const handleLikePost = async (postId) => {
+  const handleLike = async (postId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Please log in to leave interactions");
+      toast.error("Log in to like posts");
       return;
     }
     try {
@@ -220,168 +195,177 @@ export default function RelatedPosts() {
           p._id === postId ? { ...p, likes: res.data.likes } : p
         )
       );
-    } catch (err) {
-      toast.error("Action error, try again");
+    } catch {
+      toast.error("Could not like post");
     }
   };
 
   const handleComment = async (postId) => {
     const token = localStorage.getItem("token");
-    const comment = commentTextMap[postId]?.trim();
-    if (!token || !comment) return;
-
+    const text = commentTextMap[postId]?.trim();
+    if (!token || !text) return;
     try {
       const res = await axios.post(
         `${API_BASE}/post/comment/${postId}`,
-        { CommentText: comment, userId },
+        { CommentText: text, userId },
         { headers: { "x-auth-token": token } }
       );
-      setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
+      setCommentTextMap((p) => ({ ...p, [postId]: "" }));
       setPosts((prev) =>
         prev.map((p) =>
           p._id === postId ? { ...p, comments: res.data.comments } : p
         )
       );
-      toast.success("Comment published 💬");
+      toast.success("Comment posted");
     } catch {
       toast.error("Could not post comment");
     }
   };
 
   const toggleMute = (postId) => {
-    const video = videoRefs.current[postId];
-    if (video) {
-      video.muted = !video.muted;
-      setMutedMap((prev) => ({ ...prev, [postId]: video.muted }));
-    }
+    const v = videoRefs.current[postId];
+    if (!v) return;
+    v.muted = !v.muted;
+    setMutedMap((p) => ({ ...p, [postId]: v.muted }));
   };
 
   const handleShare = (post) => {
-    try {
-      const isVideo =
-        post.mediaType?.startsWith("video") ||
-        post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
-      const path = isVideo ? "shorts" : "post";
-      const url = `${window.location.origin}/${path}/${post._id}`;
-      
-      navigator.clipboard.writeText(url);
+    const isVid =
+      post.mediaType?.startsWith("video") ||
+      post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
+    const url = `${window.location.origin}/${isVid ? "shorts" : "post"}/${post._id}`;
+    navigator.clipboard.writeText(url).then(() => {
       setCopiedPostId(post._id);
+      toast.success("Link copied!");
       setTimeout(() => setCopiedPostId(null), 2500);
-      toast.success("Link copied to clipboard ✨");
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
+    });
   };
 
+  // ── Render post ───────────────────────────────────────────────────────────
   const renderPost = useCallback(
-    (post, index) => {
-      const isExpanded = expandedPosts[post._id];
-      const isVideo =
+    (post, idx) => {
+      const expanded = expandedPosts[post._id];
+      const isVid =
         post.mediaType?.startsWith("video") ||
         post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
       const title = post.title || "";
-      const titleText = isExpanded
-        ? title
-        : title.slice(0, 95) + (title.length > 95 ? "..." : "");
+      const displayTitle =
+        expanded ? title : title.slice(0, 90) + (title.length > 90 ? "…" : "");
+      const liked = hasLiked(post);
 
       return (
         <article
           key={post._id}
           data-postid={post._id}
-          className="feed-post-item bg-white w-full max-w-[550px] mx-auto mb-4 sm:mb-8 sm:rounded-2xl overflow-hidden border-y sm:border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02),0_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.04)] transition-all duration-300"
+          className="fp-post-item w-full max-w-[560px] mx-auto mb-4 sm:mb-6 bg-white border-y sm:border border-black/[0.06] sm:rounded-2xl overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.07)] transition-shadow duration-300"
         >
-          {/* HEADER */}
-          <div className="flex items-center justify-between px-4 py-3 h-14">
-            <div className="flex items-center gap-3">
-              <Link href={`/profile/${post.userId?.username}`} className="relative group">
-                <div className="w-9 h-9 rounded-full p-[1.5px] bg-slate-100 hover:scale-105 transition-transform">
-                  <img
-                    src={post.userId?.profilePic || "/Fondpeace.jpg"}
-                    alt="profile"
-                    className="w-full h-full rounded-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              </Link>
-              <Link href={`/profile/${post.userId?.username}`} className="flex flex-col">
-                <span className="text-[13.5px] font-bold text-slate-900 hover:text-blue-600 transition-colors leading-none">
-                  {post.userId?.username || "Unknown"}
-                </span>
-                <span className="text-[10px] text-slate-400 mt-1 font-medium">
-                  {new Date(post.createdAt).toLocaleDateString()}
-                </span>
-              </Link>
-            </div>
-            <button
-              onClick={() => toast("Feature launching soon 🚀")}
-              className="text-slate-400 hover:text-slate-900 p-1.5 rounded-full hover:bg-slate-50 transition"
+          {/* ── Header ── */}
+          <div className="flex items-center justify-between px-4 h-[54px] border-b border-black/[0.04]">
+            <Link
+              href={`/profile/${post.userId?.username}`}
+              className="flex items-center gap-2.5 group min-w-0"
             >
-              <span className="text-sm tracking-wider font-black">•••</span>
+              <div className="relative shrink-0 w-8 h-8 rounded-full overflow-hidden ring-2 ring-offset-1 ring-blue-400/40">
+                <img
+                  src={post.userId?.profilePic || "/Fondpeace.jpg"}
+                  alt={post.userId?.username}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[13px] font-bold text-gray-950 group-hover:text-blue-600 transition-colors truncate leading-tight">
+                  {post.userId?.username || "User"}
+                </span>
+                <span className="text-[10.5px] text-gray-400 font-medium">
+                  {new Date(post.createdAt).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+            </Link>
+            <button
+              onClick={() => toast("Coming soon")}
+              className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-800 hover:bg-black/[0.05] transition-all shrink-0"
+            >
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor">
+                <circle cx="5" cy="12" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="19" cy="12" r="2" />
+              </svg>
             </button>
           </div>
 
-          {/* MEDIA CONTENT ROW */}
+          {/* ── Media ── */}
           {post.media && (
-            <div className="relative w-full bg-slate-950 flex items-center justify-center overflow-hidden aspect-[4/5]">
+            <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
               <Link
-                href={isVideo ? `/shorts/${post._id}` : `/post/${post._id}`}
-                className="w-full h-full flex items-center justify-center"
+                href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
+                className="block w-full h-full"
               >
-                {isVideo ? (
+                {isVid ? (
                   <video
-                    ref={(ref) => (videoRefs.current[post._id] = ref)}
+                    ref={(r) => (videoRefs.current[post._id] = r)}
                     src={post.media}
                     loop
                     playsInline
                     muted={mutedMap[post._id] !== false}
                     preload="metadata"
                     poster={post.thumbnail || post.image}
-                    className="w-full h-full object-cover block mx-auto"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <img
                     src={post.media}
-                    alt={post.title}
-                    className="w-full h-full object-contain block mx-auto transition-transform duration-500 hover:scale-[1.02]"
+                    alt={title}
+                    className="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.015]"
                     loading="lazy"
                   />
                 )}
               </Link>
 
-              {isVideo && (
+              {isVid && (
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     toggleMute(post._id);
                   }}
-                  className="absolute bottom-4 right-4 bg-slate-900/60 text-white p-2.5 rounded-full backdrop-blur-md hover:bg-slate-900/80 transition active:scale-90"
+                  className="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center bg-black/50 backdrop-blur-md text-white rounded-full hover:bg-black/70 active:scale-90 transition-all"
                 >
-                  {mutedMap[post._id] ? <FaVolumeMute size={13} /> : <FaVolumeUp size={13} />}
+                  {mutedMap[post._id] !== false ? (
+                    <FaVolumeMute size={11} />
+                  ) : (
+                    <FaVolumeUp size={11} />
+                  )}
                 </button>
               )}
             </div>
           )}
 
-          {/* INTERACTION SUITE */}
-          <div className="px-4 pt-3.5 pb-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-4.5">
-                {/* Like Action */}
+          {/* ── Actions + Caption ── */}
+          <div className="px-4 pt-3 pb-4">
+
+            {/* Action row */}
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center gap-4">
+
+                {/* Like */}
                 <button
-                  onClick={() => handleLikePost(post._id)}
-                  className="flex items-center gap-1.5 group transition"
+                  onClick={() => handleLike(post._id)}
+                  className="flex items-center gap-1.5 group"
                 >
-                  {hasLikedPost(post) ? (
-                    <FaHeart className="text-rose-500 text-[23px] scale-100 active:scale-125 transition-transform" />
+                  {liked ? (
+                    <FaHeart className="text-[22px] text-rose-500 scale-100 active:scale-125 transition-transform" />
                   ) : (
-                    <FaRegHeart className="text-[23px] text-slate-800 group-hover:text-rose-500 transition-colors" />
+                    <FaRegHeart className="text-[22px] text-gray-700 group-hover:text-rose-400 transition-colors" />
                   )}
-                  <span className="font-bold text-[13px] text-slate-700">
-                    {post.likes?.length || 0}
+                  <span className="text-[12.5px] font-semibold text-gray-600 tabular-nums">
+                    {post.likes?.length ?? 0}
                   </span>
                 </button>
 
-                {/* Comment Toggle */}
+                {/* Comment */}
                 <button
                   onClick={() =>
                     setCommentBoxOpen((p) => ({
@@ -389,93 +373,96 @@ export default function RelatedPosts() {
                       [post._id]: !commentBoxOpen[post._id],
                     }))
                   }
-                  className="flex items-center gap-1.5 group transition"
+                  className="flex items-center gap-1.5 group"
                 >
-                  <FaCommentDots className="text-[22px] text-slate-800 group-hover:text-blue-500 transition-colors" />
-                  <span className="font-bold text-[13px] text-slate-700">
-                    {post.comments?.length || 0}
+                  <FaCommentDots className="text-[21px] text-gray-700 group-hover:text-blue-500 transition-colors" />
+                  <span className="text-[12.5px] font-semibold text-gray-600 tabular-nums">
+                    {post.comments?.length ?? 0}
                   </span>
                 </button>
 
-                {/* Share Link Action */}
+                {/* Share */}
                 <div className="relative">
                   <button
                     onClick={() => handleShare(post)}
-                    className="flex items-center text-slate-800 hover:text-emerald-500 transition-colors"
+                    className="group"
                   >
-                    <FaShareAlt className="text-[20px]" />
+                    <FaShareAlt className="text-[19px] text-gray-700 group-hover:text-emerald-500 transition-colors" />
                   </button>
                   {copiedPostId === post._id && (
-                    <span className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded-md shadow-md whitespace-nowrap font-medium animate-bounce">
+                    <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg shadow-xl whitespace-nowrap z-10">
                       Copied!
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Minimal Metric Counter */}
-              <div className="flex items-center gap-1 text-slate-400 font-medium text-xs">
-                <FaEye size={13} />
-                <span>{post.views?.toLocaleString() || 0} views</span>
+              {/* Views */}
+              <div className="flex items-center gap-1.5 text-gray-400">
+                <FaEye size={12} />
+                <span className="text-[11.5px] font-medium tabular-nums">
+                  {(post.views ?? 0).toLocaleString()}
+                </span>
               </div>
             </div>
 
-            {/* Structured Caption Layout */}
-            <div className="space-y-2">
-              <div className="text-[14px] text-slate-800 leading-normal">
-                <span className="font-bold text-slate-900 mr-2 hover:underline cursor-pointer">
-                  {post.userId?.username}
-                </span>
-                <span className="whitespace-pre-wrap text-slate-700">{titleText}</span>
-                {title.length > 95 && (
-                  <button
-                    onClick={() =>
-                      setExpandedPosts((p) => ({
-                        ...p,
-                        [post._id]: !isExpanded,
-                      }))
-                    }
-                    className="text-blue-600 font-semibold text-xs ml-1 hover:underline"
-                  >
-                    {isExpanded ? "less" : "more"}
-                  </button>
-                )}
-              </div>
-
-              {/* Comment Thread Toggle Header */}
-              {post.comments?.length > 0 && !commentBoxOpen[post._id] && (
+            {/* Caption */}
+            <div className="text-[13.5px] text-gray-800 leading-snug">
+              <Link
+                href={`/profile/${post.userId?.username}`}
+                className="font-bold text-gray-950 mr-1.5 hover:underline underline-offset-2"
+              >
+                {post.userId?.username}
+              </Link>
+              <span className="whitespace-pre-wrap">{displayTitle}</span>
+              {title.length > 90 && (
                 <button
                   onClick={() =>
-                    setCommentBoxOpen((p) => ({ ...p, [post._id]: true }))
+                    setExpandedPosts((p) => ({
+                      ...p,
+                      [post._id]: !expanded,
+                    }))
                   }
-                  className="text-xs text-slate-400 hover:text-slate-600 transition font-semibold block"
+                  className="text-blue-500 font-semibold text-[12px] ml-1 hover:underline"
                 >
-                  View all {post.comments.length} comments
+                  {expanded ? "less" : "more"}
                 </button>
               )}
             </div>
 
-            {/* Comment Drawer Section */}
+            {/* Comment count link */}
+            {post.comments?.length > 0 && !commentBoxOpen[post._id] && (
+              <button
+                onClick={() =>
+                  setCommentBoxOpen((p) => ({ ...p, [post._id]: true }))
+                }
+                className="mt-1.5 text-[11.5px] text-gray-400 font-medium hover:text-gray-600 transition-colors block"
+              >
+                View all {post.comments.length} comments
+              </button>
+            )}
+
+            {/* Comment drawer */}
             {commentBoxOpen[post._id] && (
-              <div className="mt-3.5 pt-3.5 border-t border-slate-100/70">
-                <div className="space-y-2.5 mb-3.5 max-h-40 overflow-y-auto pr-1">
-                  {post.comments?.map((cmt, i) => (
-                    <div key={i} className="flex gap-2 text-[13px] items-start">
-                      <span className="font-bold text-slate-900 whitespace-nowrap">
-                        {cmt?.userId?.username || "User"}
+              <div className="mt-3 pt-3 border-t border-black/[0.05]">
+                {/* Comments list */}
+                <div className="space-y-2 mb-3 max-h-36 overflow-y-auto pr-1 scrollbar-thin">
+                  {post.comments?.map((c, i) => (
+                    <div key={i} className="flex gap-2 text-[12.5px]">
+                      <span className="font-bold text-gray-900 shrink-0">
+                        {c?.userId?.username || "User"}
                       </span>
-                      <span className="text-slate-600 leading-normal">
-                        {cmt?.CommentText}
+                      <span className="text-gray-600 leading-snug">
+                        {c?.CommentText}
                       </span>
                     </div>
                   ))}
                 </div>
-
-                {/* Inline Sticky Adding Field */}
-                <div className="flex items-center gap-2 mt-2 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                {/* Input */}
+                <div className="flex items-center gap-2 bg-gray-50 border border-black/[0.08] rounded-xl px-3 py-2 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
                   <input
                     type="text"
-                    placeholder="Write a response..."
+                    placeholder="Add a comment…"
                     value={commentTextMap[post._id] || ""}
                     onChange={(e) =>
                       setCommentTextMap((p) => ({
@@ -483,14 +470,17 @@ export default function RelatedPosts() {
                         [post._id]: e.target.value,
                       }))
                     }
-                    className="flex-1 text-xs bg-transparent outline-none text-slate-800 placeholder-slate-400"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleComment(post._id);
+                    }}
+                    className="flex-1 text-[12.5px] bg-transparent outline-none text-gray-900 placeholder-gray-400"
                   />
                   <button
                     onClick={() => handleComment(post._id)}
                     disabled={!commentTextMap[post._id]?.trim()}
-                    className="text-blue-600 text-xs font-bold disabled:opacity-20 hover:text-blue-700 transition"
+                    className="text-blue-500 text-[12px] font-bold disabled:opacity-25 hover:text-blue-700 transition shrink-0"
                   >
-                    Publish
+                    Post
                   </button>
                 </div>
               </div>
@@ -499,12 +489,21 @@ export default function RelatedPosts() {
         </article>
       );
     },
-    [commentTextMap, commentBoxOpen, expandedPosts, userId, mutedMap, copiedPostId]
+    [
+      commentTextMap,
+      commentBoxOpen,
+      expandedPosts,
+      userId,
+      mutedMap,
+      copiedPostId,
+      hasLiked,
+    ]
   );
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="w-full max-w-2xl mx-auto px-0 sm:px-4">
-      {/* Initial Array Loading State - Replaced spinner with shimmers */}
+      {/* Initial skeletons */}
       {initialLoad && loading && (
         <div className="space-y-4">
           <PostSkeleton />
@@ -512,55 +511,630 @@ export default function RelatedPosts() {
         </div>
       )}
 
-      {/* Render Dynamic Feed */}
-      {!initialLoad && posts && posts.length > 0 ? (
+      {/* Feed */}
+      {!initialLoad && posts.length > 0 && (
         <>
-          {posts.map((post, idx) => {
-            const isLast = idx === posts.length - 1;
-            return (
-              <div
-                key={post._id}
-                ref={(node) => {
-                  if (isLast) lastPostRef(node);
-                }}
-              >
-                {renderPost(post, idx)}
-              </div>
-            );
-          })}
-
-          {/* Pagination Shimmer Row */}
-          {loading && !initialLoad && (
-            <div className="py-4">
-              <PostSkeleton />
+          {posts.map((post, idx) => (
+            <div
+              key={post._id}
+              ref={idx === posts.length - 1 ? lastPostRef : undefined}
+            >
+              {renderPost(post, idx)}
             </div>
-          )}
+          ))}
 
-          {/* Terminal End of Content Section */}
-          {!hasMore && posts.length > 0 && (
-            <div className="text-center py-14 px-4 border-t border-slate-100 mt-8">
-              <p className="font-bold text-slate-800 text-[15px]">You're caught up completely 🎉</p>
-              <p className="text-xs text-slate-400 mt-1">Check back later for fresh updates</p>
-              <Link href="/" className="text-xs text-blue-600 font-bold hover:underline mt-3 block">
-                Return to home catalog →
+          {/* Pagination skeleton */}
+          {loading && <PostSkeleton />}
+
+          {/* End of feed */}
+          {!hasMore && (
+            <div className="text-center py-12 px-4 border-t border-black/[0.05] mt-6">
+              <p className="text-[15px] font-bold text-gray-800">
+                You&apos;re all caught up 🎉
+              </p>
+              <p className="text-[12px] text-gray-400 mt-1">
+                Check back later for new posts
+              </p>
+              <Link
+                href="/"
+                className="inline-block mt-4 text-[12px] font-semibold text-blue-500 hover:underline"
+              >
+                Back to home →
               </Link>
             </div>
           )}
         </>
-      ) : (
-        !initialLoad &&
-        !loading && (
-          <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-            <p className="text-slate-400 font-medium text-sm mb-3">No matching feed items right now</p>
-            <Link href="/" className="text-xs bg-slate-900 text-white font-semibold px-4 py-2 rounded-xl hover:bg-slate-800 transition">
-              Go back home
-            </Link>
-          </div>
-        )
+      )}
+
+      {/* Empty state */}
+      {!initialLoad && !loading && posts.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <p className="text-[14px] text-gray-400 font-medium mb-4">
+            Nothing to show right now
+          </p>
+          <Link
+            href="/"
+            className="text-[12.5px] bg-gray-950 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-800 transition"
+          >
+            Go home
+          </Link>
+        </div>
       )}
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+// "use client";
+
+// import React, { useCallback, useEffect, useRef, useState } from "react";
+// import { useRouter } from "next/navigation";
+// import axios from "axios";
+// import Link from "next/link";
+// import jwt from "jsonwebtoken";
+// import toast from "react-hot-toast";
+// import {
+//   FaHeart,
+//   FaRegHeart,
+//   FaCommentDots,
+//   FaShareAlt,
+//   FaEye,
+//   FaVolumeMute,
+//   FaVolumeUp,
+// } from "react-icons/fa";
+
+// // Elegant Shimmer Skeleton Loader Component
+// const PostSkeleton = () => (
+//   <div className="w-full max-w-[550px] mx-auto mb-6 bg-white border border-slate-100 sm:rounded-2xl p-4 animate-pulse">
+//     <div className="flex items-center gap-3 mb-4">
+//       <div className="w-10 h-10 bg-slate-200 rounded-full" />
+//       <div className="flex-1 space-y-2">
+//         <div className="h-3.5 bg-slate-200 rounded w-1/3" />
+//         <div className="h-2.5 bg-slate-200 rounded w-1/4" />
+//       </div>
+//     </div>
+//     <div className="w-full aspect-[4/5] bg-slate-200 rounded-xl mb-4" />
+//     <div className="h-4 bg-slate-200 rounded w-3/4 mb-2" />
+//     <div className="h-4 bg-slate-200 rounded w-1/2" />
+//   </div>
+// );
+
+// export default function RelatedPosts() {
+//   const [posts, setPosts] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [hasMore, setHasMore] = useState(true);
+//   const [loading, setLoading] = useState(false);
+//   const [initialLoad, setInitialLoad] = useState(true);
+
+//   const observerRef = useRef(null);
+//   const viewObserver = useRef(null);
+//   const videoRefs = useRef({});
+//   const viewedPosts = useRef(new Set());
+
+//   const [commentTextMap, setCommentTextMap] = useState({});
+//   const [commentBoxOpen, setCommentBoxOpen] = useState({});
+//   const [expandedPosts, setExpandedPosts] = useState({});
+//   const [userId, setUserId] = useState(null);
+//   const [mutedMap, setMutedMap] = useState({});
+//   const [copiedPostId, setCopiedPostId] = useState(null);
+
+//   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-k.vercel.app";
+
+//   // Decode User Authentication Status
+//   useEffect(() => {
+//     const token = localStorage.getItem("token");
+//     if (!token) return;
+//     try {
+//       const decoded = jwt.decode(token);
+//       if (decoded && decoded.exp * 1000 > Date.now()) {
+//         setUserId(decoded.UserId);
+//       }
+//     } catch (e) {
+//       console.error("Token error");
+//     }
+//   }, []);
+
+//   // Fetch Page 1 Data
+//   useEffect(() => {
+//     if (!initialLoad) return;
+//     setLoading(true);
+//     setInitialLoad(false);
+
+//     axios
+//       .get(`${API_BASE}/post/related/mango/getall?page=1`)
+//       .then((res) => {
+//         const data = res.data;
+//         if (!Array.isArray(data) || data.length === 0) {
+//           setHasMore(false);
+//           setPosts([]);
+//         } else {
+//           setPosts(data);
+//           setHasMore(true);
+//           setPage(1);
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching posts:", error);
+//         toast.error("Failed to load feed pipeline");
+//         setHasMore(false);
+//       })
+//       .finally(() => {
+//         setLoading(false);
+//       });
+//   }, []);
+
+//   // Fetch Next Pages
+//   useEffect(() => {
+//     if (page === 1 || !hasMore || loading) return;
+//     setLoading(true);
+
+//     axios
+//       .get(`${API_BASE}/post/related/mango/getall?page=${page}`)
+//       .then((res) => {
+//         const data = res.data;
+//         if (!Array.isArray(data) || data.length === 0) {
+//           setHasMore(false);
+//         } else {
+//           setPosts((prev) => [...prev, ...data]);
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching next page:", error);
+//         setHasMore(false);
+//       })
+//       .finally(() => {
+//         setLoading(false);
+//       });
+//   }, [page]);
+
+//   const increaseView = useCallback((postId) => {
+//     if (viewedPosts.current.has(postId)) return;
+//     viewedPosts.current.add(postId);
+//     axios.post(`${API_BASE}/analytics/view`, { postId }).catch(() => {});
+//   }, [API_BASE]);
+
+//   // View Tracker Observer - Syncs routing links, autoplays, and metadata document titles
+//   useEffect(() => {
+//     viewObserver.current = new IntersectionObserver(
+//       (entries) => {
+//         entries.forEach((entry) => {
+//           if (entry.isIntersecting) {
+//             const postId = entry.target.dataset.postid;
+//             if (postId) {
+//               increaseView(postId);
+
+//               const post = posts.find((p) => p._id === postId);
+//               if (post) {
+//                 const isVideo =
+//                   post.mediaType?.startsWith("video") ||
+//                   post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
+//                 const path = isVideo ? "shorts" : "post";
+
+//                 // Silent Routing URL Switch
+//                 window.history.replaceState(null, "", `/${path}/${postId}`);
+
+//                 // CRITICAL FIX: Update document metadata dynamically when page content focus changes
+//                 if (post.title) {
+//                   document.title = `${post.title}`;
+//                 }
+//               }
+
+//               const video = videoRefs.current[postId];
+//               if (video) video.play().catch(() => {});
+//             }
+//           } else {
+//             const postId = entry.target.dataset.postid;
+//             const video = videoRefs.current[postId];
+//             if (video) video.pause();
+//           }
+//         });
+//       },
+//       { threshold: 0.6 }
+//     );
+
+//     return () => viewObserver.current?.disconnect();
+//   }, [increaseView, posts]);
+
+//   useEffect(() => {
+//     const elements = document.querySelectorAll(".feed-post-item");
+//     elements.forEach((el) => {
+//       if (viewObserver.current) viewObserver.current.observe(el);
+//     });
+//     return () => {
+//       elements.forEach((el) => {
+//         if (viewObserver.current) viewObserver.current.unobserve(el);
+//       });
+//     };
+//   }, [posts]);
+
+//   const lastPostRef = useCallback(
+//     (node) => {
+//       if (!hasMore || loading) return;
+//       if (observerRef.current) observerRef.current.disconnect();
+
+//       observerRef.current = new IntersectionObserver((entries) => {
+//         if (entries[0].isIntersecting) {
+//           setPage((prev) => prev + 1);
+//         }
+//       });
+//       if (node) observerRef.current.observe(node);
+//     },
+//     [hasMore, loading]
+//   );
+
+//   const hasLikedPost = useCallback(
+//     (post) => {
+//       if (!userId || !Array.isArray(post.likes)) return false;
+//       return post.likes.some((id) => id?.toString() === userId.toString());
+//     },
+//     [userId]
+//   );
+
+//   const handleLikePost = async (postId) => {
+//     const token = localStorage.getItem("token");
+//     if (!token) {
+//       toast.error("Please log in to leave interactions");
+//       return;
+//     }
+//     try {
+//       const res = await axios.post(
+//         `${API_BASE}/post/like/${postId}`,
+//         {},
+//         { headers: { "x-auth-token": token } }
+//       );
+//       setPosts((prev) =>
+//         prev.map((p) =>
+//           p._id === postId ? { ...p, likes: res.data.likes } : p
+//         )
+//       );
+//     } catch (err) {
+//       toast.error("Action error, try again");
+//     }
+//   };
+
+//   const handleComment = async (postId) => {
+//     const token = localStorage.getItem("token");
+//     const comment = commentTextMap[postId]?.trim();
+//     if (!token || !comment) return;
+
+//     try {
+//       const res = await axios.post(
+//         `${API_BASE}/post/comment/${postId}`,
+//         { CommentText: comment, userId },
+//         { headers: { "x-auth-token": token } }
+//       );
+//       setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
+//       setPosts((prev) =>
+//         prev.map((p) =>
+//           p._id === postId ? { ...p, comments: res.data.comments } : p
+//         )
+//       );
+//       toast.success("Comment published 💬");
+//     } catch {
+//       toast.error("Could not post comment");
+//     }
+//   };
+
+//   const toggleMute = (postId) => {
+//     const video = videoRefs.current[postId];
+//     if (video) {
+//       video.muted = !video.muted;
+//       setMutedMap((prev) => ({ ...prev, [postId]: video.muted }));
+//     }
+//   };
+
+//   const handleShare = (post) => {
+//     try {
+//       const isVideo =
+//         post.mediaType?.startsWith("video") ||
+//         post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
+//       const path = isVideo ? "shorts" : "post";
+//       const url = `${window.location.origin}/${path}/${post._id}`;
+      
+//       navigator.clipboard.writeText(url);
+//       setCopiedPostId(post._id);
+//       setTimeout(() => setCopiedPostId(null), 2500);
+//       toast.success("Link copied to clipboard ✨");
+//     } catch (err) {
+//       console.error("Failed to copy:", err);
+//     }
+//   };
+
+//   const renderPost = useCallback(
+//     (post, index) => {
+//       const isExpanded = expandedPosts[post._id];
+//       const isVideo =
+//         post.mediaType?.startsWith("video") ||
+//         post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
+//       const title = post.title || "";
+//       const titleText = isExpanded
+//         ? title
+//         : title.slice(0, 95) + (title.length > 95 ? "..." : "");
+
+//       return (
+//         <article
+//           key={post._id}
+//           data-postid={post._id}
+//           className="feed-post-item bg-white w-full max-w-[550px] mx-auto mb-4 sm:mb-8 sm:rounded-2xl overflow-hidden border-y sm:border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02),0_4px_16px_rgba(0,0,0,0.01)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.04)] transition-all duration-300"
+//         >
+//           {/* HEADER */}
+//           <div className="flex items-center justify-between px-4 py-3 h-14">
+//             <div className="flex items-center gap-3">
+//               <Link href={`/profile/${post.userId?.username}`} className="relative group">
+//                 <div className="w-9 h-9 rounded-full p-[1.5px] bg-slate-100 hover:scale-105 transition-transform">
+//                   <img
+//                     src={post.userId?.profilePic || "/Fondpeace.jpg"}
+//                     alt="profile"
+//                     className="w-full h-full rounded-full object-cover"
+//                     loading="lazy"
+//                   />
+//                 </div>
+//               </Link>
+//               <Link href={`/profile/${post.userId?.username}`} className="flex flex-col">
+//                 <span className="text-[13.5px] font-bold text-slate-900 hover:text-blue-600 transition-colors leading-none">
+//                   {post.userId?.username || "Unknown"}
+//                 </span>
+//                 <span className="text-[10px] text-slate-400 mt-1 font-medium">
+//                   {new Date(post.createdAt).toLocaleDateString()}
+//                 </span>
+//               </Link>
+//             </div>
+//             <button
+//               onClick={() => toast("Feature launching soon 🚀")}
+//               className="text-slate-400 hover:text-slate-900 p-1.5 rounded-full hover:bg-slate-50 transition"
+//             >
+//               <span className="text-sm tracking-wider font-black">•••</span>
+//             </button>
+//           </div>
+
+//           {/* MEDIA CONTENT ROW */}
+//           {post.media && (
+//             <div className="relative w-full bg-slate-950 flex items-center justify-center overflow-hidden aspect-[4/5]">
+//               <Link
+//                 href={isVideo ? `/shorts/${post._id}` : `/post/${post._id}`}
+//                 className="w-full h-full flex items-center justify-center"
+//               >
+//                 {isVideo ? (
+//                   <video
+//                     ref={(ref) => (videoRefs.current[post._id] = ref)}
+//                     src={post.media}
+//                     loop
+//                     playsInline
+//                     muted={mutedMap[post._id] !== false}
+//                     preload="metadata"
+//                     poster={post.thumbnail || post.image}
+//                     className="w-full h-full object-cover block mx-auto"
+//                   />
+//                 ) : (
+//                   <img
+//                     src={post.media}
+//                     alt={post.title}
+//                     className="w-full h-full object-contain block mx-auto transition-transform duration-500 hover:scale-[1.02]"
+//                     loading="lazy"
+//                   />
+//                 )}
+//               </Link>
+
+//               {isVideo && (
+//                 <button
+//                   onClick={(e) => {
+//                     e.preventDefault();
+//                     toggleMute(post._id);
+//                   }}
+//                   className="absolute bottom-4 right-4 bg-slate-900/60 text-white p-2.5 rounded-full backdrop-blur-md hover:bg-slate-900/80 transition active:scale-90"
+//                 >
+//                   {mutedMap[post._id] ? <FaVolumeMute size={13} /> : <FaVolumeUp size={13} />}
+//                 </button>
+//               )}
+//             </div>
+//           )}
+
+//           {/* INTERACTION SUITE */}
+//           <div className="px-4 pt-3.5 pb-4">
+//             <div className="flex items-center justify-between mb-3">
+//               <div className="flex items-center gap-4.5">
+//                 {/* Like Action */}
+//                 <button
+//                   onClick={() => handleLikePost(post._id)}
+//                   className="flex items-center gap-1.5 group transition"
+//                 >
+//                   {hasLikedPost(post) ? (
+//                     <FaHeart className="text-rose-500 text-[23px] scale-100 active:scale-125 transition-transform" />
+//                   ) : (
+//                     <FaRegHeart className="text-[23px] text-slate-800 group-hover:text-rose-500 transition-colors" />
+//                   )}
+//                   <span className="font-bold text-[13px] text-slate-700">
+//                     {post.likes?.length || 0}
+//                   </span>
+//                 </button>
+
+//                 {/* Comment Toggle */}
+//                 <button
+//                   onClick={() =>
+//                     setCommentBoxOpen((p) => ({
+//                       ...p,
+//                       [post._id]: !commentBoxOpen[post._id],
+//                     }))
+//                   }
+//                   className="flex items-center gap-1.5 group transition"
+//                 >
+//                   <FaCommentDots className="text-[22px] text-slate-800 group-hover:text-blue-500 transition-colors" />
+//                   <span className="font-bold text-[13px] text-slate-700">
+//                     {post.comments?.length || 0}
+//                   </span>
+//                 </button>
+
+//                 {/* Share Link Action */}
+//                 <div className="relative">
+//                   <button
+//                     onClick={() => handleShare(post)}
+//                     className="flex items-center text-slate-800 hover:text-emerald-500 transition-colors"
+//                   >
+//                     <FaShareAlt className="text-[20px]" />
+//                   </button>
+//                   {copiedPostId === post._id && (
+//                     <span className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded-md shadow-md whitespace-nowrap font-medium animate-bounce">
+//                       Copied!
+//                     </span>
+//                   )}
+//                 </div>
+//               </div>
+
+//               {/* Minimal Metric Counter */}
+//               <div className="flex items-center gap-1 text-slate-400 font-medium text-xs">
+//                 <FaEye size={13} />
+//                 <span>{post.views?.toLocaleString() || 0} views</span>
+//               </div>
+//             </div>
+
+//             {/* Structured Caption Layout */}
+//             <div className="space-y-2">
+//               <div className="text-[14px] text-slate-800 leading-normal">
+//                 <span className="font-bold text-slate-900 mr-2 hover:underline cursor-pointer">
+//                   {post.userId?.username}
+//                 </span>
+//                 <span className="whitespace-pre-wrap text-slate-700">{titleText}</span>
+//                 {title.length > 95 && (
+//                   <button
+//                     onClick={() =>
+//                       setExpandedPosts((p) => ({
+//                         ...p,
+//                         [post._id]: !isExpanded,
+//                       }))
+//                     }
+//                     className="text-blue-600 font-semibold text-xs ml-1 hover:underline"
+//                   >
+//                     {isExpanded ? "less" : "more"}
+//                   </button>
+//                 )}
+//               </div>
+
+//               {/* Comment Thread Toggle Header */}
+//               {post.comments?.length > 0 && !commentBoxOpen[post._id] && (
+//                 <button
+//                   onClick={() =>
+//                     setCommentBoxOpen((p) => ({ ...p, [post._id]: true }))
+//                   }
+//                   className="text-xs text-slate-400 hover:text-slate-600 transition font-semibold block"
+//                 >
+//                   View all {post.comments.length} comments
+//                 </button>
+//               )}
+//             </div>
+
+//             {/* Comment Drawer Section */}
+//             {commentBoxOpen[post._id] && (
+//               <div className="mt-3.5 pt-3.5 border-t border-slate-100/70">
+//                 <div className="space-y-2.5 mb-3.5 max-h-40 overflow-y-auto pr-1">
+//                   {post.comments?.map((cmt, i) => (
+//                     <div key={i} className="flex gap-2 text-[13px] items-start">
+//                       <span className="font-bold text-slate-900 whitespace-nowrap">
+//                         {cmt?.userId?.username || "User"}
+//                       </span>
+//                       <span className="text-slate-600 leading-normal">
+//                         {cmt?.CommentText}
+//                       </span>
+//                     </div>
+//                   ))}
+//                 </div>
+
+//                 {/* Inline Sticky Adding Field */}
+//                 <div className="flex items-center gap-2 mt-2 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+//                   <input
+//                     type="text"
+//                     placeholder="Write a response..."
+//                     value={commentTextMap[post._id] || ""}
+//                     onChange={(e) =>
+//                       setCommentTextMap((p) => ({
+//                         ...p,
+//                         [post._id]: e.target.value,
+//                       }))
+//                     }
+//                     className="flex-1 text-xs bg-transparent outline-none text-slate-800 placeholder-slate-400"
+//                   />
+//                   <button
+//                     onClick={() => handleComment(post._id)}
+//                     disabled={!commentTextMap[post._id]?.trim()}
+//                     className="text-blue-600 text-xs font-bold disabled:opacity-20 hover:text-blue-700 transition"
+//                   >
+//                     Publish
+//                   </button>
+//                 </div>
+//               </div>
+//             )}
+//           </div>
+//         </article>
+//       );
+//     },
+//     [commentTextMap, commentBoxOpen, expandedPosts, userId, mutedMap, copiedPostId]
+//   );
+
+//   return (
+//     <div className="w-full max-w-2xl mx-auto px-0 sm:px-4">
+//       {/* Initial Array Loading State - Replaced spinner with shimmers */}
+//       {initialLoad && loading && (
+//         <div className="space-y-4">
+//           <PostSkeleton />
+//           <PostSkeleton />
+//         </div>
+//       )}
+
+//       {/* Render Dynamic Feed */}
+//       {!initialLoad && posts && posts.length > 0 ? (
+//         <>
+//           {posts.map((post, idx) => {
+//             const isLast = idx === posts.length - 1;
+//             return (
+//               <div
+//                 key={post._id}
+//                 ref={(node) => {
+//                   if (isLast) lastPostRef(node);
+//                 }}
+//               >
+//                 {renderPost(post, idx)}
+//               </div>
+//             );
+//           })}
+
+//           {/* Pagination Shimmer Row */}
+//           {loading && !initialLoad && (
+//             <div className="py-4">
+//               <PostSkeleton />
+//             </div>
+//           )}
+
+//           {/* Terminal End of Content Section */}
+//           {!hasMore && posts.length > 0 && (
+//             <div className="text-center py-14 px-4 border-t border-slate-100 mt-8">
+//               <p className="font-bold text-slate-800 text-[15px]">You're caught up completely 🎉</p>
+//               <p className="text-xs text-slate-400 mt-1">Check back later for fresh updates</p>
+//               <Link href="/" className="text-xs text-blue-600 font-bold hover:underline mt-3 block">
+//                 Return to home catalog →
+//               </Link>
+//             </div>
+//           )}
+//         </>
+//       ) : (
+//         !initialLoad &&
+//         !loading && (
+//           <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+//             <p className="text-slate-400 font-medium text-sm mb-3">No matching feed items right now</p>
+//             <Link href="/" className="text-xs bg-slate-900 text-white font-semibold px-4 py-2 rounded-xl hover:bg-slate-800 transition">
+//               Go back home
+//             </Link>
+//           </div>
+//         )
+//       )}
+//     </div>
+//   );
+// }
 
 
 
