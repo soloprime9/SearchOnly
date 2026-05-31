@@ -74,7 +74,7 @@ export default function RelatedPosts() {
     setInitialLoad(false);
 
     axios
-      .get(`${API_BASE}/post/mango/getall?page=1`)
+      .get(`${API_BASE}/post/related/mango/getall?page=1`)
       .then((res) => {
         const data = res.data;
         if (!Array.isArray(data) || data.length === 0) {
@@ -102,7 +102,7 @@ export default function RelatedPosts() {
     setLoading(true);
 
     axios
-      .get(`${API_BASE}/post/mango/getall?page=${page}`)
+      .get(`${API_BASE}/post/related/mango/getall?page=${page}`)
       .then((res) => {
         const data = res.data;
         if (!Array.isArray(data) || data.length === 0) {
