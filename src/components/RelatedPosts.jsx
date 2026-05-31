@@ -336,7 +336,7 @@ export default function RelatedPosts() {
                     muted={mutedMap[post._id] !== false}
                     preload="metadata"
                     poster={post.thumbnail || post.image}
-                    className="w-full h-full object-contain block mx-auto"
+                    className="w-full h-full object-cover block mx-auto"
                   />
                 ) : (
                   <img
