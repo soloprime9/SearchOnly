@@ -10,6 +10,8 @@
 import SinglePostPage from "@/components/SinglePostPage";
 import PostTitle from "@/components/PostTitle";
 import RelatedPosts from "@/components/RelatedPosts";
+ import LeftSidebar from "@//components/LeftSidebar"
+
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -655,7 +657,7 @@ const jsonLdRedditStyle = {
 
 return (
     <main className="w-full min-h-screen bg-[#f8f7f5]">
- 
+ <LeftSidebar/>
       {/* ── STICKY HEADER ── */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-black/[0.06]">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
