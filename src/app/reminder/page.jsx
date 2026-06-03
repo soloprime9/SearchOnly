@@ -45,7 +45,7 @@ function App() {
       setFormData({ title: '', description: '', dueDate: '', priority: 'medium', checklist: [] });
       setShowForm(false);
       fetchReminders();
-    } catch (err) { alert("Error saving reminder"); }
+    } catch (err) { console.log(err) }
   };
 
   const toggleChecklistItem = async (reminderId, itemId, isCompleted) => {
