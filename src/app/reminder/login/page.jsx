@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Bell, CheckCircle, Clock, Plus, LogOut, User as UserIcon } from 'lucide-react';
