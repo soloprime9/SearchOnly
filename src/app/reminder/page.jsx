@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
-const API_BASE = "http://localhost:3000/api/reminders";
+const API_BASE = "https://backend-k.vercel.app/api/reminders";
 const MOCK_USER_ID = "65f123abc456def789"; // Replace with real Auth ID
 
 function App() {
