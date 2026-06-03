@@ -32,6 +32,10 @@
     "recharts": "^2.15.0",
   "lucide-react": "^0.473.0",
   "clsx": "^2.1.1",
+    "@react-native-community/datetimepicker": "~8.3.0",
+    "axios": "^1.16.1",
+    "expo-location": "~18.0.7",
+    "expo-notifications": "~0.29.13",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
