@@ -20,17 +20,18 @@ const Profile = () => {
       if (decoded.exp * 1000 < Date.now()) localStorage.removeItem("token");
     } catch (err) {
       localStorage.removeItem("token");
-      return (window.location.href = "/login");
+      return;
+      // return (window.location.href = "/login");
     }
   }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
-      if (!token) {
-        setError("You must be logged in to view this profile.");
-        return;
-      }
+      // if (!token) {
+      //   setError("You must be logged in to view this profile.");
+      //   return;
+      // }
 
       const username = window.location.pathname.split("/").pop();
       const loggedUserId = JSON.parse(atob(token.split('.')[1])).UserId;
@@ -62,7 +63,9 @@ const Profile = () => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Login to follow users.");
 
-    const loggedUserId = JSON.parse(atob(token.split('.')[1])).UserId;
+    // const loggedUserId = JSON.parse(atob(token.split('.')[1])).UserId;
+    const loggedUserId = token ? JSON.parse(atob(token.split('.')[1])).UserId : null;
+
 
     try {
       setLoading(true);
