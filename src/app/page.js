@@ -133,7 +133,7 @@ export default async function HomePage() {
     <main className="min-h-screen w-full bg-gray-50 overflow-x-hidden">
 
      {/* ✅ SEO H1 (VERY IMPORTANT) */}
-  <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-black">
+  <h1 className="text-4xl md:text-6xl text-center justify-center font-extrabold tracking-tight text-black">
     FondPeace.com
   </h1>
 
