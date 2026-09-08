@@ -110,3 +110,8 @@ Let me know bro – **let’s make FondPeace the next Indian unicorn! 🚀**
 ✅ **Offer Payment & Monetization to All Users** — Let creators, users & learners earn through the platform.  
 ✅ **Build the #1 Free Online Tools Hub** — Calculators, converters, puzzles, trends & more, all in one place.  
 ✅ **Create a Digital World With No Limits** — Powered by AI, designed for growth, made for everyone.
+
+
+### 🚀 Open Source Projects I Contribute To:
+- ⚡ [**GitTrends Intelligence**](https://github.com/jastfan/github-trending) — Autonomous real-time tracker for GitHub's viral breakout repositories.
+
