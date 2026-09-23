@@ -4,11 +4,13 @@ import ReelInteractions from "./ReelInteractions";
 import React, { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+import { ShieldCheck, Music } from "lucide-react";
 import axios from "axios";
+import { getApiBase } from "@/utils/apiConfig";
 
-const ANALYTICS_API = "https://backend-k.vercel.app/analytics/view";
-
-const API_URL = "https://backend-k.vercel.app/post/shorts";
+const API_BASE = getApiBase();
+const ANALYTICS_API = `${API_BASE}/analytics/view`;
+const API_URL = `${API_BASE}/post/shorts`;
 const DEFAULT_THUMB = "/fondpeace.jpg";
 
 export default function ReelsFeed({ initialPost, initialRelated = [] }) {
@@ -46,7 +48,7 @@ const viewedPosts = useRef(new Set());
 
   if (id) {
     // change URL
-    window.history.replaceState(null, "", `/shorts/${id}`);
+    window.history.replaceState(null, "", `/short/${id}`);
 
     // ✅ CALL ANALYTICS ONLY ONCE
     if (!viewedPosts.current.has(id)) {
@@ -159,21 +161,40 @@ const viewedPosts = useRef(new Set());
 >
               {/* VIDEO */}
               <div
-                className="relative w-full h-full flex items-center justify-center"
+                className="relative w-full h-full flex items-center justify-center overflow-hidden"
                 onClick={toggleMute}
               >
+                {/* Ambient Diffused Glow */}
+                <div className="absolute -inset-10 bg-gradient-to-tr from-blue-600/20 via-purple-600/15 to-cyan-500/20 blur-3xl opacity-60 pointer-events-none" />
+
+                {/* Soft ambient blur backdrop */}
+                {(item.thumbnail || item.media) && (
+                  <img
+                    src={item.thumbnail || item.media}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-20 scale-125 pointer-events-none select-none"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                )}
+
                 <video
                   ref={(el) => (videoRefs.current[index] = el)}
                   src={item.media || item.mediaUrl}
-                  
+                  poster={
+                    item.thumbnail &&
+                    !item.thumbnail.includes("Fondpeace.jpg") &&
+                    !item.thumbnail.includes("default.jpg")
+                      ? item.thumbnail
+                      : undefined
+                  }
                   data-id={item._id}
                   autoPlay
                   loop
                   playsInline
                   muted={isMuted}
-                  preload="none"
-                className="h-full w-full max-w-[540px] object-cove mx-auto bg-black" 
-                  
+                  preload="metadata"
+                  className="relative z-10 h-full w-full max-w-[540px] object-cover mx-auto bg-black" 
                 />
 
                 {/* Volume Icon (only when clicked) */}
@@ -188,19 +209,35 @@ const viewedPosts = useRef(new Set());
                 )}
               </div>
 
-              {/* LEFT TEXT */}
-              <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
-                
-                <Link
-                  href={`/profile/${item.userId?.username}`}
-                  className="font-semibold hover:underline"
-                >
-                  @{item.userId?.username}
-                </Link>
-                
-                <p className="text-sm mt-1 line-clamp-2">
+              {/* Bottom Gradient Legibility Overlay */}
+              <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-black/95 via-black/45 to-transparent pointer-events-none z-10" />
+
+              {/* LEFT TEXT CONTENT */}
+              <div className="absolute left-4 bottom-20 text-white max-w-[75%] z-20">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <Link
+                    href={`/profile/${item.userId?.username}`}
+                    className="font-bold text-sm sm:text-base hover:underline flex items-center gap-1"
+                  >
+                    <span>@{item.userId?.username || "creator"}</span>
+                  </Link>
+                  {item.userId?.isVerified && (
+                    <ShieldCheck size={15} className="text-blue-400 fill-blue-400/20" title="Verified Creator" />
+                  )}
+                  {item.userId?.isEmailVerified && (
+                    <ShieldCheck size={14} className="text-emerald-400 fill-emerald-400/20" title="Email Verified" />
+                  )}
+                </div>
+
+                <p className="text-xs sm:text-sm mt-1.5 line-clamp-3 leading-snug drop-shadow-md">
                   {item.title}
                 </p>
+
+                {/* Audio Soundtrack Pill */}
+                <div className="flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[11px] text-gray-200 w-fit max-w-full">
+                  <Music size={12} className="shrink-0 text-white animate-pulse" />
+                  <span className="truncate">{item.userId?.username || "Original Audio"} • FondPeace Sound</span>
+                </div>
               </div>
 
               {/* RIGHT SIDE INTERACTIONS */}

@@ -14,16 +14,18 @@ import RelatedPosts from "@/components/RelatedPosts";
 
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-const API_BASE = "https://backend-k.vercel.app";
-const SITE_ROOT = "https://fondpeace.com";
-const DEFAULT_AVATAR = "https://fondpeace.com/Fondpeace.jpg";
+import { redirect, notFound, permanentRedirect } from "next/navigation";
+import { getApiBase } from "@/utils/apiConfig";
+const API_BASE = getApiBase();
+const SITE_ROOT = "https://www.fondpeace.com";
+const DEFAULT_AVATAR = "https://www.fondpeace.com/Fondpeace.jpg";
+const DEFAULT_THUMB = "https://www.fondpeace.com/Fondpeace.jpg";
 import Linkify from "linkify-react";
 
 
 const options = {
   target: "_blank",
-  rel: "noopener noreferrer nofollow", // ✅ SEO safe
+  rel: "noopener noreferrer nofollow", // . SEO safe
   className: "text-blue-600 hover:underline font-medium break-words",
 
   format: (value, type) => {
@@ -31,7 +33,7 @@ const options = {
       try {
         const url = new URL(value);
 
-        // ✅ clean domain (no www)
+        // . clean domain (no www)
         return url.hostname.replace("www.", "");
       } catch {
         return value;
@@ -40,7 +42,7 @@ const options = {
     return value;
   },
 
-  // ✅ optional: validate only real links
+  // . optional: validate only real links
   validate: {
     url: (value) => value.startsWith("http"),
   },
@@ -152,7 +154,9 @@ function extractKeywords(post) {
 
 /* ------------------------- generateMetadata ------------------------- */
 export async function generateMetadata({ params }) {
-  const id = params?.id;
+  const resolvedParams = await params;
+  const id = resolvedParams?.id;
+  if (!id) return { title: "Post | FondPeace" };
   const pageUrl = `${SITE_ROOT}/post/${id}`;
 
   try {
@@ -165,12 +169,31 @@ export async function generateMetadata({ params }) {
     const mediaUrl = toAbsolute(post.media || post.mediaUrl);
     const thumb = toAbsolute(post.thumbnail || mediaUrl);
 const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-    const isVideo = mediaUrl?.endsWith(".mp4");
+    const isVideo =
+      post.mediaType?.startsWith("video") ||
+      /\.(mp4|mov|webm|mkv)$/i.test(mediaUrl || "");
     const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
+    if (isVideo) {
+      return {
+        title: `${post.title || "Video"} - FondPeace`,
+        description: post.title || "Watch on FondPeace",
+        alternates: { canonical: `${SITE_ROOT}/short/${id}` },
+        robots: { index: false, follow: true },
+      };
+    }
 
-    const titleTag = `${post.title} - FondPeace`;
-    const description = post.title;
+    const rawTitle = (post.title || "").trim();
+    const cleanText = rawTitle.replace(/#[a-zA-Z0-9_]+/g, "").trim();
+    const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
+
+    const titleTag = cleanText
+      ? `${cleanText.slice(0, 55)} by ${author} | FondPeace`
+      : `${rawTitle.slice(0, 55) || "Community Post"} | FondPeace`;
+
+    const description = cleanText
+      ? `Read: "${cleanText}" by ${author} on FondPeace. Join real conversations, explore topics, and share your perspectives.`
+      : `Explore community posts and social conversations by ${author} on FondPeace.`;
 
     return {
       title: titleTag,
@@ -179,30 +202,18 @@ const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
       alternates: { canonical: pageUrl },
 
       openGraph: {
-  title: titleTag,
-  description: description,
-  url: pageUrl,
-  type: isVideo ? "video.other" : "article",
-  images: [{ url: thumb }],
-  ...(isVideo && {
-    video: [
-      {
-        url: mediaUrl,
-        type: "video/mp4",
-        width: 1280,
-        height: 720
-      }
-    ]
-  })
-},
-twitter: {
-        // Card type hamesha summary_large_image rakho best preview ke liye
+        title: titleTag,
+        description: description,
+        url: pageUrl,
+        type: "article",
+        images: [{ url: thumb }],
+      },
+      twitter: {
         card: "summary_large_image", 
         title: titleTag,
         description: description,
-        images: [thumb], // Next.js ke liye ye 'images' (plural) hona chahiye
+        images: [thumb],
       },
-
     };
   } catch {
     return { title: "Post | FondPeace" };
@@ -210,23 +221,32 @@ twitter: {
 }
 
 /* ------------------------------ PAGE ------------------------------ */
-/* ------------------------------ PAGE ------------------------------ */
 export default async function Page({ params }) {
-  const id = params?.id;
+  const resolvedParams = await params;
+  const id = resolvedParams?.id;
+  if (!id) return notFound();
+
   const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
 
   if (!res.ok) {
-  console.error("API ERROR:", res.status, await res.text());
-  redirect("/");
-}
+    return notFound();
+  }
 
-const data = await res.json();
-const post = data?.post;
+  const data = await res.json();
+  const post = data?.post;
 
-if (!post) {
-  console.error("POST IS NULL OR UNDEFINED", data);
-  redirect("/");
-}
+  if (!post) {
+    return notFound();
+  }
+
+  const isVideo =
+    post.mediaType?.startsWith("video") ||
+    /\.(mp4|mov|webm|mkv)$/i.test(post.media || post.mediaUrl || "");
+
+  // If this post is a video, redirect 308/301 permanently to the dedicated watch page
+  if (isVideo) {
+    permanentRedirect(`/short/${id}`);
+  }
 
 const related = data?.related ?? [];
 
@@ -235,141 +255,122 @@ const related = data?.related ?? [];
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
   const mediaUrl = toAbsolute(post.media || post.mediaUrl || post.thumbnail);
   const authorName = post.userId?.username || "FondPeace";
-const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
-  const isVideo = mediaUrl?.endsWith(".mp4");
+  const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+  const videoPoster = (post.thumbnail && !post.thumbnail.includes("Fondpeace.jpg") && !post.thumbnail.includes("default.jpg")) ? toAbsolute(post.thumbnail) : undefined;
   const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
-const jsonLdRedditStyle = {
-  "@context": "https://schema.org",
-  "@graph": [
-    // 1️⃣ Breadcrumb
-    {
-      "@type": "BreadcrumbList",
-      "@id": `${pageUrl}#breadcrumb`,
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
-        { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
-        { "@type": "ListItem", "position": 3, "name": post.title || "Post", "item": pageUrl }
-      ]
-    },
+  const postTitle = typeof post?.title === "string" ? post.title : "";
+  const isArticle = post.postType === "article" || (postTitle && postTitle.split(/\s+/).length > 250);
+  const primarySchemaType = isArticle ? "BlogPosting" : "DiscussionForumPosting";
 
-    // 2️⃣ Discussion Forum Post
-    {
-      "@type": "SocialMediaPosting",
-      "@id": `${pageUrl}#post`,
-      "url": pageUrl,
-      "headline": post.title,
-      "description": post.title,
-      "articleBody": post.title,
-      "name": post.title,
-      "text": post.title,
-      "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
-
-      "datePublished": new Date(post.createdAt).toISOString(),
-      "dateModified": new Date(post.updatedAt || post.createdAt).toISOString(),
-      "author": {
-        "@type": "Person",
-        "@id": `${SITE_ROOT}/profile/${authorName}#person`,
-        "name": authorName,
-        "url": `${SITE_ROOT}/profile/${authorName}`,
-        "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
-      },
-      
-
-      "publisher": {
-        "@type": "Organization",
-        "name": "FondPeace",
-        "logo": {
-          "@type": "ImageObject",
-          "url": `${SITE_ROOT}/Fondpeace.jpg`
-        }
-      },
-      "image": {
-        "@type": "ImageObject",
-        "url": mediaUrl
-        
-      },
-      "interactionStatistic": [
-        {
-          "@type": "InteractionCounter",
-          "interactionType": "https://schema.org/LikeAction",
-          "userInteractionCount": post.likes?.length || 0
-        },
-        {
-          "@type": "InteractionCounter",
-          "interactionType": "https://schema.org/ViewAction",
-          "userInteractionCount": post.views || 0
-        },
-        {
-          "@type": "InteractionCounter",
-          "interactionType": "https://schema.org/CommentAction",
-          "userInteractionCount": post.comments?.length || 0
-        }
-      ],
-      "commentCount": post.comments?.length || 0,
-      "isPartOf": {
-        "@type": "WebPage",
-        "name": "FondPeace",
-        "url": "https://fondpeace.com"
-      },
-      "about": {
-        "@type": "Thing",
-        "name": post.title,
-        "description": post.title
+  const jsonLdData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      // 1️⃣ Breadcrumb
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${pageUrl}#breadcrumb`,
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
+          { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
+          { "@type": "ListItem", "position": 3, "name": (post.title || "Post").slice(0, 60), "item": pageUrl }
+        ]
       },
 
-      // 3️⃣ Nested Comments + Replies
-      "comment": (post.comments || []).map((c) => ({
-        "@type": "Comment",
-        "@id": `${pageUrl}#comment-${c._id}`,
-        "text": c.CommentText || "",
-        "dateCreated": new Date(c.createdAt).toISOString(),
+      // 2️⃣ Primary Content (DiscussionForumPosting or BlogPosting)
+      {
+        "@type": primarySchemaType,
+        "@id": `${pageUrl}#main`,
+        "url": pageUrl,
+        "headline": post.title?.slice(0, 110) || "FondPeace Post",
+        "description": post.title?.slice(0, 200) || "Community discussion on FondPeace",
+        "articleBody": post.title || "",
+        "name": post.title?.slice(0, 110) || "FondPeace Post",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
+        "datePublished": new Date(post.createdAt || Date.now()).toISOString(),
+        "dateModified": new Date(post.updatedAt || post.createdAt || Date.now()).toISOString(),
         "author": {
           "@type": "Person",
-          "name": c.userId?.username || "User",
-          "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+          "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+          "name": authorName,
+          "url": `${SITE_ROOT}/profile/${authorName}`,
+          "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
         },
-        "interactionStatistic": [
-  {
-    "@type": "InteractionCounter",
-    "interactionType": "https://schema.org/LikeAction",
-    "userInteractionCount": Array.isArray(c.likes) ? c.likes.length : 0
-  },
-  {
-    "@type": "InteractionCounter",
-    "interactionType": "https://schema.org/ReplyAction",
-    "userInteractionCount": Array.isArray(c.replies) ? c.replies.length : 0
-  }
-],
+        "publisher": {
+          "@type": "Organization",
+          "@id": `${SITE_ROOT}#organization`,
+          "name": "FondPeace",
+          "url": SITE_ROOT,
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${SITE_ROOT}/Fondpeace.jpg`
+          }
+        },
 
-        "comment": (c.replies || []).map((r) => ({
+        // Article specific properties (Dev.to / Substack style)
+        ...(isArticle ? {
+          "wordCount": post.title ? post.title.split(/\s+/).length : 0,
+          "inLanguage": "en"
+        } : {}),
+
+        // Photo / Image Attachment
+        ...(isImage && mediaUrl ? {
+          "image": {
+            "@type": "ImageObject",
+            "url": mediaUrl
+          }
+        } : {}),
+
+        // Shared Link Previews (MacRumors, YouTube, external news)
+        ...(post.linkPreview?.url ? {
+          "sharedContent": {
+            "@type": "WebPage",
+            "@id": post.linkPreview.url,
+            "url": post.linkPreview.url,
+            "name": post.linkPreview.title || post.linkPreview.url,
+            "description": post.linkPreview.description || "",
+            ...(post.linkPreview.image ? { "image": post.linkPreview.image } : {})
+          }
+        } : {}),
+
+        // Community Interaction Counters
+        "interactionStatistic": [
+          {
+            "@type": "InteractionCounter",
+            "interactionType": "https://schema.org/LikeAction",
+            "userInteractionCount": post.likes?.length || 0
+          },
+          {
+            "@type": "InteractionCounter",
+            "interactionType": "https://schema.org/ViewAction",
+            "userInteractionCount": post.views || 0
+          },
+          {
+            "@type": "InteractionCounter",
+            "interactionType": "https://schema.org/CommentAction",
+            "userInteractionCount": post.comments?.length || 0
+          }
+        ],
+        "commentCount": post.comments?.length || 0,
+
+        // Comments Graph (Real user community discussions)
+        "comment": (post.comments || []).map((c) => ({
           "@type": "Comment",
-          "@id": `${pageUrl}#reply-${r._id}`,
-          "parentItem": { "@id": `${pageUrl}#comment-${c._id}` },
-          "text": r.replyText || "",
-          "dateCreated": new Date(r.createdAt).toISOString(),
+          "@id": `${pageUrl}#comment-${c._id}`,
+          "text": c.CommentText || "",
+          "dateCreated": new Date(c.createdAt || Date.now()).toISOString(),
           "author": {
             "@type": "Person",
-            "name": r.userId?.username || "User",
-            "url": `${SITE_ROOT}/profile/${r.userId?.username || "User"}`
-          },
-          
-          "interactionStatistic": [
-  {
-    "@type": "InteractionCounter",
-    "interactionType": "https://schema.org/LikeAction",
-    "userInteractionCount": Array.isArray(r.likes) ? r.likes.length : 0
-  }
-]
+            "name": c.userId?.username || "User",
+            "url": `${SITE_ROOT}/profile/${c.userId?.username || "User"}`
+          }
+        })),
 
-        }))
-      })),
-
-      // 4️⃣ Related Links
-      "relatedLink": (related || []).map((r) => `${SITE_ROOT}/shorts/${r._id}`)
-    }
-  ]
-};
+        // Related canonical links
+        "relatedLink": (related || []).map((r) => `${SITE_ROOT}/short/${r._id}`)
+      }
+    ]
+  };
 
   
   // /* ---------------------- JSON-LD for Reddit-style Social Post ---------------------- */
@@ -656,22 +657,27 @@ const jsonLdRedditStyle = {
 
 
 return (
-    <main className="w-full min-h-screen bg-[#f8f7f5]">
- <LeftSidebar/>
+    <main className="w-full min-h-screen bg-[#f8f7f5] dark:bg-[#070a13] text-gray-900 dark:text-white antialiased transition-colors">
+      {/* Schema.org JSON-LD (Dynamic DiscussionForumPosting / BlogPosting) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
+      />
+      <LeftSidebar/>
       {/* ── STICKY HEADER ── */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-black/[0.06]">
+      <header className="sticky top-0 z-50 bg-white/85 dark:bg-[#090b12]/85 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.08]">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link
             href="/"
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/[0.06] active:scale-90 transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/[0.06] dark:hover:bg-white/[0.08] active:scale-90 transition-all"
             aria-label="Back to home"
           >
-            <FaArrowLeft className="text-[15px] text-gray-800" />
+            <FaArrowLeft className="text-[15px] text-gray-800 dark:text-gray-200" />
           </Link>
  
           <Link
             href="/"
-            className="font-black text-[18px] tracking-tighter text-gray-950 hover:opacity-70 transition-opacity select-none"
+            className="font-black text-[18px] tracking-tighter text-gray-950 dark:text-white hover:opacity-80 transition-opacity select-none"
           >
             Fond<span className="text-blue-500">Peace</span>
           </Link>
@@ -682,17 +688,17 @@ return (
       </header>
  
       {/* ── POST CARD ── */}
-      <section className="max-w-2xl mx-auto sm:px-4 pt-0 sm:pt-5 pb-4">
-        <article className="bg-white sm:rounded-2xl overflow-hidden sm:border border-black/[0.07] sm:shadow-[0_1px_12px_rgba(0,0,0,0.06)]">
+      <section className="max-w-2xl mx-auto sm:px-4 pt-0 sm:pt-5 pb-6">
+        <article className="bg-white dark:bg-[#0f121d] sm:rounded-3xl overflow-hidden sm:border border-black/[0.07] dark:border-white/[0.08] sm:shadow-[0_4px_24px_rgba(0,0,0,0.06)] dark:sm:shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
  
           {/* Author row */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-black/[0.04]">
+          <div className="flex items-center justify-between px-4 py-3.5 border-b border-black/[0.04] dark:border-white/[0.06]">
             <Link
               href={`/profile/${post?.userId?.username}`}
               className="flex items-center gap-3 group"
             >
               <div className="relative shrink-0">
-                <div className="w-10 h-10 rounded-full ring-2 ring-offset-1 ring-blue-500/30 overflow-hidden">
+                <div className="w-10 h-10 rounded-full ring-2 ring-offset-1 ring-blue-500/40 dark:ring-blue-400/50 overflow-hidden">
                   <img
                     src={post?.userId?.profilePic || "/Fondpeace.jpg"}
                     alt={post?.userId?.username || "User"}
@@ -701,13 +707,13 @@ return (
                   />
                 </div>
                 {/* online dot */}
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-white" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-white dark:border-gray-900" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="font-semibold text-[13.5px] text-gray-950 group-hover:text-blue-600 transition-colors truncate leading-tight">
+                <span className="font-bold text-[14px] text-gray-950 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors truncate leading-tight">
                   {post?.userId?.username || "Anonymous"}
                 </span>
-                <span className="text-[11px] text-gray-400 mt-0.5 font-medium">
+                <span className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 font-medium">
                   {post?.createdAt
                     ? new Date(post.createdAt).toLocaleDateString(undefined, {
                         month: "short",
@@ -720,7 +726,7 @@ return (
             </Link>
  
             <button
-              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-800 hover:bg-black/[0.05] transition-all"
+              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-all"
               aria-label="Options"
             >
               <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
@@ -731,25 +737,41 @@ return (
             </button>
           </div>
  
-          {/* Media */}
+          {/* Media with Ambient Glow Lighting */}
           {(isVideo || isImage) && (
-            <div className="w-full bg-black flex items-center justify-center overflow-hidden">
-              {isVideo ? (
-                <video
-                  src={mediaUrl}
-                  poster={thumbnail}
-                  controls
-                  playsInline
-                  className="w-full max-h-[72vh] object-contain"
-                />
-              ) : (
+            <div className="relative w-full overflow-hidden bg-zinc-950 flex items-center justify-center group min-h-[260px]">
+              {/* Diffused Dynamic Ambient Glow */}
+              <div className="absolute -inset-6 bg-gradient-to-tr from-blue-600/25 via-indigo-500/20 to-purple-600/25 blur-3xl opacity-75 pointer-events-none rounded-3xl group-hover:opacity-100 transition-opacity duration-500" />
+              
+              {/* Soft Ambient Blurred Backdrop */}
+              {mediaUrl && (
                 <img
                   src={mediaUrl}
-                  alt={post?.title || "Post image"}
-                  className="w-full max-h-[72vh] object-contain"
-                  loading="lazy"
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-30 scale-110 pointer-events-none select-none"
                 />
               )}
+
+              <div className="relative z-10 w-full flex items-center justify-center">
+                {isVideo ? (
+                  <video
+                    src={mediaUrl}
+                    poster={videoPoster}
+                    controls
+                    preload="metadata"
+                    playsInline
+                    className="w-full max-h-[76vh] object-contain block mx-auto shadow-2xl"
+                  />
+                ) : (
+                  <img
+                    src={mediaUrl}
+                    alt={post?.title || "Post image"}
+                    className="w-full max-h-[76vh] object-contain block mx-auto transition-transform duration-300 hover:scale-[1.01]"
+                    loading="lazy"
+                  />
+                )}
+              </div>
             </div>
           )}
  

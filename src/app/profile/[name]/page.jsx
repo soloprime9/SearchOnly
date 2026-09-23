@@ -1,39 +1,50 @@
 // app/profile/[username]/page.jsx
 import Profile from "@/components/Profile";
+import { getApiBase } from "@/utils/apiConfig";
   
 const SITE_ROOT = "https://www.fondpeace.com";
+const API_BASE = getApiBase();
  
 // ---------- METADATA (SEO HEAD) ----------
 export async function generateMetadata({ params }) {
-  const { name } = params;
-  const username = name;
-  console.log(username);
+  const resolvedParams = await params;
+  const username = resolvedParams?.name;
+  if (!username) return { title: "Profile | FondPeace" };
+
   try {
     const res = await fetch(
-      `https://backend-k.vercel.app/user/profile-public/${username}`,
+      `${API_BASE}/user/profile-public/${username}`,
       { cache: "no-store" }
     );
 
-    console.log(res);
     if (!res.ok) {
       return { title: "Profile not found | FondPeace" };
     }
 
     const data = await res.json();
-    const user = data.Profile.user;
+    const user = data?.Profile?.user;
+
+    if (!user) return { title: "Profile | FondPeace" };
 
     return {
       title: `${user.username} (@${user.username}) on FondPeace`,
       description:
-        
         `View ${user.username}'s profile on FondPeace. Watch videos, posts, and updates.`,
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-image-preview": "large",
+        },
+      },
       alternates: {
         canonical: `${SITE_ROOT}/profile/${user.username}`,
       },
       openGraph: {
         title: `${user.username} on FondPeace`,
         description:
-          
           `Explore posts and videos shared by ${user.username} on FondPeace.`,
         url: `${SITE_ROOT}/profile/${user.username}`,
         images: [
@@ -59,15 +70,14 @@ export async function generateMetadata({ params }) {
 
 // ---------- PAGE (STRUCTURED DATA + UI) ----------
 export default async function Page({ params }) {
-  const { name } = params;
-  const username = name;
-  console.log(username);
+  const resolvedParams = await params;
+  const username = resolvedParams?.name;
   let user = null;
   
 
   try {
     const res = await fetch(
-      `https://backend-k.vercel.app/user/profile-public/${username}`,
+      `${API_BASE}/user/profile-public/${username}`,
       { cache: "no-store" }
     );
 

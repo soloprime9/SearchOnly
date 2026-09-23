@@ -2,12 +2,14 @@
 import { notFound } from "next/navigation"; 
 import Link from "next/link";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
-import { redirect } from "next/navigation";
+import { redirect, permanentRedirect } from "next/navigation";
 import SinglePostPage from "@/components/SinglePostPage";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
+import { getApiBase } from "@/utils/apiConfig";
 
 // Server-side Constants
-const API_SINGLE = "https://backend-k.vercel.app/post/single/";
+const API_BASE = getApiBase();
+const API_SINGLE = `${API_BASE}/post/single/`;
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/Fondpeace.jpg`;
 
@@ -127,12 +129,13 @@ function mapComments(post, pageUrl) {
 
 // --- Metadata Generator (Google Indexing Focus) ---
 export async function generateMetadata({ params }) {
-  const id = params?.id;
-  if (!id) return { title: "Invalid Video | FondPeace" };
+  const resolvedParams = await params;
+  const id = resolvedParams?.id;
+  if (!id) return { title: "Video | FondPeace" };
 
   try {
     const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
-    if (!res.ok) return { title: "FondPeace Video hello" };
+    if (!res.ok) return { title: "Video | FondPeace" };
 
     const { post } = await res.json();
     if (!post) return { title: "Video Not Found | FondPeace" };
@@ -141,15 +144,21 @@ export async function generateMetadata({ params }) {
     const thumb = toAbsolute(post.thumbnail || mediaUrl); // Fallback to media if no thumb
     const pageUrl = `${SITE_ROOT}/short/${id}`;
 
-    let title = post.title;
-    
-    
-    const description = post.title;
+    const rawTitle = (post.title || "").trim();
+    const cleanText = rawTitle.replace(/#[a-zA-Z0-9_]+/g, "").trim();
+    const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
 
+    const title = cleanText
+      ? `${cleanText.slice(0, 50)} by ${author} | FondPeace`
+      : `${rawTitle.slice(0, 50) || "Watch Video"} | FondPeace Short`;
 
-      return {
-  title: title,
-  description: description,
+    const description = cleanText
+      ? `Watch "${cleanText}" shared by ${author} on FondPeace. Join the social community to explore trending short reels, react, and discuss.`
+      : `Watch trending short video by ${author} on FondPeace social platform.`;
+
+    return {
+      title: title,
+      description: description,
   keywords: extractKeywords(post),
   alternates: { canonical: pageUrl },
   openGraph: {
@@ -198,21 +207,22 @@ export async function generateMetadata({ params }) {
 
 // --- Page Component (Server Component) ---
 export default async function Page({ params }) {
-    const id = params?.id;
-    if (!id) return <div>Invalid ID</div>;
+    const resolvedParams = await params;
+    const id = resolvedParams?.id;
+    if (!id) return notFound();
 
     try {
         // Fetch post and related videos
         const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
         if (!res.ok) {
-            redirect("/");
+            return notFound();
         }
         const data = await res.json();
         const post = data?.post || null;
         const related = data?.related || [];
 
         if (!post) {
-            redirect("/");
+            return notFound();
         }
 
         const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
@@ -223,6 +233,11 @@ export default async function Page({ params }) {
         const isVideo =
   post.mediaType?.startsWith("video") ||
   /\.(mp4|webm|mov|m3u8)$/i.test(mediaUrl || "");
+
+        // Canonical Routing Rule: Non-videos belong on dedicated /post/[id] page
+        if (!isVideo) {
+          permanentRedirect(`/post/${id}`);
+        }
 
         const authorId = `${SITE_ROOT}/profile/${post.userId?.username}#person`;
 
@@ -603,6 +618,9 @@ export default async function Page({ params }) {
             </main>
         );
     } catch (e) {
+        if (e?.digest?.startsWith("NEXT_REDIRECT")) {
+            throw e;
+        }
         console.error("Page component error:", e);
         return notFound();
     }

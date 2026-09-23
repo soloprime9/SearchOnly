@@ -1,8 +1,97 @@
-User-agent: *
+# FondPeace Robots.txt - High-Performance Social Media Crawler Configuration
+
+# Googlebot (Main Google Search Indexer)
+User-agent: Googlebot
+Allow: /
+Allow: /post/
+Allow: /short/
+Allow: /topic/
+Allow: /profile/
+Disallow: /shorts/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /search/
+Disallow: /search?
+Disallow: /search
+Disallow: /searchbro
+Disallow: /login
+Disallow: /signup
+Disallow: /create
+Disallow: /upload
+Disallow: /Users
+
+# Google-InspectionTool (Search Console Live URL Inspection & Rich Results)
+User-agent: Google-InspectionTool
+Allow: /
+Disallow: /shorts/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /search/
+Disallow: /search?
+Disallow: /search
+Disallow: /searchbro
+Disallow: /login
+Disallow: /signup
+Disallow: /create
+Disallow: /upload
+Disallow: /Users
+
+# Bingbot & Applebot
+User-agent: Bingbot
+User-agent: Applebot
+Allow: /
+Disallow: /shorts/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /search/
+Disallow: /search?
+Disallow: /search
+Disallow: /searchbro
+Disallow: /login
+Disallow: /signup
+Disallow: /create
+Disallow: /upload
+Disallow: /Users
+
+# Social Media Previews & Link Expanders (Allow complete access to generate cards)
+User-agent: Twitterbot
+User-agent: facebookexternalhit
+User-agent: LinkedInBot
+User-agent: WhatsApp
+User-agent: TelegramBot
 Allow: /
 
+# General Public Crawlers
+User-agent: *
+Allow: /
+Disallow: /shorts/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /search/
+Disallow: /search?
+Disallow: /search
+Disallow: /searchbro
+Disallow: /login
+Disallow: /signup
+Disallow: /create
+Disallow: /upload
+Disallow: /Users
+
+# Block Aggressive Scrapers & Unauthorized AI Data Harvesters
+User-agent: Bytespider
+User-agent: PetalBot
+User-agent: CCBot
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: PerplexityBot
+User-agent: Amazonbot
+User-agent: Google-Extended
+User-agent: Diffbot
+User-agent: Cohere-ai
+User-agent: Scrapy
+Disallow: /
+
+# Verified Single-Canonical Sitemaps
 Sitemap: https://www.fondpeace.com/sitemap.xml
 Sitemap: https://www.fondpeace.com/video-sitemap.xml
-Sitemap: https://www.fondpeace.com/shortsvideo-sitemap.xml
 Sitemap: https://www.fondpeace.com/post-sitemap.xml
-Sitemap: https://www.fondpeace.com/blog-sitemap.xml

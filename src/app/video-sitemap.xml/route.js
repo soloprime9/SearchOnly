@@ -6,7 +6,7 @@ const SITE_URL = "https://www.fondpeace.com";
 export async function GET() {
   try {
     const res = await fetch(API_URL, {
-      cache: "no-store",
+      next: { revalidate: 3600 },
     });
 
     if (!res.ok) {
@@ -75,7 +75,8 @@ ${posts
 
     return new NextResponse(xml, {
       headers: {
-        "Content-Type": "application/xml",
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
       },
     });
   } catch (err) {

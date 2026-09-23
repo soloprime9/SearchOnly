@@ -1,11 +1,39 @@
 'use client';
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaHeart, FaCommentDots, FaEye } from "react-icons/fa";
+import Link from "next/link";
+import { 
+  Search, 
+  Sparkles, 
+  Flame, 
+  Heart, 
+  MessageCircle, 
+  Eye, 
+  Play, 
+  Image as ImageIcon, 
+  ArrowUpRight, 
+  TrendingUp,
+  X,
+  Compass
+} from "lucide-react";
+import { playTap, playPop, playChime } from "@/utils/soundEffects";
+import { getApiBase } from "@/utils/apiConfig";
 
-const API_BASE = "https://backend-k.vercel.app";
+const QUICK_TOPICS = [
+  "Artificial Intelligence",
+  "Technology",
+  "Cricket",
+  "Shorts & Reels",
+  "Startups",
+  "Bollywood",
+  "Hollywood",
+  "Gaming",
+  "Crypto",
+  "Space"
+];
 
-export default function App() {
+export default function SearchGo() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,166 +42,269 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("results");
   const [trending, setTrending] = useState([]);
 
-  // ----------------------------------------------------
-  // 1️⃣ LOAD TRENDING POSTS (MAX LIMIT = 6, MIN VIEWS = 4)
-  // ----------------------------------------------------
   useEffect(() => {
     loadTrendingFromBackend();
   }, []);
 
-  // ----------------------------------------------------
-// 1️⃣ LOAD TRENDING POSTS (MAX LIMIT = 6, ANY MEDIA TYPE)
-// ----------------------------------------------------
-async function loadTrendingFromBackend() {
-  try {
-    let ids = [
-      "6923ef50849dda709966a7e0",
-      "6923ee33849dda709966a7de",
-      "6923eca2849dda709966a7dc",
-      "6923eba7849dda709966a7da",
-    ];
+  async function loadTrendingFromBackend() {
+    try {
+      const apiBase = getApiBase();
+      let ids = [
+        "6923ef50849dda709966a7e0",
+        "6923ee33849dda709966a7de",
+        "6923eca2849dda709966a7dc",
+        "6923eba7849dda709966a7da",
+      ];
+      ids = ids.sort(() => 0.5 - Math.random());
 
-    // shuffle random
-    ids = ids.sort(() => 0.5 - Math.random());
+      let finalTrending = [];
+      const pickedIds = new Set();
 
-    let finalTrending = [];
-    const pickedIds = new Set();
+      for (const id of ids) {
+        if (finalTrending.length >= 6) break;
 
-    for (const id of ids) {
-      if (finalTrending.length >= 6) break; // only 6 posts
+        const res = await fetch(`${apiBase}/post/single/${id}`, { cache: "no-store" });
+        if (!res.ok) continue;
+        const data = await res.json();
+        const related = data?.related || [];
 
-      const res = await fetch(`${API_BASE}/post/single/${id}`, { cache: "no-store" });
-      const data = await res.json();
-      const related = data?.related || [];
-
-      if (related.length > 0) {
-        // pick randomly from all related posts, no restriction
-        const eligible = related.filter(post => post.media); // ensure it has some media
-        if (eligible.length > 0) {
-          const pick = eligible[Math.floor(Math.random() * eligible.length)];
-
-          if (!pickedIds.has(pick._id)) {
-            pickedIds.add(pick._id);
-            finalTrending.push(pick);
+        if (related.length > 0) {
+          const eligible = related.filter((post) => post.media);
+          if (eligible.length > 0) {
+            const pick = eligible[Math.floor(Math.random() * eligible.length)];
+            if (!pickedIds.has(pick._id)) {
+              pickedIds.add(pick._id);
+              finalTrending.push(pick);
+            }
           }
         }
       }
+
+      setTrending(finalTrending);
+    } catch (e) {
+      console.log("Trending Error", e);
     }
-
-    setTrending(finalTrending);
-  } catch (e) {
-    console.log("Trending Error", e);
   }
-}
 
-
-  // ----------------------------------------------------
-  // 2️⃣ SEARCH HANDLER
-  // ----------------------------------------------------
   const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+    if (e) e.preventDefault();
+    const trimmed = query.trim();
+    if (!trimmed) return;
 
     setLoading(true);
     setError(null);
+    playTap();
 
     try {
-      const response = await axios.get(`${API_BASE}/autoai/result?q=${query}`);
-      const SearchResults = response.data.ScrapedData[0];
+      const apiBase = getApiBase();
+      const response = await axios.get(`${apiBase}/autoai/result?q=${encodeURIComponent(trimmed)}`);
+      const searchData = response.data?.ScrapedData?.[0] || response.data;
 
-      setResults(SearchResults.results || []);
-      setImages(SearchResults.images || []);
+      setResults(searchData?.results || []);
+      setImages(searchData?.images || []);
       setActiveTab("results");
-
-      setTrending([]); // hide trending after search
+      playChime();
     } catch (err) {
-      setError("Error fetching results. Please try again.");
+      setError("Unable to complete search at this moment. Please try again.");
+      playPop();
     } finally {
       setLoading(false);
     }
   };
 
-  // ----------------------------------------------------
-  // UI
-  // ----------------------------------------------------
+  const handleTopicClick = (topic) => {
+    setQuery(topic);
+    playTap();
+  };
+
   return (
-    <div className="min-h-screen bg-white py-8 px-4">
-      <div className="max-w-4xl mx-auto rounded-xl">
+    <div className="w-full py-6 sm:py-10 px-2 sm:px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Ambient Glows */}
+        <div className="relative">
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-80 h-80 bg-blue-600/10 dark:bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
 
-        {/* HEADER */}
-        <h1 className="text-4xl font-bold text-center text-gray-900 mb-8">
-          FondPeace Search
-        </h1>
+          {/* Hero Header */}
+          <div className="text-center mb-8 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/60 text-blue-600 dark:text-blue-400 text-xs font-bold mb-3 shadow-sm">
+              <Compass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '6s' }} />
+              <span>Explore & Discovery Engine</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-gray-950 dark:text-white">
+              Discover <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 bg-clip-text text-transparent">Everything</span>
+            </h1>
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-2 max-w-xl mx-auto">
+              Search trending social discussions, creator videos, topics, and global news instantly.
+            </p>
+          </div>
 
-        {/* SEARCH BAR */}
-        <form
-          onSubmit={handleSearch}
-          className="flex shadow-lg rounded-full overflow-hidden border"
-        >
-          <input
-            type="text"
-            className="p-4 w-full text-lg outline-none"
-            placeholder="Search anything..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <button className="bg-black text-white px-8 text-lg font-semibold hover:bg-gray-800">
-            Search
-          </button>
-        </form>
+          {/* Glowing Search Input Bar */}
+          <form
+            onSubmit={handleSearch}
+            className="relative z-10 flex items-center bg-white dark:bg-zinc-950/80 backdrop-blur-2xl border border-black/10 dark:border-white/10 rounded-2xl sm:rounded-full p-1.5 sm:p-2 shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/15 transition-all"
+          >
+            <div className="pl-3.5 text-gray-400">
+              <Search className="w-5 h-5" />
+            </div>
+            <input
+              type="text"
+              className="flex-1 px-3 py-2.5 sm:py-3 text-sm sm:text-base bg-transparent text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none"
+              placeholder="Search posts, creators, AI updates, news..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setResults([]);
+                  setImages([]);
+                }}
+                className="p-1.5 mr-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-full"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={loading || !query.trim()}
+              className="px-5 sm:px-7 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm sm:text-base font-bold rounded-xl sm:rounded-full shadow-md shadow-blue-500/25 transition-all disabled:opacity-50 active:scale-95 shrink-0"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Searching...</span>
+                </div>
+              ) : (
+                <span>Search</span>
+              )}
+            </button>
+          </form>
 
-        {/* STATUS */}
-        {loading && <p className="text-center text-gray-500 mt-4">Searching...</p>}
-        {error && <p className="text-center text-red-500 mt-4">{error}</p>}
+          {/* Quick Category Chips */}
+          <div className="mt-4 flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <span className="text-xs font-semibold text-gray-400 shrink-0 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-blue-500" />
+              Popular:
+            </span>
+            {QUICK_TOPICS.map((topic, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => handleTopicClick(topic)}
+                className="text-xs font-medium px-3 py-1.5 rounded-full bg-white/70 dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] text-gray-700 dark:text-gray-300 hover:border-blue-500/50 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 transition-all shrink-0 whitespace-nowrap shadow-sm"
+              >
+                {topic}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Loading Spinner */}
+        {loading && (
+          <div className="mt-12 text-center py-10">
+            <div className="inline-block w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+              Gathering the freshest discussions & insights...
+            </p>
+          </div>
+        )}
+
+        {/* Error Alert */}
+        {error && (
+          <div className="mt-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 text-sm text-center">
+            {error}
+          </div>
+        )}
 
         {/* -------------------------------------------------- */}
-        {/* TRENDING POSTS */}
+        {/* TRENDING ON FONDPEACE (Hero Grid) */}
         {/* -------------------------------------------------- */}
-        {trending.length > 0 && results.length === 0 && (
-          <section className="mt-10">
-            <h2 className="text-2xl font-bold mb-5">🔥 Trending on FondPeace</h2>
+        {trending.length > 0 && results.length === 0 && !loading && (
+          <section className="mt-10 sm:mt-14">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center">
+                  <Flame className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-black text-gray-950 dark:text-white tracking-tight">
+                    Trending on FondPeace
+                  </h2>
+                  <p className="text-xs text-gray-400">Viral discussions and media right now</p>
+                </div>
+              </div>
+              <Link
+                href="/short/698c432d0a8059958d20a4f4"
+                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+              >
+                <span>Watch Shorts</span>
+                <ArrowUpRight className="w-3 h-3" />
+              </Link>
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {trending.map((post) => {
-                const thumb = post.thumbnail || post.media || `/api/thumbnail/${post._id}`;
-                const isVideo = post.media?.endsWith(".mp4");
+                const thumb = post.thumbnail || post.media || `/Fondpeace.jpg`;
+                const isVideo = post.mediaType?.startsWith("video") || post.media?.endsWith(".mp4");
 
                 return (
-                  <a
+                  <Link
                     key={post._id}
-                    href={`/post/${post._id}`}
-                    className="block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition"
+                    href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
+                    className="group flex flex-col bg-white dark:bg-zinc-950/60 backdrop-blur-xl rounded-2xl border border-black/[0.06] dark:border-white/[0.08] hover:border-blue-500/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
                   >
-                    {/* THUMBNAIL / VIDEO */}
-                    {isVideo ? (
-                      <video src={post.media} className="w-full h-40 object-cover" controls />
-                    ) : (
-                      <img src={thumb} className="w-full h-40 object-cover" alt={post.title} />
-                    )}
+                    {/* Media Thumbnail with Overlay Badge */}
+                    <div className="relative aspect-video w-full bg-zinc-900 overflow-hidden">
+                      <img
+                        src={thumb}
+                        alt={post.title || "Trending post"}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => { e.currentTarget.src = "/Fondpeace.jpg"; }}
+                      />
+                      {isVideo && (
+                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-gray-900 shadow-lg group-hover:scale-110 transition-transform">
+                            <Play className="w-4 h-4 fill-current ml-0.5" />
+                          </div>
+                          <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-white text-[10px] font-bold">
+                            Video
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                    {/* CONTENT */}
-                    <div className="p-4">
-                      <p className="font-semibold text-gray-900 line-clamp-2 text-sm">
+                    {/* Content & Metrics */}
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <p className="font-bold text-sm text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug">
                         {post.title}
                       </p>
 
-                      {/* ICONS */}
-                      <div className="flex items-center gap-4 text-gray-600 text-xs mt-3">
-                        <span className="flex items-center gap-1">
-                          <FaHeart className="text-red-500" size={12} />
-                          {post.likes?.length || 0}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <FaCommentDots className="text-blue-500" size={12} />
-                          {post.comments?.length || 0}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <FaEye className="text-green-600" size={12} />
-                          {post.views || 0}
+                      <div className="flex items-center justify-between text-xs text-gray-400 mt-3 pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center gap-1 text-rose-500">
+                            <Heart className="w-3.5 h-3.5 fill-current" />
+                            <span className="font-semibold text-gray-600 dark:text-gray-300">
+                              {post.likes?.length || 0}
+                            </span>
+                          </span>
+                          <span className="flex items-center gap-1 text-blue-500">
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            <span className="font-semibold text-gray-600 dark:text-gray-300">
+                              {post.comments?.length || 0}
+                            </span>
+                          </span>
+                        </div>
+                        <span className="flex items-center gap-1 text-emerald-500">
+                          <Eye className="w-3.5 h-3.5" />
+                          <span className="font-semibold text-gray-600 dark:text-gray-300">
+                            {post.views || 1}
+                          </span>
                         </span>
                       </div>
                     </div>
-                  </a>
+                  </Link>
                 );
               })}
             </div>
@@ -181,477 +312,96 @@ async function loadTrendingFromBackend() {
         )}
 
         {/* -------------------------------------------------- */}
-        {/* TABS (ONLY WHEN SEARCH RESULTS EXIST) */}
+        {/* TABS (FOR LIVE SEARCH RESULTS) */}
         {/* -------------------------------------------------- */}
         {results.length > 0 && (
-          <div className="flex gap-4 mt-10 border-b">
+          <div className="flex items-center gap-2 mt-8 border-b border-black/[0.06] dark:border-white/[0.08] pb-1">
             <button
               onClick={() => setActiveTab("results")}
-              className={`pb-2 text-lg font-semibold ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all ${
                 activeTab === "results"
-                  ? "border-b-4 border-black"
-                  : "text-gray-500"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                  : "text-gray-500 dark:text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
               }`}
             >
-              Results
+              <span>Discussions & Web</span>
+              <span className="px-1.5 py-0.5 rounded-md bg-white/20 text-[11px]">
+                {results.length}
+              </span>
             </button>
 
-            <button
-              onClick={() => setActiveTab("images")}
-              className={`pb-2 text-lg font-semibold ${
-                activeTab === "images"
-                  ? "border-b-4 border-black"
-                  : "text-gray-500"
-              }`}
-            >
-              Images ({images.length})
-            </button>
+            {images.length > 0 && (
+              <button
+                onClick={() => setActiveTab("images")}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all ${
+                  activeTab === "images"
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                    : "text-gray-500 dark:text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+                }`}
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>Images</span>
+                <span className="px-1.5 py-0.5 rounded-md bg-white/20 text-[11px]">
+                  {images.length}
+                </span>
+              </button>
+            )}
           </div>
         )}
 
         {/* -------------------------------------------------- */}
-        {/* RESULTS TAB */}
+        {/* RESULTS TAB CONTENT */}
         {/* -------------------------------------------------- */}
         {activeTab === "results" && results.length > 0 && (
-          <div className="mt-8 space-y-6">
+          <div className="mt-6 space-y-4">
             {results.map((result, index) => (
               <div
                 key={index}
-                className="p-5 border bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition"
+                className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-950/60 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] hover:border-blue-500/30 transition-all shadow-sm group"
               >
                 <a
                   href={result.link}
                   target="_blank"
-                  className="text-xl font-bold text-blue-700 hover:underline"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400 hover:underline group-hover:text-blue-500"
                 >
-                  {result.title}
+                  <span>{result.title}</span>
+                  <ArrowUpRight className="w-4 h-4 opacity-70 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </a>
-                <p className="text-gray-700 mt-2">{result.snippet}</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">
+                  {result.snippet}
+                </p>
+                {result.link && (
+                  <p className="text-[11px] text-gray-400 mt-2 truncate">
+                    {result.link}
+                  </p>
+                )}
               </div>
             ))}
           </div>
         )}
 
         {/* -------------------------------------------------- */}
-        {/* IMAGES TAB */}
+        {/* IMAGES TAB CONTENT */}
         {/* -------------------------------------------------- */}
         {activeTab === "images" && images.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mt-6">
             {images.map((img, idx) => (
-              <img
+              <div
                 key={idx}
-                src={img}
-                className="w-full h-40 object-cover rounded-lg shadow"
-              />
+                className="aspect-square rounded-2xl overflow-hidden bg-zinc-900 border border-black/[0.06] dark:border-white/[0.08] shadow-sm hover:scale-105 transition-transform"
+              >
+                <img
+                  src={img}
+                  alt={`Result ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
             ))}
           </div>
         )}
-
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-// 'use client';
-// import React, { useState } from "react";
-// import axios from "axios";
-
-// function App() {
-//   const [query, setQuery] = useState("");
-//   const [results, setResults] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
-//   const [images, setImages] = useState([]);
-
-//   const handleSearch = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
-//     setError(null);
-//     try {
-//       const response = await axios.get(`https://backend-k.vercel.app/autoai/result?q=${query}`);
-//       const SearchResults = response.data.ScrapedData[0];
-//       setResults(SearchResults.results || []);
-//       setImages(SearchResults.images || []);
-//       // setImages(SearchResults.images || []);
-
-//       console.log("Results:", SearchResults.results);
-//       console.log("Images:", SearchResults.images);
-//     } catch (err) {
-//       setError("Error fetching results. Please try again.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-100 flex  items-center justify-center">
-//       <div className=" w-full px-2 py-8 bg-white shadow-lg rounded-lg">
-//         <h1 className="text-3xl font-bold text-center text-indigo-600 mb-6">Search Engine</h1>
-
-//         <form onSubmit={handleSearch} className="flex mb-6">
-//           <input
-//             type="text"
-//             className="p-3 w-full border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//             placeholder="Search..."
-//             value={query}
-//             onChange={(e) => setQuery(e.target.value)}
-//           />
-//           <button
-//             type="submit"
-//             className="p-3 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700 focus:outline-none"
-//           >
-//             Search
-//           </button>
-//         </form>
-
-//         {loading && <p className="text-center text-gray-500">Loading...</p>}
-//         {error && <p className="text-center text-red-500">{error}</p>}
-
-//         {/* General Images Section */}
-//         {images.length > 0 && (
-//           <div className="mb-6">
-//             <h2 className="text-xl font-semibold text-indigo-700 mb-4">Top Images</h2>
-//             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-//               {images.map((img, idx) => (
-//                 <img
-//                   key={idx}
-//                   src={img}
-//                   alt={`Image ${idx + 1}`}
-//                   className="w-full h-32 object-cover rounded-md"
-//                 />
-//               ))}
-//             </div>
-//           </div>
-//         )}
-
-//         {/* Results Section */}
-//         <div className="space-y-2">
-//           {results.length > 0 ? (
-//             results.map((result, index) => (
-//               <div key={index} className="border-b pb-2">
-//                 <h2 className="text-xl font-semibold text-indigo-700">
-//                 <a
-//                   href={result.link}
-//                   className="text-blue-600 hover:text-blue-800 mt-2 block"
-//                   target="_blank"
-//                   rel="noopener noreferrer"
-//                 >
-//                   {result.title}
-//                 </a>
-//                   </h2>
-//                 <div className="flex gap-2">
-//                 <p className="text-gray-700 mt-2 ">{result.snippet}</p>
-//                   <img src={result.thumbnail} className="h-28 w-auto object-cover rounded-md ml-auto md:block hidden" />
-//                 </div>
-//                 {result.images && result.images.length > 0 && (
-//                   <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-//                     {result.images.map((image, idx) => (
-//                       <img
-//                         key={idx}
-//                         src={image}
-//                         alt={`Result Image ${idx + 1}`}
-//                         className="w-full h-32 object-cover rounded-md"
-//                       />
-//                     ))}
-//                   </div>
-//                 )}
-//               </div>
-//             ))
-//           ) : (
-//             !loading && <p className="text-center text-gray-500">No results found.</p>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
-
-
-
-
-
-
-
-// 'use client';
-
-// import axios from "axios";
-// import React, { useState, useEffect } from 'react';
-// import Head from 'next/head';
-
-// function App() {
-//   const [data, setData] = useState([]);
-//   const [query, setQuery] = useState('');
-//   const [search, setSearch] = useState('');
-//   const [explain, setexplain] = useState('');
-//   const [image, setimage]  = useState([]);
-//   const [Youtube, setYoutube] = useState([]);
-//   const [loading, setloading] = useState(false);
-
-//   const handleChange = (e) => {
-//     setQuery(e.target.value);
-//   };
-
-//   const handleSearch = () => {
-    
-//     setSearch(query);
-//   };
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       if (search) {
-//         setloading(true);
-//         try {
-//           const response = await axios.get(`https://backendk-z915.onrender.com/autoai/search?q=${search}`);
-//           const result = await response.data[0];
-//           const sumarize = await response.data[1];
-//           const images = await response.data[2];
-//           const youtube_detail = await response.data[3]
-//           // setimage(images);
-//           console.log("Images",images);
-//           setimage(images)
-//           console.log(response)
-//           // setexplain(sumarize);
-//           setData(result);
-//           setYoutube(youtube_detail);
-//           console.log( result,sumarize)
-//         } catch (error) {
-//           console.error(error);``
-//         }
-//         finally{
-//           setloading(false);
-//         }
-//       }
-//     };
-//     fetchData();
-//   }, [search]);
-
-
-
-//   //  Function to formate text with headings,lists,paragraph and code blocks 
-
-//   const FormateText = (text) => {
-//     if (!text) return null;
-  
-//     // Replace Markdown-style headings
-//     text = text.replace(/^###\s(.+)/gm, "<h3 class='text-lg'>$1</h3>");
-//     text = text.replace(/^####\s(.+)/gm, "<h4 class='text-md'>$1</h4>");
-//     text = text.replace(/^##\s(.+)/gm, "<h2 class='text-lg'>$1</h2>");
-//     text = text.replace(/^#\s(.+)/gm, "<h1 class='text-xl font-bold'>$1</h1>");
-  
-//     // Replace Markdown-style bullet points (- item or * item)
-//     text = text.replace(/^- (.+)$/gm, "<li class='ml-4 list-disc'>$1</li>");
-//     text = text.replace(/^\* (.+)$/gm, "<li class='ml-4 list-disc'>$1</li>");
-//     text = text.replace(/(<li.+<\/li>)/g, "<ul>$1</ul>"); // Wrap list items in <ul>
-  
-//     // Replace triple backticks for code blocks
-//     text = text.replace(
-//       /```([\s\S]+?)```/g,
-//       "<pre class='bg-gray-200 text-black text-md mb-2 p-2 rounded-md overflow-x-auto'><code>$1</code></pre>"
-//     );
-  
-//     // Replace inline code using backticks (`code`)
-//     text = text.replace(/`([^`]+)`/g, "<code class='bg-gray-200 px-1 py-0.5 rounded'>$1</code>");
-  
-//     // Bold and Italic
-//     text = text.replace(/\*\*(.+?)\*\*/g, "<strong class='font-bold'>$1</strong>"); // **bold**
-//     text = text.replace(/\*(.+?)\*/g, "<em class='italic'>$1</em>"); // *italic*
-  
-//     // Convert Markdown tables to HTML tables
-//     text = text.replace(
-//       /\|(.+?)\|\n\|[-:\s|]+\|\n((?:\|.+?\|\n?)+)/g,
-//       (match, headers, rows) => {
-//         const headerCells = headers
-//           .split("|")
-//           .map((h) => h.trim())
-//           .filter((h) => h.length > 0)
-//           .map((h) => `<th class='border p-2 bg-gray-200'>${h}</th>`)
-//           .join("");
-  
-//         const rowCells = rows
-//           .trim()
-//           .split("\n")
-//           .filter((row) => row.trim().length > 0)
-//           .map((row) => {
-//             const columns = row
-//               .split("|")
-//               .map((col) => col.trim())
-//               .filter((col) => col.length > 0)
-//               .map((col) => `<td class='border p-2'>${col}</td>`)
-//               .join("");
-//             return `<tr>${columns}</tr>`;
-//           })
-//           .join("");
-  
-//         return `<table class='border-collapse border border-gray-300 w-full my-4'>
-//                   <thead><tr>${headerCells}</tr></thead>
-//                   <tbody>${rowCells}</tbody>
-//                 </table>`;
-//       }
-//     );
-  
-//     // Convert double newlines to paragraphs
-//     text = text.replace(/\n{2,}/g, "</p><p class='mb-4'>");
-  
-//     // Wrap everything in <p> tags
-//     return `<p class='mb-4'>${text}</p>`;
-//   };
-  
-//   const ExplainText = ({ text }) => {
-//     return text ? (
-//       <div
-//         className="border-blue-500 bg-white font-normal text-black w-full"
-//         dangerouslySetInnerHTML={{ __html: FormateText(text) }}
-//       />
-//     ) : null;
-//   };
-
-// if(loading){
-//   return ( <div className ="text-4xl font-bold inline-block align-middle">Loading Data...</div> );
-// }
-//   return (
-//     <div className="m-1 mb-10"> 
-
-//    <Head>
-//         <title>Fond Peace AI Social Media Platform</title>
-//         <meta name="description" content="Unlock the limitless potential of AI with Fond Peace AI. Experience cutting-edge AI-powered search, automation, content generation, and assistance tools—all for free. This is a platform where you can search anything like Google, Bing, and the web." />
-//         <meta name="keywords" content="Fond Peace AI, free AI tools, AI search engine, AI assistant, AI automation, AI content generator, AI-powered search, AI chatbot, AI-driven solutions, AI-powered research, AI discovery, AI-powered learning, AI innovation, AI productivity, AI-powered applications, AI-powered insights, AI-powered recommendations, AI for everyone, next-gen AI, best free AI tools, AI-powered knowledge base, AI-driven search engine, AI-powered decision-making, AI-powered problem-solving, AI assistant for work and study, AI-powered writing tools, AI-powered creative solutions, chatgpt, openai, Claude AI, Grok AI, Elon Musk AI, search engine alternatives, written updates, Telly updates, Anupama, YRKKH, Bhagya Lakshmi, Dhruv Rathee, MacRumors, 9to5Mac, Apple Insider, Apple rumors, iPhone news, AI SEO optimization, 2025 Google SEO, AI-powered blogging, real-time AI answers, best AI tools 2025, AI automation for business, SEO AI tools, AI-driven marketing, Google core update 2025, AI-enhanced productivity, AI-generated content, machine learning trends 2025, AI-powered analytics, AI for digital marketing, AI SEO ranking strategies, how to rank on Google with AI, best AI-powered research tools" />
-//         <meta name="robots" content="index, follow" />
-//         <meta name="author" content="Fond Peace AI Team" />
-//         <meta name="theme-color" content="#000000" />
-//         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-//         <link rel="canonical" href="https://www.fondpeace.com/" />
-        
-
-
-
-//         {/* Open Graph Meta Tags */}
-//         <meta property="og:type" content="website" />
-//         <meta property="og:title" content="Fond Peace AI - Your Ultimate Free AI Assistant for Everything" />
-//         <meta property="og:description" content="Experience the future of AI today! Search, create, and automate effortlessly with Fond Peace AI. Free AI-powered solutions for search, writing, automation, and more!" />
-//         <meta property="og:url" content="https://www.fondpeace.com/" />
-//         <meta property="og:image" content="https://www.fondpeace.com/og-image.jpg" />
-//         <meta property="og:image:width" content="1200" />
-//         <meta property="og:image:height" content="630" />
-//         <meta property="og:site_name" content="Fond Peace AI" />
-//         <meta property="og:locale" content="en_US" />
-
-//         {/* Twitter Meta Tags */}
-//         <meta name="twitter:card" content="summary_large_image" />
-//         <meta name="twitter:title" content="Fond Peace AI - Explore Advanced AI Tools for Free" />
-//         <meta name="twitter:description" content="Experience the future of AI today! Search, create, and automate effortlessly with Fond Peace AI. Free AI-powered solutions for search, writing, automation, and more!" />
-//         <meta name="twitter:image" content="https://www.fondpeace.com/twitter-image.jpg" />
-//         <meta name="twitter:site" content="@FondPeaceAI" />
-//         <meta name="twitter:creator" content="@FondPeaceAI" />
-
-//         {/* Schema.org JSON-LD */}
-//         <script
-//           type="application/ld+json"
-//           dangerouslySetInnerHTML={{
-//             __html: JSON.stringify({
-//               "@context": "https://schema.org",
-//               "@type": "SoftwareApplication",
-//               name: "Fond Peace AI",
-//               operatingSystem: "Web",
-//               applicationCategory: "Artificial Intelligence",
-//               offers: {
-//                 "@type": "Offer",
-//                 price: "0",
-//               },
-//               aggregateRating: {
-//                 "@type": "AggregateRating",
-//                 ratingValue: "4.9",
-//                 ratingCount: "2500",
-//               },
-//               publisher: {
-//                 "@type": "Organization",
-//                 name: "Fond Peace AI",
-//                 url: "https://www.fondpeace.com/",
-//                 logo: {
-//                   "@type": "ImageObject",
-//                   url: "https://www.fondpeace.com/logo.png",
-//                   width: 300,
-//                   height: 300,
-//                 },
-//               },
-//             }),
-//           }}
-//         />
-
-        
-//       </Head>
-   
-//     <div className="m-4">
-//       <h2 className="text-2xl font-bold text-center">Search Only Not Open</h2>
-//     </div>
-//     <div className="m-10 p-5 border-2 rounded-md">
-//       <input type="text" value={query} onChange={handleChange} className="border-2 rounded-md w-full p-2 text-lg"/>
-//       <button onClick={handleSearch} className="cursor-pointer w-full text-xl font-bold border-2 rounded-md mt-4 p-2 bg-blue-400 text-white">Search</button>
-//       </div>
-// {/*       {explain ? (
-//       <div className=" border-2 rounded-md border-black md:p-6 p-2  ">
-//             <ExplainText text={explain}/> 
-//       </div>) : ( <div></div>)
-      
-//       } */}
-
-//        <div className="">
-//         {Youtube.map((index) =>(
-//           <div key={index.id} className="border-2 rounded-md w-full mt-2 p-2">
-//             <img src={index.thumbnail} alt="" className="w-full py-2" />
-//           </div>
-//         ))}
-//       </div> 
-
-//       <div className="grid grid-cols-4 gap-4 items-center">
-//         {image?.length > 0 ? (
-//           image.map((photo, index) => (
-//             <div key={index} className="border-2 rounded-md w-60 h-40 flex justify-center items-center mt-2 p-2">
-//               <img src={photo} alt="img" className="w-full h-full object-cover rounded-md " />
-//             </div>
-//           ))
-//         ) : (
-//           <p className="col-span-4 text-center">No images found</p>
-//         )}
-//       </div>
-
-
-      
-//         {/* <div className="videos">
-//         {Youtube.map((video) => (
-//           <div key={video.id} className="video-card">
-//             <a href={video.url} target="_blank" rel="noopener noreferrer">
-//               <img src={video.thumbnail} alt={video.title} className="thumbnail" />
-//             </a>
-//             <h3>{video.title}</h3>
-//             <p>Channel: {video.channel}</p>
-//             <p>Views: {video.views}</p>
-//             <p>Likes: {video.likes}</p>
-//           </div>
-//         ))}
-//         </div> */}
-
-
-//       <ul >
-//         {data.map((item, index) => (
-//           <li key={index} className="mt-4 border-2 rounded-md p-1">
-//             <h2 className="text-lg text-blue-600 "><a href={item.url} target="_blank">{item.title}</a></h2>
-//             <p>{item.snippet}</p>
-//             <a href={item.url} target="_blank" className="text-blue-500 font-bold">Read more</a>
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }
-
-// export default App;

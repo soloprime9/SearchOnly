@@ -257,27 +257,28 @@ export default function RelatedPosts() {
         <article
           key={post._id}
           data-postid={post._id}
-          className="fp-post-item w-full max-w-[560px] mx-auto mb-4 sm:mb-6 bg-white border-y sm:border border-black/[0.06] sm:rounded-2xl overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.07)] transition-shadow duration-300"
+          className="fp-post-item w-full max-w-[580px] mx-auto mb-5 bg-white dark:bg-[#0f121d] border border-black/[0.06] dark:border-white/[0.08] sm:rounded-3xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.08)] transition-all duration-300"
         >
           {/* ── Header ── */}
-          <div className="flex items-center justify-between px-4 h-[54px] border-b border-black/[0.04]">
+          <div className="flex items-center justify-between px-4 h-[54px] border-b border-black/[0.04] dark:border-white/[0.06]">
             <Link
               href={`/profile/${post.userId?.username}`}
               className="flex items-center gap-2.5 group min-w-0"
             >
-              <div className="relative shrink-0 w-8 h-8 rounded-full overflow-hidden ring-2 ring-offset-1 ring-blue-400/40">
+              <div className="relative shrink-0 w-8 h-8 rounded-full overflow-hidden ring-2 ring-offset-1 ring-blue-400/40 dark:ring-blue-400/30">
                 <img
                   src={post.userId?.profilePic || "/Fondpeace.jpg"}
                   alt={post.userId?.username}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  onError={(e) => { e.currentTarget.src = "/Fondpeace.jpg"; }}
                 />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-[13px] font-bold text-gray-950 group-hover:text-blue-600 transition-colors truncate leading-tight">
+                <span className="text-[13px] font-bold text-gray-950 dark:text-white group-hover:text-blue-500 transition-colors truncate leading-tight">
                   {post.userId?.username || "User"}
                 </span>
-                <span className="text-[10.5px] text-gray-400 font-medium">
+                <span className="text-[10.5px] text-gray-400 dark:text-gray-500 font-medium">
                   {new Date(post.createdAt).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
@@ -287,7 +288,7 @@ export default function RelatedPosts() {
             </Link>
             <button
               onClick={() => toast("Coming soon")}
-              className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-800 hover:bg-black/[0.05] transition-all shrink-0"
+              className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-all shrink-0"
             >
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor">
                 <circle cx="5" cy="12" r="2" />
@@ -297,12 +298,24 @@ export default function RelatedPosts() {
             </button>
           </div>
 
-          {/* ── Media ── */}
+          {/* ── Media with Ambient Glow ── */}
           {post.media && (
-            <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
+            <div className="relative w-full aspect-[4/5] bg-zinc-950 overflow-hidden flex items-center justify-center group">
+              {/* Diffused Ambient Glow */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-blue-600/20 via-indigo-500/15 to-purple-600/20 blur-3xl opacity-60 pointer-events-none rounded-3xl group-hover:opacity-90 transition-opacity duration-500" />
+              
+              {/* Soft Ambient Blurred Backdrop */}
+              <img
+                src={post.thumbnail || post.media}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-25 scale-110 pointer-events-none select-none"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+
               <Link
-                href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
-                className="block w-full h-full"
+                href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
+                className="relative z-10 block w-full h-full"
               >
                 {isVid ? (
                   <video
@@ -312,7 +325,13 @@ export default function RelatedPosts() {
                     playsInline
                     muted={mutedMap[post._id] !== false}
                     preload="metadata"
-                    poster={post.thumbnail || post.image}
+                    poster={
+                      post.thumbnail &&
+                      !post.thumbnail.includes("Fondpeace.jpg") &&
+                      !post.thumbnail.includes("default.jpg")
+                        ? post.thumbnail
+                        : undefined
+                    }
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -331,7 +350,7 @@ export default function RelatedPosts() {
                     e.preventDefault();
                     toggleMute(post._id);
                   }}
-                  className="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center bg-black/50 backdrop-blur-md text-white rounded-full hover:bg-black/70 active:scale-90 transition-all"
+                  className="absolute bottom-3 right-3 z-20 w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md text-white rounded-full hover:bg-black/80 active:scale-90 transition-all border border-white/10"
                 >
                   {mutedMap[post._id] !== false ? (
                     <FaVolumeMute size={11} />

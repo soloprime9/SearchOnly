@@ -7,11 +7,27 @@ export default function InstallPWA() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // Check if user already installed or dismissed within the last 24 hours
+    try {
+      const isInstalled = localStorage.getItem("fondpeace_pwa_installed");
+      if (isInstalled) return;
+
+      const dismissedUntil = localStorage.getItem("fondpeace_pwa_dismissed_until");
+      if (dismissedUntil && Date.now() < Number(dismissedUntil)) {
+        return; // Respect 24-hour cooldown so user is never annoyed
+      }
+    } catch {
+      /* ignore storage access issues */
+    }
+
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowBanner(true);
-      setTimeout(() => setIsVisible(true), 100);
+      // Give the user a polite 3-second grace period after page loads before showing
+      setTimeout(() => {
+        setShowBanner(true);
+        setTimeout(() => setIsVisible(true), 100);
+      }, 3000);
     };
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
@@ -21,10 +37,21 @@ export default function InstallPWA() {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const choice = await deferredPrompt.userChoice;
-    if (choice.outcome === "accepted") closeUI();
+    if (choice.outcome === "accepted") {
+      try {
+        localStorage.setItem("fondpeace_pwa_installed", "true");
+      } catch {}
+      closeUI();
+    }
   };
 
   const closeUI = () => {
+    try {
+      // Set 24-hour anti-annoyance cooldown
+      const nextAllowedTime = Date.now() + 24 * 60 * 60 * 1000;
+      localStorage.setItem("fondpeace_pwa_dismissed_until", nextAllowedTime.toString());
+    } catch {}
+
     setIsVisible(false);
     setTimeout(() => setShowBanner(false), 500);
   };

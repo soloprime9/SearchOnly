@@ -1,104 +1,62 @@
 import React from "react";
+import LegalPageLayout from "@/components/LegalPageLayout";
 
-const Disclaimer = () => {
-  return (
-    <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <p className="mb-6 text-base leading-relaxed text-gray-700">
-        If you require any more information or have any questions about our site's disclaimer, please feel free to contact us by email at{" "}
-        <a
-          href="mailto:jotarikhan@gmail.com"
-          className="text-blue-600 hover:underline"
-        >
-          jotarikhan@gmail.com
-        </a>
-        . Our Disclaimer was generated with the help of the{" "}
-        <a
-          href="https://soumyahelp.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          SoumyaHelp
-        </a>
-        .
-      </p>
-
-      <h2 className="text-2xl font-semibold mb-4 text-gray-900">Disclaimers - Fond Peace</h2>
-
-      <p className="mb-4 text-base leading-relaxed text-gray-700">
-        All the information on this website -{" "}
-        <a
-          href="https://www.fondpeace.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          Fond Peace
-        </a>{" "}
-        - is published in good faith and for general information purpose only. Fond Peace does not make any warranties about the completeness, reliability and accuracy of this information. Any action you take upon the information you find on this website (Fond Peace), is strictly at your own risk. Fond Peace will not be liable for any losses and/or damages in connection with the use of our website.
-      </p>
-
-      <p className="mb-4 text-base leading-relaxed text-gray-700">
-        From our website, you can visit other websites by following hyperlinks to such external sites. While we strive to provide only quality links to useful and ethical websites, we have no control over the content and nature of these sites. These links to other websites do not imply a recommendation for all the content found on these sites. Site owners and content may change without notice and may occur before we have the opportunity to remove a link which may have gone 'bad'.
-      </p>
-
-      <p className="mb-6 text-base leading-relaxed text-gray-700">
-        Please be also aware that when you leave our website, other sites may have different privacy policies and terms which are beyond our control. Please be sure to check the Privacy Policies of these sites as well as their "Terms of Service" before engaging in any business or uploading any information. Our Disclaimer was created by{" "}
-        <a
-          href="https://soumyahelp.com/disclaimer-generator/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          Disclaimer Generator
-        </a>
-        .
-      </p>
-
-      <h2 className="text-2xl font-semibold mb-4 text-gray-900">Consent</h2>
-
-      <p className="mb-6 text-base leading-relaxed text-gray-700">
-        By using our website, you hereby consent to our disclaimer and agree to its terms.
-      </p>
-
-      <h2 className="text-2xl font-semibold mb-4 text-gray-900">Update</h2>
-
-      <p className="mb-4 text-base leading-relaxed text-gray-700">
-        Should we update, amend or make any changes to this document, those changes will be prominently posted here.
-      </p>
-
-      <p className="mb-8 text-base leading-relaxed text-gray-700">
-        If you want to contact us then you can email us at{" "}
-        <a
-          href="mailto:jotarikhan@gmail.com"
-          className="text-blue-600 hover:underline"
-        >
-          jotarikhan@gmail.com
-        </a>{" "}
-        also, you can contact us by our contact us form. Go to homepage --&gt;{" "}
-        <a
-          href="https://www.fondpeace.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          Fond Peace
-        </a>
-        <a
-          href="https://soumyahelp.com/disclaimer-generator/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          .
-        </a>
-      </p>
-
-      <p className="text-center text-gray-600 italic text-sm">
-        "Thanks for visiting our Disclaimer Page"
-      </p>
-    </div>
-  );
+export const metadata = {
+  title: "Disclaimer",
+  description:
+    "Read the FondPeace disclaimer regarding information accuracy, external links, and user-generated community content.",
+  alternates: {
+    canonical: "https://www.fondpeace.com/disclaimer",
+  },
+  openGraph: {
+    title: "Disclaimer | FondPeace",
+    description:
+      "Read the FondPeace disclaimer regarding information accuracy and community content.",
+    url: "https://www.fondpeace.com/disclaimer",
+    siteName: "FondPeace",
+    type: "website",
+  },
 };
 
-export default Disclaimer;
+export default function Disclaimer() {
+  return (
+    <LegalPageLayout
+      title="Platform Disclaimer"
+      subtitle="General information, community content, and external link disclosures for FondPeace."
+      lastUpdated="September 2026"
+    >
+      <div className="space-y-6">
+        <section>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">General Information</h2>
+          <p>
+            All information on FondPeace (https://www.fondpeace.com) is published in good faith and for general community discussion purposes only. FondPeace does not make warranties regarding complete accuracy or timeliness of third-party user-submitted posts.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">External Links</h2>
+          <p>
+            FondPeace may contain links to external sites. While we strive to maintain safe and quality links, we have no control over content or updates on external websites. Following links to third-party services is at your own discretion.
+          </p>
+        </section>
+
+        <section className="p-5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06]">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Professional Advice Notice</h2>
+          <p className="text-sm">
+            Content posted on FondPeace — including technology discussions, health tips, and financial commentary — does not constitute professional advice. Always verify critical decisions with certified professionals.
+          </p>
+        </section>
+
+        <section className="pt-4 border-t border-black/[0.06] dark:border-white/[0.06]">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Questions & Contact</h2>
+          <p className="text-sm">
+            For questions regarding this disclaimer:
+          </p>
+          <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mt-1">
+            📧 contact@fondpeace.com (or jotarikhan@gmail.com)
+          </p>
+        </section>
+      </div>
+    </LegalPageLayout>
+  );
+}

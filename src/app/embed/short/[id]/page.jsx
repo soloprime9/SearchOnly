@@ -15,7 +15,8 @@ function toAbsolute(url) {
 
 /* ----------------- SEO METADATA ----------------- */
 export async function generateMetadata({ params }) {
-  const id = params?.id;
+  const resolvedParams = await params;
+  const id = resolvedParams?.id;
   if (!id) return {};
 
   const watchUrl = `${SITE_ROOT}/short/${id}`;
@@ -38,7 +39,8 @@ export async function generateMetadata({ params }) {
 
 /* ----------------- PAGE ----------------- */
 export default async function EmbedPage({ params }) {
-  const id = params?.id;
+  const resolvedParams = await params;
+  const id = resolvedParams?.id;
   if (!id) return notFound();
 
   const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });

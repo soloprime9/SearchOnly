@@ -1,271 +1,157 @@
 'use client';
-import { useState } from "react";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { Users, UserPlus, Sparkles, CheckCircle2, AlertCircle, Phone } from "lucide-react";
+import { playTap, playPop, playChime } from "@/utils/soundEffects";
+import { toast } from "@/utils/toast";
 
 export default function FindFriends() {
-
   const [friends, setFriends] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("Idle");
+  const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
 
   async function handleFindFriends() {
-    console.log("🚀 BUTTON CLICKED");
-
-    setStatus("Button clicked");
+    playTap();
     setLoading(true);
     setError(null);
+    setStatus("checking");
 
     try {
-
-      console.log("STEP 1: Checking Contacts API");
-      setStatus("Checking Contacts API...");
-
-      if (!navigator.contacts || !navigator.contacts.select) {
-        throw new Error("Contacts API not supported on this device/browser");
+      if (typeof navigator === "undefined" || !navigator.contacts || !navigator.contacts.select) {
+        throw new Error("Contact sync is supported on mobile browsers (Chrome on Android).");
       }
 
-      console.log("STEP 2: Opening contact picker...");
-      setStatus("Opening contact picker...");
+      setStatus("selecting");
+      const contacts = await navigator.contacts.select(["name", "tel"], { multiple: true });
 
-      const contacts = await navigator.contacts.select(
-        ["name", "tel"],
-        { multiple: true }
-      );
+      if (!contacts || contacts.length === 0) {
+        setLoading(false);
+        setStatus("idle");
+        return;
+      }
 
-      console.log("STEP 3: Contacts received", contacts);
-      setStatus(`Got ${contacts.length} contacts`);
-
-      const normalizedContacts = contacts.map((c, i) => ({
-        name: c.name?.[0] || "No Name",
-        phone: (c.tel?.[0] || "").replace(/\s/g, "")
+      const normalizedContacts = contacts.map((c) => ({
+        name: c.name?.[0] || "Friend",
+        phone: (c.tel?.[0] || "").replace(/\s/g, ""),
       }));
 
-      console.log("STEP 4: Normalized contacts", normalizedContacts);
-
-      setStatus("Sending to backend...");
-
-      const res = await fetch(
-        "https://backend-k.vercel.app/post/number/sync-contacts",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            contacts: normalizedContacts
-          })
-        }
-      );
-
-      console.log("STEP 5: Response status", res.status);
+      setStatus("syncing");
+      const res = await fetch("https://backendk-z915.onrender.com/post/number/sync-contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contacts: normalizedContacts }),
+      });
 
       if (!res.ok) {
-        throw new Error("Backend error: " + res.status);
+        throw new Error("Backend contact sync error: " + res.status);
       }
 
       const data = await res.json();
-
-      console.log("STEP 6: Backend response", data);
-
       setFriends(data.matchedUsers || []);
       setSuggestions(data.suggestions || []);
-
-      setStatus("Sync complete ✅");
-
+      setStatus("complete");
+      playChime();
+      toast.success("Contacts synced successfully!");
     } catch (err) {
-
-      console.error("❌ ERROR:", err);
-
-      // 🔥 SHOW ERROR ON SCREEN
-      setError(err.message || "Something went wrong");
-      setStatus("ggg");
-
+      console.warn("Contact sync warning:", err);
+      playPop();
+      setError(err.message || "Could not sync contacts.");
+      setStatus("error");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div style={{ width: "100%", marginTop: 20 }}>
+    <div className="w-full max-w-3xl mx-auto mt-8 mb-16 px-3 sm:px-4">
+      <div className="p-6 sm:p-8 rounded-3xl bg-white/70 dark:bg-zinc-950/60 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-gray-950 dark:text-white">
+                Find Friends on FondPeace
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Discover contacts from your phonebook who are already sharing posts.
+              </p>
+            </div>
+          </div>
 
-      <button onClick={handleFindFriends}>
-        {loading ? "Syncing..." : "Find Friends"}
-      </button>
-
-      {/* STATUS */}
-      <p style={{ marginTop: 10, color: "blue" }}>
-        Status: {status}
-      </p>
-
-      {/* ERROR DISPLAY (IMPORTANT FIX) */}
-      {error && (
-        <p style={{
-          color: "red",
-          background: "#ffe5e5",
-          padding: "10px",
-          borderRadius: "8px"
-        }}>
-          ❌ Error: {error}
-        </p>
-      )}
-
-      {/* FRIENDS */}
-      <h3>Friends on App</h3>
-
-      {friends.map((u, i) => (
-        <div key={i}>
-          <img src={u.profilePic} width="40" />
-          <b>{u.name}</b>
-          <p>{u.phone}</p>
+          <button
+            onClick={handleFindFriends}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60 text-xs sm:text-sm font-bold transition-all disabled:opacity-50 shrink-0 shadow-sm"
+          >
+            {loading ? (
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <UserPlus className="w-4 h-4" />
+            )}
+            <span>{loading ? "Syncing..." : "Sync Contacts"}</span>
+          </button>
         </div>
-      ))}
 
-      {/* SUGGESTIONS */}
-      <h3>Suggested Usernames</h3>
+        {error && (
+          <div className="mt-4 p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
 
-      {suggestions.map((s, i) => (
-        <div key={i}>
-          <p>{s}</p>
-        </div>
-      ))}
+        {/* Matched Friends */}
+        {friends.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-black/[0.05] dark:border-white/[0.06]">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+              Matched Friends ({friends.length})
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {friends.map((u, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 p-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06]"
+                >
+                  <img
+                    src={u.profilePic || "/logo.jpg"}
+                    alt={u.name}
+                    className="w-10 h-10 rounded-full object-cover border border-black/10 dark:border-white/10"
+                    onError={(e) => { e.currentTarget.src = "/logo.jpg"; }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{u.name}</p>
+                    <p className="text-[11px] text-gray-400 truncate">{u.phone}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
+        {/* Suggested Usernames */}
+        {suggestions.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-black/[0.05] dark:border-white/[0.06]">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+              Suggested Creators
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((s, i) => (
+                <Link
+                  key={i}
+                  href={`/profile/${s}`}
+                  className="px-3 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] hover:bg-blue-500 hover:text-white text-xs font-semibold text-gray-700 dark:text-gray-300 transition-colors"
+                >
+                  @{s}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
-
-
-// 'use client';
-// import { useState } from "react";
-
-// export default function FindFriends() {
-
-//   const [friends, setFriends] = useState([]);
-//   const [suggestions, setSuggestions] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [status, setStatus] = useState("Idle");
-
-//   async function handleFindFriends() {
-//     console.log("🚀 BUTTON CLICKED");
-//     setStatus("Button clicked");
-//     setLoading(true);
-
-//     try {
-
-//       // STEP 1
-//       console.log("STEP 1: Checking Contacts API");
-//       setStatus("Checking Contacts API...");
-
-//       if (!navigator.contacts || !navigator.contacts.select) {
-//         console.error("❌ Contacts API not supported");
-//         setStatus("Contacts API not supported");
-//         alert("This device/browser does not support Contacts API");
-//         return;
-//       }
-
-//       console.log("✅ Contacts API supported");
-//       setStatus("Contacts API supported");
-
-//       // STEP 2
-//       console.log("STEP 2: Opening contact picker...");
-//       setStatus("Opening contact picker...");
-
-//       const contacts = await navigator.contacts.select(
-//         ["name", "tel"],
-//         { multiple: true }
-//       );
-
-//       console.log("STEP 3: Contacts received", contacts);
-//       setStatus(`Got ${contacts.length} contacts`);
-
-//       // STEP 3
-//       const normalizedContacts = contacts.map((c, i) => {
-//         const data = {
-//           name: c.name?.[0] || "No Name",
-//           phone: (c.tel?.[0] || "").replace(/\s/g, "")
-//         };
-
-//         console.log(`📞 Contact ${i}:`, data);
-//         return data;
-//       });
-
-//       console.log("STEP 4: Normalized contacts", normalizedContacts);
-
-//       // STEP 5
-//       console.log("STEP 5: Sending to backend...");
-//       setStatus("Sending to backend...");
-
-//       const res = await fetch(
-//         "https://backend-k.vercel.app/post/number/sync-contacts",
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json"
-//           },
-//           body: JSON.stringify({
-//             contacts: normalizedContacts
-//           })
-//         }
-//       );
-
-//       console.log("STEP 6: Response received", res);
-
-//       if (!res.ok) {
-//         throw new Error(`Backend error: ${res.status}`);
-//       }
-
-//       const data = await res.json();
-
-//       console.log("STEP 7: Backend JSON", data);
-
-//       setFriends(data.matchedUsers || []);
-//       setSuggestions(data.suggestions || []);
-
-//       setStatus("Sync complete ✅");
-
-//     } catch (err) {
-
-//       console.error("❌ ERROR:", err);
-//       setStatus("Error occurred ❌",err);
-
-//     } finally {
-//       setLoading(false);
-//     }
-//   }
-
-//   return (
-//     <div style={{ width: "100%", marginTop: 20 }}>
-
-//       <button onClick={handleFindFriends}>
-//         {loading ? "Syncing..." : "Find Friends"}
-//       </button>
-
-//       {/* LIVE STATUS (VERY IMPORTANT FOR MOBILE DEBUGGING) */}
-//       <p style={{ marginTop: 10, color: "blue" }}>
-//         Status: {status}
-//       </p>
-
-//       {/* FRIENDS */}
-//       <h3>Friends on App</h3>
-
-//       {friends.map((u, i) => (
-//         <div key={i}>
-//           <img src={u.profilePic} width="40" />
-//           <b>{u.name}</b>
-//           <p>{u.phone}</p>
-//         </div>
-//       ))}
-
-//       {/* SUGGESTIONS */}
-//       <h3>Suggested Usernames</h3>
-
-//       {suggestions.map((s, i) => (
-//         <div key={i}>
-//           <p>{s}</p>
-//         </div>
-//       ))}
-
-//     </div>
-//   );
-// }

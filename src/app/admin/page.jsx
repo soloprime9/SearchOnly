@@ -4,6 +4,14 @@ import AdminClient from "@/components/AdminClient";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Admin Panel | FondPeace",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
 async function getInitialData() {
   try {
     const res = await fetch(
