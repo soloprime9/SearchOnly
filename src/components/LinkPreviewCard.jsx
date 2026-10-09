@@ -22,7 +22,7 @@ export default function LinkPreviewCard({ preview }) {
       className="my-3 block rounded-2xl overflow-hidden border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-200 group no-underline text-inherit shadow-sm hover:shadow-md"
     >
       {preview.image && (
-        <div className="relative w-full h-44 sm:h-52 overflow-hidden bg-gray-100 dark:bg-gray-800">
+        <div className="relative w-full aspect-video overflow-hidden bg-black flex items-center justify-center">
           <img
             src={preview.image}
             alt={preview.title || domain}
@@ -32,7 +32,7 @@ export default function LinkPreviewCard({ preview }) {
               e.currentTarget.parentElement.style.display = "none";
             }}
           />
-          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1">
+          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1 shadow-md">
             <ExternalLink className="w-3 h-3" />
             <span>Visit</span>
           </div>

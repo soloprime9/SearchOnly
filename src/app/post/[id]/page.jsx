@@ -672,9 +672,10 @@ return (
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
       />
-      <LeftSidebar/>
-      {/* ── STICKY HEADER ── */}
-      <header className="sticky top-0 z-50 bg-white/85 dark:bg-[#090b12]/85 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.08]">
+      <LeftSidebar sticky={false} />
+      <div className="w-full lg:pl-[68px] flex flex-col min-h-screen">
+        {/* ── STICKY HEADER ── */}
+        <header className="sticky top-0 z-30 bg-white/85 dark:bg-[#090b12]/85 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.08]">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link
             href="/"
@@ -809,8 +810,9 @@ return (
       {/* ── RELATED POSTS ── */}
       <RelatedPosts />
  
-      {/* bottom padding so mobile nav doesn't cover content */}
-      <div className="h-20 lg:hidden" />
+        {/* bottom padding so mobile nav doesn't cover content */}
+        <div className="h-20 lg:hidden" />
+      </div>
     </main>
   );
 

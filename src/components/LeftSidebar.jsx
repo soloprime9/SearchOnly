@@ -66,13 +66,13 @@ export default function LeftSidebar({ sticky = false }) {
           DESKTOP SIDEBAR (Modern Gen-Z Glassmorphic)
       ═══════════════════════════════════════════════════ */}
       <div
-        className={`hidden lg:block relative ${sticky ? "sticky top-0" : "fixed left-0 top-0"} h-screen w-[68px] z-40 shrink-0`}
+        className={`hidden lg:block ${sticky ? "sticky top-0" : "fixed left-0 top-0"} h-screen w-[68px] z-40 shrink-0`}
       >
         <aside
           onMouseEnter={() => setExpanded(true)}
           onMouseLeave={() => setExpanded(false)}
           className={`
-            flex flex-col absolute left-0 top-0 h-screen z-40
+            flex flex-col ${sticky ? "sticky top-0" : "fixed left-0 top-0"} h-screen z-40
             bg-black/95 backdrop-blur-2xl
             border-r border-white/[0.1]
             transition-all duration-300 ease-in-out

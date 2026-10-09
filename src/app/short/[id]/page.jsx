@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import { redirect, permanentRedirect } from "next/navigation";
 import SinglePostPage from "@/components/SinglePostPage";
+import LeftSidebar from "@/components/LeftSidebar";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
@@ -434,6 +435,8 @@ export default async function Page({ params }) {
     __html: JSON.stringify(videoSchema),
   }}
 />
+<LeftSidebar sticky={false} />
+<div className="w-full lg:pl-[68px] flex flex-col min-h-screen">
    
 {/* <script
   type="application/ld+json"
@@ -587,17 +590,18 @@ export default async function Page({ params }) {
 
         {/* Media Section – VIDEO ONLY */}
 {isVideo && mediaUrl ? (
-  <video
-    poster={thumbnail}           // Thumbnail for Google
-    controls
-    muted
-    playsInline
-    preload="metadata"
-    className="rounded-xl w-full aspect-[9/16] max-h-[80vh] bg-black object-contain"
-  >
-    <source src={mediaUrl} type="video/mp4" itemProp="contentUrl" />
-    Your browser does not support the video tag.
-  </video>
+  <div className="relative w-full bg-black rounded-2xl overflow-hidden flex items-center justify-center max-h-[560px] my-3">
+    <video
+      poster={thumbnail}           // Thumbnail for Google
+      controls
+      playsInline
+      preload="metadata"
+      className="w-full max-h-[560px] object-contain block mx-auto"
+    >
+      <source src={mediaUrl} type="video/mp4" itemProp="contentUrl" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
 ) : null}
 
          
@@ -613,13 +617,11 @@ export default async function Page({ params }) {
       </section>
     </section>
 
-
-        
-
-     
-                
-            </main>
-        );
+      {/* bottom padding so mobile nav doesn't cover content */}
+      <div className="h-20 lg:hidden" />
+    </div>
+  </main>
+);
     } catch (e) {
         if (e?.digest?.startsWith("NEXT_REDIRECT")) {
             throw e;

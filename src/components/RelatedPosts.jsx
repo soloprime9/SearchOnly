@@ -298,24 +298,12 @@ export default function RelatedPosts() {
             </button>
           </div>
 
-          {/* ── Media with Ambient Glow ── */}
+          {/* ── Media with Ambient Fit (Homepage Standard) ── */}
           {post.media && (
-            <div className="relative w-full aspect-[4/5] bg-zinc-950 overflow-hidden flex items-center justify-center group">
-              {/* Diffused Ambient Glow */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-blue-600/20 via-indigo-500/15 to-purple-600/20 blur-3xl opacity-60 pointer-events-none rounded-3xl group-hover:opacity-90 transition-opacity duration-500" />
-              
-              {/* Soft Ambient Blurred Backdrop */}
-              <img
-                src={post.thumbnail || post.media}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-25 scale-110 pointer-events-none select-none"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              />
-
+            <div className="relative w-full max-h-[520px] bg-black rounded-2xl overflow-hidden flex items-center justify-center my-1 group">
               <Link
                 href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
-                className="relative z-10 block w-full h-full"
+                className="w-full h-auto flex items-center justify-center bg-black cursor-pointer group/media"
               >
                 {isVid ? (
                   <video
@@ -332,13 +320,13 @@ export default function RelatedPosts() {
                         ? post.thumbnail
                         : undefined
                     }
-                    className="w-full h-full object-cover"
+                    className="w-full max-h-[520px] object-contain block mx-auto"
                   />
                 ) : (
                   <img
                     src={post.media}
                     alt={title}
-                    className="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.015]"
+                    className="w-full max-h-[520px] object-contain block mx-auto"
                     loading="lazy"
                   />
                 )}
