@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 
 const API_URL = "https://backend-k.vercel.app/post/video/getall";
 const SITE_URL = "https://www.fondpeace.com";
@@ -41,7 +42,7 @@ ${posts
 
     <video:video>
       <video:thumbnail_loc>
-        ${post.thumbnail || `${SITE_URL}/Fondpeace.jpg`}
+        ${resolvePostThumbnail(post)}
       </video:thumbnail_loc>
 
       <video:title><![CDATA[${

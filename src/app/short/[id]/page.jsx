@@ -6,6 +6,7 @@ import { redirect, permanentRedirect } from "next/navigation";
 import SinglePostPage from "@/components/SinglePostPage";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
 import { getApiBase } from "@/utils/apiConfig";
+import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 
 // Server-side Constants
 const API_BASE = getApiBase();
@@ -140,8 +141,8 @@ export async function generateMetadata({ params }) {
     const { post } = await res.json();
     if (!post) return { title: "Video Not Found | FondPeace" };
 
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl); // Fixed syntax
-    const thumb = toAbsolute(post.thumbnail || mediaUrl); // Fallback to media if no thumb
+    const mediaUrl = toAbsolute(post.media || post.mediaUrl, "video");
+    const thumb = resolvePostThumbnail(post);
     const pageUrl = `${SITE_ROOT}/short/${id}`;
 
     const rawTitle = (post.title || "").trim();
@@ -159,21 +160,23 @@ export async function generateMetadata({ params }) {
     return {
       title: title,
       description: description,
-  keywords: extractKeywords(post),
-  alternates: { canonical: pageUrl },
-  openGraph: {
-    title: title,
-    description: description,
-    url: pageUrl,
-    siteName: "FondPeace",
-    type: "video.other", // Better for vertical/reels content
-    images: [
-      {
-        url: thumb,
-        
-        alt: title,
-      },
-    ],
+      keywords: extractKeywords(post),
+      alternates: { canonical: pageUrl },
+      openGraph: {
+        title: title,
+        description: description,
+        url: pageUrl,
+        siteName: "FondPeace",
+        type: "video.other", // Better for vertical/reels content
+        images: [
+          {
+            url: thumb,
+            secureUrl: thumb,
+            width: 1200,
+            height: 630,
+            alt: cleanText || title,
+          },
+        ],
     videos: [
       {
         url: mediaUrl,
@@ -253,7 +256,7 @@ export default async function Page({ params }) {
   description: buildDescription(post),
 
   thumbnailUrl: [
-    thumbnail || `${SITE_ROOT}/Fondpeace.jpg`
+    resolvePostThumbnail(post)
   ],
 
   // ✅ MUST (VERY IMPORTANT)

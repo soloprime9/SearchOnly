@@ -16,6 +16,7 @@ import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
 import { redirect, notFound, permanentRedirect } from "next/navigation";
 import { getApiBase } from "@/utils/apiConfig";
+import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 const API_BASE = getApiBase();
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_AVATAR = "https://www.fondpeace.com/Fondpeace.jpg";
@@ -166,17 +167,15 @@ export async function generateMetadata({ params }) {
 
     if (!post) return { title: "Post Not Found | FondPeace" };
 
+    const resolvedThumb = resolvePostThumbnail(post);
     const mediaUrl = toAbsolute(post.media || post.mediaUrl);
-    const thumb = toAbsolute(post.thumbnail || mediaUrl);
-const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
     const isVideo =
       post.mediaType?.startsWith("video") ||
       /\.(mp4|mov|webm|mkv)$/i.test(mediaUrl || "");
-    const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
     if (isVideo) {
       return {
-        title: `${post.title || "Video"} - FondPeace`,
+        title: `${post.title || "Video"}`,
         description: post.title || "Watch on FondPeace",
         alternates: { canonical: `${SITE_ROOT}/short/${id}` },
         robots: { index: false, follow: true },
@@ -206,13 +205,22 @@ const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
         description: description,
         url: pageUrl,
         type: "article",
-        images: [{ url: thumb }],
+        siteName: "FondPeace",
+        images: [
+          {
+            url: resolvedThumb,
+            secureUrl: resolvedThumb,
+            width: 1200,
+            height: 630,
+            alt: cleanText || titleTag,
+          },
+        ],
       },
       twitter: {
         card: "summary_large_image", 
         title: titleTag,
         description: description,
-        images: [thumb],
+        images: [resolvedThumb],
       },
     };
   } catch {
@@ -253,9 +261,10 @@ const related = data?.related ?? [];
 
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
+  const resolvedThumb = resolvePostThumbnail(post);
   const mediaUrl = toAbsolute(post.media || post.mediaUrl || post.thumbnail);
   const authorName = post.userId?.username || "FondPeace";
-  const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
+  const thumbnail = resolvedThumb || DEFAULT_THUMB;
   const videoPoster = (post.thumbnail && !post.thumbnail.includes("Fondpeace.jpg") && !post.thumbnail.includes("default.jpg")) ? toAbsolute(post.thumbnail) : undefined;
   const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
@@ -313,11 +322,11 @@ const related = data?.related ?? [];
           "inLanguage": "en"
         } : {}),
 
-        // Photo / Image Attachment
-        ...(isImage && mediaUrl ? {
+        // Photo / Image / Link Attachment
+        ...(resolvedThumb ? {
           "image": {
             "@type": "ImageObject",
-            "url": mediaUrl
+            "url": resolvedThumb
           }
         } : {}),
 
