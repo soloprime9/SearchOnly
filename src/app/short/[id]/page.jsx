@@ -149,8 +149,8 @@ export async function generateMetadata({ params }) {
     const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
 
     const title = cleanText
-      ? `${cleanText.slice(0, 50)} by ${author} | FondPeace`
-      : `${rawTitle.slice(0, 50) || "Watch Video"} | FondPeace Short`;
+      ? `${cleanText.slice(0, 50)} by ${author}`
+      : `${rawTitle.slice(0, 50) || "Watch Video"}`;
 
     const description = cleanText
       ? `Watch "${cleanText}" shared by ${author} on FondPeace. Join the social community to explore trending short reels, react, and discuss.`

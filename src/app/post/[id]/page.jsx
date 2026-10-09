@@ -188,8 +188,8 @@ const thumbnail = toAbsolute(post.thumbnail) || DEFAULT_THUMB;
     const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
 
     const titleTag = cleanText
-      ? `${cleanText.slice(0, 55)} by ${author} | FondPeace`
-      : `${rawTitle.slice(0, 55) || "Community Post"} | FondPeace`;
+      ? `${cleanText.slice(0, 55)} by ${author}`
+      : `${rawTitle.slice(0, 55) || "Community Post"}`;
 
     const description = cleanText
       ? `Read: "${cleanText}" by ${author} on FondPeace. Join real conversations, explore topics, and share your perspectives.`
