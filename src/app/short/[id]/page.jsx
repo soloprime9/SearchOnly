@@ -588,11 +588,11 @@ export default async function Page({ params }) {
 
         
 
-        {/* Media Section – VIDEO ONLY */}
+        {/* Media Section – VIDEO ONLY (Homepage Village.jsx Standard) */}
 {isVideo && mediaUrl ? (
   <div className="relative w-full bg-black rounded-2xl overflow-hidden flex items-center justify-center max-h-[560px] my-3">
     <video
-      poster={thumbnail}           // Thumbnail for Google
+      src={mediaUrl}
       controls
       playsInline
       preload="metadata"

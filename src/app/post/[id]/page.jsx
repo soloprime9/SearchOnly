@@ -747,14 +747,11 @@ return (
             </button>
           </div>
  
-          {/* Media with Ambient Glow Lighting */}
+          {/* Media Section - Homepage (Village.jsx) Standard */}
           {(isVideo || isImage) && (
-            <div className="relative w-full overflow-hidden bg-zinc-950 flex items-center justify-center group min-h-[260px]">
-              {/* Diffused Dynamic Ambient Glow */}
-              <div className="absolute -inset-6 bg-gradient-to-tr from-blue-600/25 via-indigo-500/20 to-purple-600/25 blur-3xl opacity-75 pointer-events-none rounded-3xl group-hover:opacity-100 transition-opacity duration-500" />
-              
-              {/* Soft Ambient Blurred Backdrop */}
-              {mediaUrl && (
+            <div className="relative w-full overflow-hidden bg-black flex items-center justify-center group min-h-[260px] max-h-[560px] my-1 rounded-2xl">
+              {/* Soft Ambient Blurred Backdrop for Photos */}
+              {isImage && mediaUrl && (
                 <img
                   src={mediaUrl}
                   alt=""
@@ -767,17 +764,16 @@ return (
                 {isVideo ? (
                   <video
                     src={mediaUrl}
-                    poster={videoPoster}
                     controls
                     preload="metadata"
                     playsInline
-                    className="w-full max-h-[76vh] object-contain block mx-auto shadow-2xl"
+                    className="w-full max-h-[560px] object-contain block mx-auto shadow-2xl"
                   />
                 ) : (
                   <img
                     src={mediaUrl}
                     alt={post?.title || "Post image"}
-                    className="w-full max-h-[76vh] object-contain block mx-auto transition-transform duration-300 hover:scale-[1.01]"
+                    className="w-full max-h-[560px] object-contain block mx-auto transition-transform duration-300 hover:scale-[1.01]"
                     loading="lazy"
                   />
                 )}

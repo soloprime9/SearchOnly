@@ -301,13 +301,6 @@ export default function RelatedPosts() {
                     playsInline
                     muted={mutedMap[post._id] !== false}
                     preload="metadata"
-                    poster={
-                      post.thumbnail &&
-                      !post.thumbnail.includes("Fondpeace.jpg") &&
-                      !post.thumbnail.includes("default.jpg")
-                        ? post.thumbnail
-                        : undefined
-                    }
                     className="w-full max-h-[520px] object-contain block mx-auto"
                   />
                 ) : (
