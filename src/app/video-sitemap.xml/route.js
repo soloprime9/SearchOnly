@@ -27,7 +27,8 @@ export async function GET() {
 
 ${posts
   .map((post) => {
-    if (!post?._id || !post?.media) return "";
+    const videoMedia = post?.media || post?.mediaUrl;
+    if (!post?._id || !videoMedia) return "";
 
     // ✅ SAFE DURATION (no error ever)
     const durationNum = Number(post.duration);
@@ -54,7 +55,7 @@ ${posts
       }]]></video:description>
 
       <video:content_loc>
-        ${post.media}
+        ${videoMedia}
       </video:content_loc>
 
       ${
