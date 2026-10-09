@@ -127,18 +127,6 @@ export default function RelatedPosts() {
           const video = videoRefs.current[postId];
           if (entry.isIntersecting) {
             increaseView(postId);
-            const post = posts.find((p) => p._id === postId);
-            if (post) {
-              const isVid =
-                post.mediaType?.startsWith("video") ||
-                post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
-              window.history.replaceState(
-                null,
-                "",
-                `/${isVid ? "shorts" : "post"}/${postId}`
-              );
-              if (post.title) document.title = post.title;
-            }
             if (video) video.play().catch(() => {});
           } else {
             if (video) video.pause();
@@ -233,7 +221,7 @@ export default function RelatedPosts() {
     const isVid =
       post.mediaType?.startsWith("video") ||
       post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
-    const url = `${window.location.origin}/${isVid ? "shorts" : "post"}/${post._id}`;
+    const url = `${window.location.origin}/${isVid ? "short" : "post"}/${post._id}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopiedPostId(post._id);
       toast.success("Link copied!");
