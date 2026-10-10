@@ -9,9 +9,9 @@
    ======================================================== */
 
 :root,
-html,
-body,
-[data-bg="dim"] {
+[data-bg="dim"],
+html[data-bg="dim"],
+body[data-bg="dim"] {
   --bg-canvas: #090c15;
   --bg-surface: #0f1523;
   --bg-surface-elevated: #151d30;
@@ -24,21 +24,23 @@ body,
   --text-muted: #64748b;
   --accent-glow: rgba(59, 130, 246, 0.15);
 
-  --background: var(--bg-canvas);
-  --foreground: var(--text-primary);
-  --card: var(--bg-surface);
-  --card-border: var(--border-subtle);
+  --background: #090c15;
+  --foreground: #f8fafc;
+  --card: #0f1523;
+  --card-border: rgba(255, 255, 255, 0.08);
   --primary: #ffffff;
   --primary-hover: #e4e4e7;
   --accent: #d4d4d8;
 }
 
-[data-bg="black"] {
+[data-bg="black"],
+html[data-bg="black"],
+body[data-bg="black"] {
   --bg-canvas: #000000;
-  --bg-surface: #0a0b10;
+  --bg-surface: #090a0f;
   --bg-surface-elevated: #111218;
   --bg-surface-hover: #161720;
-  --bg-subtle: #1c1d27;
+  --bg-subtle: #161822;
   --border-subtle: rgba(255, 255, 255, 0.12);
   --border-subtle-hover: rgba(255, 255, 255, 0.35);
   --text-primary: #ffffff;
@@ -46,13 +48,25 @@ body,
   --text-muted: #71717a;
   --accent-glow: rgba(255, 255, 255, 0.08);
 
-  --background: var(--bg-canvas);
-  --foreground: var(--text-primary);
-  --card: var(--bg-surface);
-  --card-border: var(--border-subtle);
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #090a0f;
+  --card-border: rgba(255, 255, 255, 0.12);
   --primary: #ffffff;
   --primary-hover: #e4e4e7;
   --accent: #d4d4d8;
+}
+
+html[data-bg="dim"],
+body[data-bg="dim"] {
+  background-color: #090c15 !important;
+  color: #f8fafc !important;
+}
+
+html[data-bg="black"],
+body[data-bg="black"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
 }
 
 .bg-canvas {
@@ -69,6 +83,32 @@ body,
 
 .bg-subtle {
   background-color: var(--bg-subtle) !important;
+}
+
+[data-bg="dim"] .bg-canvas,
+[data-bg="dim"] main {
+  background-color: #090c15 !important;
+}
+
+[data-bg="black"] .bg-canvas,
+[data-bg="black"] main {
+  background-color: #000000 !important;
+}
+
+[data-bg="dim"] .bg-surface {
+  background-color: #0f1523 !important;
+}
+
+[data-bg="black"] .bg-surface {
+  background-color: #090a0f !important;
+}
+
+[data-bg="dim"] .bg-subtle {
+  background-color: #1c2640 !important;
+}
+
+[data-bg="black"] .bg-subtle {
+  background-color: #161822 !important;
 }
 
 .border-subtle {

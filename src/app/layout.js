@@ -97,7 +97,25 @@ export default function RootLayout({ children }) {
               (function() {
                 try {
                   var bg = localStorage.getItem('fondpeace_bg_theme') || 'dim';
-                  document.documentElement.setAttribute('data-bg', bg);
+                  var root = document.documentElement;
+                  root.setAttribute('data-bg', bg);
+                  if (bg === 'black') {
+                    root.style.setProperty('--bg-canvas', '#000000');
+                    root.style.setProperty('--bg-surface', '#090a0f');
+                    root.style.setProperty('--bg-subtle', '#161822');
+                    root.style.setProperty('--border-subtle', 'rgba(255, 255, 255, 0.12)');
+                    root.style.setProperty('--background', '#000000');
+                    root.style.setProperty('--foreground', '#ffffff');
+                    root.style.backgroundColor = '#000000';
+                  } else {
+                    root.style.setProperty('--bg-canvas', '#090c15');
+                    root.style.setProperty('--bg-surface', '#0f1523');
+                    root.style.setProperty('--bg-subtle', '#1c2640');
+                    root.style.setProperty('--border-subtle', 'rgba(255, 255, 255, 0.08)');
+                    root.style.setProperty('--background', '#090c15');
+                    root.style.setProperty('--foreground', '#f8fafc');
+                    root.style.backgroundColor = '#090c15';
+                  }
                 } catch (e) {}
               })();
             `,

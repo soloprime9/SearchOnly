@@ -784,7 +784,7 @@ const handleShare = async (postData) => {
             <Link href={`/profile/${post.userId?.username}`} className="relative group">
               {/* Story-style gradient ring */}
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
-                <div className="bg-white dark:bg-gray-900 p-[1.5px] rounded-full w-full h-full">
+                <div className="bg-[var(--bg-surface)] p-[1.5px] rounded-full w-full h-full">
                   <img 
                     src={post.userId?.profilePic || post.userId?.avatar || "/Fondpeace.jpg"} 
                     alt={post.userId?.username || "creator"} 

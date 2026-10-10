@@ -74,7 +74,7 @@ export default function LeftSidebar({ sticky = false }) {
           onMouseLeave={() => setExpanded(false)}
           className={`
             flex flex-col ${sticky ? "sticky top-0" : "fixed left-0 top-0"} h-screen z-40
-            bg-[var(--bg-canvas)]/95 backdrop-blur-2xl
+            bg-[var(--bg-canvas)] backdrop-blur-2xl
             border-r border-[var(--border-subtle)]
             transition-all duration-300 ease-in-out
             overflow-hidden
@@ -236,7 +236,7 @@ export default function LeftSidebar({ sticky = false }) {
       {/* ═══════════════════════════════════════════════════
           MOBILE BOTTOM NAVIGATION (Glassmorphic)
       ═══════════════════════════════════════════════════ */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[var(--bg-canvas)]/90 backdrop-blur-2xl border-t border-[var(--border-subtle)]">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[var(--bg-canvas)] backdrop-blur-2xl border-t border-[var(--border-subtle)]">
         {/* Safe area for notched phones */}
         <div className="flex items-center justify-around px-2 pt-2 pb-[max(8px,env(safe-area-inset-bottom))]">
           {menu.slice(0, 4).map((item, i) => {

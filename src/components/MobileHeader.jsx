@@ -17,7 +17,7 @@ export default function MobileHeader() {
 
   return (
     <>
-      <header className="lg:hidden sticky top-0 z-40 w-full bg-[var(--bg-canvas)]/95 backdrop-blur-2xl border-b border-[var(--border-subtle)] px-3.5 py-2.5 flex items-center justify-between transition-colors">
+      <header className="lg:hidden sticky top-0 z-40 w-full bg-[var(--bg-canvas)] backdrop-blur-2xl border-b border-[var(--border-subtle)] px-3.5 py-2.5 flex items-center justify-between transition-colors">
         {/* Logo & Brand */}
         <Link
           href="/"
