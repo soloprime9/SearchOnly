@@ -80,13 +80,13 @@ export default function TrendingShortsRail() {
       {/* Header with Navigation Controls */}
       <div className="flex items-center justify-between px-1 mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shadow-xs">
+          <div className="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center shadow-xs">
             <Film size={13} />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-1.5">
+            <h2 className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
               <span>Trending Shorts</span>
-              <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-black dark:bg-white text-white dark:text-black">
+              <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-red-600 text-white shadow-xs">
                 Hot
               </span>
             </h2>
@@ -97,7 +97,7 @@ export default function TrendingShortsRail() {
           <button
             type="button"
             onClick={() => handleScroll("left")}
-            className="w-7 h-7 rounded-full bg-gray-100 dark:bg-zinc-900 border border-gray-200 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/30 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+            className="w-7 h-7 rounded-full bg-zinc-900 border border-white/10 hover:border-white/30 text-zinc-300 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
             aria-label="Scroll left"
           >
             <ChevronLeft size={14} />
@@ -105,15 +105,15 @@ export default function TrendingShortsRail() {
           <button
             type="button"
             onClick={() => handleScroll("right")}
-            className="w-7 h-7 rounded-full bg-gray-100 dark:bg-zinc-900 border border-gray-200 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/30 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+            className="w-7 h-7 rounded-full bg-zinc-900 border border-white/10 hover:border-white/30 text-zinc-300 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
             aria-label="Scroll right"
           >
             <ChevronRight size={14} />
           </button>
           <Link
-            href={`/short/${firstShortId}`}
+            href={firstShortId ? `/short/${firstShortId}` : "/upload"}
             onClick={() => playTap()}
-            className="text-xs font-bold text-gray-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition ml-1 hover:underline"
+            className="text-xs font-bold text-zinc-400 hover:text-white transition ml-1 hover:underline"
           >
             Watch All →
           </Link>
@@ -130,7 +130,7 @@ export default function TrendingShortsRail() {
             key={short.id}
             href={short.href}
             onClick={() => playPop()}
-            className="relative shrink-0 w-[150px] sm:w-[170px] h-[240px] sm:h-[260px] rounded-2xl overflow-hidden bg-zinc-900 border border-black/10 dark:border-white/[0.12] hover:border-black/30 dark:hover:border-white/40 shadow-md group transition-all duration-300 transform hover:-translate-y-1"
+            className="relative shrink-0 w-[150px] sm:w-[170px] h-[240px] sm:h-[260px] rounded-2xl overflow-hidden bg-zinc-900 border border-white/[0.12] hover:border-white/40 shadow-md group transition-all duration-300 transform hover:-translate-y-1"
           >
             {/* Background Thumbnail Image */}
             <img

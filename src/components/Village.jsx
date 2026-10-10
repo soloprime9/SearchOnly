@@ -16,6 +16,7 @@ import NewPostsPill from "./NewPostsPill";
 import StoryCardExportModal from "./StoryCardExportModal";
 import CommentsSheetModal from "./CommentsSheetModal";
 import QuickPostComposer from "./QuickPostComposer";
+import TrendingShortsRail from "./TrendingShortsRail";
 import MiniFloatingPlayer from "./MiniFloatingPlayer";
 import CreatorAppreciationModal from "./CreatorAppreciationModal";
 import PostQuickSummary from "./PostQuickSummary";
@@ -1362,7 +1363,7 @@ const handleShare = async (postData) => {
                   router.push(`/post/${post._id}`);
                 }
               }}
-              className="relative aspect-square rounded-2xl overflow-hidden bg-black cursor-pointer group shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-zinc-800"
+              className="relative aspect-square rounded-2xl overflow-hidden bg-black cursor-pointer group shadow-sm hover:shadow-md transition-all border border-white/10"
             >
               {post.mediaType?.startsWith("video") ? (
                 <video
@@ -1419,9 +1420,16 @@ const handleShare = async (postData) => {
                 {renderPost(post, idx)}
               </div>
 
-              {/* In-Feed Creator Discovery Carousel (After 3rd post for cold-start exploration) */}
-              {idx === 2 && activeTab === "foryou" && (
-                <div className="max-w-[600px] mx-auto px-2 sm:px-0">
+              {/* In-Feed Trending Shorts Carousel Rail (Rendered after 3-4 posts as requested) */}
+              {((idx === 3) || (idx === filteredPosts.length - 1 && filteredPosts.length < 4)) && (
+                <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-4">
+                  <TrendingShortsRail />
+                </div>
+              )}
+
+              {/* In-Feed Creator Discovery Carousel (After 6th post for optimal spacing) */}
+              {idx === 6 && activeTab === "foryou" && (
+                <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-4">
                   <SuggestedCreatorsWidget
                     currentUserId={userId}
                     followingMap={followingMap}
@@ -1438,14 +1446,14 @@ const handleShare = async (postData) => {
 
       {/* "You're All Caught Up" Celebration Card (Instagram Style) */}
       {!followingLoading && filteredPosts.length > 0 && !hasMore && (
-        <div className="max-w-[600px] mx-auto px-4 py-8 my-6 bg-white dark:bg-zinc-950 border border-black/10 dark:border-white/10 rounded-3xl text-center shadow-xs">
-          <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-xs">
+        <div className="max-w-[600px] mx-auto px-4 py-8 my-6 bg-zinc-950 border border-white/10 rounded-3xl text-center shadow-xs">
+          <div className="w-12 h-12 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-xs">
             <Check size={24} className="stroke-[3]" />
           </div>
-          <h3 className="font-black text-gray-900 dark:text-white text-base sm:text-lg">
+          <h3 className="font-black text-white text-base sm:text-lg">
             You're All Caught Up! 🎉
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto leading-relaxed">
+          <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed">
             You've seen all the latest discussions, reels, and stories for now.
           </p>
           <div className="flex items-center justify-center gap-2 mt-4">
@@ -1461,7 +1469,7 @@ const handleShare = async (postData) => {
                 playTap();
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              className="px-3.5 py-2 bg-gray-100 dark:bg-zinc-900 text-gray-700 dark:text-gray-300 font-bold text-xs rounded-xl hover:bg-gray-200 transition-all active:scale-95"
+              className="px-3.5 py-2 bg-zinc-900 text-zinc-300 hover:text-white border border-white/10 font-bold text-xs rounded-xl hover:bg-zinc-800 transition-all active:scale-95"
             >
               ↑ Back to Top
             </button>

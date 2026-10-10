@@ -152,10 +152,7 @@ export default async function HomePage() {
             FondPeace - Trending Short Video Reels, Discussions & Social Creator Platform
           </h1>
 
-          {/* Trending Shorts Horizontal Rail (Live from Database) */}
-          <TrendingShortsRail />
-
-          {/* Community Feed Stream with Clean Video Display */}
+          {/* Community Feed Stream with In-Feed Trending Shorts & Creator Discovery */}
           <div id="community-feed-stream" className="w-full">
             <VillageClient initialPosts={posts} />
           </div>

@@ -726,10 +726,10 @@ export default function UploadPost() {
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/25 mb-3">
                     <UploadCloud className="w-6 h-6" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
-                    Drop photo or video here, or <span className="text-blue-600 dark:text-blue-400 underline">browse</span>
+                  <h3 className="text-sm sm:text-base font-bold text-white">
+                    Drop photo or video here, or <span className="text-blue-400 underline">browse</span>
                   </h3>
-                  <p className="text-xs text-gray-400 mt-1 max-w-sm">
+                  <p className="text-xs text-zinc-400 mt-1 max-w-sm">
                     Reels & Shorts up to 90s & 50MB • Photos up to 15MB (Auto-compressed) • 100% Free Cloud Storage
                   </p>
                 </div>
@@ -886,7 +886,7 @@ export default function UploadPost() {
             {/* Article Headline Input (Dev.to / Substack Style) */}
             {activeMode === "article" && (
               <div className="mb-4">
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2">
                   Article Headline / Title (H1) *
                 </label>
                 <input
@@ -894,13 +894,13 @@ export default function UploadPost() {
                   value={articleHeadline}
                   onChange={(e) => setArticleHeadline(e.target.value)}
                   placeholder="e.g. The Complete Guide to Building Modern Web Apps in 2026"
-                  className="w-full p-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-base font-bold"
+                  className="w-full p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 text-white placeholder-zinc-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-base font-bold"
                 />
               </div>
             )}
 
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider">
                 {activeMode === "article"
                   ? "Article Body / Story Content *"
                   : activeMode === "discussion" 
@@ -910,7 +910,7 @@ export default function UploadPost() {
                   : file ? "Caption & Hashtags (Optional)" : "Discussion Thought / Caption *"}
               </label>
               {activeMode === "article" && (
-                <span className="text-[11px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-950/40 px-2.5 py-0.5 rounded-full border border-blue-200/50 dark:border-blue-800/40">
+                <span className="text-[11px] text-blue-400 font-bold bg-blue-950/40 px-2.5 py-0.5 rounded-full border border-blue-800/40">
                   📖 {title.trim().split(/\s+/).filter(Boolean).length} words
                 </span>
               )}
@@ -930,7 +930,7 @@ export default function UploadPost() {
               }
               rows={activeMode === "article" ? 8 : activeMode === "discussion" ? 5 : 3}
               disabled={isBusy}
-              className="w-full p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none text-sm sm:text-base leading-relaxed"
+              className="w-full p-4 rounded-2xl bg-white/[0.04] border border-white/10 text-white placeholder-zinc-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none text-sm sm:text-base leading-relaxed"
             />
             {detectedTags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
@@ -1043,7 +1043,7 @@ export default function UploadPost() {
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g. Mumbai, Maharashtra or New Delhi, India"
                 disabled={isBusy}
-                className="w-full p-2.5 pr-8 rounded-xl bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-rose-500"
+                className="w-full p-2.5 pr-8 rounded-xl bg-zinc-900 border border-white/10 text-xs sm:text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-rose-500"
               />
               {location && (
                 <button
@@ -1052,7 +1052,7 @@ export default function UploadPost() {
                     playTap();
                     setLocation("");
                   }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rose-500 p-0.5 cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-rose-500 p-0.5 cursor-pointer"
                   title="Clear location"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -1063,7 +1063,7 @@ export default function UploadPost() {
 
           {/* Category Dropdown */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2">
               Category
             </label>
             <div className="relative">
@@ -1071,10 +1071,10 @@ export default function UploadPost() {
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 disabled={isBusy}
-                className="w-full p-3.5 pr-10 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm font-medium appearance-none cursor-pointer"
+                className="w-full p-3.5 pr-10 rounded-2xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-blue-500 text-sm font-medium appearance-none cursor-pointer"
               >
                 {CATEGORIES.map((c) => (
-                  <option key={c} value={c} className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-white">
+                  <option key={c} value={c} className="bg-zinc-900 text-white">
                     {c}
                   </option>
                 ))}
