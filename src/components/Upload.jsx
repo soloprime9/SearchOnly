@@ -44,12 +44,24 @@ function extractVideoMeta(videoFile) {
     });
 
     video.addEventListener("seeked", () => {
-      // 640x360 16:9 is super sharp for mobile/desktop feeds while keeping file size under 35KB (92% R2 saving!)
+      // Top Platform Standard (YouTube/Instagram): Preserve natural aspect ratio (9:16 portrait, 16:9 landscape, etc.)
+      const maxDim = 720;
+      let w = video.videoWidth || 640;
+      let h = video.videoHeight || 360;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        } else {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
       const canvas = document.createElement("canvas");
-      canvas.width = 640;
-      canvas.height = 360;
+      canvas.width = w;
+      canvas.height = h;
       const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, 0, 0, w, h);
 
       const duration = Math.round(video.duration);
       if (duration > 90) {
