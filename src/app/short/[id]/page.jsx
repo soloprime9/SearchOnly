@@ -5,6 +5,8 @@ import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import { redirect, permanentRedirect } from "next/navigation";
 import SinglePostPage from "@/components/SinglePostPage";
 import LeftSidebar from "@/components/LeftSidebar";
+import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
+import { Coins, ArrowRight, ShieldCheck } from "lucide-react";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
@@ -425,203 +427,156 @@ export default async function Page({ params }) {
         
         
   return (
-  <main className="w-full min-h-screen bg-white">
-
-{/* JSON-LD inserted server-side for crawlers */}
-<script
-  key="video-jsonld"
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{
-    __html: JSON.stringify(videoSchema),
-  }}
-/>
-<LeftSidebar sticky={false} />
-<div className="w-full lg:pl-[68px] flex flex-col min-h-screen">
-   
-{/* <script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{
-    __html: JSON.stringify({
-      "@context": "https://schema.org",
-      "@graph": [
-        // 1️⃣ BreadcrumbList (Google sees this first)
-        {
-          "@type": "BreadcrumbList",
-          "@id": `${pageUrl}#breadcrumb`,
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "FondPeace", item: SITE_ROOT },
-            {
-              "@type": "ListItem",
-              position: 2,
-              name: authorName || "FondPeace",
-              item: `${SITE_ROOT}/profile/${authorName || "anonymous"}`,
-            },
-            {
-              "@type": "ListItem",
-              position: 3,
-              name: post.title ,
-              item: pageUrl,
-            },
-          ],
-        },
-
-        // 2️⃣ VideoObject
-        {
-          "@type": "VideoObject",
-          "@id": `${pageUrl}#video`,
-          name: post.title,
-          headline: post.title ,
-          description: post.title,
-          thumbnailUrl: [thumbnail || DEFAULT_THUMB],
-          ...(mediaUrl ? { contentUrl: mediaUrl } : {}),
-          embedUrl: pageUrl,
-          uploadDate: post.createdAt
-            ? new Date(post.createdAt).toISOString()
-            : new Date().toISOString(),
-          duration: post.duration ? secToISO(Number(post.duration)) : "PT0M30S",
-         
-          author: {
-            "@type": "Person",
-            "@id": authorId,
-            name: authorName || "FondPeace",
-            url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`,
-          },
-          publisher: {
-            "@type": "Organization",
-            name: "FondPeace",
-            url: SITE_ROOT,
-            logo: {
-              "@type": "ImageObject",
-              url: `${SITE_ROOT}/Fondpeace.jpg`
-              
-            },
-          },
-          interactionStatistic: buildInteractionSchema(post),
-          keywords: extractKeywords(post),
-          isFamilyFriendly: true,
-          isAccessibleForFree: true,
-          potentialAction: { "@type": "WatchAction", target: pageUrl },
-          mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
-
-          // 3️⃣ Comments (nested)
-          comment: mapComments(post, pageUrl),
-        },
-      ],
-    }),
-  }}
-/> */}
-
-
-
-       {/* HEADER – Instagram style */}
-<header className="bg-white  sticky top-0 z-50">
-  <div className="max-w-3xl mx-auto px-1 mb-2 h-12 flex items-center justify-between">
-    
-    {/* Back Button → Home */}
-    <Link
-      href="/"
-      className="p-2 -ml-2"
-      aria-label="Go to home"
-    >
-      <FaArrowLeft className="text-lg text-gray-900" />
-    </Link>
-
-    {/* Center Title */}
-    <p className="text-md font-semibold text-gray-900">
-      Post
-    </p>
-
-    {/* Right Spacer (for symmetry like Instagram) */}
-    <div className="w-6" />
-  </div>
-</header>
-
-
-    <section className="max-w-3xl mx-auto px-1 py-2">
-      <section className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
-
-
-
-      {/* User Profile */}
-<div className="flex items-center justify-between mb-5">
-
-  <Link
-    href={`/profile/${post.userId?.username}`}
-    className="flex items-center gap-3"
-  >
-    <img
-      src={post.userId?.profilePic || "/Fondpeace.jpg"}
-      alt={post.userId?.username || "User"}
-      className="w-11 h-11 rounded-full object-cover border"
-      loading="lazy"
-    />
-
-    <div>
-      <span className="font-semibold text-gray-800 block">
-        {post.userId?.username || "Anonymous"}
-      </span>
-      <span className="text-gray-500 text-sm">
-        {new Date(post.createdAt).toLocaleDateString()}
-      </span>
-    </div>
-  </Link>
-
-  {/* Menu button MUST be inside same flex */}
-  <button className="text-gray-500 hover:text-black transition">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-6 w-6"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M12 6v.01M12 12v.01M12 18v.01"
+    <main className="min-h-screen w-full bg-zinc-950 text-white selection:bg-white selection:text-black overflow-x-hidden">
+      {/* JSON-LD inserted server-side for crawlers */}
+      <script
+        key="video-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(videoSchema),
+        }}
       />
-    </svg>
-  </button>
+      
+      <div
+        className="
+          grid 
+          grid-cols-1 
+          lg:grid-cols-[76px_minmax(0,1fr)_340px] 
+          xl:grid-cols-[220px_minmax(0,1fr)_360px] 
+          max-w-[1440px] 
+          mx-auto
+          gap-4 lg:gap-6
+          px-2 sm:px-4
+          py-3
+        "
+      >
+        {/* Left Sidebar */}
+        <aside className="shrink-0">
+          <LeftSidebar sticky={true} />
+        </aside>
 
-</div>
+        {/* Center Main Watch Feed */}
+        <section className="w-full min-w-0 space-y-4">
+          {/* Top Navigation Bar */}
+          <div className="flex items-center justify-between py-2 px-1">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-300 hover:text-white transition active:scale-95"
+              aria-label="Back to home"
+            >
+              <FaArrowLeft className="text-base" />
+              <span>Back to Discovery</span>
+            </Link>
+            <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-zinc-300 border border-white/10">
+              Shorts Watch
+            </span>
+          </div>
 
-        
+          {/* Main Short Video Card (Matching Village.jsx) */}
+          <article className="bg-zinc-950 w-full rounded-2xl overflow-hidden border border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-4 sm:p-5">
+            {/* User Profile */}
+            <div className="flex items-center justify-between mb-4">
+              <Link
+                href={`/profile/${post.userId?.username}`}
+                className="flex items-center gap-3 group"
+              >
+                <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
+                  <div className="bg-zinc-950 p-[1.5px] rounded-full w-full h-full">
+                    <img
+                      src={post.userId?.profilePic || "/Fondpeace.jpg"}
+                      alt={post.userId?.username || "User"}
+                      className="w-full h-full rounded-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
 
-        {/* Media Section – VIDEO ONLY (Homepage Village.jsx Standard) */}
-{isVideo && mediaUrl ? (
-  <div className="relative w-full bg-black rounded-2xl overflow-hidden flex items-center justify-center max-h-[560px] my-3">
-    <video
-      src={mediaUrl}
-      controls
-      playsInline
-      preload="metadata"
-      className="w-full max-h-[560px] object-contain block mx-auto"
-    >
-      <source src={mediaUrl} type="video/mp4" itemProp="contentUrl" />
-      Your browser does not support the video tag.
-    </video>
-  </div>
-) : null}
+                <div>
+                  <span className="font-bold text-white block group-hover:underline leading-tight">
+                    {post.userId?.username || "Anonymous"}
+                  </span>
+                  <span className="text-zinc-400 text-xs font-medium">
+                    {new Date(post.createdAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+              </Link>
+            </div>
 
-         
-        {/* Post Title */}
-<h1 className="text-gray-800 mb-4 whitespace-pre-line">
-  {post.title}
-</h1>
+            {/* Media Section – VIDEO ONLY (Homepage Village.jsx Standard) */}
+            {isVideo && mediaUrl ? (
+              <div className="relative w-full bg-black rounded-2xl overflow-hidden flex items-center justify-center max-h-[560px] my-3">
+                <video
+                  src={mediaUrl}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full max-h-[560px] object-contain block mx-auto"
+                >
+                  <source src={mediaUrl} type="video/mp4" itemProp="contentUrl" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            ) : null}
 
+            {/* Post Title */}
+            <h1 className="text-lg sm:text-xl font-bold text-white mb-4 whitespace-pre-line leading-snug">
+              {post.title}
+            </h1>
 
+            {/* Post Content & Interactions */}
+            <SinglePostPage initialPost={post} />
+          </article>
+        </section>
 
-        {/* Post Content */}
-        <SinglePostPage initialPost={post} />
-      </section>
-    </section>
+        {/* Right Sidebar (Matching Homepage) */}
+        <aside className="hidden lg:block shrink-0">
+          <div className="sticky top-4 space-y-4">
+            {/* Suggested Creators Widget */}
+            <SuggestedCreatorsWidget variant="card" />
+
+            {/* Creator Program Spotlight Card */}
+            <div className="rounded-2xl p-5 bg-black border border-white/10 shadow-lg text-white">
+              <div className="flex items-center justify-between mb-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/10 text-white border border-white/20">
+                  <Coins className="w-3 h-3 text-amber-400" />
+                  Creator Program
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                  95% Payout
+                </span>
+              </div>
+              <h3 className="font-bold text-sm mb-1 text-white">Monetize Your Influence</h3>
+              <p className="text-xs text-zinc-400 mb-3 leading-relaxed">
+                Get paid directly by fans through tips, subscriptions, and branded sponsorship.
+              </p>
+              <Link
+                href="/monetization"
+                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition"
+              >
+                <span>Learn More</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {/* Safety & Compliance Badge */}
+            <div className="rounded-2xl p-4 bg-zinc-900/50 border border-white/5 flex items-center gap-3">
+              <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+              <p className="text-[11px] text-zinc-400 leading-tight">
+                Protected & Verified Creator Network under 2026 Community Standards.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
 
       {/* bottom padding so mobile nav doesn't cover content */}
       <div className="h-20 lg:hidden" />
-    </div>
-  </main>
-);
+    </main>
+  );
     } catch (e) {
         if (e?.digest?.startsWith("NEXT_REDIRECT")) {
             throw e;

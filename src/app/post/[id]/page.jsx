@@ -10,7 +10,9 @@
 import SinglePostPage from "@/components/SinglePostPage";
 import PostTitle from "@/components/PostTitle";
 import RelatedPosts from "@/components/RelatedPosts";
- import LeftSidebar from "@//components/LeftSidebar"
+import LeftSidebar from "@/components/LeftSidebar";
+import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
+import { Coins, ArrowRight, ShieldCheck } from "lucide-react";
 
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
@@ -666,149 +668,186 @@ const related = data?.related ?? [];
 
 
 return (
-    <main className="w-full min-h-screen bg-[#f8f7f5] dark:bg-[#070a13] text-gray-900 dark:text-white antialiased transition-colors">
+    <main className="min-h-screen w-full bg-zinc-950 text-white selection:bg-white selection:text-black overflow-x-hidden">
       {/* Schema.org JSON-LD (Dynamic DiscussionForumPosting / BlogPosting) */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
       />
-      <LeftSidebar sticky={false} />
-      <div className="w-full lg:pl-[68px] flex flex-col min-h-screen">
-        {/* ── STICKY HEADER ── */}
-        <header className="sticky top-0 z-30 bg-white/85 dark:bg-[#090b12]/85 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.08]">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/[0.06] dark:hover:bg-white/[0.08] active:scale-90 transition-all"
-            aria-label="Back to home"
-          >
-            <FaArrowLeft className="text-[15px] text-gray-800 dark:text-gray-200" />
-          </Link>
- 
-          <Link
-            href="/"
-            className="font-black text-[18px] tracking-tighter text-gray-950 dark:text-white hover:opacity-80 transition-opacity select-none"
-          >
-            Fond<span className="text-blue-500">Peace</span>
-          </Link>
- 
-          {/* spacer */}
-          <div className="w-8" />
-        </div>
-      </header>
- 
-      {/* ── POST CARD ── */}
-      <section className="max-w-2xl mx-auto sm:px-4 pt-0 sm:pt-5 pb-6">
-        <article className="bg-white dark:bg-[#0f121d] sm:rounded-3xl overflow-hidden sm:border border-black/[0.07] dark:border-white/[0.08] sm:shadow-[0_4px_24px_rgba(0,0,0,0.06)] dark:sm:shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
- 
-          {/* Author row */}
-          <div className="flex items-center justify-between px-4 py-3.5 border-b border-black/[0.04] dark:border-white/[0.06]">
-            <Link
-              href={`/profile/${post?.userId?.username}`}
-              className="flex items-center gap-3 group"
-            >
-              <div className="relative shrink-0">
-                <div className="w-10 h-10 rounded-full ring-2 ring-offset-1 ring-blue-500/40 dark:ring-blue-400/50 overflow-hidden">
-                  <img
-                    src={post?.userId?.profilePic || "/Fondpeace.jpg"}
-                    alt={post?.userId?.username || "User"}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                {/* online dot */}
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-white dark:border-gray-900" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="font-bold text-[14px] text-gray-950 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors truncate leading-tight">
-                  {post?.userId?.username || "Anonymous"}
-                </span>
-                <span className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 font-medium">
-                  {post?.createdAt
-                    ? new Date(post.createdAt).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : ""}
-                </span>
-              </div>
-            </Link>
- 
-            <button
-              className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-all"
-              aria-label="Options"
-            >
-              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-                <circle cx="5" cy="12" r="2" />
-                <circle cx="12" cy="12" r="2" />
-                <circle cx="19" cy="12" r="2" />
-              </svg>
-            </button>
-          </div>
- 
-          {/* Media Section - Homepage (Village.jsx) Standard */}
-          {(isVideo || isImage) && (
-            <div className="relative w-full overflow-hidden bg-black flex items-center justify-center group min-h-[260px] max-h-[560px] my-1 rounded-2xl">
-              {/* Soft Ambient Blurred Backdrop for Photos */}
-              {isImage && mediaUrl && (
-                <img
-                  src={mediaUrl}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-30 scale-110 pointer-events-none select-none"
-                />
-              )}
+      
+      <div
+        className="
+          grid 
+          grid-cols-1 
+          lg:grid-cols-[76px_minmax(0,1fr)_340px] 
+          xl:grid-cols-[220px_minmax(0,1fr)_360px] 
+          max-w-[1440px] 
+          mx-auto
+          gap-4 lg:gap-6
+          px-2 sm:px-4
+          py-3
+        "
+      >
+        {/* Left Sidebar */}
+        <aside className="shrink-0">
+          <LeftSidebar sticky={true} />
+        </aside>
 
-              <div className="relative z-10 w-full flex items-center justify-center">
-                {isVideo ? (
-                  <video
-                    src={mediaUrl}
-                    controls
-                    preload="metadata"
-                    playsInline
-                    className="w-full max-h-[560px] object-contain block mx-auto shadow-2xl"
-                  />
-                ) : (
+        {/* Center Main Discussion Column */}
+        <section className="w-full min-w-0 space-y-4">
+          {/* Top Navigation Bar */}
+          <div className="flex items-center justify-between py-2 px-1">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-300 hover:text-white transition active:scale-95"
+              aria-label="Back to home"
+            >
+              <FaArrowLeft className="text-base" />
+              <span>Back to Discovery</span>
+            </Link>
+            <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-zinc-300 border border-white/10">
+              Community Post
+            </span>
+          </div>
+
+          {/* Main Post Card (Matching Village.jsx) */}
+          <article className="bg-zinc-950 w-full rounded-2xl overflow-hidden border border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-4 sm:p-5">
+            {/* Author row with story gradient ring */}
+            <div className="flex items-center justify-between mb-4">
+              <Link
+                href={`/profile/${post?.userId?.username}`}
+                className="flex items-center gap-3 group"
+              >
+                <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
+                  <div className="bg-zinc-950 p-[1.5px] rounded-full w-full h-full">
+                    <img
+                      src={post?.userId?.profilePic || "/Fondpeace.jpg"}
+                      alt={post?.userId?.username || "User"}
+                      className="w-full h-full rounded-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <span className="font-bold text-white block group-hover:underline leading-tight">
+                    {post?.userId?.username || "Anonymous"}
+                  </span>
+                  <span className="text-zinc-400 text-xs font-medium">
+                    {post?.createdAt
+                      ? new Date(post.createdAt).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : ""}
+                  </span>
+                </div>
+              </Link>
+            </div>
+
+            {/* Media Section - Homepage (Village.jsx) Standard */}
+            {(isVideo || isImage) && (
+              <div className="relative w-full overflow-hidden bg-black flex items-center justify-center group min-h-[260px] max-h-[560px] my-2 rounded-2xl">
+                {/* Soft Ambient Blurred Backdrop for Photos */}
+                {isImage && mediaUrl && (
                   <img
                     src={mediaUrl}
-                    alt={post?.title || "Post image"}
-                    className="w-full max-h-[560px] object-contain block mx-auto transition-transform duration-300 hover:scale-[1.01]"
-                    loading="lazy"
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-30 scale-110 pointer-events-none select-none"
                   />
                 )}
-              </div>
-            </div>
-          )}
- 
-          {/* Caption + body */}
-          <div className="px-4 pt-4 pb-5">
-            {post?.title && (
-              <div className="mb-2">
-                <PostTitle title={post.title} />
+
+                <div className="relative z-10 w-full flex items-center justify-center">
+                  {isVideo ? (
+                    <video
+                      src={mediaUrl}
+                      controls
+                      preload="metadata"
+                      playsInline
+                      className="w-full max-h-[560px] object-contain block mx-auto shadow-2xl"
+                    />
+                  ) : (
+                    <img
+                      src={mediaUrl}
+                      alt={post?.title || "Post image"}
+                      className="w-full max-h-[560px] object-contain block mx-auto transition-transform duration-300 hover:scale-[1.01]"
+                      loading="lazy"
+                    />
+                  )}
+                </div>
               </div>
             )}
-            <div className="text-[14px] leading-relaxed text-gray-700">
-              <SinglePostPage initialPost={post} />
+
+            {/* Caption + Post Title */}
+            <div className="pt-2 pb-3">
+              {post?.title && (
+                <div className="mb-3">
+                  <PostTitle title={post.title} />
+                </div>
+              )}
+              <div className="text-[14px] leading-relaxed text-zinc-200">
+                <SinglePostPage initialPost={post} />
+              </div>
+            </div>
+          </article>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-4 px-1">
+            <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-zinc-400 whitespace-nowrap">
+              More from the Community
+            </span>
+            <div className="h-px bg-white/10 flex-1" />
+          </div>
+
+          {/* Related Posts */}
+          <RelatedPosts />
+        </section>
+
+        {/* Right Sidebar (Matching Homepage) */}
+        <aside className="hidden lg:block shrink-0">
+          <div className="sticky top-4 space-y-4">
+            {/* Suggested Creators Widget */}
+            <SuggestedCreatorsWidget variant="card" />
+
+            {/* Creator Program Spotlight Card */}
+            <div className="rounded-2xl p-5 bg-black border border-white/10 shadow-lg text-white">
+              <div className="flex items-center justify-between mb-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/10 text-white border border-white/20">
+                  <Coins className="w-3 h-3 text-amber-400" />
+                  Creator Program
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                  95% Payout
+                </span>
+              </div>
+              <h3 className="font-bold text-sm mb-1 text-white">Monetize Your Influence</h3>
+              <p className="text-xs text-zinc-400 mb-3 leading-relaxed">
+                Get paid directly by fans through tips, subscriptions, and branded sponsorship.
+              </p>
+              <Link
+                href="/monetization"
+                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition"
+              >
+                <span>Learn More</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {/* Safety & Compliance Badge */}
+            <div className="rounded-2xl p-4 bg-zinc-900/50 border border-white/5 flex items-center gap-3">
+              <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+              <p className="text-[11px] text-zinc-400 leading-tight">
+                Protected & Verified Creator Network under 2026 Community Standards.
+              </p>
             </div>
           </div>
-        </article>
-      </section>
- 
-      {/* ── DIVIDER ── */}
-      <div className="max-w-2xl mx-auto px-4 my-5 flex items-center gap-3">
-        <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-gray-400 whitespace-nowrap">
-          More for you
-        </span>
-        <div className="h-px bg-gray-200 flex-1" />
+        </aside>
       </div>
- 
-      {/* ── RELATED POSTS ── */}
-      <RelatedPosts />
- 
-        {/* bottom padding so mobile nav doesn't cover content */}
-        <div className="h-20 lg:hidden" />
-      </div>
+
+      {/* bottom padding so mobile nav doesn't cover content */}
+      <div className="h-20 lg:hidden" />
     </main>
   );
 

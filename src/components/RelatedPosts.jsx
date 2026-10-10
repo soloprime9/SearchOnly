@@ -245,28 +245,30 @@ export default function RelatedPosts() {
         <article
           key={post._id}
           data-postid={post._id}
-          className="fp-post-item w-full max-w-[580px] mx-auto mb-5 bg-white dark:bg-[#0f121d] border border-black/[0.06] dark:border-white/[0.08] sm:rounded-3xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.08)] transition-all duration-300"
+          className="fp-post-item bg-zinc-950 w-full mb-5 rounded-2xl overflow-hidden border border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all hover:border-white/25 text-white"
         >
           {/* ── Header ── */}
-          <div className="flex items-center justify-between px-4 h-[54px] border-b border-black/[0.04] dark:border-white/[0.06]">
+          <div className="flex items-center justify-between px-4 h-[54px] border-b border-white/[0.08]">
             <Link
               href={`/profile/${post.userId?.username}`}
               className="flex items-center gap-2.5 group min-w-0"
             >
-              <div className="relative shrink-0 w-8 h-8 rounded-full overflow-hidden ring-2 ring-offset-1 ring-blue-400/40 dark:ring-blue-400/30">
-                <img
-                  src={post.userId?.profilePic || "/Fondpeace.jpg"}
-                  alt={post.userId?.username}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  onError={(e) => { e.currentTarget.src = "/Fondpeace.jpg"; }}
-                />
+              <div className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600 shrink-0">
+                <div className="bg-zinc-950 p-[1.5px] rounded-full w-full h-full overflow-hidden">
+                  <img
+                    src={post.userId?.profilePic || "/Fondpeace.jpg"}
+                    alt={post.userId?.username}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = "/Fondpeace.jpg"; }}
+                  />
+                </div>
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-[13px] font-bold text-gray-950 dark:text-white group-hover:text-blue-500 transition-colors truncate leading-tight">
+                <span className="text-[13px] font-bold text-white group-hover:text-blue-400 transition-colors truncate leading-tight">
                   {post.userId?.username || "User"}
                 </span>
-                <span className="text-[10.5px] text-gray-400 dark:text-gray-500 font-medium">
+                <span className="text-[10.5px] text-zinc-400 font-medium">
                   {new Date(post.createdAt).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
@@ -346,9 +348,9 @@ export default function RelatedPosts() {
                   {liked ? (
                     <FaHeart className="text-[22px] text-rose-500 scale-100 active:scale-125 transition-transform" />
                   ) : (
-                    <FaRegHeart className="text-[22px] text-gray-700 group-hover:text-rose-400 transition-colors" />
+                    <FaRegHeart className="text-[22px] text-zinc-400 group-hover:text-rose-400 transition-colors" />
                   )}
-                  <span className="text-[12.5px] font-semibold text-gray-600 tabular-nums">
+                  <span className="text-[12.5px] font-semibold text-zinc-300 tabular-nums">
                     {post.likes?.length ?? 0}
                   </span>
                 </button>
@@ -363,8 +365,8 @@ export default function RelatedPosts() {
                   }
                   className="flex items-center gap-1.5 group"
                 >
-                  <FaCommentDots className="text-[21px] text-gray-700 group-hover:text-blue-500 transition-colors" />
-                  <span className="text-[12.5px] font-semibold text-gray-600 tabular-nums">
+                  <FaCommentDots className="text-[21px] text-zinc-400 group-hover:text-blue-400 transition-colors" />
+                  <span className="text-[12.5px] font-semibold text-zinc-300 tabular-nums">
                     {post.comments?.length ?? 0}
                   </span>
                 </button>
@@ -375,7 +377,7 @@ export default function RelatedPosts() {
                     onClick={() => handleShare(post)}
                     className="group"
                   >
-                    <FaShareAlt className="text-[19px] text-gray-700 group-hover:text-emerald-500 transition-colors" />
+                    <FaShareAlt className="text-[19px] text-zinc-400 group-hover:text-emerald-400 transition-colors" />
                   </button>
                   {copiedPostId === post._id && (
                     <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg shadow-xl whitespace-nowrap z-10">
@@ -386,7 +388,7 @@ export default function RelatedPosts() {
               </div>
 
               {/* Views */}
-              <div className="flex items-center gap-1.5 text-gray-400">
+              <div className="flex items-center gap-1.5 text-zinc-400">
                 <FaEye size={12} />
                 <span className="text-[11.5px] font-medium tabular-nums">
                   {(post.views ?? 0).toLocaleString()}
@@ -395,10 +397,10 @@ export default function RelatedPosts() {
             </div>
 
             {/* Caption */}
-            <div className="text-[13.5px] text-gray-800 leading-snug">
+            <div className="text-[13.5px] text-zinc-200 leading-snug">
               <Link
                 href={`/profile/${post.userId?.username}`}
-                className="font-bold text-gray-950 mr-1.5 hover:underline underline-offset-2"
+                className="font-bold text-white mr-1.5 hover:underline underline-offset-2"
               >
                 {post.userId?.username}
               </Link>
@@ -411,7 +413,7 @@ export default function RelatedPosts() {
                       [post._id]: !expanded,
                     }))
                   }
-                  className="text-blue-500 font-semibold text-[12px] ml-1 hover:underline"
+                  className="text-blue-400 font-semibold text-[12px] ml-1 hover:underline"
                 >
                   {expanded ? "less" : "more"}
                 </button>
