@@ -19,7 +19,7 @@ export default function LinkPreviewCard({ preview }) {
       href={preview.url}
       target="_blank"
       rel="noopener noreferrer nofollow"
-      className="my-3 block rounded-2xl overflow-hidden border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-200 group no-underline text-inherit shadow-sm hover:shadow-md"
+      className="my-2.5 block rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-hover)] hover:border-blue-500/40 transition-all duration-200 group no-underline text-inherit shadow-md hover:shadow-xl"
     >
       {preview.image && (
         <div className="relative w-full aspect-video overflow-hidden bg-black flex items-center justify-center">
@@ -32,27 +32,27 @@ export default function LinkPreviewCard({ preview }) {
               e.currentTarget.parentElement.style.display = "none";
             }}
           />
-          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1 shadow-md">
-            <ExternalLink className="w-3 h-3" />
-            <span>Visit</span>
+          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1 shadow-md border border-white/10">
+            <ExternalLink className="w-3 h-3 text-white" />
+            <span className="text-white">Visit</span>
           </div>
         </div>
       )}
 
       <div className="p-3.5 sm:p-4">
-        <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium mb-1.5">
+        <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] font-medium mb-1.5">
           <Globe className="w-3.5 h-3.5 text-blue-500" />
           <span className="truncate">{preview.siteName || domain}</span>
         </div>
 
         {preview.title && (
-          <h4 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
+          <h4 className="font-bold text-sm sm:text-base text-[var(--text-primary)] line-clamp-2 leading-snug group-hover:text-blue-500 transition-colors mb-1">
             {preview.title}
           </h4>
         )}
 
         {preview.description && (
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed">
             {preview.description}
           </p>
         )}

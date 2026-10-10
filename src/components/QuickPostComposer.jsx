@@ -72,7 +72,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
     setPollOptions(updated);
   };
 
-  // Auto fetch link preview
+  // Auto fetch link preview (Industry standard OpenGraph scraper)
   const handleFetchLinkPreview = async (url) => {
     if (!url || !url.startsWith("http")) return;
     setFetchingPreview(true);
@@ -80,7 +80,10 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
       const apiBase = getApiBase();
       const res = await axios.get(`${apiBase}/post/preview/link?url=${encodeURIComponent(url)}`);
       if (res.data?.success && res.data?.preview) {
-        setLinkPreviewData(res.data.preview);
+        const preview = res.data.preview;
+        setLinkPreviewData(preview);
+        // Automatically prefill post title with scraped article/video title if empty
+        setTitle((prev) => (!prev.trim() && preview.title ? preview.title : prev));
       }
     } catch {
       // ignore
@@ -153,9 +156,30 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
       }
 
       if (mode === "link") {
-        postPayload.title = title.trim() ? `${title.trim()}\n${linkUrl.trim()}` : linkUrl.trim();
+        const customTitle = title.trim();
+        // Big platform standard: Never force raw URL as post title if a preview title exists
+        const resolvedTitle = customTitle || linkPreviewData?.title || linkUrl.trim();
+        postPayload.title = resolvedTitle;
+        postPayload.mediaType = "link";
+        postPayload.mtype = "link";
+
         if (linkPreviewData) {
           postPayload.linkPreview = linkPreviewData;
+          if (linkPreviewData.image) {
+            postPayload.thumbnail = linkPreviewData.image;
+          }
+        } else {
+          postPayload.linkPreview = {
+            url: linkUrl.trim(),
+            title: resolvedTitle,
+            domain: (() => {
+              try {
+                return new URL(linkUrl).hostname.replace(/^www\./, "");
+              } catch {
+                return "external";
+              }
+            })(),
+          };
         }
       }
 
@@ -389,6 +413,13 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                     onChange={(e) => {
                       setLinkUrl(e.target.value);
                       handleFetchLinkPreview(e.target.value);
+                    }}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData?.getData("text") || "";
+                      if (pasted && (pasted.startsWith("http://") || pasted.startsWith("https://"))) {
+                        setLinkUrl(pasted.trim());
+                        handleFetchLinkPreview(pasted.trim());
+                      }
                     }}
                     className="flex-1 bg-[var(--bg-subtle)] border border-emerald-500/40 rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   />

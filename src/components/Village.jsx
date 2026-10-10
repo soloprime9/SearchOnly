@@ -747,7 +747,26 @@ const handleShare = async (postData) => {
       ))
     );
     const title = post.title || "";
-    const titleText = isExpanded ? title : title.slice(0, 100) + (title.length > 100 ? "..." : "");
+
+    // Clean caption for link posts to avoid repeating raw URL
+    const getCleanCaptionText = (rawTitle, preview) => {
+      if (!rawTitle) return "";
+      let t = rawTitle.trim();
+      if (preview?.url) {
+        const previewUrl = preview.url.trim();
+        const normT = t.replace(/^https?:\/\/(www\.)?/, "").replace(/\/+$/, "");
+        const normUrl = previewUrl.replace(/^https?:\/\/(www\.)?/, "").replace(/\/+$/, "");
+        if (normT === normUrl) return "";
+        t = t.replace(new RegExp(`https?://\\S+`, "gi"), (match) => {
+          const normMatch = match.replace(/^https?:\/\/(www\.)?/, "").replace(/\/+$/, "");
+          return normMatch === normUrl ? "" : match;
+        }).trim();
+      }
+      return t;
+    };
+
+    const cleanCaption = post.linkPreview ? getCleanCaptionText(title, post.linkPreview) : title;
+    const titleText = isExpanded ? cleanCaption : cleanCaption.slice(0, 100) + (cleanCaption.length > 100 ? "..." : "");
 
     // Aggregate all unique hashtags from both post.tags and post.title
     const captionHashtags = (post.title || "").match(/#[\w\u0590-\u05ff]+/g) || [];
@@ -890,7 +909,7 @@ const handleShare = async (postData) => {
       </div>
     </div>
 
-    {/* 2. MEDIA SECTION - Industry Standard Capped Max-Height & Responsive Fit */}
+    {/* 2. MEDIA / EMBEDDED CONTENT SECTION */}
     {post.media ? (
       <div className="relative w-full bg-black flex items-center justify-center overflow-hidden max-h-[520px] rounded-xl my-1">
         <Link 
@@ -932,6 +951,23 @@ const handleShare = async (postData) => {
             {isGlobalMuted ? <FaVolumeMute size={14} /> : <FaVolumeUp size={14} />}
           </button>
         )}
+      </div>
+    ) : post.linkPreview ? (
+      /* 🔗 Rich Embedded Link Card (YouTube, News, Article, Website) */
+      <div className="px-3 sm:px-4 my-1">
+        <LinkPreviewCard preview={post.linkPreview} />
+      </div>
+    ) : post.poll ? (
+      /* 📊 Interactive Poll */
+      <div className="px-3 sm:px-4 my-1">
+        <PollCard
+          postId={post._id}
+          pollData={post.poll}
+          currentUserId={userId}
+          onVoteSuccess={(updatedPoll) => {
+            setPosts(prev => prev.map(p => p._id === post._id ? { ...p, poll: updatedPoll } : p));
+          }}
+        />
       </div>
     ) : (
       /* Modern Discussion / Thought Card (When no image or video is attached) */
@@ -1078,7 +1114,7 @@ const handleShare = async (postData) => {
 
       {/* Stats and Caption */}
       <div className="space-y-2">
-        {post.media && (
+        {(post.media || (post.linkPreview && cleanCaption) || (post.poll && cleanCaption)) && (
           <div className="text-sm text-[var(--text-primary)] leading-relaxed">
             <span className="font-bold mr-2 hover:underline cursor-pointer text-[var(--text-primary)]">
               {post.userId?.username}
@@ -1089,7 +1125,7 @@ const handleShare = async (postData) => {
                 setSelectedHashtag(tag);
               })}
             </span>
-            {title.length > 100 && (
+            {cleanCaption.length > 100 && (
               <button 
                 onClick={() => setExpandedPosts(p => ({...p, [post._id]: !isExpanded}))} 
                 className="text-blue-400 font-medium ml-1.5 hover:underline"
@@ -1150,22 +1186,6 @@ const handleShare = async (postData) => {
           </button>
         )}
 
-        {/* Interactive Poll in Feed */}
-        {post.poll && (
-          <PollCard
-            postId={post._id}
-            pollData={post.poll}
-            currentUserId={userId}
-            onVoteSuccess={(updatedPoll) => {
-              setPosts(prev => prev.map(p => p._id === post._id ? { ...p, poll: updatedPoll } : p));
-            }}
-          />
-        )}
-
-        {/* Rich Link Preview in Feed */}
-        {post.linkPreview && (
-          <LinkPreviewCard preview={post.linkPreview} />
-        )}
       </div>
 
       {/* Active Comments Dropdown */}

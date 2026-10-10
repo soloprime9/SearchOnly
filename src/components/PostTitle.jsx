@@ -18,7 +18,7 @@ export default function PostTitle({ title }) {
   };
 
   return (
-    <div className="text-gray-800 mb-4 whitespace-pre-line break-words">
+    <div className="text-[var(--text-primary)] mb-3 whitespace-pre-line break-words text-sm sm:text-base font-medium">
 
       <Linkify options={options}>
         {titleText}
@@ -27,7 +27,7 @@ export default function PostTitle({ title }) {
       {title.length > 100 && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-gray-500 ml-1 font-medium hover:text-black"
+          className="text-blue-500 hover:text-blue-600 ml-1.5 font-semibold text-xs sm:text-sm cursor-pointer"
         >
           {expanded ? " show less" : " ...more"}
         </button>
