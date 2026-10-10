@@ -1,5 +1,7 @@
 // app/profile/[name]/page.jsx
 import Profile from "@/components/Profile";
+import LeftSidebar from "@/components/LeftSidebar";
+import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
 import { getApiBase } from "@/utils/apiConfig";
 
 const SITE_ROOT = "https://www.fondpeace.com";
@@ -199,8 +201,52 @@ export default async function Page({ params }) {
         />
       )}
 
-      {/* Client Component */}
-      <Profile username={username} initialProfile={profileData} />
+      {/* Main Platform Shell with LeftSidebar */}
+      <main className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-blue-600 selection:text-white transition-colors duration-200 overflow-x-hidden">
+        <div
+          className="
+            grid 
+            grid-cols-1 
+            lg:grid-cols-[76px_minmax(0,1fr)] 
+            xl:grid-cols-[220px_minmax(0,1fr)_340px] 
+            max-w-[1440px] 
+            mx-auto 
+            gap-4 lg:gap-6 
+            px-2 sm:px-4 
+            py-3
+          "
+        >
+          {/* Left Sidebar (Sticky on Desktop, Bottom bar on Mobile) */}
+          <aside className="shrink-0">
+            <LeftSidebar sticky={true} />
+          </aside>
+
+          {/* Center Main Profile Column */}
+          <section className="w-full min-w-0">
+            <Profile username={username} initialProfile={profileData} />
+          </section>
+
+          {/* Right Sidebar Widget (Wide Desktops Only) */}
+          <aside className="hidden xl:block shrink-0">
+            <div className="sticky top-4 space-y-4">
+              <SuggestedCreatorsWidget variant="card" />
+
+              {/* Creator Spotlight Info Card */}
+              <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-5 text-[var(--text-primary)] shadow-md">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center font-black text-xs text-white">
+                    F
+                  </div>
+                  <span className="font-black text-sm tracking-tight text-[var(--text-primary)]">FondPeace Creators</span>
+                </div>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                  Join verified discussions, watch high-definition shorts, and support creator monetization on FondPeace.
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
     </>
   );
 }
