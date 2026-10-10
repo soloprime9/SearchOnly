@@ -2,15 +2,30 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import jwt from 'jsonwebtoken';
-import { ShieldCheck, Sparkles, Youtube, Instagram, Twitter, Globe, Eye, Film, Grid, ExternalLink } from "lucide-react";
+import { 
+  ShieldCheck, 
+  Sparkles, 
+  Youtube, 
+  Instagram, 
+  Twitter, 
+  Globe, 
+  Eye, 
+  Film, 
+  Grid, 
+  ExternalLink,
+  UserX,
+  Compass,
+  ArrowLeft 
+} from "lucide-react";
 import { playPop, playTap } from "@/utils/soundEffects";
 import { API_BASE } from "@/utils/apiConfig";
 
-const Profile = () => {
-  const [profile, setProfile] = useState(null);
+const Profile = ({ username: propUsername, initialProfile = null }) => {
+  const [profile, setProfile] = useState(initialProfile || null);
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!initialProfile);
+  const [followLoading, setFollowLoading] = useState(false);
   const [activeMediaTab, setActiveMediaTab] = useState("all"); // "all" | "shorts" | "photos"
 
   useEffect(() => {
@@ -27,9 +42,15 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-      const username = window.location.pathname.split("/").pop();
+      const pathParts = typeof window !== 'undefined' ? window.location.pathname.split("/").filter(Boolean) : [];
+      const targetName = propUsername || pathParts[pathParts.length - 1] || "";
+      if (!targetName) return;
+
+      const cleanName = decodeURIComponent(targetName).replace(/^@/, "").trim();
+      const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
       let loggedUserId = null;
 
       if (token) {
@@ -38,32 +59,116 @@ const Profile = () => {
         } catch (_) {}
       }
 
+      // If initialProfile was provided and matches target user, reuse and sync follow state
+      if (initialProfile?.user && (initialProfile.user.username?.toLowerCase() === cleanName.toLowerCase() || initialProfile.user._id === cleanName)) {
+        if (!profile) setProfile(initialProfile);
+        if (loggedUserId && Array.isArray(initialProfile.user.Followers)) {
+          setIsFollowing(initialProfile.user.Followers.some(id => String(id) === String(loggedUserId)));
+        }
+        setLoading(false);
+        return;
+      }
+
       try {
-        const result = await axios.get(
-          `${API_BASE}/user/profile/${username}`,
-          token ? { headers: { "x-auth-token": token } } : {}
-        );
+        setLoading(true);
+        let resolvedProfile = null;
 
-        const data = result.data.Profile;
-
-        // Proper sort (latest first)
-        if (Array.isArray(data.posts)) {
-          data.posts = [...data.posts].sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-          );
+        // Tier 1: Try authenticated endpoint if logged in
+        if (token) {
+          try {
+            const res = await axios.get(`${API_BASE}/user/profile/${encodeURIComponent(cleanName)}`, {
+              headers: { "x-auth-token": token },
+            });
+            if (res.data?.Profile?.user) {
+              resolvedProfile = res.data.Profile;
+            }
+          } catch (_) {}
         }
 
-        setProfile(data);
-        if (loggedUserId && Array.isArray(data.user?.Followers)) {
-          setIsFollowing(data.user.Followers.some(id => String(id) === String(loggedUserId)));
+        // Tier 2: Try public endpoint
+        if (!resolvedProfile) {
+          try {
+            const res = await axios.get(`${API_BASE}/user/profile-public/${encodeURIComponent(cleanName)}`);
+            if (res.data?.Profile?.user) {
+              resolvedProfile = res.data.Profile;
+            }
+          } catch (_) {}
+        }
+
+        // Tier 3: Resilient mango directory + posts fallback (resolves uppercase usernames like 'Tonyreduce')
+        if (!resolvedProfile) {
+          try {
+            const [usersRes, postsRes] = await Promise.all([
+              axios.get(`${API_BASE}/user/mango/getall`),
+              axios.get(`${API_BASE}/post/mango/getall`).catch(() => ({ data: [] })),
+            ]);
+
+            const users = usersRes.data;
+            const targetUser = Array.isArray(users)
+              ? users.find((u) => {
+                  const uName = u.username ? u.username.trim().toLowerCase() : "";
+                  const query = cleanName.toLowerCase();
+                  return uName === query || u._id === cleanName;
+                })
+              : null;
+
+            if (targetUser) {
+              const allPosts = Array.isArray(postsRes.data) ? postsRes.data : [];
+              const userPosts = allPosts.filter((p) => {
+                const pUid = typeof p.userId === "object" ? p.userId?._id : p.userId;
+                const pUname = typeof p.userId === "object" ? p.userId?.username : null;
+                return (
+                  (pUid && String(pUid) === String(targetUser._id)) ||
+                  (pUname && pUname.trim().toLowerCase() === targetUser.username?.trim().toLowerCase())
+                );
+              });
+              userPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+              resolvedProfile = {
+                user: targetUser,
+                posts: userPosts,
+                OwnerId: Boolean(loggedUserId && String(loggedUserId) === String(targetUser._id)),
+              };
+            }
+          } catch (_) {}
+        }
+
+        if (!isMounted) return;
+
+        if (resolvedProfile?.user) {
+          if (Array.isArray(resolvedProfile.posts)) {
+            resolvedProfile.posts = [...resolvedProfile.posts].sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+          }
+
+          if (typeof resolvedProfile.OwnerId === 'undefined') {
+            resolvedProfile.OwnerId = Boolean(loggedUserId && String(loggedUserId) === String(resolvedProfile.user._id));
+          }
+
+          setProfile(resolvedProfile);
+          setError(null);
+
+          if (loggedUserId && Array.isArray(resolvedProfile.user?.Followers)) {
+            setIsFollowing(resolvedProfile.user.Followers.some(id => String(id) === String(loggedUserId)));
+          }
+        } else {
+          setError({ notFound: true, username: cleanName });
         }
       } catch (err) {
-        setError(err.message || "Unable to fetch profile");
+        if (!isMounted) return;
+        setError({ notFound: true, username: cleanName, message: err.message });
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchProfile();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [propUsername, initialProfile]);
 
   const handleFollow = async () => {
     const token = localStorage.getItem("token");
@@ -75,7 +180,7 @@ const Profile = () => {
     } catch (_) {}
 
     try {
-      setLoading(true);
+      setFollowLoading(true);
       playPop();
       await axios.post(
         `${API_BASE}/user/follow/${profile.user._id}`,
@@ -97,18 +202,42 @@ const Profile = () => {
     } catch (_) {
       alert("Error updating follow state");
     } finally {
-      setLoading(false);
+      setFollowLoading(false);
     }
   };
 
   if (error)
     return (
-      <div className="flex justify-center items-center h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)]">
-        <h1 className="text-xl font-bold text-[var(--text-secondary)]">{error}</h1>
+      <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center mb-5 shadow-xl">
+          <UserX size={36} className="text-gray-400" />
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-black mb-2 tracking-tight">Creator Not Found</h1>
+        <p className="text-sm text-[var(--text-secondary)] max-w-md mb-8 leading-relaxed">
+          The creator profile <span className="font-bold text-[var(--text-primary)]">@{error.username || "user"}</span> doesn&apos;t exist or may have changed their handle.
+        </p>
+        <div className="flex items-center gap-3">
+          <a
+            href="/"
+            onClick={() => playTap()}
+            className="px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2"
+          >
+            <ArrowLeft size={14} />
+            <span>Back to Feed</span>
+          </a>
+          <a
+            href="/search"
+            onClick={() => playTap()}
+            className="px-5 py-2.5 rounded-full bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-xs transition-all flex items-center gap-2"
+          >
+            <Compass size={14} />
+            <span>Discover Creators</span>
+          </a>
+        </div>
       </div>
     );
 
-  if (!profile)
+  if (loading || !profile)
     return (
       <div className="flex justify-center items-center h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)]">
         <div className="flex items-center gap-3">
@@ -117,6 +246,7 @@ const Profile = () => {
         </div>
       </div>
     );
+
 
   const { user, posts = [], OwnerId } = profile;
 

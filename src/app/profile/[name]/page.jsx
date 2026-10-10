@@ -1,10 +1,80 @@
-// app/profile/[username]/page.jsx
+// app/profile/[name]/page.jsx
 import Profile from "@/components/Profile";
 import { getApiBase } from "@/utils/apiConfig";
-  
+
 const SITE_ROOT = "https://www.fondpeace.com";
 const API_BASE = getApiBase();
- 
+
+/**
+ * Resilient multi-tier profile resolver:
+ * Tier 1: Try public endpoint /user/profile-public/:username
+ * Tier 2: Resilient mango directory lookup if Tier 1 404s (handles MongoDB case-sensitivity issues like 'Tonyreduce')
+ */
+async function resolveUserProfile(username) {
+  if (!username) return null;
+  const cleanName = decodeURIComponent(username).trim();
+
+  // Tier 1: Public endpoint
+  try {
+    const res = await fetch(
+      `${API_BASE}/user/profile-public/${encodeURIComponent(cleanName)}`,
+      { cache: "no-store" }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.Profile?.user) {
+        return data.Profile;
+      }
+    }
+  } catch (_) {}
+
+  // Tier 2: Mango Directory + Posts fallback
+  try {
+    const [usersRes, postsRes] = await Promise.all([
+      fetch(`${API_BASE}/user/mango/getall`, { cache: "no-store" }),
+      fetch(`${API_BASE}/post/mango/getall`, { cache: "no-store" }).catch(() => ({ ok: false }))
+    ]);
+
+    if (usersRes.ok) {
+      const users = await usersRes.json();
+      const targetUser = Array.isArray(users)
+        ? users.find((u) => {
+            const uName = u.username ? u.username.trim().toLowerCase() : "";
+            const query = cleanName.toLowerCase();
+            return uName === query || u._id === cleanName;
+          })
+        : null;
+
+      if (targetUser) {
+        let userPosts = [];
+        if (postsRes && postsRes.ok) {
+          try {
+            const allPosts = await postsRes.json();
+            if (Array.isArray(allPosts)) {
+              userPosts = allPosts.filter((p) => {
+                const pUid = typeof p.userId === "object" ? p.userId?._id : p.userId;
+                const pUname = typeof p.userId === "object" ? p.userId?.username : null;
+                return (
+                  (pUid && String(pUid) === String(targetUser._id)) ||
+                  (pUname && pUname.trim().toLowerCase() === targetUser.username?.trim().toLowerCase())
+                );
+              });
+              userPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+          } catch (_) {}
+        }
+
+        return {
+          user: targetUser,
+          posts: userPosts,
+        };
+      }
+    }
+  } catch (_) {}
+
+  return null;
+}
+
 // ---------- METADATA (SEO HEAD) ----------
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -12,24 +82,22 @@ export async function generateMetadata({ params }) {
   if (!username) return { title: "Profile | FondPeace" };
 
   try {
-    const res = await fetch(
-      `${API_BASE}/user/profile-public/${username}`,
-      { cache: "no-store" }
-    );
+    const profileData = await resolveUserProfile(username);
+    const user = profileData?.user;
 
-    if (!res.ok) {
-      return { title: "Profile not found | FondPeace" };
+    if (!user) {
+      return {
+        title: `@${username} | FondPeace`,
+        description: `Explore creator profile on FondPeace.`,
+      };
     }
 
-    const data = await res.json();
-    const user = data?.Profile?.user;
-
-    if (!user) return { title: "Profile | FondPeace" };
+    const displayName = user.name || user.username;
 
     return {
-      title: `${user.username} (@${user.username}) on FondPeace`,
+      title: `${displayName} (@${user.username}) on FondPeace`,
       description:
-        `View ${user.username}'s profile on FondPeace. Watch videos, posts, and updates.`,
+        user.bio || `View ${displayName}'s profile on FondPeace. Watch videos, posts, and updates.`,
       robots: {
         index: true,
         follow: true,
@@ -40,13 +108,13 @@ export async function generateMetadata({ params }) {
         },
       },
       alternates: {
-        canonical: `${SITE_ROOT}/profile/${user.username}`,
+        canonical: `${SITE_ROOT}/profile/${encodeURIComponent(user.username)}`,
       },
       openGraph: {
-        title: `${user.username} on FondPeace`,
+        title: `${displayName} (@${user.username}) on FondPeace`,
         description:
-          `Explore posts and videos shared by ${user.username} on FondPeace.`,
-        url: `${SITE_ROOT}/profile/${user.username}`,
+          user.bio || `Explore posts and videos shared by ${displayName} on FondPeace.`,
+        url: `${SITE_ROOT}/profile/${encodeURIComponent(user.username)}`,
         images: [
           {
             url: user.profilePicture || `${SITE_ROOT}/Fondpeace.jpg`,
@@ -58,8 +126,8 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: "summary",
-        title: `${user.username} on FondPeace`,
-        description: `Explore posts and videos shared by ${user.username} on FondPeace.`,
+        title: `${displayName} (@${user.username}) on FondPeace`,
+        description: user.bio || `Explore posts and videos shared by ${displayName} on FondPeace.`,
         images: [user.profilePicture || `${SITE_ROOT}/Fondpeace.jpg`],
       },
     };
@@ -72,20 +140,8 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const resolvedParams = await params;
   const username = resolvedParams?.name;
-  let user = null;
-  
-
-  try {
-    const res = await fetch(
-      `${API_BASE}/user/profile-public/${username}`,
-      { cache: "no-store" }
-    );
-
-    if (res.ok) {
-      const data = await res.json();
-      user = data.Profile.user;
-    }
-  } catch (_) {}
+  const profileData = username ? await resolveUserProfile(username) : null;
+  const user = profileData?.user;
 
   return (
     <>
@@ -99,45 +155,41 @@ export default async function Page({ params }) {
               "@graph": [
                 {
                   "@type": "ProfilePage",
-                  "@id": `${SITE_ROOT}/profile/${username}`,
-                  "url": `${SITE_ROOT}/profile/${username}`,
-                  "mainEntity": {
+                  "@id": `${SITE_ROOT}/profile/${encodeURIComponent(username)}`,
+                  url: `${SITE_ROOT}/profile/${encodeURIComponent(username)}`,
+                  mainEntity: {
                     "@type": "Person",
-                    "@id": `${SITE_ROOT}/profile/${username}#person`,
+                    "@id": `${SITE_ROOT}/profile/${encodeURIComponent(username)}#person`,
                   },
                 },
                 {
                   "@type": "Person",
-                  "@id": `${SITE_ROOT}/profile/${username}#person`,
-                  "name": user.username,
-                  "alternateName": `@${user.username}`,
-                  "description": `Explore posts and videos shared by ${user.username} on FondPeace.`,
-                  "image":
-                    user.profilePicture ||
-                    `${SITE_ROOT}/Fondpeace.jpg`,
-                  "url": `${SITE_ROOT}/profile/${user.username}`,
-                  "interactionStatistic": {
+                  "@id": `${SITE_ROOT}/profile/${encodeURIComponent(username)}#person`,
+                  name: user.name || user.username,
+                  alternateName: `@${user.username}`,
+                  description: user.bio || `Explore posts and videos shared by ${user.username} on FondPeace.`,
+                  image: user.profilePicture || `${SITE_ROOT}/Fondpeace.jpg`,
+                  url: `${SITE_ROOT}/profile/${encodeURIComponent(user.username)}`,
+                  interactionStatistic: {
                     "@type": "InteractionCounter",
-                    "interactionType":
-                      "https://schema.org/FollowAction",
-                    "userInteractionCount":
-                      user.Followers?.length || 0,
+                    interactionType: "https://schema.org/FollowAction",
+                    userInteractionCount: user.Followers?.length || 0,
                   },
                 },
                 {
                   "@type": "BreadcrumbList",
-                  "itemListElement": [
+                  itemListElement: [
                     {
                       "@type": "ListItem",
-                      "position": 1,
-                      "name": "FondPeace",
-                      "item": SITE_ROOT,
+                      position: 1,
+                      name: "FondPeace",
+                      item: SITE_ROOT,
                     },
                     {
                       "@type": "ListItem",
-                      "position": 2,
-                      "name": user.username,
-                      "item": `${SITE_ROOT}/profile/${user.username}`,
+                      position: 2,
+                      name: user.name || user.username,
+                      item: `${SITE_ROOT}/profile/${encodeURIComponent(user.username)}`,
                     },
                   ],
                 },
@@ -147,33 +199,9 @@ export default async function Page({ params }) {
         />
       )}
 
-      {/* Client Component (UNCHANGED) */}
-      <Profile />
+      {/* Client Component */}
+      <Profile username={username} initialProfile={profileData} />
     </>
   );
 }
 
-
-
-
-
-
-
-
-// 'use client';
-// // import SearchBar from '@/Components/SearchBar';
-// import Profile from '@/components/Profile';
-// import React from 'react';
-
-
-
-// const Single = () => {
-//   return (
-//     <div className='md:m-1'>
-//         <Profile />
-        
-//     </div>
-//   )
-// }
-
-// export default Single;
