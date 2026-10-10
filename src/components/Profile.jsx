@@ -14,16 +14,17 @@ import {
   Eye, 
   Film, 
   Grid, 
-  ExternalLink,
-  UserX,
-  Compass,
-  ArrowLeft,
-  Share2,
-  Edit3,
-  Heart,
-  MessageCircle,
-  Plus,
-  Play
+  ExternalLink, 
+  UserX, 
+  Compass, 
+  ArrowLeft, 
+  Share2, 
+  Edit3, 
+  Heart, 
+  MessageCircle, 
+  Plus, 
+  Play,
+  Camera
 } from "lucide-react";
 import { playPop, playTap } from "@/utils/soundEffects";
 import { API_BASE } from "@/utils/apiConfig";
@@ -228,7 +229,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
       try {
         await navigator.share({
           title: `${profile?.user?.name || profile?.user?.username} on FondPeace`,
-          text: `Check out ${profile?.user?.name || profile?.user?.username}'s creator profile on FondPeace!`,
+          text: `Check out ${profile?.user?.name || profile?.user?.username}'s profile on FondPeace!`,
           url,
         });
         return;
@@ -238,7 +239,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(url);
-        toast.success("Profile link copied to clipboard! 📋");
+        toast.success("Profile link copied! 📋");
       } catch (_) {
         toast.info("Could not copy link");
       }
@@ -274,20 +275,20 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
   if (error) {
     return (
       <div className="w-full min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-20 h-20 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center mb-5 shadow-xl">
-          <UserX size={36} className="text-[var(--text-secondary)] opacity-60" />
+        <div className="w-16 h-16 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center mb-4 shadow-sm">
+          <UserX size={30} className="text-[var(--text-secondary)] opacity-60" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black mb-2 tracking-tight text-[var(--text-primary)]">
+        <h1 className="text-xl sm:text-2xl font-black mb-2 tracking-tight text-[var(--text-primary)]">
           Creator Not Found
         </h1>
-        <p className="text-sm text-[var(--text-secondary)] max-w-md mb-8 leading-relaxed">
+        <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-sm mb-6 leading-relaxed">
           The creator profile <span className="font-bold text-[var(--text-primary)]">@{error.username || "user"}</span> doesn&apos;t exist or may have changed their handle.
         </p>
         <div className="flex items-center gap-3">
           <Link
             href="/"
             onClick={() => playTap()}
-            className="px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2"
+            className="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-md shadow-blue-600/30 flex items-center gap-2"
           >
             <ArrowLeft size={14} />
             <span>Back to Feed</span>
@@ -295,23 +296,23 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
           <Link
             href="/search"
             onClick={() => playTap()}
-            className="px-5 py-2.5 rounded-full bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-xs transition-all flex items-center gap-2"
+            className="px-5 py-2 rounded-full bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-xs transition-all flex items-center gap-2"
           >
             <Compass size={14} />
-            <span>Discover Creators</span>
+            <span>Explore</span>
           </Link>
         </div>
       </div>
     );
   }
 
-  // 2. LOADING SKELETON
+  // 2. LOADING STATE
   if (loading || !profile) {
     return (
-      <div className="w-full min-h-[60vh] flex flex-col items-center justify-center p-8">
-        <div className="w-10 h-10 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
-        <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-          Loading Creator Profile...
+      <div className="w-full min-h-[50vh] flex flex-col items-center justify-center p-8">
+        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
+        <span className="text-xs font-semibold text-[var(--text-secondary)] tracking-wide">
+          Loading creator...
         </span>
       </div>
     );
@@ -322,94 +323,91 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
   const rawBio = user.bio ? user.bio.trim() : "";
   const isDefaultBio = !rawBio || rawBio === "Add About You";
   const userInitial = (user.username?.[0] || user.name?.[0] || "C").toUpperCase();
+  const displayName = user.name || user.username;
 
   return (
-    <div className="w-full pb-36 transition-colors duration-200">
+    <div className="w-full max-w-3xl mx-auto pb-32 transition-colors duration-200">
       
       {/* ══════════════════════════════════════════════════════════
-          1. HERO COVER BANNER (Adaptive Theme Gradients)
+          1. COMPACT SLEEK COVER (Slim & Panoramic — Never Bloated!)
       ══════════════════════════════════════════════════════════ */}
-      <div className="relative h-44 sm:h-56 md:h-64 w-full rounded-3xl overflow-hidden border border-[var(--border-subtle)] shadow-xl group">
-        
-        {/* Cover Photo or Dynamic Gradient Background */}
-        {user.coverImage ? (
+      {user.coverImage ? (
+        <div className="relative h-28 sm:h-36 md:h-44 w-full rounded-2xl overflow-hidden border border-[var(--border-subtle)] shadow-xs group mb-3">
           <img
             src={user.coverImage}
             alt="Cover"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
-        ) : (
-          <div className={`w-full h-full relative overflow-hidden ${
-            bgTheme === "white"
-              ? "bg-gradient-to-tr from-blue-100 via-indigo-50 to-purple-100"
-              : "bg-gradient-to-tr from-slate-950 via-indigo-950/80 to-blue-900/60"
-          }`}>
-            {/* Ambient Aura Spheres */}
-            <div className="absolute -top-12 -left-12 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-12 -right-12 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#888_1px,transparent_1px)] [background-size:20px_20px]" />
-          </div>
-        )}
+          {/* Subtle gradient vignette */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
-        {/* Floating Top Header Navigation */}
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20 pointer-events-auto">
-          {/* Back Button */}
+          {/* Quick Nav Buttons on Cover */}
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+            <Link
+              href="/"
+              onClick={() => playTap()}
+              className="px-3 py-1 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white text-[11px] font-bold border border-white/20 transition-all active:scale-95 flex items-center gap-1"
+            >
+              <ArrowLeft size={13} />
+              <span>Feed</span>
+            </Link>
+            <button
+              onClick={handleShare}
+              className="p-1.5 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white text-[11px] border border-white/20 transition-all active:scale-95"
+              title="Share profile"
+            >
+              <Share2 size={13} />
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* Slim Micro Header Bar when no custom cover — Ultra Clean! */
+        <div className="flex items-center justify-between py-2 px-1 mb-2 border-b border-[var(--border-subtle)]">
           <Link
             href="/"
             onClick={() => playTap()}
-            className="px-3.5 py-1.5 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md text-white text-xs font-bold border border-white/15 transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
           >
             <ArrowLeft size={14} />
             <span>Feed</span>
           </Link>
-
-          {/* Share & Edit Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-mono text-[var(--text-secondary)] font-medium">
+              @{user.username}
+            </span>
             <button
               onClick={handleShare}
-              className="p-2 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md text-white text-xs font-bold border border-white/15 transition-all active:scale-95 shadow-md flex items-center gap-1"
+              className="p-1.5 rounded-full hover:bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
               title="Share profile"
-              aria-label="Share profile"
             >
               <Share2 size={14} />
             </button>
-
-            {OwnerId && (
-              <Link
-                href={`/edit/${user.username}`}
-                onClick={() => playTap()}
-                className="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold border border-white/25 transition-all active:scale-95 shadow-md flex items-center gap-1"
-              >
-                <Edit3 size={13} />
-                <span className="hidden sm:inline">Edit Cover</span>
-              </Link>
-            )}
           </div>
         </div>
-      </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════════
-          2. CREATOR PROFILE INFO CARD (Glassmorphic & Themed)
+          2. CREATOR PROFILE HEADER (Instagram / Threads Style)
       ══════════════════════════════════════════════════════════ */}
-      <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-3xl p-5 sm:p-7 shadow-xl relative -mt-14 sm:-mt-16 z-20 backdrop-blur-xl mb-6">
+      <div className="px-1 sm:px-2 pt-1 pb-4">
         
-        {/* Avatar & Main Action Buttons Row */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        {/* Top Profile Row: Avatar + Stats / Actions */}
+        <div className="flex items-start justify-between gap-4 sm:gap-6">
           
-          {/* Avatar with Illuminated Ring & Monogram Fallback */}
-          <div className="relative group shrink-0 self-center sm:self-auto">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full ring-4 ring-[var(--bg-canvas)] shadow-2xl overflow-hidden bg-[var(--bg-subtle)] border-2 border-white/20 relative">
+          {/* Avatar (Left) */}
+          <div className="relative shrink-0">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full ring-2 ring-[var(--border-subtle)] p-0.5 overflow-hidden bg-[var(--bg-surface)] shadow-sm">
               {!isDefaultAvatar ? (
                 <img
                   src={user.profilePicture}
                   alt={user.username}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full rounded-full object-cover"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white font-black text-3xl sm:text-4xl shadow-inner uppercase select-none">
+                <div className="w-full h-full rounded-full flex items-center justify-center bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 text-white font-black text-2xl sm:text-3xl shadow-inner select-none">
                   {userInitial}
                 </div>
               )}
@@ -418,145 +416,171 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             {/* Verified Creator Shield Badge */}
             {user.isVerified && (
               <div 
-                className="absolute bottom-1 right-1 p-1.5 bg-blue-600 rounded-full text-white shadow-lg ring-2 ring-[var(--bg-surface)]" 
+                className="absolute bottom-0 right-0 p-1 bg-blue-600 rounded-full text-white shadow-md ring-2 ring-[var(--bg-canvas)]" 
                 title="Verified Creator 💎"
               >
-                <ShieldCheck size={16} />
+                <ShieldCheck size={14} />
               </div>
             )}
           </div>
 
-          {/* Action Buttons (Follow / Edit Profile / Share) */}
-          <div className="flex items-center justify-center sm:justify-end gap-2.5 w-full sm:w-auto">
-            {OwnerId ? (
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <Link
-                  href={`/edit/${user.username}`}
-                  onClick={() => playTap()}
-                  className="flex-1 sm:flex-none px-5 py-2.5 bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] text-[var(--text-primary)] rounded-full text-xs font-bold border border-[var(--border-subtle)] transition-all active:scale-95 shadow-sm flex items-center justify-center gap-1.5"
-                >
-                  <Edit3 size={13} />
-                  <span>Edit Profile</span>
-                </Link>
-                <Link
-                  href="/upload"
-                  onClick={() => playTap()}
-                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full text-xs font-bold transition-all active:scale-95 shadow-md shadow-blue-500/25 flex items-center justify-center gap-1.5"
-                >
-                  <Plus size={14} />
-                  <span>Create</span>
-                </Link>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <button
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                  className={`flex-1 sm:flex-none px-7 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-md cursor-pointer flex items-center justify-center gap-1.5 ${
-                    isFollowing
-                      ? "bg-[var(--bg-subtle)] hover:bg-rose-950/40 text-[var(--text-primary)] hover:text-rose-400 border border-[var(--border-subtle)]"
-                      : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30"
-                  }`}
-                >
-                  {followLoading ? (
-                    <span>Processing...</span>
-                  ) : isFollowing ? (
-                    <span>✓ Following</span>
-                  ) : (
-                    <span>+ Follow</span>
+          {/* Right Header: Desktop stats & Action Buttons */}
+          <div className="flex-1 min-w-0 pt-1">
+            
+            {/* Desktop Row: Name, Handle, Buttons */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight leading-tight">
+                    {displayName}
+                  </h1>
+                  {user.isVerified && (
+                    <ShieldCheck size={18} className="text-blue-500 fill-blue-500/20 shrink-0" />
                   )}
-                </button>
-                <button
-                  onClick={handleShare}
-                  className="p-2.5 rounded-full bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
-                  title="Share profile"
-                  aria-label="Share creator profile"
-                >
-                  <Share2 size={15} />
-                </button>
+                  {user.category && user.category !== "General" && (
+                    <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-full">
+                      {user.category}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs font-semibold text-[var(--text-secondary)] mt-0.5">
+                  @{user.username}
+                </p>
               </div>
-            )}
+
+              {/* Action Buttons (Desktop inline) */}
+              <div className="hidden sm:flex items-center gap-2 shrink-0">
+                {OwnerId ? (
+                  <>
+                    <Link
+                      href={`/edit/${user.username}`}
+                      onClick={() => playTap()}
+                      className="px-4 py-1.5 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--bg-subtle)] text-[var(--text-primary)] text-xs font-bold border border-[var(--border-subtle)] transition active:scale-95 shadow-xs flex items-center gap-1.5"
+                    >
+                      <Edit3 size={13} />
+                      <span>Edit Profile</span>
+                    </Link>
+                    <Link
+                      href="/upload"
+                      onClick={() => playTap()}
+                      className="px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition active:scale-95 shadow-sm shadow-blue-500/25 flex items-center gap-1"
+                    >
+                      <Plus size={14} />
+                      <span>Upload</span>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleFollow}
+                      disabled={followLoading}
+                      className={`px-5 py-1.5 rounded-full text-xs font-bold transition active:scale-95 shadow-xs cursor-pointer ${
+                        isFollowing
+                          ? "bg-[var(--bg-surface)] hover:bg-rose-950/20 text-[var(--text-primary)] hover:text-rose-400 border border-[var(--border-subtle)] hover:border-rose-800/40"
+                          : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20"
+                      }`}
+                    >
+                      {followLoading ? "..." : isFollowing ? "✓ Following" : "+ Follow"}
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      className="p-1.5 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
+                      title="Share Profile"
+                    >
+                      <Share2 size={14} />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Desktop Inline Stats Row (Clean, lightweight, modern!) */}
+            <div className="hidden sm:flex items-center gap-6 mt-3 text-xs sm:text-sm">
+              <span className="text-[var(--text-secondary)]">
+                <strong className="font-extrabold text-[var(--text-primary)] mr-1">{posts.length}</strong>
+                posts
+              </span>
+              <span className="text-[var(--text-secondary)]">
+                <strong className="font-extrabold text-[var(--text-primary)] mr-1">{user.Followers?.length || 0}</strong>
+                followers
+              </span>
+              <span className="text-[var(--text-secondary)]">
+                <strong className="font-extrabold text-[var(--text-primary)] mr-1">{user.Followings?.length || 0}</strong>
+                following
+              </span>
+              <span className="text-[var(--text-secondary)]">
+                <strong className="font-extrabold text-rose-500 mr-1">{totalLikes}</strong>
+                likes
+              </span>
+            </div>
+
           </div>
         </div>
 
-        {/* Creator Name, Badges, Category */}
-        <div className="mt-4 text-center sm:text-left">
-          <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
-              {user.name || user.username}
-            </h1>
-            {user.isVerified && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-blue-500/15 text-blue-500 border border-blue-500/30">
-                <ShieldCheck size={13} />
-                <span>Verified</span>
-              </span>
-            )}
-            {user.category && user.category !== "General" && (
-              <span className="px-2.5 py-0.5 text-[11px] font-bold bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 rounded-full">
-                {user.category}
-              </span>
-            )}
+        {/* Mobile Stats Row (Instagram Style: 3 Columns) */}
+        <div className="flex sm:hidden items-center justify-around py-3 mt-3 border-y border-[var(--border-subtle)] text-center">
+          <div>
+            <p className="text-sm font-black text-[var(--text-primary)]">{posts.length}</p>
+            <span className="text-[10px] font-medium text-[var(--text-secondary)]">Posts</span>
           </div>
+          <div>
+            <p className="text-sm font-black text-[var(--text-primary)]">{user.Followers?.length || 0}</p>
+            <span className="text-[10px] font-medium text-[var(--text-secondary)]">Followers</span>
+          </div>
+          <div>
+            <p className="text-sm font-black text-[var(--text-primary)]">{user.Followings?.length || 0}</p>
+            <span className="text-[10px] font-medium text-[var(--text-secondary)]">Following</span>
+          </div>
+          <div>
+            <p className="text-sm font-black text-rose-500">{totalLikes}</p>
+            <span className="text-[10px] font-medium text-[var(--text-secondary)]">Likes</span>
+          </div>
+        </div>
 
-          {/* Handle */}
-          <p className="text-sm font-semibold text-[var(--text-secondary)] mt-0.5">
-            @{user.username}
-          </p>
-
-          {/* Tagline */}
-          {user.tagline && (
-            <p className="text-sm font-semibold text-blue-400 mt-2 italic max-w-xl">
-              &ldquo;{user.tagline}&rdquo;
+        {/* Bio Section */}
+        <div className="mt-3 text-xs sm:text-sm max-w-xl">
+          {!isDefaultBio ? (
+            <p className="text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap font-normal">
+              {rawBio}
+            </p>
+          ) : OwnerId ? (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs font-medium text-blue-500">
+              <span>Introduce yourself to your community</span>
+              <Link href={`/edit/${user.username}`} className="underline font-bold hover:text-blue-400">
+                Add Bio
+              </Link>
+            </div>
+          ) : (
+            <p className="text-[var(--text-secondary)] italic">
+              Creator on FondPeace.
             </p>
           )}
 
-          {/* Bio (Zero Dummy Text) */}
-          <div className="mt-3 max-w-2xl">
-            {!isDefaultBio ? (
-              <p className="text-sm text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap">
-                {rawBio}
-              </p>
-            ) : OwnerId ? (
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs font-semibold text-blue-400">
-                <span>✨ Add a bio to tell your community about yourself.</span>
-                <Link href={`/edit/${user.username}`} className="underline font-bold hover:text-blue-300">
-                  Edit
-                </Link>
-              </div>
-            ) : (
-              <p className="text-sm text-[var(--text-secondary)] italic">
-                ✨ Creator on the FondPeace community.
-              </p>
-            )}
-          </div>
-
           {/* Website Link */}
           {user.website && (
-            <div className="mt-3">
-              <a
-                href={user.website.startsWith("http") ? user.website : `https://${user.website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:underline"
-              >
-                <Globe size={13} />
-                <span>{user.website.replace(/^https?:\/\//, "")}</span>
-                <ExternalLink size={11} className="opacity-70" />
-              </a>
-            </div>
+            <a
+              href={user.website.startsWith("http") ? user.website : `https://${user.website}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-blue-500 hover:underline mt-1.5"
+            >
+              <Globe size={12} />
+              <span>{user.website.replace(/^https?:\/\//, "")}</span>
+              <ExternalLink size={10} className="opacity-70" />
+            </a>
           )}
 
-          {/* Social Links Row */}
+          {/* Social Links Chips */}
           {user.socialLinks && Object.values(user.socialLinks).some(Boolean) && (
-            <div className="flex items-center justify-center sm:justify-start gap-2 mt-3.5 flex-wrap">
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               {user.socialLinks.instagram && (
                 <a
                   href={user.socialLinks.instagram.startsWith("http") ? user.socialLinks.instagram : `https://instagram.com/${user.socialLinks.instagram.replace("@", "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded-full text-xs font-semibold text-pink-400 flex items-center gap-1.5 transition-colors"
+                  className="px-2.5 py-0.5 rounded-full bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[11px] font-semibold text-pink-500 flex items-center gap-1"
                 >
-                  <Instagram size={13} />
+                  <Instagram size={11} />
                   <span>Instagram</span>
                 </a>
               )}
@@ -565,9 +589,9 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                   href={user.socialLinks.twitter.startsWith("http") ? user.socialLinks.twitter : `https://x.com/${user.socialLinks.twitter.replace("@", "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded-full text-xs font-semibold text-sky-400 flex items-center gap-1.5 transition-colors"
+                  className="px-2.5 py-0.5 rounded-full bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[11px] font-semibold text-sky-500 flex items-center gap-1"
                 >
-                  <Twitter size={13} />
+                  <Twitter size={11} />
                   <span>X</span>
                 </a>
               )}
@@ -576,73 +600,83 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                   href={user.socialLinks.youtube.startsWith("http") ? user.socialLinks.youtube : `https://youtube.com/${user.socialLinks.youtube.replace("@", "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded-full text-xs font-semibold text-red-400 flex items-center gap-1.5 transition-colors"
+                  className="px-2.5 py-0.5 rounded-full bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[11px] font-semibold text-red-500 flex items-center gap-1"
                 >
-                  <Youtube size={13} />
+                  <Youtube size={11} />
                   <span>YouTube</span>
                 </a>
               )}
             </div>
           )}
-
-          {/* Interactive Stats Grid (Followers, Following, Posts, Total Likes) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 mt-6 pt-5 border-t border-[var(--border-subtle)]">
-            <div className="p-3 rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-center transition-all hover:border-blue-500/30">
-              <p className="text-lg sm:text-xl font-black text-[var(--text-primary)]">
-                {user.Followers?.length || 0}
-              </p>
-              <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                Followers
-              </span>
-            </div>
-
-            <div className="p-3 rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-center transition-all hover:border-blue-500/30">
-              <p className="text-lg sm:text-xl font-black text-[var(--text-primary)]">
-                {user.Followings?.length || 0}
-              </p>
-              <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                Following
-              </span>
-            </div>
-
-            <div className="p-3 rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-center transition-all hover:border-blue-500/30">
-              <p className="text-lg sm:text-xl font-black text-[var(--text-primary)]">
-                {posts.length}
-              </p>
-              <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                Posts
-              </span>
-            </div>
-
-            <div className="p-3 rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-center transition-all hover:border-blue-500/30">
-              <p className="text-lg sm:text-xl font-black text-rose-500">
-                {totalLikes}
-              </p>
-              <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                Total Likes
-              </span>
-            </div>
-          </div>
         </div>
+
+        {/* Mobile Action Buttons (Full-Width Bottom Bar) */}
+        <div className="flex sm:hidden items-center gap-2 mt-3.5">
+          {OwnerId ? (
+            <>
+              <Link
+                href={`/edit/${user.username}`}
+                onClick={() => playTap()}
+                className="flex-1 py-2 rounded-xl bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs font-bold border border-[var(--border-subtle)] text-center shadow-xs flex items-center justify-center gap-1.5"
+              >
+                <Edit3 size={13} />
+                <span>Edit Profile</span>
+              </Link>
+              <Link
+                href="/upload"
+                onClick={() => playTap()}
+                className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold text-center shadow-sm flex items-center justify-center gap-1"
+              >
+                <Plus size={14} />
+                <span>Upload</span>
+              </Link>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleFollow}
+                disabled={followLoading}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition active:scale-95 shadow-xs cursor-pointer ${
+                  isFollowing
+                    ? "bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-subtle)]"
+                    : "bg-blue-600 text-white shadow-blue-500/25"
+                }`}
+              >
+                {followLoading ? "..." : isFollowing ? "✓ Following" : "+ Follow"}
+              </button>
+              <button
+                onClick={handleShare}
+                className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)]"
+                title="Share"
+              >
+                <Share2 size={15} />
+              </button>
+            </>
+          )}
+        </div>
+
       </div>
 
       {/* ══════════════════════════════════════════════════════════
-          3. MEDIA NAVIGATION TABS (Segmented Pill Switcher)
+          3. MODERN MINIMAL TABS (Instagram / Threads Underline)
       ══════════════════════════════════════════════════════════ */}
-      <div className="flex items-center gap-2 pb-2 mb-4 overflow-x-auto no-scrollbar">
+      <div className="flex items-center justify-around border-b border-[var(--border-subtle)] mt-2">
         <button
           onClick={() => {
             playTap();
             setActiveMediaTab("all");
           }}
-          className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative ${
             activeMediaTab === "all"
-              ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-              : "bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] border border-[var(--border-subtle)]"
+              ? "text-[var(--text-primary)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           }`}
         >
-          <Grid size={14} />
-          <span>All Posts ({posts.length})</span>
+          <Grid size={15} />
+          <span>Posts ({posts.length})</span>
+          {activeMediaTab === "all" && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--text-primary)] rounded-full" />
+          )}
         </button>
 
         <button
@@ -650,14 +684,17 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             playTap();
             setActiveMediaTab("shorts");
           }}
-          className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative ${
             activeMediaTab === "shorts"
-              ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-              : "bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] border border-[var(--border-subtle)]"
+              ? "text-[var(--text-primary)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           }`}
         >
-          <Film size={14} />
-          <span>Shorts & Videos ({videoPosts.length})</span>
+          <Film size={15} />
+          <span>Shorts ({videoPosts.length})</span>
+          {activeMediaTab === "shorts" && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--text-primary)] rounded-full" />
+          )}
         </button>
 
         <button
@@ -665,36 +702,39 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             playTap();
             setActiveMediaTab("photos");
           }}
-          className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative ${
             activeMediaTab === "photos"
-              ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-              : "bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] border border-[var(--border-subtle)]"
+              ? "text-[var(--text-primary)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           }`}
         >
-          <Sparkles size={14} />
-          <span>Photos & Articles ({photoPosts.length})</span>
+          <Sparkles size={15} />
+          <span>Photos ({photoPosts.length})</span>
+          {activeMediaTab === "photos" && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--text-primary)] rounded-full" />
+          )}
         </button>
       </div>
 
       {/* ══════════════════════════════════════════════════════════
-          4. POSTS GRID (Rich Cards & Empty States)
+          4. POSTS GALLERY GRID (Instagram / TikTok Creator Layout)
       ══════════════════════════════════════════════════════════ */}
-      <div>
+      <div className="mt-3">
         {filteredPosts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3 sm:gap-4.5">
+          <div className="grid grid-cols-3 gap-1 sm:gap-2.5 md:gap-3">
             {filteredPosts.map((post) => {
               const isVideo = post.media?.endsWith(".mp4") || post.mediaType?.startsWith("video");
-              const postTitle = post.title || post.caption || "Community Post";
+              const postTitle = post.title || post.caption || "Post";
 
               return (
                 <Link
                   key={post._id}
                   href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
                   onClick={() => playTap()}
-                  className="group block rounded-2xl overflow-hidden bg-[var(--bg-surface)] border border-[var(--border-subtle)] relative aspect-[4/5] shadow-md hover:border-blue-500/50 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+                  className="group block rounded-md sm:rounded-xl overflow-hidden bg-[var(--bg-subtle)] relative aspect-[4/5] sm:aspect-[4/5] shadow-2xs hover:shadow-md transition-all duration-300"
                 >
                   {isVideo ? (
-                    <div className="w-full h-full relative bg-zinc-950">
+                    <div className="w-full h-full relative bg-black">
                       <video
                         src={post.media}
                         muted
@@ -703,63 +743,45 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                         preload="metadata"
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                        <div className="w-10 h-10 rounded-full bg-blue-600/80 backdrop-blur-md flex items-center justify-center text-white shadow-lg">
-                          <Play size={18} className="ml-0.5 fill-white" />
-                        </div>
+                      {/* Video indicator badge in top right */}
+                      <div className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 backdrop-blur-xs text-white">
+                        <Film size={11} />
                       </div>
                     </div>
                   ) : post.media ? (
                     <img
                       src={post.media}
                       alt={postTitle}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
                   ) : (
-                    // Typographic discussion card if no media
-                    <div className="w-full h-full p-4 flex flex-col justify-between bg-gradient-to-br from-blue-600/10 via-[var(--bg-surface)] to-purple-600/10">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-500">
+                    // Typographic Card for discussions without media
+                    <div className="w-full h-full p-2.5 sm:p-4 flex flex-col justify-between bg-gradient-to-br from-blue-600/10 via-[var(--bg-surface)] to-indigo-600/10 border border-[var(--border-subtle)]">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-blue-500">
                         Discussion
                       </span>
-                      <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] line-clamp-4 leading-relaxed">
+                      <p className="text-[11px] sm:text-xs font-bold text-[var(--text-primary)] line-clamp-3 leading-snug">
                         {postTitle}
                       </p>
-                      <span className="text-[10px] text-[var(--text-secondary)] font-mono">
-                        View post →
+                      <span className="text-[9px] text-[var(--text-secondary)] font-mono">
+                        Read →
                       </span>
                     </div>
                   )}
 
-                  {/* Gradient Overlay with Badges & Stats */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-between pointer-events-none">
-                    {/* Top Type Badge */}
-                    <span className="self-end px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-md text-[10px] font-bold text-white flex items-center gap-1 border border-white/10">
-                      {isVideo ? <Film size={10} /> : <Sparkles size={10} />}
-                      <span>{isVideo ? "Video" : "Photo"}</span>
-                    </span>
-
-                    {/* Bottom Title & Stats */}
-                    <div>
-                      <p className="text-white text-xs font-bold line-clamp-1 mb-1.5 drop-shadow-md">
-                        {postTitle}
-                      </p>
-                      <div className="flex items-center justify-between text-[11px] font-bold text-white">
-                        <span className="flex items-center gap-1 text-gray-200">
-                          <Eye size={12} />
-                          <span>{post.views || 0}</span>
-                        </span>
-                        <div className="flex items-center gap-2.5">
-                          <span className="flex items-center gap-1 text-rose-400">
-                            <Heart size={11} className="fill-rose-400" />
-                            <span>{post.likes?.length || 0}</span>
-                          </span>
-                          <span className="flex items-center gap-1 text-sky-400">
-                            <MessageCircle size={11} />
-                            <span>{post.comments?.length || 0}</span>
-                          </span>
-                        </div>
-                      </div>
+                  {/* Dark gradient overlay on hover (Desktop) */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-between pointer-events-none">
+                    <div />
+                    <div className="flex items-center justify-center gap-3 text-white text-xs font-bold">
+                      <span className="flex items-center gap-1">
+                        <Heart size={12} className="fill-white" />
+                        <span>{post.likes?.length || 0}</span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Eye size={12} />
+                        <span>{post.views || 0}</span>
+                      </span>
                     </div>
                   </div>
                 </Link>
@@ -767,27 +789,27 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             })}
           </div>
         ) : (
-          // Empty State for Selected Tab
-          <div className="text-center py-16 px-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-3xl shadow-sm">
-            <div className="w-14 h-14 rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center mx-auto mb-3">
-              <Sparkles size={24} className="text-[var(--text-secondary)] opacity-60" />
+          /* Clean Minimalist Empty State */
+          <div className="text-center py-16 px-4">
+            <div className="w-12 h-12 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center mx-auto mb-3">
+              <Camera size={22} className="text-[var(--text-secondary)] opacity-60" />
             </div>
             <h3 className="text-sm font-bold text-[var(--text-primary)] mb-1">
-              No posts in this category yet
+              No Posts Yet
             </h3>
-            <p className="text-xs text-[var(--text-secondary)] max-w-xs mx-auto mb-5 leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] max-w-xs mx-auto mb-4 leading-relaxed">
               {OwnerId
-                ? "Share your first video, short, or thoughtful post with the FondPeace community."
-                : `Stay tuned! ${user.name || user.username} hasn't uploaded any content in this section yet.`}
+                ? "Share your first video, short, or thoughtful post."
+                : `When ${user.name || user.username} posts, you'll see them here.`}
             </p>
             {OwnerId && (
               <Link
                 href="/upload"
                 onClick={() => playTap()}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/25 active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-sm"
               >
                 <Plus size={14} />
-                <span>Create Your First Post</span>
+                <span>Create Post</span>
               </Link>
             )}
           </div>
