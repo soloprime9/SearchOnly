@@ -166,25 +166,25 @@ export default async function HomePage() {
             <SuggestedCreatorsWidget variant="card" />
 
             {/* Creator Monetization Spotlight Card */}
-            <div className="rounded-2xl p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg text-white">
+            <div className="rounded-2xl p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg text-[var(--text-primary)]">
               <div className="flex items-center justify-between mb-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/10 text-white border border-white/20">
-                  <Coins className="w-3 h-3 text-amber-400" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                  <Coins className="w-3 h-3 text-amber-500" />
                   Creator Program
                 </span>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                <span className="text-[10px] font-mono text-emerald-500 font-bold">
                   95% Payout
                 </span>
               </div>
-              <h3 className="text-sm font-black text-white tracking-tight mb-1">
+              <h3 className="text-sm font-black text-[var(--text-primary)] tracking-tight mb-1">
                 Monetize Your Content
               </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed mb-4">
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4">
                 Keep 95% of direct community tips and earn 60% ad revenue from viral posts and short video reels.
               </p>
               <Link
                 href="/monetization"
-                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-black font-extrabold text-xs hover:bg-zinc-200 transition active:scale-95 shadow-md shadow-white/10"
+                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs transition active:scale-95 shadow-md shadow-blue-500/20"
               >
                 <span>Join Monetization</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -192,19 +192,19 @@ export default async function HomePage() {
             </div>
 
             {/* FondPeace Platform Mission Card */}
-            <div className="bg-zinc-950 border border-white/10 rounded-2xl p-5 text-white shadow-md">
+            <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-5 text-[var(--text-primary)] shadow-md">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center font-black text-xs text-white">
                     F
                   </div>
-                  <span className="font-black text-sm tracking-tight">FondPeace</span>
+                  <span className="font-black text-sm tracking-tight text-[var(--text-primary)]">FondPeace</span>
                 </div>
-                <span className="text-[10px] uppercase font-bold text-zinc-400 border border-white/10 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] uppercase font-bold text-[var(--text-secondary)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-full">
                   Community
                 </span>
               </div>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 FondPeace is an independent, community-driven social and video platform built to support authentic discussions, original content creation, and creator monetization.
               </p>
             </div>

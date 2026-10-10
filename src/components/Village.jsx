@@ -795,7 +795,7 @@ const handleShare = async (postData) => {
               </div>
             </Link>
             <div className="flex flex-col">
-              <Link href={`/profile/${post.userId?.username}`} className="text-sm font-bold text-white leading-none hover:underline">
+              <Link href={`/profile/${post.userId?.username}`} className="text-sm font-bold text-[var(--text-primary)] leading-none hover:underline">
                 {post.userId?.username || "Creator"}
               </Link>
               <div className="flex items-center gap-1 text-[11px] text-zinc-400 mt-0.5 font-medium">
@@ -1079,11 +1079,11 @@ const handleShare = async (postData) => {
       {/* Stats and Caption */}
       <div className="space-y-2">
         {post.media && (
-          <div className="text-sm text-zinc-100 leading-relaxed">
-            <span className="font-bold mr-2 hover:underline cursor-pointer text-white">
+          <div className="text-sm text-[var(--text-primary)] leading-relaxed">
+            <span className="font-bold mr-2 hover:underline cursor-pointer text-[var(--text-primary)]">
               {post.userId?.username}
             </span>
-            <span className="whitespace-pre-wrap text-zinc-200">
+            <span className="whitespace-pre-wrap text-[var(--text-primary)]">
               {renderFormattedCaption(titleText, (tag) => {
                 playTap();
                 setSelectedHashtag(tag);

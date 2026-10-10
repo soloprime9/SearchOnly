@@ -5,24 +5,24 @@ import { toast } from "@/utils/toast";
 import { playPop } from "@/utils/soundEffects";
 
 const THEME_TOKENS = {
-  dim: {
-    "--bg-canvas": "#090c15",
-    "--bg-surface": "#0f1523",
-    "--bg-surface-elevated": "#151d30",
-    "--bg-surface-hover": "#172036",
-    "--bg-subtle": "#1c2640",
-    "--border-subtle": "rgba(255, 255, 255, 0.08)",
+  white: {
+    "--bg-canvas": "#ffffff",
+    "--bg-surface": "#ffffff",
+    "--bg-surface-elevated": "#f8fafc",
+    "--bg-surface-hover": "#f1f5f9",
+    "--bg-subtle": "#f4f4f5",
+    "--border-subtle": "rgba(0, 0, 0, 0.08)",
     "--border-subtle-hover": "rgba(59, 130, 246, 0.4)",
-    "--text-primary": "#f8fafc",
-    "--text-secondary": "#94a3b8",
-    "--text-muted": "#64748b",
-    "--background": "#090c15",
-    "--foreground": "#f8fafc",
-    "--card": "#0f1523",
+    "--text-primary": "#09090b",
+    "--text-secondary": "#64748b",
+    "--text-muted": "#94a3b8",
+    "--background": "#ffffff",
+    "--foreground": "#09090b",
+    "--card": "#ffffff",
   },
   black: {
     "--bg-canvas": "#000000",
-    "--bg-surface": "#090a0f",
+    "--bg-surface": "#0a0b10",
     "--bg-surface-elevated": "#111218",
     "--bg-surface-hover": "#161720",
     "--bg-subtle": "#161822",
@@ -33,7 +33,7 @@ const THEME_TOKENS = {
     "--text-muted": "#71717a",
     "--background": "#000000",
     "--foreground": "#ffffff",
-    "--card": "#090a0f",
+    "--card": "#0a0b10",
   },
 };
 
@@ -45,11 +45,22 @@ const applyThemeTokens = (target) => {
   root.setAttribute("data-bg", target);
   if (body) {
     body.setAttribute("data-bg", target);
-    body.style.backgroundColor = target === "black" ? "#000000" : "#090c15";
-    body.style.color = target === "black" ? "#ffffff" : "#f8fafc";
+    body.style.backgroundColor = target === "white" ? "#ffffff" : "#000000";
+    body.style.color = target === "white" ? "#09090b" : "#ffffff";
   }
 
-  const tokens = THEME_TOKENS[target] || THEME_TOKENS.dim;
+  // Synchronize dark / light class for Tailwind
+  if (target === "white") {
+    root.classList.remove("dark");
+    root.classList.add("light");
+    root.style.colorScheme = "light";
+  } else {
+    root.classList.add("dark");
+    root.classList.remove("light");
+    root.style.colorScheme = "dark";
+  }
+
+  const tokens = THEME_TOKENS[target] || THEME_TOKENS.black;
   Object.entries(tokens).forEach(([prop, val]) => {
     root.style.setProperty(prop, val);
     if (body) {
@@ -59,20 +70,21 @@ const applyThemeTokens = (target) => {
 };
 
 const ThemeBackgroundContext = createContext({
-  bgTheme: "dim", // "dim" (Midnight Navy) | "black" (Lights Out / OLED)
+  bgTheme: "black", // "white" | "black"
   toggleBgTheme: () => {},
   setBgTheme: () => {},
 });
 
 export function ThemeBackgroundProvider({ children }) {
-  const [bgTheme, setBgThemeState] = useState("dim");
+  const [bgTheme, setBgThemeState] = useState("black");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let initial = "dim";
+    let initial = "black";
     try {
       const saved = localStorage.getItem("fondpeace_bg_theme");
-      if (saved === "black") initial = "black";
+      if (saved === "white") initial = "white";
+      else initial = "black";
     } catch {}
     setBgThemeState(initial);
     applyThemeTokens(initial);
@@ -80,7 +92,7 @@ export function ThemeBackgroundProvider({ children }) {
   }, []);
 
   const applyTheme = (theme, showToast = true) => {
-    const target = theme === "black" ? "black" : "dim";
+    const target = theme === "white" ? "white" : "black";
     setBgThemeState(target);
     try {
       localStorage.setItem("fondpeace_bg_theme", target);
@@ -90,16 +102,16 @@ export function ThemeBackgroundProvider({ children }) {
 
     if (showToast && mounted) {
       playPop();
-      if (target === "black") {
-        toast.success("Switched to Lights Out (OLED Pitch Black)");
+      if (target === "white") {
+        toast.success("Switched to White Mode (Clean Light)");
       } else {
-        toast.success("Switched to Midnight Dim (Deep Navy Slate)");
+        toast.success("Switched to Black Mode (Pitch Black OLED)");
       }
     }
   };
 
   const toggleBgTheme = () => {
-    applyTheme(bgTheme === "dim" ? "black" : "dim", true);
+    applyTheme(bgTheme === "white" ? "black" : "white", true);
   };
 
   const setBgTheme = (theme) => {

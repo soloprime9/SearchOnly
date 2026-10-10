@@ -194,7 +194,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                 playPop();
                 setExpanded(true);
               }}
-              className="flex-1 text-left bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs sm:text-sm font-medium px-4 py-2.5 rounded-xl border border-white/[0.08] transition-colors cursor-pointer"
+              className="flex-1 text-left bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs sm:text-sm font-medium px-4 py-2.5 rounded-xl border border-[var(--border-subtle)] transition-colors cursor-pointer"
             >
               What&apos;s on your mind? Share a thought, poll, or link...
             </button>
@@ -238,7 +238,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
           /* Expanded Studio View */
           <form onSubmit={handleSubmit} className="space-y-3.5 animate-in fade-in duration-200">
             {/* Header: Mode Selector & Close */}
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-2.5">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <button
                   type="button"
@@ -249,7 +249,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                   className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${
                     mode === "text"
                       ? "bg-blue-600 text-white shadow-sm"
-                      : "text-zinc-300 hover:text-white hover:bg-white/10"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
                   }`}
                 >
                   <PenLine size={13} />
@@ -265,7 +265,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                   className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${
                     mode === "poll"
                       ? "bg-purple-600 text-white shadow-sm"
-                      : "text-zinc-300 hover:text-white hover:bg-white/10"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
                   }`}
                 >
                   <BarChart2 size={13} />
@@ -281,7 +281,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                   className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer ${
                     mode === "link"
                       ? "bg-emerald-600 text-white shadow-sm"
-                      : "text-zinc-300 hover:text-white hover:bg-white/10"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
                   }`}
                 >
                   <LinkIcon size={13} />
@@ -291,7 +291,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                 <Link
                   href="/upload"
                   onClick={() => playPop()}
-                  className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full text-zinc-300 hover:text-white hover:bg-white/10 border border-white/10 transition-all cursor-pointer"
+                  className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] border border-[var(--border-subtle)] transition-all cursor-pointer"
                   title="Go to full Upload Studio for Videos & Photos"
                 >
                   <Video size={13} className="text-blue-400" />
@@ -302,7 +302,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
               <button
                 type="button"
                 onClick={handleReset}
-                className="p-1.5 text-zinc-400 hover:text-white rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-full hover:bg-[var(--bg-subtle)] transition-colors cursor-pointer"
                 title="Close composer"
               >
                 <X size={18} />
@@ -311,13 +311,13 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
 
             {/* Poll Mode Inputs */}
             {mode === "poll" && (
-              <div className="space-y-2.5 p-3.5 bg-purple-950/30 rounded-xl border border-purple-500/25">
+              <div className="space-y-2.5 p-3.5 bg-purple-950/20 dark:bg-purple-950/30 rounded-xl border border-purple-500/25">
                 <input
                   type="text"
                   placeholder="Ask a question for your audience..."
                   value={pollQuestion}
                   onChange={(e) => setPollQuestion(e.target.value)}
-                  className="w-full bg-zinc-900 border border-purple-500/40 rounded-lg px-3 py-2 text-xs font-semibold text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full bg-[var(--bg-subtle)] border border-purple-500/40 rounded-lg px-3 py-2 text-xs font-semibold text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   maxLength={150}
                 />
 
@@ -332,14 +332,14 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                         placeholder={`Option ${idx + 1}`}
                         value={opt}
                         onChange={(e) => handleOptionChange(e.target.value, idx)}
-                        className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                        className="flex-1 bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-lg px-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-purple-500"
                         maxLength={60}
                       />
                       {pollOptions.length > 2 && (
                         <button
                           type="button"
                           onClick={() => handleRemoveOption(idx)}
-                          className="p-1.5 text-zinc-400 hover:text-red-400 transition-colors cursor-pointer"
+                          className="p-1.5 text-[var(--text-muted)] hover:text-red-400 transition-colors cursor-pointer"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -358,20 +358,20 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                       <Plus size={13} /> Add Option
                     </button>
                   ) : (
-                    <span className="text-zinc-500 text-[10px]">Max 4 options</span>
+                    <span className="text-[var(--text-muted)] text-[10px]">Max 4 options</span>
                   )}
 
-                  <div className="flex items-center gap-1.5 text-zinc-400">
+                  <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
                     <Clock size={12} />
                     <span>Duration:</span>
                     <select
                       value={pollDurationHours}
                       onChange={(e) => setPollDurationHours(Number(e.target.value))}
-                      className="bg-zinc-900 border border-white/10 rounded px-2 py-0.5 text-[11px] text-white focus:outline-none cursor-pointer"
+                      className="bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded px-2 py-0.5 text-[11px] text-[var(--text-primary)] focus:outline-none cursor-pointer"
                     >
-                      <option value={24} className="bg-zinc-900 text-white">24 Hours</option>
-                      <option value={72} className="bg-zinc-900 text-white">3 Days</option>
-                      <option value={168} className="bg-zinc-900 text-white">7 Days</option>
+                      <option value={24} className="bg-[var(--bg-surface)] text-[var(--text-primary)]">24 Hours</option>
+                      <option value={72} className="bg-[var(--bg-surface)] text-[var(--text-primary)]">3 Days</option>
+                      <option value={168} className="bg-[var(--bg-surface)] text-[var(--text-primary)]">7 Days</option>
                     </select>
                   </div>
                 </div>
@@ -380,7 +380,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
 
             {/* Link Mode Input */}
             {mode === "link" && (
-              <div className="space-y-2 p-3.5 bg-emerald-950/30 rounded-xl border border-emerald-500/25">
+              <div className="space-y-2 p-3.5 bg-emerald-950/20 dark:bg-emerald-950/30 rounded-xl border border-emerald-500/25">
                 <div className="flex items-center gap-2">
                   <input
                     type="url"
@@ -390,7 +390,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                       setLinkUrl(e.target.value);
                       handleFetchLinkPreview(e.target.value);
                     }}
-                    className="flex-1 bg-zinc-900 border border-emerald-500/40 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    className="flex-1 bg-[var(--bg-subtle)] border border-emerald-500/40 rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   />
                   {fetchingPreview && (
                     <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
@@ -398,7 +398,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                 </div>
 
                 {linkPreviewData && (
-                  <div className="flex items-center gap-3 p-2.5 bg-zinc-900/90 rounded-lg border border-white/10">
+                  <div className="flex items-center gap-3 p-2.5 bg-[var(--bg-subtle)] rounded-lg border border-[var(--border-subtle)]">
                     {linkPreviewData.image && (
                       <img
                         src={linkPreviewData.image}
@@ -407,10 +407,10 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                       />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-white truncate">
+                      <p className="text-xs font-bold text-[var(--text-primary)] truncate">
                         {linkPreviewData.title}
                       </p>
-                      <p className="text-[10px] text-zinc-400 truncate">
+                      <p className="text-[10px] text-[var(--text-muted)] truncate">
                         {linkPreviewData.description || linkPreviewData.domain}
                       </p>
                     </div>
@@ -433,9 +433,9 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={500}
-                className="w-full bg-transparent text-xs sm:text-sm text-white placeholder-zinc-400 focus:outline-none resize-none leading-relaxed selection:bg-blue-600 selection:text-white"
+                className="w-full bg-transparent text-xs sm:text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none resize-none leading-relaxed selection:bg-blue-600 selection:text-white"
               />
-              <span className="absolute bottom-1 right-1 text-[10px] text-zinc-500">
+              <span className="absolute bottom-1 right-1 text-[10px] text-[var(--text-muted)]">
                 {title.length}/500
               </span>
             </div>
@@ -450,7 +450,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                     playPop();
                     setTitle((prev) => (prev.includes(tag) ? prev : `${prev} ${tag}`));
                   }}
-                  className="text-[10px] font-bold text-blue-400 bg-blue-950/40 hover:bg-blue-900/50 px-2.5 py-0.5 rounded-full border border-blue-500/30 transition-colors whitespace-nowrap cursor-pointer"
+                  className="text-[10px] font-bold text-blue-500 bg-blue-500/10 hover:bg-blue-500/20 px-2.5 py-0.5 rounded-full border border-blue-500/30 transition-colors whitespace-nowrap cursor-pointer"
                 >
                   {tag}
                 </button>
@@ -458,17 +458,17 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
             </div>
 
             {/* Bottom Actions Row: Category Selector & Submit */}
-            <div className="flex items-center justify-between pt-2.5 border-t border-white/[0.08]">
+            <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border-subtle)]">
               {/* Category selector */}
-              <div className="flex items-center gap-1.5 text-xs text-zinc-400">
-                <Layers size={13} className="text-zinc-400" />
+              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+                <Layers size={13} className="text-[var(--text-secondary)]" />
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1 text-[11px] text-white focus:outline-none cursor-pointer"
+                  className="bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-lg px-2.5 py-1 text-[11px] text-[var(--text-primary)] focus:outline-none cursor-pointer"
                 >
                   {CATEGORIES.map((c) => (
-                    <option key={c} value={c} className="bg-zinc-900 text-white">
+                    <option key={c} value={c} className="bg-[var(--bg-surface)] text-[var(--text-primary)]">
                       {c}
                     </option>
                   ))}
@@ -480,7 +480,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="text-xs font-semibold text-zinc-400 hover:text-white px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+                  className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-3 py-1.5 rounded-full hover:bg-[var(--bg-subtle)] transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>

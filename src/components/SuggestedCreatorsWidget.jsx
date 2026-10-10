@@ -87,13 +87,13 @@ export default function SuggestedCreatorsWidget({
     return (
       <div className="my-4 p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] select-none transition-colors duration-200">
         <div className="flex items-center justify-between mb-3 px-1">
-          <div className="flex items-center gap-1.5 text-xs font-black text-white">
-            <Sparkles className="w-3.5 h-3.5 text-white" />
+          <div className="flex items-center gap-1.5 text-xs font-black text-[var(--text-primary)]">
+            <Sparkles className="w-3.5 h-3.5 text-blue-500" />
             <span>{title}</span>
           </div>
           <Link
             href="/search"
-            className="text-[11px] font-bold text-zinc-400 hover:text-white hover:underline"
+            className="text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:underline"
           >
             Explore All →
           </Link>
@@ -105,7 +105,7 @@ export default function SuggestedCreatorsWidget({
             return (
               <div
                 key={creator._id}
-                className="w-36 shrink-0 p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex flex-col items-center text-center shadow-sm hover:border-white/30 transition-all"
+                className="w-36 shrink-0 p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex flex-col items-center text-center shadow-sm hover:border-blue-500/40 transition-all"
               >
                 <Link href={`/profile/${creator.username}`} className="relative mb-2">
                   <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-blue-500 to-indigo-500">
@@ -122,11 +122,11 @@ export default function SuggestedCreatorsWidget({
 
                 <Link
                   href={`/profile/${creator.username}`}
-                  className="font-bold text-xs text-white truncate max-w-[120px] hover:underline"
+                  className="font-bold text-xs text-[var(--text-primary)] truncate max-w-[120px] hover:underline"
                 >
                   {creator.name || creator.username}
                 </Link>
-                <span className="text-[10px] text-zinc-400 truncate max-w-[120px] mb-2.5">
+                <span className="text-[10px] text-[var(--text-secondary)] truncate max-w-[120px] mb-2.5">
                   @{creator.username}
                 </span>
 
@@ -138,8 +138,8 @@ export default function SuggestedCreatorsWidget({
                   }}
                   className={`w-full py-1 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer ${
                     isFollowing
-                      ? "bg-zinc-800 text-zinc-300 border border-white/10"
-                      : "bg-white text-black font-extrabold hover:bg-zinc-200"
+                      ? "bg-[var(--bg-subtle)] text-[var(--text-secondary)] border border-[var(--border-subtle)]"
+                      : "bg-blue-600 hover:bg-blue-700 text-white font-extrabold shadow-sm"
                   }`}
                 >
                   {isFollowing ? (
@@ -166,11 +166,11 @@ export default function SuggestedCreatorsWidget({
   return (
     <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-4 sm:p-5 my-3 shadow-md select-none transition-colors duration-200">
       <div className="text-left mb-3">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-white mb-0.5">
-          <Users className="w-3.5 h-3.5 text-white" />
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)] mb-0.5">
+          <Users className="w-3.5 h-3.5 text-blue-500" />
           <span>{title}</span>
         </div>
-        <p className="text-zinc-400 text-[11px] leading-relaxed">
+        <p className="text-[var(--text-secondary)] text-[11px] leading-relaxed">
           {subtitle}
         </p>
       </div>
@@ -181,11 +181,11 @@ export default function SuggestedCreatorsWidget({
           return (
             <div
               key={creator._id}
-              className="flex items-center justify-between gap-3 p-2 rounded-xl hover:bg-white/[0.04] transition-colors border border-transparent hover:border-white/[0.08]"
+              className="flex items-center justify-between gap-3 p-2 rounded-xl hover:bg-[var(--bg-subtle)] transition-colors border border-transparent hover:border-[var(--border-subtle)]"
             >
               <div className="flex items-center gap-2.5 truncate">
                 <Link href={`/profile/${creator.username}`} className="shrink-0">
-                  <div className="w-9 h-9 rounded-full p-[1px] bg-white/[0.2]">
+                  <div className="w-9 h-9 rounded-full p-[1px] bg-blue-500/30">
                     <img
                       src={creator.profilePic || "/Fondpeace.jpg"}
                       alt={creator.username}
@@ -200,16 +200,16 @@ export default function SuggestedCreatorsWidget({
                 <div className="truncate">
                   <Link
                     href={`/profile/${creator.username}`}
-                    className="font-bold text-xs text-white hover:underline flex items-center gap-1"
+                    className="font-bold text-xs text-[var(--text-primary)] hover:underline flex items-center gap-1"
                   >
                     <span>{creator.name || creator.username}</span>
                     {creator.isVerified && (
-                      <span className="text-white text-[11px]" title="Verified">
+                      <span className="text-blue-500 text-[11px]" title="Verified">
                         ✓
                       </span>
                     )}
                   </Link>
-                  <span className="text-[10.5px] text-zinc-400 block truncate">
+                  <span className="text-[10.5px] text-[var(--text-secondary)] block truncate">
                     @{creator.username}
                   </span>
                 </div>
@@ -223,8 +223,8 @@ export default function SuggestedCreatorsWidget({
                 }}
                 className={`py-1.5 px-3 rounded-xl text-xs font-bold shrink-0 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer ${
                   isFollowing
-                    ? "bg-zinc-800 text-zinc-300 border border-white/10"
-                    : "bg-white text-black font-extrabold hover:bg-zinc-200 shadow-sm"
+                    ? "bg-[var(--bg-subtle)] text-[var(--text-secondary)] border border-[var(--border-subtle)]"
+                    : "bg-blue-600 hover:bg-blue-700 text-white font-extrabold shadow-sm"
                 }`}
               >
                 {isFollowing ? (

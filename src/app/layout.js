@@ -89,32 +89,45 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark" data-bg="dim" style={{ colorScheme: "dark" }}>
+    <html lang="en" className="dark" data-bg="black" style={{ colorScheme: "dark" }}>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  var bg = localStorage.getItem('fondpeace_bg_theme') || 'dim';
+                  var bg = localStorage.getItem('fondpeace_bg_theme') || 'black';
+                  if (bg !== 'white' && bg !== 'black') bg = 'black';
                   var root = document.documentElement;
                   root.setAttribute('data-bg', bg);
-                  if (bg === 'black') {
+                  if (bg === 'white') {
+                    root.classList.remove('dark');
+                    root.classList.add('light');
+                    root.style.colorScheme = 'light';
+                    root.style.setProperty('--bg-canvas', '#ffffff');
+                    root.style.setProperty('--bg-surface', '#ffffff');
+                    root.style.setProperty('--bg-surface-elevated', '#f8fafc');
+                    root.style.setProperty('--bg-subtle', '#f4f4f5');
+                    root.style.setProperty('--border-subtle', 'rgba(0, 0, 0, 0.08)');
+                    root.style.setProperty('--background', '#ffffff');
+                    root.style.setProperty('--foreground', '#09090b');
+                    root.style.setProperty('--text-primary', '#09090b');
+                    root.style.setProperty('--text-secondary', '#64748b');
+                    root.style.backgroundColor = '#ffffff';
+                  } else {
+                    root.classList.add('dark');
+                    root.classList.remove('light');
+                    root.style.colorScheme = 'dark';
                     root.style.setProperty('--bg-canvas', '#000000');
-                    root.style.setProperty('--bg-surface', '#090a0f');
+                    root.style.setProperty('--bg-surface', '#0a0b10');
+                    root.style.setProperty('--bg-surface-elevated', '#111218');
                     root.style.setProperty('--bg-subtle', '#161822');
                     root.style.setProperty('--border-subtle', 'rgba(255, 255, 255, 0.12)');
                     root.style.setProperty('--background', '#000000');
                     root.style.setProperty('--foreground', '#ffffff');
+                    root.style.setProperty('--text-primary', '#ffffff');
+                    root.style.setProperty('--text-secondary', '#a1a1aa');
                     root.style.backgroundColor = '#000000';
-                  } else {
-                    root.style.setProperty('--bg-canvas', '#090c15');
-                    root.style.setProperty('--bg-surface', '#0f1523');
-                    root.style.setProperty('--bg-subtle', '#1c2640');
-                    root.style.setProperty('--border-subtle', 'rgba(255, 255, 255, 0.08)');
-                    root.style.setProperty('--background', '#090c15');
-                    root.style.setProperty('--foreground', '#f8fafc');
-                    root.style.backgroundColor = '#090c15';
                   }
                 } catch (e) {}
               })();
