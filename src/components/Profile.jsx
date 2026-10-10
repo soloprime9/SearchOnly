@@ -31,6 +31,74 @@ import { API_BASE } from "@/utils/apiConfig";
 import { useThemeBackground } from "@/context/ThemeBackgroundContext";
 import { toast } from "@/utils/toast";
 
+/**
+ * Resolves post visuals, handling:
+ * 1. Direct video files (.mp4)
+ * 2. Uploaded image media / thumbnails
+ * 3. YouTube link previews & auto-extracted YouTube video thumbnails
+ * 4. Cleaning out raw URL strings from titles
+ */
+const resolvePostVisuals = (post) => {
+  if (!post) {
+    return {
+      isDirectVideo: false,
+      isVideo: false,
+      ytVideoId: null,
+      displayImage: null,
+      cleanTitle: "Post",
+      siteName: "",
+    };
+  }
+
+  const isDirectVideo = Boolean(
+    (post.media && (post.media.endsWith(".mp4") || post.media.includes("/videos/"))) ||
+    (post.mediaType && post.mediaType.startsWith("video"))
+  );
+
+  // Check for YouTube link in linkPreview.url, title, or media
+  const combinedText = `${post.linkPreview?.url || ""} ${post.title || ""} ${post.media || ""}`;
+  const ytMatch = combinedText.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/
+  );
+  const ytVideoId = ytMatch ? ytMatch[1] : null;
+
+  // Resolve thumbnail/preview image
+  let displayImage = null;
+  if (!isDirectVideo) {
+    if (post.media && !post.media.endsWith(".mp4")) {
+      displayImage = post.media;
+    } else if (post.thumbnail) {
+      displayImage = post.thumbnail;
+    } else if (post.linkPreview?.image) {
+      displayImage = post.linkPreview.image;
+    } else if (ytVideoId) {
+      displayImage = `https://i.ytimg.com/vi/${ytVideoId}/hqdefault.jpg`;
+    }
+  }
+
+  // Resolve clean title (remove raw URL strings from title)
+  let rawTitle = post.linkPreview?.title || post.title || post.caption || "Community Post";
+  let cleanTitle = String(rawTitle).replace(/https?:\/\/[^\s]+/g, "").trim();
+  if (!cleanTitle && post.linkPreview?.title) {
+    cleanTitle = post.linkPreview.title;
+  }
+  if (!cleanTitle) {
+    cleanTitle = ytVideoId ? "YouTube Video" : "Shared Post";
+  }
+
+  const isVideo = isDirectVideo || Boolean(ytVideoId) || post.linkPreview?.siteName?.toLowerCase() === "youtube";
+  const siteName = post.linkPreview?.siteName || (ytVideoId ? "YouTube" : "");
+
+  return {
+    isDirectVideo,
+    isVideo,
+    ytVideoId,
+    displayImage,
+    cleanTitle,
+    siteName,
+  };
+};
+
 const Profile = ({ username: propUsername, initialProfile = null }) => {
   const { bgTheme } = useThemeBackground();
   const [profile, setProfile] = useState(initialProfile || null);
@@ -39,16 +107,30 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
   const [loading, setLoading] = useState(!initialProfile);
   const [followLoading, setFollowLoading] = useState(false);
   const [activeMediaTab, setActiveMediaTab] = useState("all"); // "all" | "shorts" | "photos"
+  const [authSession, setAuthSession] = useState({
+    userId: null,
+    username: null,
+  });
 
-  // Check token expiration on mount
+  // Decode and check token on client mount
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     if (!token) return;
 
     try {
       const decoded = jwt.decode(token);
-      if (!decoded || !decoded.exp) return localStorage.removeItem("token");
-      if (decoded.exp * 1000 < Date.now()) localStorage.removeItem("token");
+      if (!decoded || !decoded.exp) {
+        localStorage.removeItem("token");
+        return;
+      }
+      if (decoded.exp * 1000 < Date.now()) {
+        localStorage.removeItem("token");
+        return;
+      }
+
+      const uid = decoded.UserId || decoded.userId || decoded._id || decoded.id || null;
+      const uname = decoded.username || null;
+      setAuthSession({ userId: uid, username: uname });
     } catch {
       localStorage.removeItem("token");
     }
@@ -66,10 +148,13 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
       const cleanName = decodeURIComponent(targetName).replace(/^@/, "").trim();
       const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
       let loggedUserId = null;
+      let loggedUsername = null;
 
       if (token) {
         try {
-          loggedUserId = JSON.parse(atob(token.split('.')[1]))?.UserId;
+          const decoded = jwt.decode(token);
+          loggedUserId = decoded?.UserId || decoded?.userId || decoded?._id || decoded?.id;
+          loggedUsername = decoded?.username;
         } catch (_) {}
       }
 
@@ -141,7 +226,6 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
               resolvedProfile = {
                 user: targetUser,
                 posts: userPosts,
-                OwnerId: Boolean(loggedUserId && String(loggedUserId) === String(targetUser._id)),
               };
             }
           } catch (_) {}
@@ -154,10 +238,6 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             resolvedProfile.posts = [...resolvedProfile.posts].sort(
               (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
             );
-          }
-
-          if (typeof resolvedProfile.OwnerId === 'undefined') {
-            resolvedProfile.OwnerId = Boolean(loggedUserId && String(loggedUserId) === String(resolvedProfile.user._id));
           }
 
           setProfile(resolvedProfile);
@@ -191,7 +271,8 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
 
     let loggedUserId = null;
     try {
-      loggedUserId = JSON.parse(atob(token.split('.')[1]))?.UserId;
+      const decoded = jwt.decode(token);
+      loggedUserId = decoded?.UserId || decoded?.userId || decoded?._id || decoded?.id;
     } catch (_) {}
 
     try {
@@ -246,7 +327,25 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
     }
   };
 
-  // Calculate total likes and media counts
+  // 1. Resolve Owner state reliably (compares token username & userId with creator profile)
+  const isOwner = useMemo(() => {
+    const user = profile?.user;
+    if (!user) return false;
+
+    const myName = (authSession.username || "").trim().toLowerCase();
+    const targetName = (user.username || "").trim().toLowerCase();
+    if (myName && targetName && myName === targetName) return true;
+
+    const myId = String(authSession.userId || "");
+    const targetId = String(user._id || "");
+    if (myId && targetId && myId === targetId) return true;
+
+    if (Boolean(profile?.OwnerId)) return true;
+
+    return false;
+  }, [profile, authSession]);
+
+  // Calculate total likes and media categories (integrates video files & YouTube link posts)
   const { totalLikes, videoPosts, photoPosts } = useMemo(() => {
     const posts = profile?.posts || [];
     let likes = 0;
@@ -255,7 +354,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
 
     posts.forEach((p) => {
       if (Array.isArray(p.likes)) likes += p.likes.length;
-      const isVideo = p.media?.endsWith(".mp4") || p.mediaType?.startsWith("video");
+      const { isVideo } = resolvePostVisuals(p);
       if (isVideo) vids.push(p);
       else photos.push(p);
     });
@@ -318,7 +417,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
     );
   }
 
-  const { user, posts = [], OwnerId } = profile;
+  const { user, posts = [] } = profile;
   const isDefaultAvatar = !user.profilePicture || user.profilePicture === "/Fondpeace.jpg" || user.profilePicture === "";
   const rawBio = user.bio ? user.bio.trim() : "";
   const isDefaultBio = !rawBio || rawBio === "Add About You";
@@ -329,7 +428,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
     <div className="w-full max-w-3xl mx-auto pb-32 transition-colors duration-200">
       
       {/* ══════════════════════════════════════════════════════════
-          1. COMPACT SLEEK COVER (Slim & Panoramic — Never Bloated!)
+          1. COMPACT SLEEK COVER (Slim & Panoramic)
       ══════════════════════════════════════════════════════════ */}
       {user.coverImage ? (
         <div className="relative h-28 sm:h-36 md:h-44 w-full rounded-2xl overflow-hidden border border-[var(--border-subtle)] shadow-xs group mb-3">
@@ -338,10 +437,9 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             alt="Cover"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
-          {/* Subtle gradient vignette */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
-          {/* Quick Nav Buttons on Cover */}
+          {/* Nav Buttons on Cover */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
             <Link
               href="/"
@@ -351,17 +449,29 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
               <ArrowLeft size={13} />
               <span>Feed</span>
             </Link>
-            <button
-              onClick={handleShare}
-              className="p-1.5 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white text-[11px] border border-white/20 transition-all active:scale-95"
-              title="Share profile"
-            >
-              <Share2 size={13} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              {isOwner && (
+                <Link
+                  href={`/edit/${user.username}`}
+                  onClick={() => playTap()}
+                  className="px-2.5 py-1 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white text-[11px] font-bold border border-white/20 transition-all active:scale-95 flex items-center gap-1"
+                >
+                  <Camera size={12} />
+                  <span>Cover</span>
+                </Link>
+              )}
+              <button
+                onClick={handleShare}
+                className="p-1.5 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white text-[11px] border border-white/20 transition-all active:scale-95"
+                title="Share profile"
+              >
+                <Share2 size={13} />
+              </button>
+            </div>
           </div>
         </div>
       ) : (
-        /* Slim Micro Header Bar when no custom cover — Ultra Clean! */
+        /* Slim Minimalist Top Bar when no cover */
         <div className="flex items-center justify-between py-2 px-1 mb-2 border-b border-[var(--border-subtle)]">
           <Link
             href="/"
@@ -371,10 +481,20 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             <ArrowLeft size={14} />
             <span>Feed</span>
           </Link>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <span className="text-[11px] font-mono text-[var(--text-secondary)] font-medium">
               @{user.username}
             </span>
+            {isOwner && (
+              <Link
+                href={`/edit/${user.username}`}
+                onClick={() => playTap()}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] text-[var(--text-primary)] border border-[var(--border-subtle)] transition"
+              >
+                <Edit3 size={11} />
+                <span>Edit</span>
+              </Link>
+            )}
             <button
               onClick={handleShare}
               className="p-1.5 rounded-full hover:bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
@@ -450,7 +570,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
 
               {/* Action Buttons (Desktop inline) */}
               <div className="hidden sm:flex items-center gap-2 shrink-0">
-                {OwnerId ? (
+                {isOwner ? (
                   <>
                     <Link
                       href={`/edit/${user.username}`}
@@ -468,6 +588,13 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                       <Plus size={14} />
                       <span>Upload</span>
                     </Link>
+                    <button
+                      onClick={handleShare}
+                      className="p-1.5 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
+                      title="Share Profile"
+                    >
+                      <Share2 size={14} />
+                    </button>
                   </>
                 ) : (
                   <>
@@ -494,7 +621,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
               </div>
             </div>
 
-            {/* Desktop Inline Stats Row (Clean, lightweight, modern!) */}
+            {/* Desktop Inline Stats Row */}
             <div className="hidden sm:flex items-center gap-6 mt-3 text-xs sm:text-sm">
               <span className="text-[var(--text-secondary)]">
                 <strong className="font-extrabold text-[var(--text-primary)] mr-1">{posts.length}</strong>
@@ -543,7 +670,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             <p className="text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap font-normal">
               {rawBio}
             </p>
-          ) : OwnerId ? (
+          ) : isOwner ? (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs font-medium text-blue-500">
               <span>Introduce yourself to your community</span>
               <Link href={`/edit/${user.username}`} className="underline font-bold hover:text-blue-400">
@@ -612,7 +739,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
 
         {/* Mobile Action Buttons (Full-Width Bottom Bar) */}
         <div className="flex sm:hidden items-center gap-2 mt-3.5">
-          {OwnerId ? (
+          {isOwner ? (
             <>
               <Link
                 href={`/edit/${user.username}`}
@@ -630,6 +757,13 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                 <Plus size={14} />
                 <span>Upload</span>
               </Link>
+              <button
+                onClick={handleShare}
+                className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)]"
+                title="Share"
+              >
+                <Share2 size={15} />
+              </button>
             </>
           ) : (
             <>
@@ -717,23 +851,23 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
       </div>
 
       {/* ══════════════════════════════════════════════════════════
-          4. POSTS GALLERY GRID (Instagram / TikTok Creator Layout)
+          4. POSTS GALLERY GRID (Rich Link Previews & Media Cards)
       ══════════════════════════════════════════════════════════ */}
       <div className="mt-3">
         {filteredPosts.length > 0 ? (
           <div className="grid grid-cols-3 gap-1 sm:gap-2.5 md:gap-3">
             {filteredPosts.map((post) => {
-              const isVideo = post.media?.endsWith(".mp4") || post.mediaType?.startsWith("video");
-              const postTitle = post.title || post.caption || "Post";
+              const { isDirectVideo, isVideo, ytVideoId, displayImage, cleanTitle, siteName } = resolvePostVisuals(post);
 
               return (
                 <Link
                   key={post._id}
-                  href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
+                  href={isDirectVideo ? `/short/${post._id}` : `/post/${post._id}`}
                   onClick={() => playTap()}
                   className="group block rounded-md sm:rounded-xl overflow-hidden bg-[var(--bg-subtle)] relative aspect-[4/5] sm:aspect-[4/5] shadow-2xs hover:shadow-md transition-all duration-300"
                 >
-                  {isVideo ? (
+                  {/* Visual Render: Direct Video vs Image / Link Thumbnail vs Discussion Card */}
+                  {isDirectVideo ? (
                     <div className="w-full h-full relative bg-black">
                       <video
                         src={post.media}
@@ -743,26 +877,38 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                         preload="metadata"
                         className="w-full h-full object-cover"
                       />
-                      {/* Video indicator badge in top right */}
+                      {/* Video indicator badge */}
                       <div className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 backdrop-blur-xs text-white">
                         <Film size={11} />
                       </div>
                     </div>
-                  ) : post.media ? (
-                    <img
-                      src={post.media}
-                      alt={postTitle}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
+                  ) : displayImage ? (
+                    <div className="w-full h-full relative overflow-hidden bg-black">
+                      <img
+                        src={displayImage}
+                        alt={cleanTitle}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                      {/* Video / YouTube Play Badge */}
+                      {isVideo && (
+                        <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold flex items-center gap-1 border border-white/10">
+                          <Play size={10} className="fill-white" />
+                          <span>{siteName || "Video"}</span>
+                        </div>
+                      )}
+                    </div>
                   ) : (
-                    // Typographic Card for discussions without media
+                    // Typographic Card for discussions without any media
                     <div className="w-full h-full p-2.5 sm:p-4 flex flex-col justify-between bg-gradient-to-br from-blue-600/10 via-[var(--bg-surface)] to-indigo-600/10 border border-[var(--border-subtle)]">
                       <span className="text-[9px] font-bold uppercase tracking-wider text-blue-500">
                         Discussion
                       </span>
                       <p className="text-[11px] sm:text-xs font-bold text-[var(--text-primary)] line-clamp-3 leading-snug">
-                        {postTitle}
+                        {cleanTitle}
                       </p>
                       <span className="text-[9px] text-[var(--text-secondary)] font-mono">
                         Read →
@@ -771,15 +917,17 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                   )}
 
                   {/* Dark gradient overlay on hover (Desktop) */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-between pointer-events-none">
-                    <div />
-                    <div className="flex items-center justify-center gap-3 text-white text-xs font-bold">
-                      <span className="flex items-center gap-1">
-                        <Heart size={12} className="fill-white" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-2 sm:p-3 flex flex-col justify-between pointer-events-none">
+                    <p className="text-white text-[11px] font-semibold line-clamp-2 drop-shadow-sm">
+                      {cleanTitle}
+                    </p>
+                    <div className="flex items-center justify-between text-white text-[11px] font-bold">
+                      <span className="flex items-center gap-1 text-rose-400">
+                        <Heart size={11} className="fill-rose-400" />
                         <span>{post.likes?.length || 0}</span>
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Eye size={12} />
+                      <span className="flex items-center gap-1 text-gray-200">
+                        <Eye size={11} />
                         <span>{post.views || 0}</span>
                       </span>
                     </div>
@@ -798,11 +946,11 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
               No Posts Yet
             </h3>
             <p className="text-xs text-[var(--text-secondary)] max-w-xs mx-auto mb-4 leading-relaxed">
-              {OwnerId
-                ? "Share your first video, short, or thoughtful post."
-                : `When ${user.name || user.username} posts, you'll see them here.`}
+              {isOwner
+                ? "Share your first video, short, or link post."
+                : `When ${displayName} posts, you'll see them here.`}
             </p>
-            {OwnerId && (
+            {isOwner && (
               <Link
                 href="/upload"
                 onClick={() => playTap()}
