@@ -229,7 +229,7 @@ export default async function Page({ params }) {
           {/* Right Sidebar Widget (Wide Desktops Only) */}
           <aside className="hidden xl:block shrink-0">
             <div className="sticky top-4 space-y-4">
-              <SuggestedCreatorsWidget variant="card" />
+              <SuggestedCreatorsWidget variant="card" excludeUsername={username} />
 
               {/* Creator Spotlight Info Card */}
               <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-5 text-[var(--text-primary)] shadow-md">
