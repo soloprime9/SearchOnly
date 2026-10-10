@@ -29,7 +29,7 @@ export default function StoriesBar({ onOpenCreate }) {
 
   return (
     <div className="w-full mb-4">
-      <div className="bg-[#0e111d] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-3 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
+      <div className="bg-[var(--bg-surface)] backdrop-blur-xl border border-[var(--border-subtle)] rounded-2xl p-3 shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-colors duration-200">
         <div className="flex items-center gap-3.5 overflow-x-auto no-scrollbar py-1 px-1">
           {/* Add Story Button for Current User */}
           <Link

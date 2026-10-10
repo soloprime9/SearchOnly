@@ -2,13 +2,12 @@
 import React from 'react';
 import CreatePage from "@/components/CreatePage";
 
-function Create (){
-
-    return (
-        <div>
-        <CreatePage />
-        </div>
-    );
+function Create() {
+  return (
+    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] transition-colors duration-200">
+      <CreatePage />
+    </div>
+  );
 }
 
 export default Create;

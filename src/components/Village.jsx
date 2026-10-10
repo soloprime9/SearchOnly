@@ -761,7 +761,7 @@ const handleShare = async (postData) => {
     return (
       <article 
         key={post._id} 
-        className="bg-zinc-950 w-full mb-5 rounded-2xl overflow-hidden border border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all hover:border-white/25"
+        className="bg-[var(--bg-surface)] w-full mb-5 rounded-2xl overflow-hidden border border-[var(--border-subtle)] shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all hover:border-[var(--border-subtle-hover)]"
       >
     {/* Pinned Post Radiant Indicator */}
     {post.isPinned && (
@@ -1223,7 +1223,7 @@ const handleShare = async (postData) => {
           Community
         </h2>
         {/* Streamlined minimal filter switcher */}
-        <div className="flex items-center gap-1 p-1 bg-zinc-950 border border-white/[0.1] rounded-xl backdrop-blur-xl">
+        <div className="flex items-center gap-1 p-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl backdrop-blur-xl transition-colors">
           <button
             onClick={() => {
               if (activeTab !== "foryou") handleTabChange("foryou");

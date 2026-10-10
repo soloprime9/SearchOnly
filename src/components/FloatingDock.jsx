@@ -48,7 +48,7 @@ export default function FloatingDock() {
 
   return (
     <div className="hidden lg:flex fixed bottom-5 left-1/2 -translate-x-1/2 z-[9000] pointer-events-none">
-      <div className="pointer-events-auto flex items-center gap-1.5 p-2 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-gray-200/80 dark:border-slate-800 shadow-2xl shadow-blue-900/10 dark:shadow-black/40 animate-scaleIn transition-all">
+      <div className="pointer-events-auto flex items-center gap-1.5 p-2 rounded-full bg-[var(--bg-surface)]/90 backdrop-blur-2xl border border-[var(--border-subtle)] shadow-2xl shadow-blue-900/10 dark:shadow-black/60 animate-scaleIn transition-all">
         {/* Home */}
         <Link
           href="/"
@@ -56,7 +56,7 @@ export default function FloatingDock() {
           className={`p-2.5 rounded-full transition-all flex items-center justify-center ${
             pathname === "/"
               ? "bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105"
-              : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
           }`}
           title="Home Feed"
         >
@@ -70,7 +70,7 @@ export default function FloatingDock() {
           className={`p-2.5 rounded-full transition-all flex items-center justify-center ${
             pathname === "/shorts"
               ? "bg-pink-600 text-white shadow-md shadow-pink-500/30 scale-105"
-              : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
           }`}
           title="Shorts & Reels"
         >
@@ -91,7 +91,7 @@ export default function FloatingDock() {
         {/* Quick Search / Spotlight */}
         <button
           onClick={openSpotlight}
-          className="p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+          className="p-2.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors flex items-center justify-center"
           title="Quick Spotlight (Ctrl+K)"
         >
           <Search className="w-4 h-4" />
@@ -100,13 +100,13 @@ export default function FloatingDock() {
         {/* Audio Toggle */}
         <button
           onClick={handleToggleAudio}
-          className="p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
+          className="p-2.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors flex items-center justify-center"
           title={soundActive ? "Mute Micro-Sounds" : "Unmute Micro-Sounds"}
         >
           {soundActive ? (
             <Volume2 className="w-4 h-4 text-emerald-500" />
           ) : (
-            <VolumeX className="w-4 h-4 text-gray-400" />
+            <VolumeX className="w-4 h-4 text-[var(--text-muted)]" />
           )}
         </button>
 

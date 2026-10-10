@@ -47,7 +47,7 @@ export default function Creation() {
 
   return (
     <div className="w-full max-w-4xl mx-auto py-8 sm:py-12 px-3 sm:px-4">
-      <div className="relative p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-zinc-950/70 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-[0_16px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_16px_50px_rgba(0,0,0,0.4)]">
+      <div className="relative p-6 sm:p-10 rounded-3xl bg-[var(--bg-surface)] backdrop-blur-2xl border border-[var(--border-subtle)] shadow-2xl">
         
         {/* Ambient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
@@ -58,10 +58,10 @@ export default function Creation() {
             <Wand2 className="w-3.5 h-3.5" />
             <span>AI Content Assistant</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-gray-950 dark:text-white">
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-[var(--text-primary)]">
             Generate Post Ideas & Captions
           </h1>
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1.5">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5">
             Type any topic or niche to receive creative post concepts, hooks, and captions.
           </p>
         </div>
@@ -75,7 +75,7 @@ export default function Creation() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="e.g. 5 tips for daily productivity, AI trends 2026..."
-                className="w-full px-4 py-3.5 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm sm:text-base"
+                className="w-full px-4 py-3.5 rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm sm:text-base transition-colors"
               />
             </div>
             <button
@@ -108,14 +108,14 @@ export default function Creation() {
               return (
                 <div
                   key={index}
-                  className="group p-5 rounded-2xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] hover:border-indigo-500/40 shadow-sm transition-all flex flex-col justify-between"
+                  className="group p-5 rounded-2xl bg-[var(--bg-subtle)] backdrop-blur-xl border border-[var(--border-subtle)] hover:border-indigo-500/40 shadow-sm transition-all flex flex-col justify-between"
                 >
-                  <p className="text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-medium mb-4 whitespace-pre-wrap">
+                  <p className="text-xs sm:text-sm text-[var(--text-primary)] leading-relaxed font-medium mb-4 whitespace-pre-wrap">
                     {textContent}
                   </p>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
-                    <span className="text-[11px] font-semibold text-gray-400 flex items-center gap-1">
+                  <div className="flex items-center justify-between pt-3 border-t border-[var(--border-subtle)]">
+                    <span className="text-[11px] font-semibold text-[var(--text-secondary)] flex items-center gap-1">
                       <Lightbulb className="w-3 h-3 text-amber-500" />
                       <span>Idea #{index + 1}</span>
                     </span>
@@ -125,7 +125,7 @@ export default function Creation() {
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         isCopied
                           ? "bg-emerald-500 text-white shadow-sm"
-                          : "bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/10 dark:hover:bg-white/15 text-gray-700 dark:text-gray-200"
+                          : "bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)]"
                       }`}
                     >
                       {isCopied ? (

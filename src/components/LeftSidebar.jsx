@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa";
 import NotificationDrawer from "./NotificationDrawer";
 import SavedPostsDrawer from "./SavedPostsDrawer";
+import ThemeBackgroundToggle from "./ThemeBackgroundToggle";
 import { playTap } from "@/utils/soundEffects";
 
 export default function LeftSidebar({ sticky = false }) {
@@ -73,8 +74,8 @@ export default function LeftSidebar({ sticky = false }) {
           onMouseLeave={() => setExpanded(false)}
           className={`
             flex flex-col ${sticky ? "sticky top-0" : "fixed left-0 top-0"} h-screen z-40
-            bg-black/95 backdrop-blur-2xl
-            border-r border-white/[0.1]
+            bg-[var(--bg-canvas)]/95 backdrop-blur-2xl
+            border-r border-[var(--border-subtle)]
             transition-all duration-300 ease-in-out
             overflow-hidden
             ${expanded ? "w-56 shadow-[8px_0_30px_rgba(0,0,0,0.7)]" : "w-[68px]"}
@@ -192,6 +193,11 @@ export default function LeftSidebar({ sticky = false }) {
           </button>
         </nav>
 
+        {/* Background Appearance Switcher (Dim vs Black) */}
+        <div className="px-2 pb-2 shrink-0">
+          <ThemeBackgroundToggle variant={expanded ? "full" : "icon"} />
+        </div>
+
         {/* Bottom profile pill */}
         <div className="px-2 pb-4 shrink-0">
           <Link
@@ -199,8 +205,8 @@ export default function LeftSidebar({ sticky = false }) {
             onClick={() => playTap()}
             className={`
               flex items-center gap-3 px-2.5 py-2.5 rounded-xl border border-transparent
-              ${expanded ? "bg-black/[0.03] dark:bg-white/[0.05] border-black/[0.04] dark:border-white/[0.06]" : ""}
-              transition-all duration-200 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]
+              ${expanded ? "bg-white/[0.05] border-white/[0.08]" : ""}
+              transition-all duration-200 hover:bg-white/[0.08]
             `}
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20">
@@ -215,10 +221,10 @@ export default function LeftSidebar({ sticky = false }) {
                 ${expanded ? "opacity-100" : "opacity-0 w-0 pointer-events-none"}
               `}
             >
-              <span className="text-[12px] font-bold text-gray-900 dark:text-white truncate leading-tight">
+              <span className="text-[12px] font-bold text-white truncate leading-tight">
                 {username || "Guest"}
               </span>
-              <span className="text-[10.5px] text-gray-400 dark:text-gray-500">
+              <span className="text-[10.5px] text-zinc-400">
                 {username ? "View profile →" : "Log in →"}
               </span>
             </div>
@@ -230,7 +236,7 @@ export default function LeftSidebar({ sticky = false }) {
       {/* ═══════════════════════════════════════════════════
           MOBILE BOTTOM NAVIGATION (Glassmorphic)
       ═══════════════════════════════════════════════════ */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-black/90 backdrop-blur-2xl border-t border-white/[0.1]">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[var(--bg-canvas)]/90 backdrop-blur-2xl border-t border-[var(--border-subtle)]">
         {/* Safe area for notched phones */}
         <div className="flex items-center justify-around px-2 pt-2 pb-[max(8px,env(safe-area-inset-bottom))]">
           {menu.slice(0, 4).map((item, i) => {

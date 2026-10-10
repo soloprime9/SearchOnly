@@ -13,6 +13,7 @@ import ToastContainer from "@/components/ToastContainer";
 import FloatingDock from "@/components/FloatingDock";
 import NetworkSentinel from "@/components/NetworkSentinel";
 import GoogleOneTapPrompt from "@/components/GoogleOneTapPrompt";
+import { ThemeBackgroundProvider } from "@/context/ThemeBackgroundContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -88,15 +89,30 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
-      <body className={`${inter.variable} bg-[#08090e] text-[#f8fafc] min-h-screen antialiased selection:bg-blue-600 selection:text-white`}>
-        <TopLoader />
-        <CursorSpotlight />
-        <NetworkSentinel />
-        <ToastContainer />
-        <CommandPalette />
-        <FloatingDock />
-        <GoogleOneTapPrompt />
+    <html lang="en" className="dark" data-bg="dim" style={{ colorScheme: "dark" }}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var bg = localStorage.getItem('fondpeace_bg_theme') || 'dim';
+                  document.documentElement.setAttribute('data-bg', bg);
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className={`${inter.variable} bg-[var(--bg-canvas)] text-[var(--text-primary)] min-h-screen antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200`}>
+        <ThemeBackgroundProvider>
+          <TopLoader />
+          <CursorSpotlight />
+          <NetworkSentinel />
+          <ToastContainer />
+          <CommandPalette />
+          <FloatingDock />
+          <GoogleOneTapPrompt />
 
         {/* Global Schema.org JSON-LD Structured Data (Organization + WebSite + SearchAction) */}
         <script
@@ -164,6 +180,7 @@ export default function RootLayout({ children }) {
         </div>
 
         <Analytics />
+        </ThemeBackgroundProvider>
       </body>
     </html>
   );

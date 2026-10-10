@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function UploadPage() {
   return (
-    <div className="min-h-screen w-full bg-[#08090e] text-white flex justify-center gap-6 px-3 sm:px-6 py-6 sm:py-10">
+    <div className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] transition-colors duration-200 flex justify-center gap-6 px-3 sm:px-6 py-6 sm:py-10">
       {/* Left Navigation */}
       <aside className="hidden lg:block w-[72px] shrink-0">
         <LeftSidebar />

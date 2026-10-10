@@ -97,7 +97,7 @@ export default function TrendingShortsRail() {
           <button
             type="button"
             onClick={() => handleScroll("left")}
-            className="w-7 h-7 rounded-full bg-zinc-900 border border-white/10 hover:border-white/30 text-zinc-300 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+            className="w-7 h-7 rounded-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-white/30 text-zinc-300 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
             aria-label="Scroll left"
           >
             <ChevronLeft size={14} />
@@ -105,7 +105,7 @@ export default function TrendingShortsRail() {
           <button
             type="button"
             onClick={() => handleScroll("right")}
-            className="w-7 h-7 rounded-full bg-zinc-900 border border-white/10 hover:border-white/30 text-zinc-300 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+            className="w-7 h-7 rounded-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-white/30 text-zinc-300 hover:text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
             aria-label="Scroll right"
           >
             <ChevronRight size={14} />
@@ -130,7 +130,7 @@ export default function TrendingShortsRail() {
             key={short.id}
             href={short.href}
             onClick={() => playPop()}
-            className="relative shrink-0 w-[150px] sm:w-[170px] h-[240px] sm:h-[260px] rounded-2xl overflow-hidden bg-zinc-900 border border-white/[0.12] hover:border-white/40 shadow-md group transition-all duration-300 transform hover:-translate-y-1"
+            className="relative shrink-0 w-[150px] sm:w-[170px] h-[240px] sm:h-[260px] rounded-2xl overflow-hidden bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-white/40 shadow-md group transition-all duration-300 transform hover:-translate-y-1"
           >
             {/* Background Thumbnail Image */}
             <img

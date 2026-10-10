@@ -345,19 +345,19 @@ export default function SinglePostInteractions({ initialPost }) {
       {post.linkPreview && <LinkPreviewCard preview={post.linkPreview} />}
 
       {/* ⚡ ACTION BAR */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl border border-black/[0.05] dark:border-white/[0.08] shadow-xs">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--bg-subtle)] backdrop-blur-md rounded-2xl border border-[var(--border-subtle)] shadow-xs">
         <div className="flex items-center gap-4">
           {/* Like */}
           <button
             onClick={handleLike}
             className={`flex gap-1.5 items-center text-sm font-semibold transition-transform active:scale-90 cursor-pointer ${
               hasLikedPost()
-                ? "text-rose-600 dark:text-rose-400"
-                : "text-gray-600 dark:text-gray-300 hover:text-rose-500"
+                ? "text-rose-500"
+                : "text-[var(--text-secondary)] hover:text-rose-500"
             }`}
           >
             {hasLikedPost() ? (
-              <FaHeart className="text-rose-600 text-lg" />
+              <FaHeart className="text-rose-500 text-lg" />
             ) : (
               <FaRegHeart className="text-lg" />
             )}
@@ -370,7 +370,7 @@ export default function SinglePostInteractions({ initialPost }) {
               playTap();
               setShowComments((p) => !p);
             }}
-            className="flex gap-1.5 items-center text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors cursor-pointer"
+            className="flex gap-1.5 items-center text-sm font-semibold text-[var(--text-secondary)] hover:text-blue-500 transition-colors cursor-pointer"
           >
             <FaCommentDots className="text-lg" />
             <span>{safeArray(post.comments).length}</span>
@@ -379,7 +379,7 @@ export default function SinglePostInteractions({ initialPost }) {
           {/* 1-Click Viral Repost */}
           <button
             onClick={handleRepost}
-            className="flex gap-1.5 items-center text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-emerald-500 transition-colors cursor-pointer"
+            className="flex gap-1.5 items-center text-sm font-semibold text-[var(--text-secondary)] hover:text-emerald-500 transition-colors cursor-pointer"
             title="Repost"
           >
             <Repeat2 className="w-5 h-5" />
@@ -394,7 +394,7 @@ export default function SinglePostInteractions({ initialPost }) {
               navigator.clipboard.writeText(quote);
               toast.success("Quote copied with attribution! 📋");
             }}
-            className="text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors cursor-pointer p-1"
+            className="text-[var(--text-secondary)] hover:text-blue-500 transition-colors cursor-pointer p-1"
             title="Copy Quote with Attribution"
           >
             <Quote className="w-4 h-4" />
@@ -405,14 +405,14 @@ export default function SinglePostInteractions({ initialPost }) {
           {/* Bookmark */}
           <button
             onClick={handleBookmark}
-            className="text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors p-1 cursor-pointer"
+            className="text-[var(--text-secondary)] hover:text-blue-500 transition-colors p-1 cursor-pointer"
             title="Bookmark"
           >
             <Bookmark className={`w-4 h-4 ${isBookmarked ? "text-blue-500 fill-blue-500" : ""}`} />
           </button>
 
           {/* Views */}
-          <div className="flex gap-1 items-center text-xs font-medium text-gray-500 bg-gray-200/50 dark:bg-zinc-800/50 px-2 py-0.5 rounded-full">
+          <div className="flex gap-1 items-center text-xs font-medium text-[var(--text-secondary)] bg-[var(--bg-surface)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-full">
             <FaEye className="text-xs" />
             <span>{post.views || 0}</span>
           </div>
@@ -420,7 +420,7 @@ export default function SinglePostInteractions({ initialPost }) {
           {/* Share */}
           <button
             onClick={handleShare}
-            className="text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors p-1 cursor-pointer"
+            className="text-[var(--text-secondary)] hover:text-blue-500 transition-colors p-1 cursor-pointer"
             aria-label="Share post"
           >
             <FaShareAlt className="text-sm" />
@@ -466,7 +466,7 @@ export default function SinglePostInteractions({ initialPost }) {
                 }
               }}
               placeholder="Add a thoughtful comment..."
-              className="flex-1 border border-black/[0.08] dark:border-white/[0.1] bg-black/[0.02] dark:bg-white/[0.03] px-3.5 py-2.5 rounded-xl text-sm outline-none focus:border-blue-500"
+              className="flex-1 border border-[var(--border-subtle)] bg-[var(--bg-subtle)] text-[var(--text-primary)] placeholder-[var(--text-muted)] px-3.5 py-2.5 rounded-xl text-sm outline-none focus:border-blue-500 transition-colors"
             />
             <button
               onClick={handleComment}
@@ -479,17 +479,17 @@ export default function SinglePostInteractions({ initialPost }) {
           {safeArray(post.comments).map((cmt) => (
             <div
               key={cmt._id}
-              className="bg-gray-50 dark:bg-gray-900/60 p-3.5 rounded-2xl border border-black/[0.04] dark:border-white/[0.06]"
+              className="bg-[var(--bg-subtle)] p-3.5 rounded-2xl border border-[var(--border-subtle)]"
             >
               <div className="flex items-center justify-between">
-                <p className="font-bold text-xs text-gray-900 dark:text-white">
+                <p className="font-bold text-xs text-[var(--text-primary)]">
                   @{cmt.userId?.username || "user"}
                 </p>
-                <span className="text-[10px] text-gray-400">
+                <span className="text-[10px] text-[var(--text-secondary)]">
                   {cmt.createdAt ? new Date(cmt.createdAt).toLocaleDateString() : ""}
                 </span>
               </div>
-              <p className="text-sm text-gray-800 dark:text-gray-200 mt-1 leading-relaxed">
+              <p className="text-sm text-[var(--text-primary)] mt-1 leading-relaxed">
                 {cmt.CommentText}
               </p>
 

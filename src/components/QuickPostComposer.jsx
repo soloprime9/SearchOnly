@@ -180,7 +180,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
   return (
     <div className="w-full mb-5">
       {/* Main Composer Box */}
-      <div className="bg-[#0e111d] rounded-2xl border border-white/[0.1] shadow-[0_4px_24px_rgba(0,0,0,0.4)] p-3.5 sm:p-4 transition-all duration-300 hover:border-blue-500/40">
+      <div className="bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] shadow-[0_4px_24px_rgba(0,0,0,0.4)] p-3.5 sm:p-4 transition-all duration-300 hover:border-blue-500/40">
         {!expanded ? (
           /* Collapsed View */
           <div className="flex items-center gap-3">

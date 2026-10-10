@@ -126,7 +126,7 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="min-h-screen w-full bg-zinc-950 text-white selection:bg-white selection:text-black overflow-x-hidden">
+    <main className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-blue-600 selection:text-white overflow-x-hidden transition-colors duration-200">
       <div
         className="
           grid 
@@ -166,7 +166,7 @@ export default async function HomePage() {
             <SuggestedCreatorsWidget variant="card" />
 
             {/* Creator Monetization Spotlight Card */}
-            <div className="rounded-2xl p-5 bg-black border border-white/10 shadow-lg text-white">
+            <div className="rounded-2xl p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg text-white">
               <div className="flex items-center justify-between mb-2">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/10 text-white border border-white/20">
                   <Coins className="w-3 h-3 text-amber-400" />

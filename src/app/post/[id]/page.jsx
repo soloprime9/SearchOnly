@@ -668,7 +668,7 @@ const related = data?.related ?? [];
 
 
 return (
-    <main className="min-h-screen w-full bg-zinc-950 text-white selection:bg-white selection:text-black overflow-x-hidden">
+    <main className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-blue-600 selection:text-white transition-colors duration-200 overflow-x-hidden">
       {/* Schema.org JSON-LD (Dynamic DiscussionForumPosting / BlogPosting) */}
       <script
         type="application/ld+json"
@@ -699,19 +699,19 @@ return (
           <div className="flex items-center justify-between py-2 px-1">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-300 hover:text-white transition active:scale-95"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition active:scale-95"
               aria-label="Back to home"
             >
               <FaArrowLeft className="text-base" />
               <span>Back to Discovery</span>
             </Link>
-            <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-zinc-300 border border-white/10">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
               Community Post
             </span>
           </div>
 
           {/* Main Post Card (Matching Village.jsx) */}
-          <article className="bg-zinc-950 w-full rounded-2xl overflow-hidden border border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-4 sm:p-5">
+          <article className="bg-[var(--bg-surface)] w-full rounded-2xl overflow-hidden border border-[var(--border-subtle)] shadow-xl p-4 sm:p-5 transition-colors">
             {/* Author row with story gradient ring */}
             <div className="flex items-center justify-between mb-4">
               <Link
@@ -719,7 +719,7 @@ return (
                 className="flex items-center gap-3 group"
               >
                 <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
-                  <div className="bg-zinc-950 p-[1.5px] rounded-full w-full h-full">
+                  <div className="bg-[var(--bg-surface)] p-[1.5px] rounded-full w-full h-full">
                     <img
                       src={post?.userId?.profilePic || "/Fondpeace.jpg"}
                       alt={post?.userId?.username || "User"}
@@ -730,10 +730,10 @@ return (
                 </div>
 
                 <div>
-                  <span className="font-bold text-white block group-hover:underline leading-tight">
+                  <span className="font-bold text-[var(--text-primary)] block group-hover:underline leading-tight">
                     {post?.userId?.username || "Anonymous"}
                   </span>
-                  <span className="text-zinc-400 text-xs font-medium">
+                  <span className="text-[var(--text-secondary)] text-xs font-medium">
                     {post?.createdAt
                       ? new Date(post.createdAt).toLocaleDateString(undefined, {
                           month: "short",
@@ -787,7 +787,7 @@ return (
                   <PostTitle title={post.title} />
                 </div>
               )}
-              <div className="text-[14px] leading-relaxed text-zinc-200">
+              <div className="text-[14px] leading-relaxed text-[var(--text-primary)]">
                 <SinglePostPage initialPost={post} />
               </div>
             </div>
@@ -795,10 +795,10 @@ return (
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-4 px-1">
-            <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-zinc-400 whitespace-nowrap">
+            <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-[var(--text-secondary)] whitespace-nowrap">
               More from the Community
             </span>
-            <div className="h-px bg-white/10 flex-1" />
+            <div className="h-px bg-[var(--border-subtle)] flex-1" />
           </div>
 
           {/* Related Posts */}
@@ -812,9 +812,9 @@ return (
             <SuggestedCreatorsWidget variant="card" />
 
             {/* Creator Program Spotlight Card */}
-            <div className="rounded-2xl p-5 bg-black border border-white/10 shadow-lg text-white">
+            <div className="rounded-2xl p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg text-[var(--text-primary)] transition-colors">
               <div className="flex items-center justify-between mb-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/10 text-white border border-white/20">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[var(--bg-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
                   <Coins className="w-3 h-3 text-amber-400" />
                   Creator Program
                 </span>
@@ -822,13 +822,13 @@ return (
                   95% Payout
                 </span>
               </div>
-              <h3 className="font-bold text-sm mb-1 text-white">Monetize Your Influence</h3>
-              <p className="text-xs text-zinc-400 mb-3 leading-relaxed">
+              <h3 className="font-bold text-sm mb-1 text-[var(--text-primary)]">Monetize Your Influence</h3>
+              <p className="text-xs text-[var(--text-secondary)] mb-3 leading-relaxed">
                 Get paid directly by fans through tips, subscriptions, and branded sponsorship.
               </p>
               <Link
                 href="/monetization"
-                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-black font-bold text-xs hover:bg-zinc-200 transition"
+                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition"
               >
                 <span>Learn More</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -836,9 +836,9 @@ return (
             </div>
 
             {/* Safety & Compliance Badge */}
-            <div className="rounded-2xl p-4 bg-zinc-900/50 border border-white/5 flex items-center gap-3">
+            <div className="rounded-2xl p-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center gap-3">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
-              <p className="text-[11px] text-zinc-400 leading-tight">
+              <p className="text-[11px] text-[var(--text-secondary)] leading-tight">
                 Protected & Verified Creator Network under 2026 Community Standards.
               </p>
             </div>

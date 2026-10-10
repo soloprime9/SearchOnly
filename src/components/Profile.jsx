@@ -103,17 +103,17 @@ const Profile = () => {
 
   if (error)
     return (
-      <div className="flex justify-center items-center h-screen bg-[#090a0f] text-white">
-        <h1 className="text-xl font-bold text-gray-300">{error}</h1>
+      <div className="flex justify-center items-center h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+        <h1 className="text-xl font-bold text-[var(--text-secondary)]">{error}</h1>
       </div>
     );
 
   if (!profile)
     return (
-      <div className="flex justify-center items-center h-screen bg-[#090a0f] text-white">
+      <div className="flex justify-center items-center h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)]">
         <div className="flex items-center gap-3">
           <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-gray-400 font-bold">Loading Creator Profile...</span>
+          <span className="text-sm text-[var(--text-secondary)] font-bold">Loading Creator Profile...</span>
         </div>
       </div>
     );
@@ -128,7 +128,7 @@ const Profile = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#090a0f] text-white selection:bg-blue-600 selection:text-white pb-24">
+    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-blue-600 selection:text-white transition-colors duration-200 pb-24">
       {/* 1. RADIANT FLUID HERO BANNER */}
       <div className="relative h-44 sm:h-56 w-full bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 overflow-hidden shadow-2xl">
         {/* Ambient Gradient Mesh Aura */}
@@ -154,7 +154,7 @@ const Profile = () => {
           
           {/* Avatar with Illuminated Ring */}
           <div className="relative group">
-            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full ring-4 ring-[#090a0f] overflow-hidden shadow-2xl bg-zinc-900 border-2 border-white/20">
+            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full ring-4 ring-[var(--bg-canvas)] overflow-hidden shadow-2xl bg-zinc-900 border-2 border-white/20">
               <img
                 src={user.profilePicture || "/Fondpeace.jpg"}
                 alt={user.username}
@@ -197,7 +197,7 @@ const Profile = () => {
         {/* Name, Handles, Badges */}
         <div className="mt-4 text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
               {user.name || user.username}
             </h1>
             {user.isVerified && (
@@ -213,7 +213,7 @@ const Profile = () => {
             )}
           </div>
 
-          <p className="text-sm font-medium text-gray-400 mt-0.5">@{user.username}</p>
+          <p className="text-sm font-medium text-[var(--text-secondary)] mt-0.5">@{user.username}</p>
 
           {/* Tagline */}
           {user.tagline && (
@@ -223,7 +223,7 @@ const Profile = () => {
           )}
 
           {/* Bio */}
-          <p className="text-sm text-gray-300 mt-2 max-w-2xl leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-[var(--text-primary)] mt-2 max-w-2xl leading-relaxed whitespace-pre-wrap">
             {user.bio || "Creator on FondPeace community."}
           </p>
 
@@ -281,24 +281,24 @@ const Profile = () => {
           )}
 
           {/* Stats Bar */}
-          <div className="flex items-center justify-center sm:justify-start gap-8 mt-6 pt-4 border-t border-white/10">
+          <div className="flex items-center justify-center sm:justify-start gap-8 mt-6 pt-4 border-t border-[var(--border-subtle)]">
             <div>
-              <p className="text-xl font-black text-white">{user.Followers?.length || 0}</p>
-              <span className="text-gray-400 text-xs font-medium">Followers</span>
+              <p className="text-xl font-black text-[var(--text-primary)]">{user.Followers?.length || 0}</p>
+              <span className="text-[var(--text-secondary)] text-xs font-medium">Followers</span>
             </div>
             <div>
-              <p className="text-xl font-black text-white">{user.Followings?.length || 0}</p>
-              <span className="text-gray-400 text-xs font-medium">Following</span>
+              <p className="text-xl font-black text-[var(--text-primary)]">{user.Followings?.length || 0}</p>
+              <span className="text-[var(--text-secondary)] text-xs font-medium">Following</span>
             </div>
             <div>
-              <p className="text-xl font-black text-white">{posts.length}</p>
-              <span className="text-gray-400 text-xs font-medium">Posts</span>
+              <p className="text-xl font-black text-[var(--text-primary)]">{posts.length}</p>
+              <span className="text-[var(--text-secondary)] text-xs font-medium">Posts</span>
             </div>
           </div>
         </div>
 
         {/* 3. MEDIA NAVIGATION TABS */}
-        <div className="flex items-center gap-2 mt-10 border-b border-white/10 pb-2">
+        <div className="flex items-center gap-2 mt-10 border-b border-[var(--border-subtle)] pb-2">
           <button
             onClick={() => {
               playTap();
@@ -307,7 +307,7 @@ const Profile = () => {
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeMediaTab === "all"
                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
             }`}
           >
             <Grid size={14} />
@@ -321,7 +321,7 @@ const Profile = () => {
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeMediaTab === "shorts"
                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
             }`}
           >
             <Film size={14} />
@@ -335,7 +335,7 @@ const Profile = () => {
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeMediaTab === "photos"
                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
             }`}
           >
             <Sparkles size={14} />
@@ -353,7 +353,7 @@ const Profile = () => {
                   <a
                     key={post._id}
                     href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
-                    className="group block rounded-2xl overflow-hidden bg-zinc-950 border border-white/10 relative aspect-[4/5] shadow-md hover:border-blue-500/50 transition-all hover:scale-[1.02]"
+                    className="group block rounded-2xl overflow-hidden bg-[var(--bg-surface)] border border-[var(--border-subtle)] relative aspect-[4/5] shadow-md hover:border-blue-500/50 transition-all hover:scale-[1.02]"
                   >
                     {isVideo ? (
                       <video

@@ -9,6 +9,7 @@ import { FaBell, FaBookmark, FaSearch } from "react-icons/fa";
 import { User, Upload } from "lucide-react";
 import NotificationDrawer from "./NotificationDrawer";
 import SavedPostsDrawer from "./SavedPostsDrawer";
+import ThemeBackgroundToggle from "./ThemeBackgroundToggle";
 
 export default function MainNavbar() {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -39,7 +40,7 @@ export default function MainNavbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-[#080a13]/90 backdrop-blur-2xl border-b border-white/[0.08] transition-colors">
+      <header className="sticky top-0 z-40 w-full bg-[var(--bg-canvas)]/90 backdrop-blur-2xl border-b border-[var(--border-subtle)] transition-colors">
         <div className="max-w-[1280px] mx-auto px-4 h-15 flex items-center justify-between gap-4">
           {/* 1. Brand Logo */}
           <Link
@@ -77,6 +78,9 @@ export default function MainNavbar() {
 
           {/* 3. Action Right Pill Controls */}
           <div className="flex items-center gap-2.5">
+            {/* Background Appearance Switcher (Dim vs Black) */}
+            <ThemeBackgroundToggle />
+
             {/* Mobile Search Icon */}
             <Link
               href="/search"

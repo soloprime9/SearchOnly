@@ -139,7 +139,7 @@ export default function SearchPage() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <main className="min-h-screen text-gray-900 dark:text-gray-100 pb-16">
+    <main className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] transition-colors duration-200 pb-16">
       <JsonLD />
 
       {/* 1. INTERACTIVE CLIENT SEARCH HUB */}
@@ -151,7 +151,7 @@ export default function SearchPage() {
       <section className="max-w-4xl mx-auto px-4 mt-8">
         <div className="flex items-center gap-2 mb-4">
           <Layers className="w-5 h-5 text-blue-500" />
-          <h2 className="text-xl font-bold text-gray-950 dark:text-white tracking-tight">
+          <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
             Explore by Category
           </h2>
         </div>
@@ -161,12 +161,12 @@ export default function SearchPage() {
               key={index}
               href={`/search?q=${encodeURIComponent(cat)}`}
               prefetch={false}
-              className="group p-3 rounded-2xl bg-white/70 dark:bg-zinc-950/50 backdrop-blur-xl border border-black/[0.05] dark:border-white/[0.08] hover:border-blue-500/40 hover:-translate-y-0.5 transition-all shadow-sm flex flex-col justify-between"
+              className="group p-3 rounded-2xl bg-[var(--bg-surface)] backdrop-blur-xl border border-[var(--border-subtle)] hover:border-blue-500/40 hover:-translate-y-0.5 transition-all shadow-sm flex flex-col justify-between"
             >
-              <span className="font-semibold text-xs sm:text-sm text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+              <span className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] group-hover:text-blue-500 transition-colors truncate">
                 {cat}
               </span>
-              <span className="text-[10px] text-gray-400 mt-1 flex items-center justify-between">
+              <span className="text-[10px] text-[var(--text-secondary)] mt-1 flex items-center justify-between">
                 <span>Trending stories</span>
                 <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </span>
@@ -177,30 +177,30 @@ export default function SearchPage() {
 
       {/* 3. ABOUT FONDPEACE SEARCH - Trust & E-A-T Building */}
       <article className="max-w-4xl mx-auto px-4 mt-12">
-        <div className="p-6 sm:p-8 rounded-3xl bg-white/60 dark:bg-zinc-950/40 backdrop-blur-2xl border border-black/[0.05] dark:border-white/[0.08] shadow-sm">
-          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-wider mb-2">
+        <div className="p-6 sm:p-8 rounded-3xl bg-[var(--bg-surface)] backdrop-blur-2xl border border-[var(--border-subtle)] shadow-sm">
+          <div className="flex items-center gap-2 text-blue-500 font-bold text-xs uppercase tracking-wider mb-2">
             <ShieldCheck className="w-4 h-4" />
             <span>Trust & Open Community</span>
           </div>
-          <h2 className="text-2xl font-black text-gray-950 dark:text-white tracking-tight mb-4">
+          <h2 className="text-2xl font-black text-[var(--text-primary)] tracking-tight mb-4">
             About FondPeace Discovery
           </h2>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+          <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
             FondPeace Search is built to help people discover information faster — whether it’s **breaking news**, **viral shorts**, entertainment updates, **AI tools**, sports highlights, or community conversations. Our focus is on delivering a clean, modern, and reliable discovery experience across all devices.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-black/[0.06] dark:border-white/[0.06]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-[var(--border-subtle)]">
             <div>
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white mb-2">Why FondPeace?</h4>
-              <ul className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 space-y-1.5 list-disc pl-4">
+              <h4 className="font-bold text-sm text-[var(--text-primary)] mb-2">Why FondPeace?</h4>
+              <ul className="text-xs sm:text-sm text-[var(--text-secondary)] space-y-1.5 list-disc pl-4">
                 <li>Zero sensational manipulation or forced engagement traps.</li>
                 <li>Instant direct access to verified creators and videos.</li>
                 <li>Respectful discussion community with transparent metrics.</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white mb-2">Privacy Guarantee</h4>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+              <h4 className="font-bold text-sm text-[var(--text-primary)] mb-2">Privacy Guarantee</h4>
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
                 Your search queries are private and never sold to third-party ad brokers. For assistance, reach our support team at{" "}
                 <a href="mailto:contact@fondpeace.com" className="text-blue-500 hover:underline font-semibold">
                   contact@fondpeace.com
@@ -215,7 +215,7 @@ export default function SearchPage() {
       <section className="max-w-4xl mx-auto px-4 mt-10">
         <div className="flex items-center gap-2 mb-4">
           <HelpCircle className="w-5 h-5 text-indigo-500" />
-          <h3 className="text-xl font-bold text-gray-950 dark:text-white tracking-tight">
+          <h3 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
             Frequently Asked Questions
           </h3>
         </div>
@@ -223,13 +223,13 @@ export default function SearchPage() {
           {FAQS.map((f, i) => (
             <details
               key={i}
-              className="group p-4 rounded-2xl bg-white/70 dark:bg-zinc-950/50 backdrop-blur-xl border border-black/[0.05] dark:border-white/[0.08] transition-all"
+              className="group p-4 rounded-2xl bg-[var(--bg-surface)] backdrop-blur-xl border border-[var(--border-subtle)] transition-all"
             >
-              <summary className="font-bold text-sm sm:text-base text-gray-900 dark:text-white cursor-pointer select-none list-none flex items-center justify-between">
+              <summary className="font-bold text-sm sm:text-base text-[var(--text-primary)] cursor-pointer select-none list-none flex items-center justify-between">
                 <span>{f.q}</span>
-                <span className="text-gray-400 group-open:rotate-180 transition-transform">▼</span>
+                <span className="text-[var(--text-secondary)] group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="mt-3 text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed border-t border-black/[0.04] dark:border-white/[0.06] pt-3">
+              <p className="mt-3 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed border-t border-[var(--border-subtle)] pt-3">
                 {f.a}
               </p>
             </details>
@@ -238,7 +238,7 @@ export default function SearchPage() {
       </section>
 
       {/* 5. MINIMAL BRAND FOOTER */}
-      <footer className="max-w-4xl mx-auto px-4 mt-12 pt-6 border-t border-black/[0.06] dark:border-white/[0.08] text-xs text-gray-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <footer className="max-w-4xl mx-auto px-4 mt-12 pt-6 border-t border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] flex flex-col sm:flex-row items-center justify-between gap-3">
         <div>© {currentYear} FondPeace. Built for authentic community.</div>
         <div className="flex gap-4">
           <Link href="/aboutus" className="hover:text-blue-500 transition-colors">About</Link>

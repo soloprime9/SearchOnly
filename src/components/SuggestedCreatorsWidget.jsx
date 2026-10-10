@@ -85,7 +85,7 @@ export default function SuggestedCreatorsWidget({
 
   if (variant === "carousel") {
     return (
-      <div className="my-4 p-4 rounded-2xl bg-zinc-950 border border-white/[0.1] select-none">
+      <div className="my-4 p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] select-none transition-colors duration-200">
         <div className="flex items-center justify-between mb-3 px-1">
           <div className="flex items-center gap-1.5 text-xs font-black text-white">
             <Sparkles className="w-3.5 h-3.5 text-white" />
@@ -105,7 +105,7 @@ export default function SuggestedCreatorsWidget({
             return (
               <div
                 key={creator._id}
-                className="w-36 shrink-0 p-3 rounded-xl bg-zinc-900 border border-white/10 flex flex-col items-center text-center shadow-sm hover:border-white/30 transition-all"
+                className="w-36 shrink-0 p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex flex-col items-center text-center shadow-sm hover:border-white/30 transition-all"
               >
                 <Link href={`/profile/${creator.username}`} className="relative mb-2">
                   <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-blue-500 to-indigo-500">
@@ -164,7 +164,7 @@ export default function SuggestedCreatorsWidget({
 
   // Default Card variant
   return (
-    <div className="bg-zinc-950 border border-white/[0.1] rounded-2xl p-4 sm:p-5 my-3 shadow-md select-none">
+    <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl p-4 sm:p-5 my-3 shadow-md select-none transition-colors duration-200">
       <div className="text-left mb-3">
         <div className="flex items-center gap-1.5 text-xs font-bold text-white mb-0.5">
           <Users className="w-3.5 h-3.5 text-white" />

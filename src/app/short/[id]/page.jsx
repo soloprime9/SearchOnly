@@ -427,7 +427,7 @@ export default async function Page({ params }) {
         
         
   return (
-    <main className="min-h-screen w-full bg-zinc-950 text-white selection:bg-white selection:text-black overflow-x-hidden">
+    <main className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-blue-600 selection:text-white overflow-x-hidden transition-colors duration-200">
       {/* JSON-LD inserted server-side for crawlers */}
       <script
         key="video-jsonld"
@@ -473,7 +473,7 @@ export default async function Page({ params }) {
           </div>
 
           {/* Main Short Video Card (Matching Village.jsx) */}
-          <article className="bg-zinc-950 w-full rounded-2xl overflow-hidden border border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-4 sm:p-5">
+          <article className="bg-[var(--bg-surface)] w-full rounded-2xl overflow-hidden border border-[var(--border-subtle)] shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-4 sm:p-5 transition-colors duration-200">
             {/* User Profile */}
             <div className="flex items-center justify-between mb-4">
               <Link
@@ -539,7 +539,7 @@ export default async function Page({ params }) {
             <SuggestedCreatorsWidget variant="card" />
 
             {/* Creator Program Spotlight Card */}
-            <div className="rounded-2xl p-5 bg-black border border-white/10 shadow-lg text-white">
+            <div className="rounded-2xl p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg text-white">
               <div className="flex items-center justify-between mb-2">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/10 text-white border border-white/20">
                   <Coins className="w-3 h-3 text-amber-400" />

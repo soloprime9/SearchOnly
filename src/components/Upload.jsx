@@ -636,27 +636,27 @@ export default function UploadPost() {
   return (
     <div className="w-full max-w-3xl mx-auto py-8 sm:py-12 px-3 sm:px-4">
       {/* Container Card */}
-      <div className="relative p-6 sm:p-10 rounded-3xl bg-white/90 dark:bg-zinc-950/80 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-[0_16px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_16px_50px_rgba(0,0,0,0.4)]">
+      <div className="relative p-6 sm:p-10 rounded-3xl bg-[var(--bg-surface)] backdrop-blur-2xl border border-[var(--border-subtle)] shadow-[0_16px_50px_rgba(0,0,0,0.4)] transition-colors duration-200">
         
         {/* Ambient Top Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header */}
         <div className="text-center mb-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/60 text-blue-600 dark:text-blue-400 text-xs font-bold mb-3 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-950/50 border border-blue-800/60 text-blue-400 text-xs font-bold mb-3 shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
             <span>FondPeace Creator Studio</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-gray-950 dark:text-white">
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
             Create & Share
           </h1>
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1.5 max-w-md mx-auto">
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 max-w-md mx-auto">
             Share short videos, photos, community discussions, or write long-form articles with zero restrictions.
           </p>
         </div>
 
         {/* Post Type Selector Tabs */}
-        <div className="flex items-center justify-center gap-1.5 p-1.5 bg-gray-100 dark:bg-zinc-900 rounded-2xl mb-6 relative z-10">
+        <div className="flex items-center justify-center gap-1.5 p-1.5 bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-2xl mb-6 relative z-10">
           {[
             { id: "all", label: "🌟 Media", desc: "Photo, Video or Text" },
             { id: "discussion", label: "💭 Discussion", desc: "Thoughts & questions" },
@@ -671,10 +671,10 @@ export default function UploadPost() {
                 setActiveMode(tab.id);
                 setErrorMsg("");
               }}
-              className={`flex-1 py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`flex-1 py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeMode === tab.id
-                  ? "bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm"
-                  : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
               }`}
             >
               {tab.label}

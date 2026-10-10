@@ -130,10 +130,10 @@ export default function SearchGo() {
               <Compass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '6s' }} />
               <span>Explore & Discovery Engine</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-gray-950 dark:text-white">
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-[var(--text-primary)]">
               Discover <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 bg-clip-text text-transparent">Everything</span>
             </h1>
-            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-2 max-w-xl mx-auto">
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] mt-2 max-w-xl mx-auto">
               Search trending social discussions, creator videos, topics, and global news instantly.
             </p>
           </div>
@@ -141,14 +141,14 @@ export default function SearchGo() {
           {/* Glowing Search Input Bar */}
           <form
             onSubmit={handleSearch}
-            className="relative z-10 flex items-center bg-white dark:bg-zinc-950/80 backdrop-blur-2xl border border-black/10 dark:border-white/10 rounded-2xl sm:rounded-full p-1.5 sm:p-2 shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/15 transition-all"
+            className="relative z-10 flex items-center bg-[var(--bg-surface)] backdrop-blur-2xl border border-[var(--border-subtle)] rounded-2xl sm:rounded-full p-1.5 sm:p-2 shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.45)] focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/15 transition-all"
           >
             <div className="pl-3.5 text-gray-400">
               <Search className="w-5 h-5" />
             </div>
             <input
               type="text"
-              className="flex-1 px-3 py-2.5 sm:py-3 text-sm sm:text-base bg-transparent text-gray-950 dark:text-white placeholder-gray-400 focus:outline-none"
+              className="flex-1 px-3 py-2.5 sm:py-3 text-sm sm:text-base bg-transparent text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none"
               placeholder="Search posts, creators, AI updates, news..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -161,7 +161,7 @@ export default function SearchGo() {
                   setResults([]);
                   setImages([]);
                 }}
-                className="p-1.5 mr-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-full"
+                className="p-1.5 mr-1 text-gray-400 hover:text-[var(--text-primary)] transition-colors rounded-full"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -184,7 +184,7 @@ export default function SearchGo() {
 
           {/* Quick Category Chips */}
           <div className="mt-4 flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            <span className="text-xs font-semibold text-gray-400 shrink-0 flex items-center gap-1">
+            <span className="text-xs font-semibold text-[var(--text-secondary)] shrink-0 flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-blue-500" />
               Popular:
             </span>
@@ -193,7 +193,7 @@ export default function SearchGo() {
                 key={i}
                 type="button"
                 onClick={() => handleTopicClick(topic)}
-                className="text-xs font-medium px-3 py-1.5 rounded-full bg-white/70 dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] text-gray-700 dark:text-gray-300 hover:border-blue-500/50 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 transition-all shrink-0 whitespace-nowrap shadow-sm"
+                className="text-xs font-medium px-3 py-1.5 rounded-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-subtle-hover)] hover:text-blue-500 transition-all shrink-0 whitespace-nowrap shadow-sm"
               >
                 {topic}
               </button>
@@ -253,7 +253,7 @@ export default function SearchGo() {
                   <Link
                     key={post._id}
                     href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
-                    className="group flex flex-col bg-white dark:bg-zinc-950/60 backdrop-blur-xl rounded-2xl border border-black/[0.06] dark:border-white/[0.08] hover:border-blue-500/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
+                    className="group flex flex-col bg-[var(--bg-surface)] backdrop-blur-xl rounded-2xl border border-[var(--border-subtle)] hover:border-[var(--border-subtle-hover)] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
                   >
                     {/* Media Thumbnail with Overlay Badge */}
                     <div className="relative aspect-video w-full bg-zinc-900 overflow-hidden">
@@ -277,11 +277,11 @@ export default function SearchGo() {
 
                     {/* Content & Metrics */}
                     <div className="p-4 flex-1 flex flex-col justify-between">
-                      <p className="font-bold text-sm text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug">
+                      <p className="font-bold text-sm text-[var(--text-primary)] line-clamp-2 group-hover:text-blue-500 transition-colors leading-snug">
                         {post.title}
                       </p>
 
-                      <div className="flex items-center justify-between text-xs text-gray-400 mt-3 pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
+                      <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mt-3 pt-3 border-t border-[var(--border-subtle)]">
                         <div className="flex items-center gap-3">
                           <span className="flex items-center gap-1 text-rose-500">
                             <Heart className="w-3.5 h-3.5 fill-current" />
