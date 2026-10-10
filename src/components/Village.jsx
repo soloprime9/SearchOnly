@@ -955,7 +955,11 @@ const handleShare = async (postData) => {
     ) : post.linkPreview ? (
       /* 🔗 Rich Embedded Link Card (YouTube, News, Article, Website) */
       <div className="px-3 sm:px-4 my-1">
-        <LinkPreviewCard preview={post.linkPreview} />
+        <LinkPreviewCard 
+          preview={post.linkPreview} 
+          postId={post._id} 
+          inFeed={true} 
+        />
       </div>
     ) : post.poll ? (
       /* 📊 Interactive Poll */

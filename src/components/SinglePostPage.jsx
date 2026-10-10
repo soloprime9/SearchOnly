@@ -342,7 +342,13 @@ export default function SinglePostInteractions({ initialPost }) {
       )}
 
       {/* 🔗 RICH LINK PREVIEW (If attached to post) */}
-      {post.linkPreview && <LinkPreviewCard preview={post.linkPreview} />}
+      {post.linkPreview && (
+        <LinkPreviewCard 
+          preview={post.linkPreview} 
+          postId={post._id} 
+          inFeed={false} 
+        />
+      )}
 
       {/* ⚡ ACTION BAR */}
       <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--bg-subtle)] backdrop-blur-md rounded-2xl border border-[var(--border-subtle)] shadow-xs">

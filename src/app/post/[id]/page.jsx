@@ -782,11 +782,18 @@ return (
 
             {/* Caption + Post Title */}
             <div className="pt-2 pb-3">
-              {post?.title && (
-                <div className="mb-3">
-                  <PostTitle title={post.title} />
-                </div>
-              )}
+              {(() => {
+                if (!post?.title) return null;
+                const isRawUrlOnly = /^https?:\/\/\S+$/i.test(post.title.trim());
+                if (isRawUrlOnly && post.linkPreview) {
+                  return null;
+                }
+                return (
+                  <div className="mb-3">
+                    <PostTitle title={post.title} />
+                  </div>
+                );
+              })()}
               <div className="text-[14px] leading-relaxed text-[var(--text-primary)]">
                 <SinglePostPage initialPost={post} />
               </div>
