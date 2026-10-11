@@ -930,16 +930,6 @@ const handleShare = async (postData) => {
         )}
       </div>
       <div className="flex items-center gap-1.5">
-        {/* Prominent Header Action: Open Single Post or Short */}
-        <Link
-          href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
-          onClick={() => playTap()}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/40 hover:bg-blue-600 hover:text-white transition-all active:scale-95 shadow-xs cursor-pointer"
-          title={`Click to open single ${isVideo ? "Short" : "Post"} page`}
-        >
-          <span>{isVideo ? "Open Short" : "Open Post"}</span>
-          <ArrowUpRight size={12} />
-        </Link>
 
         {userId && (String(post.userId?._id || post.userId) === String(userId)) && (
           <button
@@ -969,15 +959,6 @@ const handleShare = async (postData) => {
     {/* 2. MEDIA / EMBEDDED CONTENT SECTION */}
     {post.media ? (
       <div className="relative w-full bg-black flex items-center justify-center overflow-hidden max-h-[520px] rounded-xl my-1 group/media">
-        {/* Quick click indicator on media */}
-        <div className="absolute top-3 left-3 pointer-events-none z-10">
-          <div className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-[10.5px] font-bold flex items-center gap-1 shadow-md border border-white/10 group-hover/media:bg-blue-600 transition-colors">
-            {isVideo ? <Film size={11} className="text-rose-400" /> : <ImageIcon size={11} className="text-emerald-400" />}
-            <span>{isVideo ? "Watch Short" : "View Post"}</span>
-            <ArrowUpRight size={11} />
-          </div>
-        </div>
-
         <Link 
           href={isVideo ? `/short/${post._id}` : `/post/${post._id}`} 
           className="w-full h-auto flex items-center justify-center bg-black cursor-pointer"
@@ -1232,23 +1213,6 @@ const handleShare = async (postData) => {
             ))}
           </div>
         )}
-
-        {/* Dedicated Clear Click Target: Open Full Post / Short Page */}
-        <Link
-          href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
-          onClick={() => playTap()}
-          className="mt-2 w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-[var(--bg-subtle)] hover:bg-blue-50 dark:hover:bg-blue-950/30 border border-[var(--border-subtle)] hover:border-blue-500/40 text-xs font-semibold text-[var(--text-secondary)] hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer group shadow-2xs"
-          title={`Click here to open ${isVideo ? "Short" : "Post"} discussion & details`}
-        >
-          <div className="flex items-center gap-2">
-            <MessageSquare size={13} className="text-blue-500" />
-            <span>Open full post & discussion ({post.comments?.length || 0} comments)</span>
-          </div>
-          <div className="flex items-center gap-1 text-[11px] font-bold text-blue-500 group-hover:translate-x-0.5 transition-transform">
-            <span>View {isVideo ? "Short" : "Post"}</span>
-            <ArrowUpRight size={13} />
-          </div>
-        </Link>
 
         {/* Comment Preview Button - Opens Comments Bottom Sheet */}
         {post.comments?.length > 0 ? (

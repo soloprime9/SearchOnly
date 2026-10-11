@@ -712,6 +712,9 @@ return (
 
           {/* Full Post Card - Exactly matching Homepage (Village.jsx) */}
           <SinglePostPage initialPost={post} />
+
+          {/* Related Community Discussions Feed */}
+          <RelatedPosts currentPostId={post._id} />
         </section>
 
         {/* Right Sidebar (Matching Homepage) */}

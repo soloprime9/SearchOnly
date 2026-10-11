@@ -138,16 +138,6 @@ export default function LinkPreviewCard({ preview, postId = null, inFeed = false
                 <ExternalLink className="w-3 h-3 text-white" />
                 <span className="text-white">Visit</span>
               </button>
-
-              {/* Bottom pill: View Post & Discussion on FondPeace */}
-              <Link
-                href={`/post/${postId}`}
-                onClick={(e) => e.stopPropagation()}
-                className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-blue-600/90 hover:bg-blue-500 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1.5 shadow-lg transition-colors cursor-pointer"
-              >
-                <MessageCircle className="w-3 h-3 text-white" />
-                <span>Discussion & Details</span>
-              </Link>
             </div>
           )
         )}
@@ -157,14 +147,9 @@ export default function LinkPreviewCard({ preview, postId = null, inFeed = false
           href={`/post/${postId}`}
           className="block p-3.5 sm:p-4 no-underline text-inherit cursor-pointer hover:bg-[var(--bg-surface-hover)] transition-colors"
         >
-          <div className="flex items-center justify-between gap-1.5 text-xs text-[var(--text-secondary)] font-medium mb-1.5">
-            <div className="flex items-center gap-1.5 truncate">
-              <Globe className={`w-3.5 h-3.5 ${isYouTube ? "text-red-500" : "text-blue-500"} shrink-0`} />
-              <span className="truncate">{preview.siteName || (isYouTube ? "YouTube" : domain)}</span>
-            </div>
-            <span className="text-[11px] bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/25 px-2.5 py-0.5 rounded-full font-bold shrink-0 flex items-center gap-1 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-2xs">
-              <span>Open Discussion</span> <ArrowRight className="w-3 h-3" />
-            </span>
+          <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] font-medium mb-1.5 truncate">
+            <Globe className={`w-3.5 h-3.5 ${isYouTube ? "text-red-500" : "text-blue-500"} shrink-0`} />
+            <span className="truncate">{preview.siteName || (isYouTube ? "YouTube" : domain)}</span>
           </div>
 
           {preview.title && (

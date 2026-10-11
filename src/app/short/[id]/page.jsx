@@ -8,6 +8,7 @@ import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
 import { Coins, ArrowRight, ShieldCheck } from "lucide-react";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper"; // (Rename ReelsFeedWrapper.jsx to ReelsFeedWrapper.js/jsx)
+import RelatedPosts from "@/components/RelatedPosts";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 
@@ -474,6 +475,9 @@ export default async function Page({ params }) {
 
           {/* Main Short Video Card (Matching Village.jsx) */}
           <SinglePostPage initialPost={post} />
+
+          {/* Related Community Discussions Feed */}
+          <RelatedPosts currentPostId={post._id} />
         </section>
 
         {/* Right Sidebar (Matching Homepage) */}
