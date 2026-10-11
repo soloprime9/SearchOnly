@@ -483,7 +483,7 @@ export default async function Page({ params }) {
                 <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
                   <div className="bg-zinc-950 p-[1.5px] rounded-full w-full h-full">
                     <img
-                      src={post.userId?.profilePic || "/Fondpeace.jpg"}
+                      src={post.userId?.profilePicture || post.userId?.profilePic || post.userId?.avatar || "/Fondpeace.jpg"}
                       alt={post.userId?.username || "User"}
                       className="w-full h-full rounded-full object-cover"
                       loading="lazy"
@@ -492,9 +492,14 @@ export default async function Page({ params }) {
                 </div>
 
                 <div>
-                  <span className="font-bold text-white block group-hover:underline leading-tight">
-                    {post.userId?.username || "Anonymous"}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-white block group-hover:underline leading-tight">
+                      {post.userId?.username || "Anonymous"}
+                    </span>
+                    {post.userId?.isVerified && (
+                      <ShieldCheck size={14} className="text-blue-400 fill-blue-400/20 shrink-0" />
+                    )}
+                  </div>
                   <span className="text-zinc-400 text-xs font-medium">
                     {new Date(post.createdAt).toLocaleDateString(undefined, {
                       month: "short",

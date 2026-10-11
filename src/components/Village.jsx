@@ -1172,18 +1172,12 @@ const handleShare = async (postData) => {
             <span className="font-bold mr-2 hover:underline cursor-pointer text-[var(--text-primary)]">
               {post.userId?.username}
             </span>
-            <Link
-              href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
-              className="inline hover:underline cursor-pointer text-[var(--text-primary)]"
-              title={`Click to open ${isVideo ? "Short" : "Post"}`}
-            >
-              <span className="whitespace-pre-wrap">
-                {renderFormattedCaption(titleText, (tag) => {
-                  playTap();
-                  setSelectedHashtag(tag);
-                })}
-              </span>
-            </Link>
+            <span className="whitespace-pre-wrap text-[var(--text-primary)]">
+              {renderFormattedCaption(titleText, (tag) => {
+                playTap();
+                setSelectedHashtag(tag);
+              })}
+            </span>
             {cleanCaption.length > 100 && (
               <button 
                 onClick={() => setExpandedPosts(p => ({...p, [post._id]: !isExpanded}))} 

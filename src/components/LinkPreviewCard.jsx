@@ -162,8 +162,8 @@ export default function LinkPreviewCard({ preview, postId = null, inFeed = false
               <Globe className={`w-3.5 h-3.5 ${isYouTube ? "text-red-500" : "text-blue-500"} shrink-0`} />
               <span className="truncate">{preview.siteName || (isYouTube ? "YouTube" : domain)}</span>
             </div>
-            <span className="text-[11px] text-blue-500 font-bold shrink-0 flex items-center gap-0.5 hover:translate-x-0.5 transition-transform">
-              Read Post <ArrowRight className="w-3 h-3" />
+            <span className="text-[11px] bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/25 px-2.5 py-0.5 rounded-full font-bold shrink-0 flex items-center gap-1 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-2xs">
+              <span>Open Discussion</span> <ArrowRight className="w-3 h-3" />
             </span>
           </div>
 

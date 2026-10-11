@@ -712,7 +712,7 @@ return (
 
           {/* Main Post Card (Matching Village.jsx) */}
           <article className="bg-[var(--bg-surface)] w-full rounded-2xl overflow-hidden border border-[var(--border-subtle)] shadow-xl p-4 sm:p-5 transition-colors">
-            {/* Author row with story gradient ring */}
+            {/* Author row with story gradient ring & creator details */}
             <div className="flex items-center justify-between mb-4">
               <Link
                 href={`/profile/${post?.userId?.username}`}
@@ -721,7 +721,7 @@ return (
                 <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
                   <div className="bg-[var(--bg-surface)] p-[1.5px] rounded-full w-full h-full">
                     <img
-                      src={post?.userId?.profilePic || "/Fondpeace.jpg"}
+                      src={post?.userId?.profilePicture || post?.userId?.profilePic || post?.userId?.avatar || "/Fondpeace.jpg"}
                       alt={post?.userId?.username || "User"}
                       className="w-full h-full rounded-full object-cover"
                       loading="lazy"
@@ -730,24 +730,37 @@ return (
                 </div>
 
                 <div>
-                  <span className="font-bold text-[var(--text-primary)] block group-hover:underline leading-tight">
-                    {post?.userId?.username || "Anonymous"}
-                  </span>
-                  <span className="text-[var(--text-secondary)] text-xs font-medium">
-                    {post?.createdAt
-                      ? new Date(post.createdAt).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
-                      : ""}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-[var(--text-primary)] block group-hover:underline leading-tight">
+                      {post?.userId?.username || "Anonymous"}
+                    </span>
+                    {post?.userId?.isVerified && (
+                      <ShieldCheck size={14} className="text-blue-500 fill-blue-500/20 shrink-0" />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[var(--text-secondary)] text-xs font-medium mt-0.5">
+                    <span>
+                      {post?.createdAt
+                        ? new Date(post.createdAt).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : ""}
+                    </span>
+                    {post?.location && (
+                      <>
+                        <span>•</span>
+                        <span className="text-rose-500 truncate max-w-[140px] font-semibold">{post.location}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </Link>
             </div>
 
-            {/* Media Section - Homepage (Village.jsx) Standard */}
-            {(isVideo || isImage) && (
+            {/* Media Section: Only render direct video or photo when NOT a link preview */}
+            {!post?.linkPreview && !post?.poll && (isVideo || isImage) && (
               <div className="relative w-full overflow-hidden bg-black flex items-center justify-center group min-h-[260px] max-h-[560px] my-2 rounded-2xl">
                 {/* Soft Ambient Blurred Backdrop for Photos */}
                 {isImage && mediaUrl && (
@@ -780,7 +793,7 @@ return (
               </div>
             )}
 
-            {/* Caption + Post Title */}
+            {/* Caption + Post Title (Only when not raw URL of link preview) */}
             <div className="pt-2 pb-3">
               {(() => {
                 if (!post?.title) return null;
