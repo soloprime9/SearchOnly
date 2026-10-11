@@ -158,14 +158,28 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
         } catch (_) {}
       }
 
-      // If initialProfile was provided and matches target user, reuse and sync follow state
+      // If initialProfile was provided and matches target user, check for owner updates
       if (initialProfile?.user && (initialProfile.user.username?.toLowerCase() === cleanName.toLowerCase() || initialProfile.user._id === cleanName)) {
-        if (!profile) setProfile(initialProfile);
+        let effectiveUser = { ...initialProfile.user };
+        // Check if logged-in owner has recent updates saved in localStorage
+        if (typeof window !== "undefined" && loggedUsername && loggedUsername.toLowerCase() === cleanName.toLowerCase()) {
+          try {
+            const cached = localStorage.getItem(`fondpeace_profile_${cleanName.toLowerCase()}`);
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              effectiveUser = { ...effectiveUser, ...parsed };
+            }
+          } catch (_) {}
+        }
+        if (!profile) setProfile({ ...initialProfile, user: effectiveUser });
         if (loggedUserId && Array.isArray(initialProfile.user.Followers)) {
           setIsFollowing(initialProfile.user.Followers.some(id => String(id) === String(loggedUserId)));
         }
-        setLoading(false);
-        return;
+        // Only skip live fetch for non-owners; owners get live background refresh
+        if (loggedUsername?.toLowerCase() !== cleanName.toLowerCase()) {
+          setLoading(false);
+          return;
+        }
       }
 
       try {
@@ -263,6 +277,24 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
       isMounted = false;
     };
   }, [propUsername, initialProfile]);
+
+  // Live listener: sync updated profile data when saved from EditProfile
+  useEffect(() => {
+    const handleProfileUpdated = (e) => {
+      const updated = e.detail;
+      if (updated && profile?.user) {
+        setProfile((prev) => prev ? {
+          ...prev,
+          user: {
+            ...prev.user,
+            ...updated
+          }
+        } : prev);
+      }
+    };
+    window.addEventListener("user_profile_updated", handleProfileUpdated);
+    return () => window.removeEventListener("user_profile_updated", handleProfileUpdated);
+  }, [profile]);
 
   // Handle follow / unfollow
   const handleFollow = async () => {

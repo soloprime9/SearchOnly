@@ -192,10 +192,23 @@ export default function EditProfile({ initialUsername }) {
       // Target username: URL param or logged in username
       const target = initialUsername || loggedUsername;
 
+      // 1. Check localStorage cache first so existing details appear instantly without blank flash
+      let cachedData = null;
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem(`fondpeace_profile_${(target || loggedUsername || "").toLowerCase()}`);
+          if (raw) {
+            cachedData = JSON.parse(raw);
+            setFormData((prev) => ({ ...prev, ...cachedData }));
+            setInitialData(cachedData);
+          }
+        } catch (_) {}
+      }
+
       try {
         let profileUser = null;
 
-        // Try authenticated endpoint
+        // Tier 1: Try authenticated endpoint /user/profile/:username
         try {
           const res = await axios.get(`${API_BASE}/user/profile/${encodeURIComponent(target)}`, {
             headers: { "x-auth-token": token, Authorization: `Bearer ${token}` }
@@ -205,12 +218,57 @@ export default function EditProfile({ initialUsername }) {
           }
         } catch (_) {}
 
-        // Fallback to public profile endpoint
+        // Tier 2: Try authenticated endpoint by loggedUserId
+        if (!profileUser && loggedUserId) {
+          try {
+            const res = await axios.get(`${API_BASE}/user/profile/${encodeURIComponent(loggedUserId)}`, {
+              headers: { "x-auth-token": token, Authorization: `Bearer ${token}` }
+            });
+            if (res.data?.Profile?.user) {
+              profileUser = res.data.Profile.user;
+            }
+          } catch (_) {}
+        }
+
+        // Tier 3: Try public endpoint /user/profile-public/:username
         if (!profileUser) {
           try {
             const res = await axios.get(`${API_BASE}/user/profile-public/${encodeURIComponent(target)}`);
             if (res.data?.Profile?.user) {
               profileUser = res.data.Profile.user;
+            }
+          } catch (_) {}
+        }
+
+        // Tier 4: Try public endpoint by loggedUserId
+        if (!profileUser && loggedUserId) {
+          try {
+            const res = await axios.get(`${API_BASE}/user/profile-public/${encodeURIComponent(loggedUserId)}`);
+            if (res.data?.Profile?.user) {
+              profileUser = res.data.Profile.user;
+            }
+          } catch (_) {}
+        }
+
+        // Tier 5: Direct Mango Directory fallback (/user/mango/getall)
+        // Resolves MongoDB case-sensitivity issues and always returns complete user document
+        if (!profileUser) {
+          try {
+            const res = await axios.get(`${API_BASE}/user/mango/getall`);
+            if (Array.isArray(res.data)) {
+              const query = (target || loggedUsername || "").trim().toLowerCase();
+              const found = res.data.find((u) => {
+                const uName = (u.username || "").trim().toLowerCase();
+                const uId = u._id ? String(u._id) : "";
+                return (
+                  uName === query ||
+                  (loggedUserId && uId === String(loggedUserId)) ||
+                  (loggedUsername && uName === loggedUsername.trim().toLowerCase())
+                );
+              });
+              if (found) {
+                profileUser = found;
+              }
             }
           } catch (_) {}
         }
@@ -222,46 +280,63 @@ export default function EditProfile({ initialUsername }) {
           return;
         }
 
-        // Populate Form State
-        const loaded = {
-          name: profileUser?.name || profileUser?.username || loggedUsername || "",
-          username: profileUser?.username || loggedUsername || "",
-          tagline: profileUser?.tagline || "",
-          bio: profileUser?.bio && profileUser.bio !== "Add About You" ? profileUser.bio : "",
-          category: profileUser?.category || "General",
-          website: profileUser?.website || "",
-          location: profileUser?.location || "",
-          profilePicture: profileUser?.profilePicture && profileUser.profilePicture !== "/Fondpeace.jpg" ? profileUser.profilePicture : "",
-          coverImage: profileUser?.coverImage || "",
-          socialLinks: {
-            instagram: profileUser?.socialLinks?.instagram || "",
-            twitter: profileUser?.socialLinks?.twitter || "",
-            youtube: profileUser?.socialLinks?.youtube || "",
-            linkedin: profileUser?.socialLinks?.linkedin || "",
-            github: profileUser?.socialLinks?.github || ""
-          }
-        };
+        if (profileUser) {
+          // Populate Form State with live data, falling back to cache if specific field was cached
+          const loaded = {
+            name: profileUser?.name || profileUser?.username || loggedUsername || "",
+            username: profileUser?.username || loggedUsername || "",
+            tagline: profileUser?.tagline || cachedData?.tagline || "",
+            bio: (profileUser?.bio && profileUser.bio !== "Add About You") ? profileUser.bio : (cachedData?.bio || ""),
+            category: profileUser?.category || cachedData?.category || "General",
+            website: profileUser?.website || cachedData?.website || "",
+            location: profileUser?.location || profileUser?.city || cachedData?.location || "",
+            profilePicture: (profileUser?.profilePicture && profileUser.profilePicture !== "/Fondpeace.jpg") ? profileUser.profilePicture : (cachedData?.profilePicture || ""),
+            coverImage: profileUser?.coverImage || cachedData?.coverImage || "",
+            socialLinks: {
+              instagram: profileUser?.socialLinks?.instagram || cachedData?.socialLinks?.instagram || "",
+              twitter: profileUser?.socialLinks?.twitter || cachedData?.socialLinks?.twitter || "",
+              youtube: profileUser?.socialLinks?.youtube || cachedData?.socialLinks?.youtube || "",
+              linkedin: profileUser?.socialLinks?.linkedin || cachedData?.socialLinks?.linkedin || "",
+              github: profileUser?.socialLinks?.github || cachedData?.socialLinks?.github || ""
+            }
+          };
 
-        setFormData(loaded);
-        setInitialData(loaded);
+          setFormData(loaded);
+          setInitialData(loaded);
+
+          if (typeof window !== "undefined") {
+            localStorage.setItem(
+              `fondpeace_profile_${(profileUser.username || loggedUsername || "").toLowerCase()}`,
+              JSON.stringify(loaded)
+            );
+          }
+        } else if (cachedData) {
+          setFormData(cachedData);
+          setInitialData(cachedData);
+        } else {
+          // Fallback to basic session data
+          const fallback = {
+            name: loggedUsername || "",
+            username: loggedUsername || "",
+            tagline: "",
+            bio: "",
+            category: "General",
+            website: "",
+            location: "",
+            profilePicture: "",
+            coverImage: "",
+            socialLinks: { instagram: "", twitter: "", youtube: "", linkedin: "", github: "" }
+          };
+          setFormData(fallback);
+          setInitialData(fallback);
+        }
         setLoading(false);
       } catch (err) {
         console.error("Error loading user profile for edit:", err);
-        // Still allow editing with basic session data
-        const fallback = {
-          name: loggedUsername || "",
-          username: loggedUsername || "",
-          tagline: "",
-          bio: "",
-          category: "General",
-          website: "",
-          location: "",
-          profilePicture: "",
-          coverImage: "",
-          socialLinks: { instagram: "", twitter: "", youtube: "", linkedin: "", github: "" }
-        };
-        setFormData(fallback);
-        setInitialData(fallback);
+        if (cachedData) {
+          setFormData(cachedData);
+          setInitialData(cachedData);
+        }
         setLoading(false);
       }
     };
@@ -424,6 +499,10 @@ export default function EditProfile({ initialUsername }) {
         "Content-Type": "application/json"
       };
 
+      // Safeguard: Never overwrite saved images with empty strings if user didn't clear them
+      const resolvedProfilePic = formData.profilePicture || initialData?.profilePicture || "";
+      const resolvedCoverImg = formData.coverImage || initialData?.coverImage || "";
+
       const payload = {
         name: cleanName,
         username: cleanUsername,
@@ -432,8 +511,8 @@ export default function EditProfile({ initialUsername }) {
         category: formData.category,
         website: formData.website.trim(),
         location: formData.location.trim(),
-        profilePicture: formData.profilePicture,
-        coverImage: formData.coverImage,
+        profilePicture: resolvedProfilePic,
+        coverImage: resolvedCoverImg,
         socialLinks: {
           instagram: formData.socialLinks.instagram.trim(),
           twitter: formData.socialLinks.twitter.trim(),
@@ -446,14 +525,17 @@ export default function EditProfile({ initialUsername }) {
       const res = await axios.put(`${API_BASE}/user/profile/update`, payload, { headers });
 
       // If backend returns a renewed token or updated payload, update storage
-      if (res.data?.token) {
-        localStorage.setItem("token", res.data.token);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`fondpeace_profile_${cleanUsername.toLowerCase()}`, JSON.stringify(payload));
+        if (res.data?.token) {
+          localStorage.setItem("token", res.data.token);
+        }
+        // Notify other components (like navbar, profile header) of changes with full payload
+        window.dispatchEvent(new CustomEvent("user_profile_updated", { detail: payload }));
       }
 
-      // Notify other components (like navbar / profile header) of changes
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("user_profile_updated"));
-      }
+      setInitialData(payload);
+      setFormData(payload);
 
       playChime();
       toast.success("Profile saved successfully! ✨");

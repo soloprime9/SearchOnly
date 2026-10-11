@@ -2,6 +2,9 @@ import React from "react";
 import EditProfile from "@/components/EditProfile";
 import LeftSidebar from "@/components/LeftSidebar";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Edit Profile & Creator Settings | FondPeace",
   description: "Customize your creator profile, update avatar, banner, bio, categories, and social links on FondPeace.",
