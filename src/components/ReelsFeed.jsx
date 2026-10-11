@@ -1,183 +1,399 @@
 "use client";
+
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import ReelInteractions from "./ReelInteractions";
-import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+import { FaVolumeMute, FaVolumeUp, FaArrowLeft, FaPlay } from "react-icons/fa";
 import { ShieldCheck, Music } from "lucide-react";
 import axios from "axios";
+import ReelInteractions from "./ReelInteractions";
 import { getApiBase } from "@/utils/apiConfig";
+import { playPop, playTap } from "@/utils/soundEffects";
+import { triggerHeartBurst } from "@/utils/confetti";
 
 const API_BASE = getApiBase();
-const ANALYTICS_API = `${API_BASE}/analytics/view`;
-const API_URL = `${API_BASE}/post/shorts`;
-const DEFAULT_THUMB = "/fondpeace.jpg";
 
 export default function ReelsFeed({ initialPost, initialRelated = [] }) {
-  const [posts, setPosts] = useState(
-    initialPost ? [initialPost, ...initialRelated] : []
-  );
+  const router = useRouter();
 
-  const [isMuted, setIsMuted] = useState(false); // first video unmuted
+  const [posts, setPosts] = useState(() => {
+    if (initialPost) {
+      const relatedFiltered = initialRelated.filter(
+        (p) => String(p._id) !== String(initialPost._id)
+      );
+      return [initialPost, ...relatedFiltered];
+    }
+    return initialRelated;
+  });
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [showVolumeIcon, setShowVolumeIcon] = useState(false);
-  
-const viewedPosts = useRef(new Set());
+  const [videoProgress, setVideoProgress] = useState(0);
+
+  const containerRef = useRef(null);
   const videoRefs = useRef([]);
+  const itemRefs = useRef([]);
   const pageRef = useRef(1);
   const loadingRef = useRef(false);
+  const hasMoreRef = useRef(true);
+  const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
+
+  // Session-persistent seen set to guarantee 0% repeats during user browsing
+  const seenPostsRef = useRef(new Set());
+
+  // Initialize seen IDs from sessionStorage
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem("fp_seen_shorts");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((id) => seenPostsRef.current.add(id));
+        }
+      }
+    } catch (_) {}
+
+    if (initialPost?._id) {
+      seenPostsRef.current.add(String(initialPost._id));
+    }
+  }, [initialPost?._id]);
+
+  const saveSeenToSession = useCallback(() => {
+    try {
+      const arr = Array.from(seenPostsRef.current).slice(-200);
+      sessionStorage.setItem("fp_seen_shorts", JSON.stringify(arr));
+    } catch (_) {}
+  }, []);
 
   /* ==============================
-     AUTOPLAY (STABLE VERSION)
+     PASSIVE WATCH TELEMETRY LOGGER
+     Automatically tracks watch duration & completion
+     without requesting user inputs.
+  ============================== */
+  const logWatchTelemetry = useCallback(async (postId, duration, completed) => {
+    if (!postId) return;
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      await axios.post(
+        `${API_BASE}/analytics/shorts/watch`,
+        {
+          postId,
+          duration: Math.round(duration || 0),
+          completed: Boolean(completed),
+          screen: typeof window !== "undefined" ? `${window.innerWidth}x${window.innerHeight}` : "",
+          source: "shorts_feed",
+        },
+        {
+          headers: token ? { "x-auth-token": token } : {},
+        }
+      );
+    } catch (_) {
+      // Passive background telemetry; fail silently without disrupting user
+    }
+  }, []);
+
+  /* ==============================
+     AUTOPLAY & VIEW INTERSECTION OBSERVER
   ============================== */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const video = entry.target;
+          const index = Number(entry.target.dataset.index);
+          const video = videoRefs.current[index];
 
-          if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
-  // pause others
-  videoRefs.current.forEach((v) => {
-    if (v && v !== video) v.pause();
-  });
+          if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
+            setCurrentIndex(index);
 
-  video.muted = isMuted;
-  video.play().catch(() => {});
+            // Pause all other videos
+            videoRefs.current.forEach((v, idx) => {
+              if (v && idx !== index) {
+                v.pause();
+              }
+            });
 
-  const id = video.dataset.id;
+            if (video) {
+              video.muted = isMuted;
+              const playPromise = video.play();
+              if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                  // Autoplay policy fallback: mute and retry
+                  video.muted = true;
+                  setIsMuted(true);
+                  video.play().catch(() => {});
+                });
+              }
+            }
 
-  if (id) {
-    // change URL
-    window.history.replaceState(null, "", `/short/${id}`);
+            const activePost = posts[index];
+            if (activePost?._id) {
+              const id = String(activePost._id);
+              window.history.replaceState(null, "", `/short/${id}`);
 
-    // ✅ CALL ANALYTICS ONLY ONCE
-    if (!viewedPosts.current.has(id)) {
-      viewedPosts.current.add(id);
-
-      axios
-        .post(`${ANALYTICS_API}/${id}`)
-        .catch(() => {});
-    }
-  }
-}
+              if (!seenPostsRef.current.has(id)) {
+                seenPostsRef.current.add(id);
+                saveSeenToSession();
+                // Send initial watch telemetry ping
+                logWatchTelemetry(id, 2, false);
+              }
+            }
+          }
         });
       },
-      { threshold: 0.7 }
+      { threshold: 0.65 }
     );
 
-    videoRefs.current.forEach((v) => v && observer.observe(v));
-
+    itemRefs.current.forEach((el) => el && observer.observe(el));
     return () => observer.disconnect();
-  }, [isMuted]);
+  }, [posts, isMuted, logWatchTelemetry, saveSeenToSession]);
 
   /* ==============================
-     LOAD MORE (INFINITE SCROLL)
+     LOAD MORE SHORTS (DEDUPLICATED FEED)
   ============================== */
-  const loadMorePosts = async () => {
-    if (loadingRef.current) return;
+  const loadMorePosts = useCallback(async () => {
+    if (loadingRef.current || !hasMoreRef.current) return;
     loadingRef.current = true;
 
     try {
       pageRef.current += 1;
-      
-      const excludeIds = posts.map((p) => p._id).join(",");
+      const excludeIds = Array.from(seenPostsRef.current)
+        .concat(posts.map((p) => String(p._id)))
+        .slice(-150)
+        .join(",");
 
-      const res = await fetch(
-      `${API_URL}?page=${pageRef.current}&limit=8&exclude=${excludeIds}`
-    );
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const res = await axios.get(
+        `${API_BASE}/post/shorts/feed?page=${pageRef.current}&limit=6&exclude=${excludeIds}`,
+        {
+          headers: token ? { "x-auth-token": token } : {},
+        }
+      );
 
-      
-      const data = await res.json();
-
-      setPosts((prev) => {
-        const ids = new Set(prev.map((x) => x._id));
-        const newPosts = (data.videos || data).filter(
-          (x) => !ids.has(x._id)
-        );
-        return [...prev, ...newPosts];
-      });
-    } catch {
-      toast.error("Failed loading more videos");
+      const incoming = res.data?.videos || [];
+      if (!incoming.length) {
+        hasMoreRef.current = false;
+      } else {
+        setPosts((prev) => {
+          const existingIds = new Set(prev.map((p) => String(p._id)));
+          const fresh = incoming.filter((p) => !existingIds.has(String(p._id)));
+          return [...prev, ...fresh];
+        });
+      }
+    } catch (err) {
+      console.error("Error loading more shorts:", err);
+    } finally {
+      loadingRef.current = false;
     }
+  }, [posts]);
 
-    loadingRef.current = false;
-  };
-
+  // Observer on last item to trigger infinite scroll
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    if (!posts.length) return;
+    const lastElement = itemRefs.current[posts.length - 1];
+    if (!lastElement) return;
+
+    const endObserver = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
           loadMorePosts();
         }
       },
-      { rootMargin: "200px" }
+      { rootMargin: "300px" }
     );
 
-    const last = document.querySelector(".last-feed-item");
-    if (last) observer.observe(last);
-
-    return () => observer.disconnect();
-  }, [posts]);
+    endObserver.observe(lastElement);
+    return () => endObserver.disconnect();
+  }, [posts.length, loadMorePosts]);
 
   /* ==============================
-     GLOBAL MUTE TOGGLE
+     GLOBAL MUTE & AUDIO TOGGLE
   ============================== */
   const toggleMute = () => {
-    const newState = !isMuted;
-    setIsMuted(newState);
+    playTap();
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
 
-    videoRefs.current.forEach((video) => {
-      if (video) video.muted = newState;
+    videoRefs.current.forEach((v) => {
+      if (v) v.muted = nextMuted;
     });
 
     setShowVolumeIcon(true);
-    setTimeout(() => setShowVolumeIcon(false), 800);
+    setTimeout(() => setShowVolumeIcon(false), 900);
+  };
+
+  /* ==============================
+     KEYBOARD NAVIGATION
+  ============================== */
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        e.preventDefault();
+        const nextIdx = Math.min(currentIndex + 1, posts.length - 1);
+        itemRefs.current[nextIdx]?.scrollIntoView({ behavior: "smooth" });
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        const prevIdx = Math.max(currentIndex - 1, 0);
+        itemRefs.current[prevIdx]?.scrollIntoView({ behavior: "smooth" });
+      } else if (e.key === " " || e.key === "k") {
+        e.preventDefault();
+        const video = videoRefs.current[currentIndex];
+        if (video) {
+          if (video.paused) {
+            video.play();
+            setIsPlaying(true);
+          } else {
+            video.pause();
+            setIsPlaying(false);
+          }
+        }
+      } else if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        toggleMute();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, posts.length]);
+
+  /* ==============================
+     DOUBLE TAP TO LIKE WITH HEART BURST
+  ============================== */
+  const handleContainerTap = (e, post) => {
+    const now = Date.now();
+    const timeDiff = now - lastTapRef.current.time;
+
+    if (timeDiff < 320) {
+      // Double tap detected
+      const clientX = e.clientX || window.innerWidth / 2;
+      const clientY = e.clientY || window.innerHeight / 2;
+      triggerHeartBurst(clientX, clientY);
+      playPop();
+
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (token && post?._id) {
+        axios
+          .post(`${API_BASE}/post/like/${post._id}`, {}, { headers: { "x-auth-token": token } })
+          .then((res) => {
+            setPosts((prev) =>
+              prev.map((p) => (p._id === post._id ? { ...p, likes: res.data.likes } : p))
+            );
+          })
+          .catch(() => {});
+      }
+      lastTapRef.current = { time: 0, x: 0, y: 0 };
+    } else {
+      lastTapRef.current = { time: now, x: e.clientX, y: e.clientY };
+      // Single tap toggles mute
+      toggleMute();
+    }
+  };
+
+  /* ==============================
+     PROGRESS TRACKING
+  ============================== */
+  const handleTimeUpdate = (e, post) => {
+    const video = e.currentTarget;
+    if (video.duration) {
+      const progress = (video.currentTime / video.duration) * 100;
+      setVideoProgress(progress);
+
+      // Log completion telemetry if watched >= 80%
+      if (progress >= 80 && post?._id && !post._loggedCompleted) {
+        post._loggedCompleted = true;
+        logWatchTelemetry(post._id, video.currentTime, true);
+      }
+    }
   };
 
   if (!posts.length) {
     return (
-      <div className="h-screen flex items-center justify-center bg-black text-white">
-        No videos
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-black text-white gap-3">
+        <p className="text-base font-semibold text-zinc-400">No shorts available right now</p>
+        <Link
+          href="/"
+          className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition"
+        >
+          Back to Discovery
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="bg-black w-full h-screen flex justify-center overflow-hidden">
-  <div className="w-full max-w-[540px] h-screen overflow-y-auto snap-y snap-mandatory relative">
+    <div className="bg-black w-full h-[100dvh] flex justify-center overflow-hidden select-none">
+      {/* ── Fixed Floating Top Bar ── */}
+      <header className="fixed top-0 inset-x-0 z-40 max-w-[500px] mx-auto px-4 py-3 flex items-center justify-between pointer-events-none">
+        <Link
+          href="/"
+          onClick={() => playTap()}
+          className="pointer-events-auto flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/55 hover:bg-black/85 backdrop-blur-md text-white border border-white/10 text-xs font-bold shadow-lg transition active:scale-95 cursor-pointer"
+        >
+          <FaArrowLeft className="text-xs" />
+          <span className="hidden sm:inline">Discovery</span>
+        </Link>
+
+        <div className="pointer-events-none flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white text-xs font-black tracking-wide">
+          <span>FondPeace</span>
+          <span className="text-rose-500 font-extrabold uppercase text-[10px]">Shorts</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={toggleMute}
+          className="pointer-events-auto p-2 rounded-full bg-black/55 hover:bg-black/85 backdrop-blur-md text-white border border-white/10 shadow-lg transition active:scale-90 cursor-pointer"
+          title={isMuted ? "Unmute Sound" : "Mute Sound"}
+        >
+          {isMuted ? <FaVolumeMute className="text-sm" /> : <FaVolumeUp className="text-sm" />}
+        </button>
+      </header>
+
+      {/* ── Vertical Snap Scroll Theater Container ── */}
+      <main
+        ref={containerRef}
+        className="w-full max-w-[480px] h-[100dvh] overflow-y-auto snap-y snap-mandatory scroll-smooth relative no-scrollbar"
+        style={{ scrollbarWidth: "none" }}
+      >
         {posts.map((item, index) => {
-          const isLast = index === posts.length - 1;
+          const rawAuthorPic =
+            item.userId?.profilePicture || item.userId?.profilePic || item.userId?.avatar;
+          const authorInitial = (
+            item.userId?.username?.[0] ||
+            item.userId?.name?.[0] ||
+            "U"
+          ).toUpperCase();
 
           return (
-
-            <div
-  key={item._id}
-  className={[
-    "snap-start h-screen relative flex items-center justify-center",
-    isLast && "last-feed-item"
-  ]
-    .filter(Boolean)
-    .join(" ")}
->
-              {/* VIDEO */}
+            <section
+              key={item._id || index}
+              data-index={index}
+              ref={(el) => (itemRefs.current[index] = el)}
+              className="snap-start snap-always w-full h-[100dvh] relative flex items-center justify-center bg-black overflow-hidden"
+            >
+              {/* ── Video Player & Ambient Layer ── */}
               <div
-                className="relative w-full h-full flex items-center justify-center overflow-hidden"
-                onClick={toggleMute}
+                className="relative w-full h-full flex items-center justify-center overflow-hidden cursor-pointer"
+                onClick={(e) => handleContainerTap(e, item)}
               >
-                {/* Ambient Diffused Glow */}
-                <div className="absolute -inset-10 bg-gradient-to-tr from-blue-600/20 via-purple-600/15 to-cyan-500/20 blur-3xl opacity-60 pointer-events-none" />
-
-                {/* Soft ambient blur backdrop */}
+                {/* Ambient Blurred Background (Cinematic glow on 16:9 / letterbox screens) */}
                 {(item.thumbnail || item.media) && (
                   <img
                     src={item.thumbnail || item.media}
                     alt=""
                     aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-20 scale-125 pointer-events-none select-none"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-25 scale-125 pointer-events-none select-none"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
                   />
                 )}
 
+                {/* Vertical Reel Video Element */}
                 <video
                   ref={(el) => (videoRefs.current[index] = el)}
                   src={item.media || item.mediaUrl}
@@ -188,1803 +404,97 @@ const viewedPosts = useRef(new Set());
                       ? item.thumbnail
                       : undefined
                   }
+                  data-index={index}
                   data-id={item._id}
-                  autoPlay
                   loop
                   playsInline
                   muted={isMuted}
                   preload="metadata"
-                  className="relative z-10 h-full w-full max-w-[540px] object-cover mx-auto bg-black" 
+                  onTimeUpdate={(e) => handleTimeUpdate(e, item)}
+                  className="relative z-10 w-full h-full object-contain sm:object-cover mx-auto bg-black"
                 />
 
-                {/* Volume Icon (only when clicked) */}
+                {/* Central Volume / Play Indicator */}
                 {showVolumeIcon && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    {isMuted ? (
-                      <FaVolumeMute className="text-white text-5xl opacity-80" />
-                    ) : (
-                      <FaVolumeUp className="text-white text-5xl opacity-80" />
-                    )}
+                  <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none animate-ping">
+                    <div className="p-4 rounded-full bg-black/70 backdrop-blur-md text-white border border-white/20 shadow-2xl">
+                      {isMuted ? <FaVolumeMute size={32} /> : <FaVolumeUp size={32} />}
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Bottom Gradient Legibility Overlay */}
-              <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-black/95 via-black/45 to-transparent pointer-events-none z-10" />
+              {/* ── Bottom Legibility Vignette ── */}
+              <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/95 via-black/50 to-transparent pointer-events-none z-10" />
 
-              {/* LEFT TEXT CONTENT */}
-              <div className="absolute left-4 bottom-20 text-white max-w-[75%] z-20">
-                <div className="flex items-center gap-1.5 flex-wrap">
+              {/* ── Bottom Overlay Info (Creator, Verified Badge, Caption, Sound Wave) ── */}
+              <div className="absolute left-4 bottom-7 text-white max-w-[74%] z-20 pointer-events-auto">
+                <div className="flex items-center gap-2 mb-2">
                   <Link
                     href={`/profile/${item.userId?.username}`}
-                    className="font-bold text-sm sm:text-base hover:underline flex items-center gap-1"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-1.5 group"
                   >
-                    <span>@{item.userId?.username || "creator"}</span>
+                    <div className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
+                      <div className="bg-black p-[1px] rounded-full w-full h-full overflow-hidden flex items-center justify-center">
+                        {rawAuthorPic && rawAuthorPic !== "/Fondpeace.jpg" ? (
+                          <img
+                            src={rawAuthorPic}
+                            alt={item.userId?.username || "creator"}
+                            className="w-full h-full rounded-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "/Fondpeace.jpg";
+                            }}
+                          />
+                        ) : (
+                          <span className="text-white font-black text-[11px]">{authorInitial}</span>
+                        )}
+                      </div>
+                    </div>
+                    <span className="font-bold text-sm hover:underline drop-shadow-md">
+                      @{item.userId?.username || "Creator"}
+                    </span>
                   </Link>
+
                   {item.userId?.isVerified && (
-                    <ShieldCheck size={15} className="text-blue-400 fill-blue-400/20" title="Verified Creator" />
-                  )}
-                  {item.userId?.isEmailVerified && (
-                    <ShieldCheck size={14} className="text-emerald-400 fill-emerald-400/20" title="Email Verified" />
+                    <ShieldCheck size={15} className="text-blue-400 fill-blue-400/25 shrink-0" />
                   )}
                 </div>
 
-                <p className="text-xs sm:text-sm mt-1.5 line-clamp-3 leading-snug drop-shadow-md">
+                <p className="text-xs sm:text-sm line-clamp-3 leading-snug drop-shadow-md text-zinc-100 whitespace-pre-wrap">
                   {item.title}
                 </p>
 
-                {/* Audio Soundtrack Pill */}
-                <div className="flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[11px] text-gray-200 w-fit max-w-full">
-                  <Music size={12} className="shrink-0 text-white animate-pulse" />
-                  <span className="truncate">{item.userId?.username || "Original Audio"} • FondPeace Sound</span>
+                {/* Animated Audio Waveform Pill */}
+                <div className="flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/10 text-[11px] text-gray-200 w-fit max-w-full">
+                  <Music size={11} className="shrink-0 text-white animate-pulse" />
+                  <span className="truncate">
+                    {item.userId?.username || "Original Audio"} • FondPeace Sound
+                  </span>
                 </div>
               </div>
 
-              {/* RIGHT SIDE INTERACTIONS */}
+              {/* ── Right-Side Vertical Floating Interactions ── */}
               <ReelInteractions
                 post={item}
                 updatePost={(updatedPost) => {
                   setPosts((prev) =>
-                    prev.map((p) =>
-                      p._id === updatedPost._id ? updatedPost : p
-                    )
+                    prev.map((p) => (p._id === updatedPost._id ? updatedPost : p))
                   );
                 }}
               />
-            </div>
+
+              {/* ── Bottom Slim Video Progress Scrubber ── */}
+              <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 z-30 pointer-events-none">
+                <div
+                  className="h-full bg-rose-500 transition-all duration-100 ease-linear"
+                  style={{ width: `${currentIndex === index ? videoProgress : 0}%` }}
+                />
+              </div>
+            </section>
           );
         })}
-      </div>
+      </main>
     </div>
   );
 }
-
-
-
-
-
-
-// 'use client';
-
-// import React, { useState, useEffect, useRef, useCallback } from 'react';
-// import { useRouter, useParams } from 'next/navigation';
-// import toast from 'react-hot-toast';
-
-// const API_URL = "https://backend-k.vercel.app/post/shorts";
-// const DEFAULT_THUMB = "/fondpeace.jpg"; // fallback thumbnail
-
-// const isBotUserAgent = () => {
-// if (typeof navigator === "undefined") return true;
-// const ua = navigator.userAgent.toLowerCase();
-// return (
-// ua.includes("googlebot") ||
-// ua.includes("adsbot") ||
-// ua.includes("mediapartners-google") ||
-// ua.includes("bingbot") ||
-// ua.includes("duckduckbot") ||
-// ua.includes("yandex") ||
-// ua.includes("baiduspider") ||
-// ua.includes("semrush") ||
-// ua.includes("ahrefs")
-// );
-// };
-
-// const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
-// const router = useRouter();
-// const params = useParams();
-// const mainId = params?.id;
-
-// const [posts, setPosts] = useState(initialPost ? [initialPost, ...initialRelated] : []);
-// const [loading, setLoading] = useState(false);
-// const videoRefs = useRef([]);
-// const pageRef = useRef(1);
-
-// const bot = isBotUserAgent();
-
-// // ======================================================
-// // Autoplay + pause others
-// // ======================================================
-// const handleAutoPlay = useCallback(
-// (entries) => {
-// if (bot) return;
-// entries.forEach(entry => {
-// const video = entry.target;
-// if (entry.isIntersecting && entry.intersectionRatio >= 0.65) {
-// videoRefs.current.forEach(v => v && v !== video && v.pause());
-// video.play().catch(()=>{});
-// // dynamic URL update
-// const id = video.dataset.id;
-// if (id) router.replace(`/short/${id}`, { scroll: false });
-// } else {
-// video.pause();
-// }
-// });
-// },
-// [bot, router]
-// );
-
-// useEffect(() => {
-// if (bot) return;
-// const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0,0.65] });
-// videoRefs.current.forEach(v => v && observer.observe(v));
-// return () => observer.disconnect();
-// }, [posts, handleAutoPlay, bot]);
-
-// // ======================================================
-// // Infinite scroll
-// // ======================================================
-// const loadMorePosts = async () => {
-// if (loading || bot) return;
-// setLoading(true);
-// try {
-// pageRef.current += 1;
-// const res = await fetch(`${API_URL}?page=${pageRef.current}&limit=15`);
-// const data = await res.json();
-// setPosts(prev => {
-// const ids = new Set(prev.map(x => x._id));
-// const newPosts = (data.videos || data).filter(x => !ids.has(x._id));
-// return [...prev, ...newPosts];
-// });
-// } catch(e) {
-// toast.error("Failed loading more videos");
-// }
-// setLoading(false);
-// };
-
-// useEffect(() => {
-// if (bot) return;
-// const observer = new IntersectionObserver(
-// (entries) => {
-// const lastItem = entries[0];
-// if (lastItem.isIntersecting) loadMorePosts();
-// },
-// { threshold: 0.1 }
-// );
-// const lastEl = document.querySelector(".last-feed-item");
-// if (lastEl) observer.observe(lastEl);
-// return () => observer.disconnect();
-// }, [posts, bot]);
-
-// // ======================================================
-// // Page UI
-// // ======================================================
-// if (!posts || posts.length === 0) {
-// return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-// }
-
-// return ( <div className="reels-container w-full h-screen overflow-y-auto snap-y snap-mandatory">
-// {posts.map((item, index) => {
-// const videoUrl = item.media || item.mediaUrl;
-// const isLast = index === posts.length - 1;
-// return (
-// <div
-// key={item._id || index}
-// className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center`}
-// data-id={item._id}
-// style={{ position: "relative" }}
-// >
-// <video
-// ref={el => (videoRefs.current[index] = el)}
-// src={videoUrl}
-// poster={item.thumbnail || DEFAULT_THUMB}
-
-//       autoPlay
-// playsInline
-// preload="metadata"
-// loop
-// className="object-contain w-full h-full bg-black"
-// /> <div className="absolute left-4 bottom-24 text-white max-w-[70%]"> <p className="font-semibold">@{item.userId?.username}</p> <p className="text-sm line-clamp-2 mt-1">{item.title}</p> </div> </div>
-// );
-// })} <div className="p-6 text-center"> <button
-//        onClick={loadMorePosts}
-//        className="px-4 py-2 bg-gray-900 text-white rounded"
-//      >
-// Load more </button> </div> </div>
-// );
-// };
-
-// export default ReelsFeed;
-
-
-
-
-
-
-
-
-
-
-
-
-// "use client";
-
-// import { useEffect, useRef, useState } from "react";
-// import Link from "next/link";
-// import axios from "axios";
-// import jwt from "jsonwebtoken";
-// import { useRouter } from "next/navigation";
-// import {
-//   FaHeart,
-//   FaRegHeart,
-//   FaCommentDots,
-//   FaShareAlt,
-//   FaEye,
-//   FaEllipsisH,
-//   FaPlay,
-//   FaPause,FaArrowLeft,
-// } from "react-icons/fa";
-// import { IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
-
-// const API_BASE = "https://backend-k.vercel.app";
-// const DEFAULT_THUMB = "/Fondpeace.jpg";
-// const DEFAULT_AVATAR = "/Fondpeace.jpg";
-
-// export default function SingleReel({ initialPost }) {
-//   const videoRef = useRef(null);
-
-//   const [post, setPost] = useState(initialPost);
-//   const [userId, setUserId] = useState(null);
-//   const [comment, setComment] = useState("");
-//   const [muted, setMuted] = useState(true);
-//   const [isPlaying, setIsPlaying] = useState(true);
-//   const [showPlayIcon, setShowPlayIcon] = useState(false);
-
-//   /* USER */
-//   useEffect(() => {
-//     const token = localStorage.getItem("token");
-//     if (!token) return;
-//     const decoded = jwt.decode(token);
-//     if (decoded?.UserId) setUserId(decoded.UserId);
-//   }, []);
-
-//   /* AUTOPLAY */
-//   useEffect(() => {
-//     if (videoRef.current) {
-//       videoRef.current.muted = muted;
-//       videoRef.current.play().catch(() => {});
-//     }
-//   }, [muted]);
-
-//   if (!post) {
-//     return <div className="py-20 text-center">Video not found</div>;
-//   }
-
-//   const hasLiked = post.likes?.some(
-//     (id) => id?.toString() === userId?.toString()
-//   );
-
-//   /* LIKE */
-//   const handleLike = async () => {
-//     const token = localStorage.getItem("token");
-//     if (!token) return alert("Please login");
-
-//     const res = await axios.post(
-//       `${API_BASE}/post/like/${post._id}`,
-//       {},
-//       { headers: { "x-auth-token": token } }
-//     );
-//     setPost((p) => ({ ...p, likes: res.data.likes }));
-//   };
-
-//   /* COMMENT */
-//   const handleComment = async () => {
-//     if (!comment.trim()) return;
-//     const token = localStorage.getItem("token");
-//     if (!token) return alert("Please login");
-
-//     const res = await axios.post(
-//       `${API_BASE}/post/comment/${post._id}`,
-//       { CommentText: comment, userId },
-//       { headers: { "x-auth-token": token } }
-//     );
-//     setPost((p) => ({ ...p, comments: res.data.comments }));
-//     setComment("");
-//   };
-
-//   /* SHARE */
-//   const handleShare = async () => {
-//     await navigator.clipboard.writeText(window.location.href);
-//     alert("Link copied");
-//   };
-
-//   /* PLAY / PAUSE */
-//   const togglePlayPause = () => {
-//     if (!videoRef.current) return;
-//     if (videoRef.current.paused) {
-//       videoRef.current.play();
-//       setIsPlaying(true);
-//     } else {
-//       videoRef.current.pause();
-//       setIsPlaying(false);
-//     }
-//     setShowPlayIcon(true);
-//     setTimeout(() => setShowPlayIcon(false), 600);
-//   };
-
-//   /* MUTE */
-//   const toggleMute = (e) => {
-//     e.stopPropagation();
-//     videoRef.current.muted = !muted;
-//     setMuted(!muted);
-//   };
-
-//   return (
-//     <>
-
-      
-      
-//       {/* USER HEADER */}
-//       <div className="flex items-center justify-between mb-5">
-//         <Link
-//           href={`/profile/${post.userId?.username}`}
-//           className="flex items-center gap-3"
-//         >
-//           <img
-//             src={post.userId?.avatar || DEFAULT_AVATAR}
-//             className="w-11 h-11 rounded-full object-cover border"
-//           />
-//           <div>
-//             <p className="font-semibold text-gray-800">
-//               {post.userId?.username || "fondpeace"}
-//             </p>
-//             <p className="text-gray-500 text-sm">
-//               {new Date(post.createdAt).toLocaleDateString()}
-//             </p>
-//           </div>
-//         </Link>
-//         <FaEllipsisH className="text-gray-500" />
-//       </div>
-
-//       {/* VIDEO */}
-//       <div
-//         className="relative w-full bg-black rounded-xl overflow-hidden mb-4"
-//         onClick={togglePlayPause}
-//       >
-//         <video
-//           ref={videoRef}
-//           src={post.media}
-//           poster={post.thumbnail || DEFAULT_THUMB}
-//           autoPlay
-//           loop
-//           playsInline
-//           muted={muted}
-//           className="w-full max-h-[480px] object-contain bg-black"
-//         />
-
-//         {showPlayIcon && (
-//           <div className="absolute inset-0 flex items-center justify-center">
-//             {isPlaying ? (
-//               <FaPause className="text-white text-6xl" />
-//             ) : (
-//               <FaPlay className="text-white text-6xl" />
-//             )}
-//           </div>
-//         )}
-
-//         <button
-//           onClick={toggleMute}
-//           className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full text-white"
-//         >
-//           {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
-//         </button>
-//       </div>
-
-//       {/* INTERACTIONS */}
-//       <div className="flex justify-between items-center mb-3 border-2 rounded-lg p-2 bg-gray-100">
-//         <div className="flex gap-6 items-center">
-//           <button onClick={handleLike} className="flex items-center gap-1">
-//             {hasLiked ? (
-//               <FaHeart className="text-red-600 text-xl" />
-//             ) : (
-//               <FaRegHeart className="text-xl" />
-//             )}
-//             {post.likes?.length || 0}
-//           </button>
-
-//           <div className="flex items-center gap-1">
-//             <FaCommentDots className="text-xl" />
-//             {post.comments?.length || 0}
-//           </div>
-
-//           <button onClick={handleShare}>
-//             <FaShareAlt className="text-xl" />
-//           </button>
-//         </div>
-
-//         <div className="flex items-center gap-1 text-sm text-gray-600">
-//           <FaEye />
-//           {post.views || 0}
-//         </div>
-//       </div>
-
-//       {/* CAPTION */}
-//       <div className="text-sm mb-4">
-//         <span className="font-semibold mr-1">
-//           {post.userId?.username || "fondpeace"}
-//         </span>
-//         {post.title}
-//       </div>
-
-//       {/* COMMENTS */}
-//       <div className="bg-gray-50 border-t pt-4 ">
-//         <div className="flex items-center gap-3 mb-4">
-//           <img
-//             src={DEFAULT_AVATAR}
-//             className="w-8 h-8 rounded-full object-cover"
-//           />
-//           <input
-//             value={comment}
-//             onChange={(e) => setComment(e.target.value)}
-//             placeholder="Add a comment..."
-//             className="flex-1 bg-white border rounded-full px-4 py-2 text-sm"
-//           />
-//           <button
-//             onClick={handleComment}
-//             className="text-white font-bold text-md border-2 bg-blue-800 p-2 rounded-lg"
-//           >
-//             Post
-//           </button>
-//         </div>
-
-//         {/* Show Comments */}
-// <div className="space-y-2">
-//   {post.comments?.map((cmt, i) => (
-//     <div
-//       key={i}
-//       className="flex gap-3 bg-gray-100 p-3 rounded-md"
-//     >
-//       {/* Avatar */}
-//       <img
-//         src={cmt.userId?.avatar || DEFAULT_AVATAR}
-//         alt="user"
-//         className="w-8 h-8 rounded-full object-cover"
-//       />
-
-//       {/* Comment Content */}
-//       <div>
-//         <p className="font-semibold text-gray-800 text-sm">
-//           {cmt.userId?.username || "User"}
-//         </p>
-//         <p className="text-gray-700 text-sm">
-//           {cmt.CommentText}
-//         </p>
-//       </div>
-//     </div>
-//   ))}
-// </div>
-
-//       </div>
-//     </>
-//   );
-// }
-
-
-
-
-
-
-
-
-// "use client";
-
-// import { useEffect, useRef, useState } from "react";
-// import Link from "next/link";
-// import axios from "axios";
-// import jwt from "jsonwebtoken";
-// import {
-//   FaHeart,
-//   FaRegHeart,
-//   FaCommentDots,
-//   FaShareAlt,
-//   FaEye,
-//   FaEllipsisH,
-//   FaPlay,
-//   FaPause,
-// } from "react-icons/fa";
-// import { IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
-
-// const API_BASE = "https://backend-k.vercel.app";
-// const DEFAULT_THUMB = "/Fondpeace.jpg";
-// const DEFAULT_AVATAR = "/Fondpeace.jpg";
-
-// export default function SingleReel({ initialPost }) {
-//   const videoRef = useRef(null);
-//   const commentRef = useRef(null);
-
-//   const [post, setPost] = useState(initialPost);
-//   const [userId, setUserId] = useState(null);
-//   const [showComments, setShowComments] = useState(true);
-//   const [comment, setComment] = useState("");
-//   const [muted, setMuted] = useState(true);
-//   const [isPlaying, setIsPlaying] = useState(true);
-//   const [showPlayIcon, setShowPlayIcon] = useState(false);
-
-//   /* ---------------- USER ---------------- */
-//   useEffect(() => {
-//     const token = localStorage.getItem("token");
-//     if (!token) return;
-//     const decoded = jwt.decode(token);
-//     if (decoded?.UserId) setUserId(decoded.UserId);
-//   }, []);
-
-//   /* ---------------- AUTOPLAY ---------------- */
-//   useEffect(() => {
-//     if (videoRef.current) {
-//       videoRef.current.muted = muted;
-//       videoRef.current.play().catch(() => {});
-//     }
-//   }, [muted]);
-
-
-
-//   if (!post) {
-//     return <div className="h-screen flex items-center justify-center">Video not found</div>;
-//   }
-
-//   const hasLiked = post.likes?.some(
-//     (id) => id?.toString() === userId?.toString()
-//   );
-
-//   /* ---------------- LIKE ---------------- */
-//   const handleLike = async () => {
-//     const token = localStorage.getItem("token");
-//     if (!token) return alert("Please login");
-
-//     const res = await axios.post(
-//       `${API_BASE}/post/like/${post._id}`,
-//       {},
-//       { headers: { "x-auth-token": token } }
-//     );
-//     setPost((p) => ({ ...p, likes: res.data.likes }));
-//   };
-
-//   /* ---------------- COMMENT ---------------- */
-//   const handleComment = async () => {
-//     if (!comment.trim()) return;
-//     const token = localStorage.getItem("token");
-//     if (!token) return alert("Please login");
-
-//     const res = await axios.post(
-//       `${API_BASE}/post/comment/${post._id}`,
-//       { CommentText: comment, userId },
-//       { headers: { "x-auth-token": token } }
-//     );
-//     setPost((p) => ({ ...p, comments: res.data.comments }));
-//     setComment("");
-//   };
-
-//   /* ---------------- SHARE ---------------- */
-//   const handleShare = async () => {
-//     await navigator.clipboard.writeText(window.location.href);
-//     alert("Link copied");
-//   };
-
-//   /* ---------------- PLAY / PAUSE ---------------- */
-//   const togglePlayPause = () => {
-//     if (!videoRef.current) return;
-//     if (videoRef.current.paused) {
-//       videoRef.current.play();
-//       setIsPlaying(true);
-//     } else {
-//       videoRef.current.pause();
-//       setIsPlaying(false);
-//     }
-//     setShowPlayIcon(true);
-//     setTimeout(() => setShowPlayIcon(false), 700);
-//   };
-
-//   /* ---------------- MUTE ---------------- */
-//   const toggleMute = (e) => {
-//     e.stopPropagation();
-//     if (!videoRef.current) return;
-//     videoRef.current.muted = !muted;
-//     setMuted(!muted);
-//   };
-
-
-//    return (
-//     <main className="w-full min-h-screen bg-gray-50">
-//       <section className="max-w-3xl mx-auto px-4 py-8">
-//         <article className="bg-white shadow-md rounded-2xl overflow-hidden p-6">
-
-//           {/* -------- USER HEADER -------- */}
-//           <div className="flex items-center justify-between mb-5">
-//             <Link
-//               href={`/profile/${post.userId?.username}`}
-//               className="flex items-center gap-3"
-//             >
-//               <img
-//                 src={post.userId?.avatar || DEFAULT_AVATAR}
-//                 className="w-11 h-11 rounded-full object-cover border"
-//               />
-//               <div>
-//                 <p className="font-semibold text-gray-800">
-//                   {post.userId?.username || "fondpeace"}
-//                 </p>
-//                 <p className="text-gray-500 text-sm">
-//                   {new Date(post.createdAt).toLocaleDateString()}
-//                 </p>
-//               </div>
-//             </Link>
-//             <FaEllipsisH className="text-gray-500" />
-//           </div>
-
-//           {/* -------- VIDEO -------- */}
-//           <div
-//             className="relative w-full bg-black rounded-xl overflow-hidden mb-4"
-//             onClick={togglePlayPause}
-//           >
-//             <video
-//               ref={videoRef}
-//               src={post.media}
-//               poster={post.thumbnail || DEFAULT_THUMB}
-//               autoPlay
-//               loop
-//               playsInline
-//               muted={muted}
-//               controls={false}
-//               className="w-full max-h-[480px] object-contain bg-black"
-//             />
-
-//             {showPlayIcon && (
-//               <div className="absolute inset-0 flex items-center justify-center">
-//                 {isPlaying ? (
-//                   <FaPause className="text-white text-6xl opacity-90" />
-//                 ) : (
-//                   <FaPlay className="text-white text-6xl opacity-90" />
-//                 )}
-//               </div>
-//             )}
-
-//             <button
-//               onClick={toggleMute}
-//               className="absolute bottom-3 right-3 bg-black/60 p-2 rounded-full text-white"
-//             >
-//               {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
-//             </button>
-//           </div>
-
-//           {/* -------- INTERACTIONS -------- */}
-//           <div className="flex justify-between items-center mb-3">
-//             <div className="flex gap-6 items-center">
-//               <button onClick={handleLike} className="flex items-center gap-1">
-//                 {hasLiked ? (
-//                   <FaHeart className="text-red-600 text-xl" />
-//                 ) : (
-//                   <FaRegHeart className="text-xl" />
-//                 )}
-//                 {post.likes?.length || 0}
-//               </button>
-
-//               <div className="flex items-center gap-1">
-//                 <FaCommentDots className="text-xl" />
-//                 {post.comments?.length || 0}
-//               </div>
-
-//               <button onClick={handleShare}>
-//                 <FaShareAlt className="text-xl" />
-//               </button>
-//             </div>
-
-//             <div className="flex items-center gap-1 text-sm text-gray-600">
-//               <FaEye />
-//               {post.views || 0}
-//             </div>
-//           </div>
-
-//           {/* -------- CAPTION -------- */}
-//           <div className="text-sm mb-4">
-//             <span className="font-semibold mr-1">
-//               {post.userId?.username || "fondpeace"}
-//             </span>
-//             {post.title}
-//           </div>
-
-//           {/* -------- COMMENTS -------- */}
-//           <div className="bg-gray-50 border-t pt-4 max-h-[35vh] overflow-y-auto">
-//             <div className="flex items-center gap-3 mb-4">
-//               <img
-//                 src={DEFAULT_AVATAR}
-//                 className="w-8 h-8 rounded-full object-cover"
-//               />
-//               <input
-//                 value={comment}
-//                 onChange={(e) => setComment(e.target.value)}
-//                 placeholder="Add a comment..."
-//                 className="flex-1 bg-white border rounded-full px-4 py-2 text-sm"
-//               />
-//               <button
-//                 onClick={handleComment}
-//                 className="text-blue-600 font-semibold text-sm"
-//               >
-//                 Post
-//               </button>
-//             </div>
-
-//             {post.comments?.map((cmt, i) => (
-//               <div key={i} className="flex gap-3 mb-3">
-//                 <img
-//                   src={cmt.userId?.avatar || DEFAULT_AVATAR}
-//                   className="w-8 h-8 rounded-full object-cover"
-//                 />
-//                 <p className="text-sm">
-//                   <span className="font-semibold mr-1">
-//                     {cmt.userId?.username || "User"}
-//                   </span>
-//                   {cmt.CommentText}
-//                 </p>
-//               </div>
-//             ))}
-//           </div>
-
-//         </article>
-//       </section>
-//     </main>
-//   );
-// }
-  
-
-
-//   return (
-//     <div className="flex flex-col h-screen w-screen bg-white justify-start overflow-y-auto">
-//       <div className="w-full max-w-[480px] flex flex-col">
-
-//         {/* ---------------- HEADER ---------------- */}
-//         <div className="flex items-center justify-between px-4 py-3 sticky top-0 bg-white z-10">
-//           <Link href={`/profile/${post.userId?.username}`} className="flex items-center gap-3">
-//             <img
-//               src={post.userId?.avatar || DEFAULT_AVATAR}
-//               className="w-10 h-10 rounded-full object-cover"
-//             />
-//             <p className="font-semibold text-sm">
-//               {post.userId?.username || "fondpeace"}
-//             </p>
-//           </Link>
-//           <FaEllipsisH />
-//         </div>
-
-//         {/* ---------------- VIDEO ---------------- */}
-//         <div className="flex flex-col">
-//         <div className="relative w-full bg-black h-[70vh]" onClick={togglePlayPause}>
-//           <video
-//             ref={videoRef}
-//             src={post.media}
-//             poster={post.thumbnail || DEFAULT_THUMB}
-//             autoPlay
-//             loop
-//             playsInline
-//             preload="auto"
-//             muted={muted}
-//             controls={false}
-//             className="w-full h-full object-contain"
-//           />
-
-//           {/* ---------------- PLAY / PAUSE ICON CENTER ---------------- */}
-//           {showPlayIcon && (
-//             <div className="absolute inset-0 flex items-center justify-center">
-//               {isPlaying ? (
-//                 <FaPause className="text-white text-6xl opacity-90 animate-pulse" />
-//               ) : (
-//                 <FaPlay className="text-white text-6xl opacity-90 animate-pulse" />
-//               )}
-//             </div>
-//           )}
-
-//           {/* ---------------- MUTE BUTTON ---------------- */}
-//           <button
-//             onClick={toggleMute}
-//             className="absolute bottom-4 right-4 bg-black/60 p-2 rounded-full text-white"
-//           >
-//             {muted ? <IoMdVolumeOff size={22} /> : <IoMdVolumeHigh size={22} />}
-//           </button>
-//         </div>
-
-//         {/* ---------------- INTERACTIONS ---------------- */}
-//         <div className="flex justify-between items-center px-4 py-2">
-//           <div className="flex gap-5 items-center">
-//             <button onClick={handleLike} className="flex items-center gap-1">
-//               {hasLiked ? (
-//                 <FaHeart className="text-red-600 text-xl" />
-//               ) : (
-//                 <FaRegHeart className="text-xl" />
-//               )}
-//               {post.likes?.length || 0}
-//             </button>
-
-//             <button className="flex items-center gap-1">
-//   <FaCommentDots className="text-xl" />
-//   {post.comments?.length || 0}
-// </button>
-
-
-
-//             <button
-//               onClick={handleShare}
-//               className="flex items-center gap-1"
-//             >
-//               <FaShareAlt className="text-xl" />
-//             </button>
-//           </div>
-
-//           <div className="flex items-center gap-1 text-sm">
-//             <FaEye />
-//             {post.views || 0}
-//           </div>
-//         </div>
-
-//         {/* ---------------- CAPTION ---------------- */}
-//         <div className="px-4 py-2 text-sm">
-//           <span className="font-semibold mr-1">
-//             {post.userId?.username || "fondpeace"}
-//           </span>
-//           {post.title}
-//         </div>
-
-//         {/* ---------------- COMMENTS PANEL ---------------- */}
-//         {showComments && (
-//   <div className="bg-gray-50 w-full border-t border-gray-200 p-4 max-h-[30vh] overflow-y-auto">
-
-//     {/* Comment input */}
-//     <div className="flex items-center gap-3 mb-4">
-//       <img
-//         src={DEFAULT_AVATAR}
-//         className="w-8 h-8 rounded-full object-cover"
-//       />
-//       <input
-//         value={comment}
-//         onChange={(e) => setComment(e.target.value)}
-//         placeholder="Add a comment..."
-//         className="flex-1 bg-white border rounded-full px-4 py-2 text-sm focus:outline-none"
-//       />
-//       <button
-//         onClick={handleComment}
-//         className="text-blue-600 font-semibold text-sm"
-//       >
-//         Post
-//       </button>
-//     </div>
-
-//     {/* Comments list */}
-//     {post.comments?.map((cmt, i) => (
-//       <div key={i} className="flex gap-3 mb-3">
-//         <img
-//           src={cmt.userId?.avatar || DEFAULT_AVATAR}
-//           className="w-8 h-8 rounded-full object-cover"
-//         />
-//         <div>
-//           <p className="text-sm">
-//             <span className="font-semibold mr-1">
-//               {cmt.userId?.username || "User"}
-//             </span>
-//             {cmt.CommentText}
-//           </p>
-//         </div>
-//       </div>
-//     ))}
-//   </div>
-// )}
-
-//         </div>
-
-
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-// "use client";
-
-// import React, { useEffect, useRef, useState } from "react";
-// import { useRouter } from "next/navigation";
-// import Link from "next/link";
-// const DEFAULT_THUMB = "/fondpeace.jpg";
-
-// // Detect Googlebot / Bingbot / crawler
-// const isBotUserAgent = () => {
-//   if (typeof navigator === "undefined") return true;
-//   const ua = navigator.userAgent.toLowerCase();
-//   return (
-//     ua.includes("googlebot") ||
-//     ua.includes("adsbot") ||
-//     ua.includes("bingbot") ||
-//     ua.includes("duckduckbot") ||
-//     ua.includes("yandex") ||
-//     ua.includes("baiduspider")
-//   );
-// };
-
-// export default function ReelsFeed({ initialPost, initialRelated = [] }) {
-//   const router = useRouter();
-//   const bot = isBotUserAgent();
-
-//   const [posts] = useState(
-//     bot ? [initialPost] : [initialPost, ...initialRelated]
-//   );
-
-//   const containerRef = useRef(null);
-//   const videoRefs = useRef([]);
-//   const activeIndexRef = useRef(0);
-//   const postsRef = useRef(posts);
-
-//   // ---------------------------
-//   // OPTIMIZED AUTOPLAY HANDLER
-//   // ---------------------------
-//   const handleAutoPlay = (entries) => {
-//     for (const entry of entries) {
-//       if (!entry.isIntersecting || entry.intersectionRatio < 0.65) continue;
-
-//       const index = Number(entry.target.dataset.index);
-//       const post = postsRef.current[index];
-//       const video = entry.target;
-
-//       // If changed to a new short
-//       if (index !== activeIndexRef.current) {
-//         activeIndexRef.current = index;
-
-//         // Pause previous only, not all videos
-//         videoRefs.current.forEach((v, i) => {
-//           if (i !== index && v) v.pause();
-//         });
-
-//         video.play().catch(() => {});
-
-//         // SEO: Don't change URL for bots
-//         if (!bot && post) {
-//           const newUrl = `/short/${post._id}`;
-//           window.history.replaceState(null, "", newUrl);
-//           document.title = post.title || "FondPeace Short Video";
-//         }
-//       }
-//     }
-//   };
-
-//   // ---------------------------
-//   // INTERSECTION OBSERVER
-//   // ---------------------------
-//   useEffect(() => {
-//     if (bot) return;
-
-//     const observer = new IntersectionObserver(handleAutoPlay, {
-//       threshold: [0.65],
-//     });
-
-//     videoRefs.current.forEach((v) => v && observer.observe(v));
-
-//     return () => observer.disconnect();
-//   }, []);
-
-//   // ---------------------------
-//   // BOT SIMPLE VIEW
-//   // ---------------------------
-//   if (bot) {
-//     const v = posts[0];
-//     return (
-//       <div className="w-full h-screen flex items-center justify-center bg-black">
-//         <video
-//           src={v.media || v.mediaUrl}
-//           className="w-full h-full object-cover"
-//           poster={v.thumbnail || DEFAULT_THUMB}
-//           controls
-//         />
-//       </div>
-//     );
-//   }
-
-//   // ---------------------------
-//   // USER FULL SHORTS FEED
-//   // ---------------------------
-//   return (
-//     <div
-//       ref={containerRef}
-//       className="w-full h-screen overflow-y-scroll snap-y snap-mandatory bg-black"
-//     >
-//       {posts.map((item, index) => {
-//         const videoUrl = item.media || item.mediaUrl;
-
-//         return (
-//           <div
-//             key={item._id}
-//             data-index={index}
-//             className="w-full h-screen snap-start relative flex items-center justify-center"
-//           >
-//             <video
-//               ref={(el) => (videoRefs.current[index] = el)}
-//               data-index={index}
-//               src={videoUrl}
-//               loop
-//               playsInline
-              
-//               preload={index === 0 ? "metadata" : "none"} // Massive lag fix!
-//               poster={item.thumbnail || DEFAULT_THUMB}
-//               className="w-full h-full bg-black"
-//             />
-
-//             <div className="absolute bottom-24 left-4 text-white z-20 max-w-[70%]">
-
-//               <Link href={`/profile/${item.userId?.username}`}>
-//               <p className="font-bold text-lg">@{item.userId?.username}</p>
-//               </Link>
-//               <p className="mt-1 opacity-80 line-clamp-2">{item.title}</p>
-//             </div>
-//           </div>
-//         );
-//       })}
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-// // 'use client';
-
-// // import React, { useState, useEffect, useRef, useCallback } from 'react';
-// // import { useRouter } from 'next/navigation';
-
-// // const DEFAULT_THUMB = "/fondpeace.jpg";
-
-// // // Bot detection
-// // const isBotUserAgent = () => {
-// //     if (typeof navigator === "undefined") return true;
-// //     const ua = navigator.userAgent.toLowerCase();
-// //     return (
-// //         ua.includes("googlebot") || 
-// //         ua.includes("adsbot") || 
-// //         ua.includes("bingbot") ||
-// //         ua.includes("duckduckbot") || 
-// //         ua.includes("yandex") || 
-// //         ua.includes("baiduspider")
-// //     );
-// // };
-
-// // const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
-// //     const router = useRouter();
-// //     const bot = isBotUserAgent();
-
-// //     const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
-// //     const [activeIndex, setActiveIndex] = useState(0);
-// //     const [currentUrl, setCurrentUrl] = useState(typeof window !== "undefined" ? window.location.pathname : "");
-// //     const videoRefs = useRef([]);
-
-// //     const handleAutoPlay = useCallback((entries) => {
-// //         if (bot) return; // Bot ko URL change na ho
-
-// //         entries.forEach(entry => {
-// //             const video = entry.target;
-// //             const index = parseInt(video.dataset.index, 10);
-// //             const post = posts[index];
-
-// //             if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
-// //                 setActiveIndex(index);
-// //                 videoRefs.current.forEach(v => v && v !== video && v.pause());
-// //                 video.play().catch(() => {});
-
-// //                 const newPath = `/short/${post._id}`;
-// //                 if (currentUrl !== newPath) {
-// //                     router.replace(newPath, { scroll: false, shallow: true });
-// //                     setCurrentUrl(newPath);
-// //                     document.title = post.title || "FondPeace Short Video";
-// //                 }
-// //             } else {
-// //                 video.pause();
-// //             }
-// //         });
-// //     }, [bot, posts, router, currentUrl]);
-
-// //     useEffect(() => {
-// //         if (bot || posts.length === 0) return;
-// //         const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
-// //         videoRefs.current.forEach(v => v && observer.observe(v));
-// //         return () => observer.disconnect();
-// //     }, [posts, handleAutoPlay, bot]);
-
-// //     if (!posts || posts.length === 0) {
-// //         return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-// //     }
-
-// //     return (
-// //         <div className="reels-container w-full h-screen snap-y snap-mandatory" style={{ overflowY: bot ? "hidden" : "scroll" }}>
-// //             {posts.map((item, index) => {
-// //                 const videoUrl = item.media || item.mediaUrl;
-
-// //                 return (
-// //                     <div
-// //                         key={item._id || index}
-// //                         className="video-wrapper snap-start w-full h-screen flex items-center justify-center relative"
-// //                         data-id={item._id}
-// //                         data-index={index}
-// //                     >
-// //                         <video
-// //                             ref={el => (videoRefs.current[index] = el)}
-// //                             src={videoUrl}
-// //                             poster={item.thumbnail || DEFAULT_THUMB}
-// //                             muted
-// //                             playsInline
-// //                             preload="metadata"
-// //                             loop
-// //                             className="object-contain w-full h-full bg-black"
-// //                         />
-// //                         {!bot && (
-// //                             <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
-// //                                 <p className="font-bold text-lg">@{item.userId?.username}</p>
-// //                                 <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
-// //                             </div>
-// //                         )}
-// //                     </div>
-// //                 );
-// //             })}
-// //         </div>
-// //     );
-// // };
-
-// // export default ReelsFeed;
-
-
-
-
-
-
-
-
-
-
-// // src/components/ReelsFeed.jsx
-// 'use client';
-
-// import React, { useState, useEffect, useRef, useCallback } from 'react';
-// import { useRouter } from 'next/navigation';
-// import toast from 'react-hot-toast';
-
-// const API_URL = "https://backend-k.vercel.app/post/shorts";
-// const DEFAULT_THUMB = "/fondpeace.jpg";
-
-// // Bot User Agent Detection
-// const isBotUserAgent = () => {
-//     if (typeof navigator === "undefined") return true;
-//     const ua = navigator.userAgent.toLowerCase();
-//     return (
-//         ua.includes("googlebot") || 
-//         ua.includes("adsbot") || 
-//         ua.includes("bingbot") ||
-//         ua.includes("duckduckbot") || 
-//         ua.includes("yandex") || 
-//         ua.includes("baiduspider")
-//     );
-// };
-
-// const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
-//     const router = useRouter();
-//     const bot = isBotUserAgent();
-
-//     const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
-//     const [loading, setLoading] = useState(false);
-//     const videoRefs = useRef([]);
-//     const pageRef = useRef(1);
-
-//     // --- Core Logic: Autoplay and URL Change ---
-//     const handleAutoPlay = useCallback(
-//         (entries) => {
-//             if (bot) return; // <<-- यही लाइन Google Bot को URL बदलने से रोकती है
-
-//             entries.forEach(entry => {
-//                 const video = entry.target;
-//                 const index = parseInt(video.dataset.index, 10);
-//                 const post = posts[index];
-
-//                 if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
-//                     // 1. वीडियो प्ले/पॉज़ लॉजिक
-//                     videoRefs.current.forEach(v => v && v !== video && v.pause());
-//                     video.play().catch(() => {});
-                    
-//                     // 2. Soft Navigation (URL Change)
-//                     const id = post._id;
-//                     if (id) {
-//                         // USER के लिए URL बदलें (पेज रीलोड नहीं होगा)
-//                         router.replace(`/short/${id}`, { scroll: false });
-                        
-//                         // **नोट:** यहाँ आपको JS से ब्राउज़र का टाइटल भी अपडेट करना होगा 
-//                         // ताकि यूजर को पता चले कि वे किस वीडियो पर हैं।
-//                     }
-//                 } else {
-//                     video.pause();
-//                 }
-//             });
-//         },
-//         [bot, router, posts]
-//     );
-
-//     // --- useEffects (unchanged logic, only runs if not bot) ---
-//     useEffect(() => {
-//         if (bot || posts.length === 0) return;
-//         const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
-//         videoRefs.current.forEach(v => v && observer.observe(v));
-//         return () => observer.disconnect();
-//     }, [posts, handleAutoPlay, bot]);
-
-//     // ... (rest of loadMorePosts and infinite scroll logic) ...
-
-//     if (!posts || posts.length === 0) {
-//         return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-//     }
-
-//     return (
-//         <div 
-//             className="reels-container w-full h-screen snap-y snap-mandatory" 
-//             style={{ overflowY: bot ? "hidden" : "scroll" }} // Bot can't scroll
-//         >
-//             {posts.map((item, index) => {
-//                 // ... (video rendering logic) ...
-//                 const videoUrl = item.media || item.mediaUrl;
-//                 const isLast = index === posts.length - 1;
-
-//                 return (
-//                     <div
-//                         key={item._id || index}
-//                         className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
-//                         data-id={item._id}
-//                         data-index={index}
-//                     >
-//                         <video
-//                             ref={el => (videoRefs.current[index] = el)}
-//                             src={videoUrl}
-//                             poster={item.thumbnail || DEFAULT_THUMB}
-//                             muted
-//                               autoPlay
-//                             playsInline
-//                             preload="metadata"
-//                             loop
-//                             className="object-contain w-full h-full bg-black"
-//                         />
-                        
-//                         {!bot && (
-//                             <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
-//                                 <p className="font-bold text-lg">@{item.userId?.username}</p>
-//                                 <p className="text-sm line-clamp-2 mt-1">{item.title}</p>
-//                             </div>
-//                         )}
-//                     </div>
-//                 );
-//             })}
-//         </div>
-//     );
-// };
-
-// export default ReelsFeed;
-
-
-
-
-
-
-
-
-// 'use client';
- 
-// import React, { useState, useEffect, useRef, useCallback } from 'react';
-// import { useRouter, useParams } from 'next/navigation';
-// import toast from 'react-hot-toast';
-
-// // Constants
-// const API_URL = "https://backend-k.vercel.app/post/shorts";
-// const DEFAULT_THUMB = "/fondpeace.jpg";
-
-// // Utility: Bot User Agent Detection
-// // यह फंक्शन सर्वर कंपोनेंट में RENDER नहीं होता है, इसलिए यह केवल क्लाइंट साइड पर चलता है।
-// const isBotUserAgent = () => {
-//     if (typeof navigator === "undefined") return true;
-//     const ua = navigator.userAgent.toLowerCase();
-//     // महत्वपूर्ण: Googlebot/Bingbot/etc. के लिए सभी क्लाइंट-साइड इंटरेक्शन को अक्षम करें
-//     return (
-//         ua.includes("googlebot") ||
-//         ua.includes("adsbot") ||
-//         ua.includes("bingbot") ||
-//         ua.includes("duckduckbot") ||
-//         ua.includes("yandex") ||
-//         ua.includes("baiduspider")
-//     );
-// };
-
-// // ReelsFeed Component
-// const ReelsFeed = ({ initialPost, initialRelated = [] }) => {
-//     const router = useRouter();
-//     const bot = isBotUserAgent();
-
-//     // क्रॉलर के लिए, posts एरे में केवल initialPost होगा।
-//     const [posts, setPosts] = useState(bot ? [initialPost].filter(Boolean) : [initialPost, ...initialRelated].filter(Boolean));
-//     const [loading, setLoading] = useState(false);
-//     const videoRefs = useRef([]);
-//     const pageRef = useRef(1);
-
-//     // 1. Autoplay and URL Update Logic (Only for Users, not Bots)
-//     const handleAutoPlay = useCallback(
-//         (entries) => {
-//             if (bot) return; // BOT को ऑटोप्ले और URL बदलने की अनुमति नहीं है
-//             entries.forEach(entry => {
-//                 const video = entry.target;
-//                 const index = parseInt(video.dataset.index, 10);
-//                 const post = posts[index];
-
-//                 if (entry.isIntersecting && entry.intersectionRatio >= 0.65 && post) {
-//                     // 1. केवल वर्तमान वीडियो को चलाएं और बाकी को रोकें
-//                     videoRefs.current.forEach(v => v && v !== video && v.pause());
-//                     video.play().catch(() => {});
-
-//                     // 2. URL को चुपचाप बदलें (Soft Navigation) - यह मुख्य UX/Sharing ट्रिक है।
-//                     const id = post._id;
-//                     if (id) {
-//                         // URL बदलता है, लेकिन पेज रीलोड नहीं होता
-//                         router.replace(`/short/${id}`, { scroll: false });
-//                     }
-//                 } else {
-//                     video.pause();
-//                 }
-//             });
-//         },
-//         [bot, router, posts]
-//     );
-
-//     // Autoplay Intersection Observer Setup
-//     useEffect(() => {
-//         if (bot || posts.length === 0) return;
-//         const observer = new IntersectionObserver(handleAutoPlay, { threshold: [0, 0.65] });
-//         videoRefs.current.forEach(v => v && observer.observe(v));
-//         return () => observer.disconnect();
-//     }, [posts, handleAutoPlay, bot]);
-
-
-//     // 2. Infinite Scroll Logic (Only for Users, not Bots)
-//     const loadMorePosts = async () => {
-//         if (loading || bot) return;
-//         setLoading(true);
-//         try {
-//             pageRef.current += 1;
-//             const res = await fetch(`${API_URL}?page=${pageRef.current}&limit=6`);
-//             const data = await res.json();
-
-//             setPosts(prev => {
-//                 const ids = new Set(prev.map(x => x._id));
-//                 // डुप्लिकेट हटाएँ
-//                 const newPosts = (data.videos || data).filter(x => x && x._id && !ids.has(x._id));
-//                 return [...prev, ...newPosts];
-//             });
-
-//         } catch(e) {
-//             toast.error("Failed loading more videos");
-//         }
-//         setLoading(false);
-//     };
-
-//     // Infinite Scroll Observer Setup
-//     useEffect(() => {
-//         if (bot || posts.length === 0) return;
-//         const observer = new IntersectionObserver(
-//             (entries) => {
-//                 const lastItem = entries[0];
-//                 // जब अंतिम आइटम दिखाई देता है, तो अधिक वीडियो लोड करें
-//                 if (lastItem.isIntersecting) loadMorePosts();
-//             },
-//             { threshold: 0.1 }
-//         );
-
-//         // केवल अंतिम आइटम को ऑब्जर्व करें
-//         const lastEl = document.querySelector(".last-feed-item");
-//         if (lastEl) observer.observe(lastEl);
-//         return () => observer.disconnect();
-//     }, [posts, bot]);
-
-//     // Handle initial state/loading
-//     if (!posts || posts.length === 0) {
-//         return <div className="min-h-screen flex items-center justify-center text-gray-800">No videos yet</div>;
-//     }
-
-//     return (
-//         <div 
-//             className="reels-container w-full h-screen snap-y snap-mandatory" 
-//             // क्रॉलर के लिए, ओवरफ़्लो hidden है ताकि वह स्क्रॉल न कर सके।
-//             style={{ overflowY: bot ? "hidden" : "scroll" }}
-//         >
-//             {posts.map((item, index) => {
-//                 // Ensure post item is valid
-//                 if (!item || !item._id) return null;
-
-//                 const videoUrl = item.media || item.mediaUrl;
-//                 const isLast = index === posts.length - 1;
-
-//                 return (
-//                     <div
-//                         key={item._id}
-//                         className={`video-wrapper ${isLast ? "last-feed-item" : ""} snap-start w-full h-screen flex items-center justify-center relative`}
-//                         data-id={item._id}
-//                         data-index={index} // Intersection Observer के लिए इंडेक्स ज़रूरी
-//                     >
-//                         {/* Video Player */}
-//                         <video
-//                             ref={el => (videoRefs.current[index] = el)}
-//                             src={videoUrl}
-//                             poster={item.thumbnail || DEFAULT_THUMB}
-//                             muted // Reels/Shorts/TikTok हमेशा म्यूट से शुरू होता है
-//                             playsInline
-//                               autoPlay
-//                             preload="metadata"
-//                             loop
-//                             className="object-contain w-full h-full bg-black"
-//                         />
-                        
-//                         {/* Video Details (Only for Users, not Bots) */}
-//                         {!bot && (
-//                             <div className="absolute left-4 bottom-24 text-white max-w-[70%] z-10">
-//                                 <p className="font-bold text-lg">@{item.userId?.username || 'FondPeaceUser'}</p>
-//                                 <p className="text-sm line-clamp-2 mt-1">{item.title || 'Viral Short Video'}</p>
-//                             </div>
-//                         )}
-                        
-//                         {/* Add interaction icons, etc., here for users */}
-                        
-//                     </div>
-//                 );
-//             })}
-
-//             {/* Load More Button/Indicator (Only for Users, not Bots) */}
-//             {!bot && (
-//                 <div className="p-6 text-center">
-//                     {loading ? (
-//                          <p className="text-gray-600">Loading...</p>
-//                     ) : (
-//                         <button onClick={loadMorePosts} className="px-4 py-2 bg-gray-900 text-white rounded">
-//                             Load more
-//                         </button>
-//                     )}
-//                 </div>
-//             )}
-//         </div>
-//     );
-// };
-
-// export default ReelsFeed;
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 'use client';
- 
-// import React, { useState, useEffect, useRef, useCallback } from 'react';
-// import { useRouter, useParams } from 'next/navigation';
-// import toast from 'react-hot-toast';
- 
-// const API_URL = "https://backend-k.vercel.app/post/shorts";
-// const SECOND_API_URL = "https://backend-k.vercel.app/post";
-
-// /* ======================================================
-//    🚀 100% Accurate Bot Detector
-//    ====================================================== */
-// const isBotUserAgent = () => {
-//   if (typeof navigator === "undefined") return true; // Googlebot during SSR
-//   const ua = navigator.userAgent.toLowerCase();
-//   return (
-//     ua.includes("googlebot") ||
-//     ua.includes("adsbot") ||
-//     ua.includes("mediapartners-google") ||
-//     ua.includes("bingbot") ||
-//     ua.includes("duckduckbot") ||
-//     ua.includes("yandex") ||
-//     ua.includes("baiduspider") ||
-//     ua.includes("semrush") ||
-//     ua.includes("ahrefs")
-//   );
-// };
-
-// const ReelsFeed = ({ initialPost, initialRelated }) => {
-//   const router = useRouter();
-//   const params = useParams();
-//   const mainId = params?.id;
-
-//   const [posts, setPosts] = useState([initialPost, ...initialRelated]);
-//   const [loading, setLoading] = useState(false);
-//   const videoRefs = useRef([]);
-
-//   const bot = isBotUserAgent();
-
-//   /* ======================================================
-//      1️⃣ AUTOPLAY — Disabled for Googlebot
-//      ====================================================== */
-//   const handleAutoPlay = useCallback(
-//     (entries) => {
-//       if (bot) return; // Skip for bots
-
-//       entries.forEach((entry) => {
-//         const video = entry.target;
-
-//         if (entry.isIntersecting && entry.intersectionRatio >= 0.65) {
-//           video.play().catch(() => {});
-//         } else {
-//           video.pause();
-//         }
-//       });
-//     },
-//     [bot]
-//   );
-
-//   useEffect(() => {
-//     if (bot) return; // Googlebot never autoplays
-
-//     const observer = new IntersectionObserver(handleAutoPlay, {
-//       threshold: [0, 0.65],
-//     });
-
-//     videoRefs.current.forEach((vid) => vid && observer.observe(vid));
-
-//     return () => observer.disconnect();
-//   }, [posts, handleAutoPlay, bot]);
-
-//   /* ======================================================
-//      2️⃣ INFINITE SCROLL — Disabled for Googlebot
-//      ====================================================== */
-//   const loadMorePosts = async () => {
-//     if (loading || bot) return;
-//     setLoading(true);
-
-//     try {
-//       const res = await fetch(API_URL);
-//       const data = await res.json();
-//       setPosts((prev) => [...prev, ...data]);
-//     } catch (e) {
-//       toast.error("Failed loading more videos");
-//     }
-//     setLoading(false);
-//   };
-
-//   useEffect(() => {
-//     if (bot) return; // Googlebot never scrolls
-
-//     const lastItem = document.querySelector(".last-feed-item");
-//     if (!lastItem) return;
-
-//     const observer = new IntersectionObserver(
-//       (entries) => {
-//         if (entries[0].isIntersecting) loadMorePosts();
-//       },
-//       { threshold: 0.1 }
-//     );
-
-//     observer.observe(lastItem);
-//     return () => observer.disconnect();
-//   }, [posts, bot]);
-
-//   /* ======================================================
-//      3️⃣ DYNAMIC URL — Disabled for Googlebot
-//      ====================================================== */
-//   const handleVideoVisible = (id) => {
-//     if (bot) return; // Googlebot sees ONLY the main clean URL
-//     router.replace(`/shorts/${id}`, { scroll: false });
-//   };
-
-//   // Track visible video
-//   useEffect(() => {
-//     if (bot) return;
-
-//     const observer = new IntersectionObserver(
-//       (entries) => {
-//         entries.forEach((entry) => {
-//           if (!entry.isIntersecting) return;
-
-//           const id = entry.target.getAttribute("data-id");
-//           if (id) handleVideoVisible(id);
-//         });
-//       },
-//       { threshold: 0.9 }
-//     );
-
-//     document.querySelectorAll(".video-wrapper").forEach((el) => observer.observe(el));
-//     return () => observer.disconnect();
-//   }, [posts, bot]);
-
-
-//   /* ======================================================
-//      PAGE UI
-//      ====================================================== */
-//   return (
-//     <div className="reels-container" style={{ height: "100vh", overflowY: "scroll" }}>
-//       {posts.map((item, index) => {
-//         const videoUrl = item.mediaUrl;
-//         const isLast = index === posts.length - 1;
-
-//         return (
-//           <div
-//             key={item._id}
-//             className={`video-wrapper ${isLast ? "last-feed-item" : ""}`}
-//             data-id={item._id}
-//             style={{
-//               height: "100vh",
-//               position: "relative",
-//               scrollSnapAlign: "start",
-//             }}
-//           >
-//             <video
-//               ref={(el) => (videoRefs.current[index] = el)}
-//               src={videoUrl}
-//               muted
-//                   autoPlay
-//               playsInline
-//               preload="metadata"
-//               style={{
-//                 width: "100%",
-//                 height: "100%",
-//                 objectFit: "cover",
-//                 background: "#000",
-//               }}
-//             />
-//           </div>
-//         );
-//       })}
-//     </div>
-//   );
-// };
-
-// export default ReelsFeed;
-
-
-
-
-
-
-
-
-
-// // components/ReelsFeed.jsx (client)
-// "use client";
-// import React, { useEffect, useRef, useState, useCallback } from "react";
-// import { useRouter } from "next/navigation";
-
-// export default function ReelsFeed({ initialPost, initialRelated = [] }) {
-//   const router = useRouter();
-//   // Defensive: if initialPost is null/undefined, start with an empty list and fetch on mount
-//   const [posts, setPosts] = useState(initialPost ? [initialPost, ...initialRelated] : []);
-//   const videoRefs = useRef([]);
-//   const ioRef = useRef(null);
-
-//   // If no initial post, attempt to fetch first batch client-side
-//   useEffect(() => {
-//     if (!initialPost) {
-//       (async () => {
-//         try {
-//           const res = await fetch("/post/shorts?page=1&limit=6");
-//           if (!res.ok) return;
-//           const data = await res.json();
-//           setPosts(data.videos || []);
-//         } catch (e) {
-//           console.error("client fetch error:", e);
-//         }
-//       })();
-//     }
-//   }, [initialPost]);
-
-//   useEffect(() => {
-//     if (ioRef.current) ioRef.current.disconnect();
-//     ioRef.current = new IntersectionObserver(
-//       (entries) => {
-//         entries.forEach((entry) => {
-//           const el = entry.target;
-//           if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
-//             const id = el.dataset.id;
-//             videoRefs.current.forEach((v) => {
-//               if (v && v !== el) {
-//                 try { v.pause(); } catch {}
-//               }
-//             });
-//             try { el.play().catch(()=>{}); } catch {}
-//             if (id) {
-//               router.replace(`/short/${id}`);
-//             }
-//           } else {
-//             try { entry.target.pause(); } catch {}
-//           }
-//         });
-//       },
-//       { threshold: [0.65] }
-//     );
-
-//     videoRefs.current.forEach((v) => v && ioRef.current.observe(v));
-//     return () => { ioRef.current && ioRef.current.disconnect(); };
-//   }, [posts, router]);
-
-//   const fetchMore = useCallback(async (page = 1) => {
-//     try {
-//       const res = await fetch(`/post/shorts?page=${page}&limit=6`);
-//       if (!res.ok) return;
-//       const data = await res.json();
-//       setPosts((p) => {
-//         const ids = new Set(p.map(x => x._id));
-//         const newOnes = (data.videos || []).filter(v => !ids.has(v._id));
-//         return [...p, ...newOnes];
-//       });
-//     } catch (e) {
-//       console.error("fetchMore error:", e);
-//     }
-//   }, []);
-
-//   const handleEnded = (idx) => {
-//     const next = videoRefs.current[idx + 1];
-//     if (next) next.scrollIntoView({ behavior: "smooth", block: "center" });
-//   };
-
-//   if (!posts || posts.length === 0) {
-//     return <div className="min-h-screen flex items-center justify-center">No videos yet</div>;
-//   }
-
-//   return (
-//     <div className="w-full h-screen overflow-y-auto snap-y snap-mandatory">
-//       {posts.map((p, idx) => (
-//         <div key={p._id || idx} className="snap-start w-full h-screen flex items-center justify-center">
-//           <div className="relative w-full h-full bg-black flex items-center justify-center">
-//             <video
-//               ref={(el) => (videoRefs.current[idx] = el)}
-//               src={p.media || p.mediaUrl}
-//               poster={p.thumbnail}
-//               data-id={p._id}
-//                   autoPlay
-//               playsInline
-//               loop
-//               controls={false}
-//               className="object-contain w-full h-full"
-//               onEnded={() => handleEnded(idx)}
-//             />
-//             <div className="absolute left-4 bottom-24 text-white max-w-[70%]">
-//               <p className="font-semibold">@{p.userId?.username}</p>
-//               <p className="text-sm line-clamp-2 mt-1">{p.title}</p>
-//             </div>
-//           </div>
-//         </div>
-//       ))}
-//       <div className="p-6 text-center">
-//         <button onClick={() => fetchMore(2)} className="px-4 py-2 bg-gray-900 text-white rounded">Load more</button>
-//       </div>
-//     </div>
-//   );
-// }

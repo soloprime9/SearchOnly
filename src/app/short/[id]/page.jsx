@@ -428,8 +428,8 @@ export default async function Page({ params }) {
         
         
   return (
-    <main className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-blue-600 selection:text-white overflow-x-hidden transition-colors duration-200">
-      {/* JSON-LD inserted server-side for crawlers */}
+    <main className="w-full h-[100dvh] bg-black text-white overflow-hidden select-none">
+      {/* JSON-LD inserted server-side for Google video crawlers & SEO */}
       <script
         key="video-jsonld"
         type="application/ld+json"
@@ -437,92 +437,9 @@ export default async function Page({ params }) {
           __html: JSON.stringify(videoSchema),
         }}
       />
-      
-      <div
-        className="
-          grid 
-          grid-cols-1 
-          lg:grid-cols-[76px_minmax(0,1fr)_340px] 
-          xl:grid-cols-[220px_minmax(0,1fr)_360px] 
-          max-w-[1440px] 
-          mx-auto
-          gap-4 lg:gap-6
-          px-2 sm:px-4
-          py-3
-        "
-      >
-        {/* Left Sidebar */}
-        <aside className="shrink-0">
-          <LeftSidebar sticky={true} />
-        </aside>
 
-        {/* Center Main Watch Feed */}
-        <section className="w-full min-w-0 space-y-4">
-          {/* Top Navigation Bar */}
-          <div className="flex items-center justify-between py-2 px-1">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition active:scale-95"
-              aria-label="Back to home"
-            >
-              <FaArrowLeft className="text-base" />
-              <span>Back to Discovery</span>
-            </Link>
-            <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
-              Shorts Watch
-            </span>
-          </div>
-
-          {/* Main Short Video Card (Matching Village.jsx) */}
-          <SinglePostPage initialPost={post} />
-
-          {/* Related Community Discussions Feed */}
-          <RelatedPosts currentPostId={post._id} />
-        </section>
-
-        {/* Right Sidebar (Matching Homepage) */}
-        <aside className="hidden lg:block shrink-0">
-          <div className="sticky top-4 space-y-4">
-            {/* Suggested Creators Widget */}
-            <SuggestedCreatorsWidget variant="card" />
-
-            {/* Creator Program Spotlight Card */}
-            <div className="rounded-2xl p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg text-[var(--text-primary)] transition-colors">
-              <div className="flex items-center justify-between mb-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[var(--bg-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
-                  <Coins className="w-3 h-3 text-amber-400" />
-                  Creator Program
-                </span>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                  95% Payout
-                </span>
-              </div>
-              <h3 className="font-bold text-sm mb-1 text-[var(--text-primary)]">Monetize Your Influence</h3>
-              <p className="text-xs text-[var(--text-secondary)] mb-3 leading-relaxed">
-                Get paid directly by fans through tips, subscriptions, and branded sponsorship.
-              </p>
-              <Link
-                href="/monetization"
-                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition"
-              >
-                <span>Learn More</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* Safety & Compliance Badge */}
-            <div className="rounded-2xl p-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center gap-3">
-              <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
-              <p className="text-[11px] text-[var(--text-secondary)] leading-tight">
-                Protected & Verified Creator Network under 2026 Community Standards.
-              </p>
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      {/* bottom padding so mobile nav doesn't cover content */}
-      <div className="h-20 lg:hidden" />
+      {/* Full Immersive Reels & Shorts Video Feed */}
+      <ReelsFeedWrapper initialPost={post} initialRelated={related} />
     </main>
   );
     } catch (e) {

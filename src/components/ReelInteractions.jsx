@@ -17,7 +17,9 @@ import { Plus, Repeat2, Check } from "lucide-react";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 
-const API_BASE = "https://backend-k.vercel.app";
+import { getApiBase } from "@/utils/apiConfig";
+
+const API_BASE = getApiBase();
 const safeArray = (v) => (Array.isArray(v) ? v : []);
 
 function formatCount(num) {
