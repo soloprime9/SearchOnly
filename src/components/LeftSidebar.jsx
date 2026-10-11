@@ -24,6 +24,7 @@ import { playTap } from "@/utils/soundEffects";
 
 export default function LeftSidebar({ sticky = false }) {
   const [username, setUsername] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
   const [expanded, setExpanded] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSavedPosts, setShowSavedPosts] = useState(false);
@@ -37,11 +38,25 @@ export default function LeftSidebar({ sticky = false }) {
         const decoded = jwtDecode(token);
         if (decoded?.username) {
           setUsername(decoded.username);
+          const cached = localStorage.getItem(`fondpeace_profile_${decoded.username.toLowerCase()}`);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed.profilePicture && parsed.profilePicture !== "/Fondpeace.jpg") {
+              setProfilePicture(parsed.profilePicture);
+            }
+          }
         }
       }
     } catch (_) {
       /* noop */
     }
+
+    const handleProfileUpdate = (e) => {
+      if (e.detail?.profilePicture) {
+        setProfilePicture(e.detail.profilePicture);
+      }
+    };
+    window.addEventListener("user_profile_updated", handleProfileUpdate);
 
     // Live unread notification sync
     const fetchUnread = async () => {
@@ -77,6 +92,7 @@ export default function LeftSidebar({ sticky = false }) {
       clearInterval(interval);
       window.removeEventListener("notifications_seen", handleNotificationsSeen);
       window.removeEventListener("notifications_updated", handleNotificationsUpdated);
+      window.removeEventListener("user_profile_updated", handleProfileUpdate);
     };
   }, []);
 
@@ -247,10 +263,14 @@ export default function LeftSidebar({ sticky = false }) {
               transition-all duration-200 hover:bg-white/[0.08]
             `}
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20">
-              <span className="text-white font-bold text-[12px] uppercase">
-                {username?.[0] || "?"}
-              </span>
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20">
+              {profilePicture && profilePicture !== "/Fondpeace.jpg" ? (
+                <img src={profilePicture} alt={username} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-bold text-[12px] uppercase">
+                  {username?.[0] || "?"}
+                </span>
+              )}
             </div>
             <div
               className={`

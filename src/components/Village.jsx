@@ -171,6 +171,35 @@ export default function Village({ initialPosts = [] }) {
     } catch (_) {}
   }, []);
 
+  // Real-time synchronization: when user edits profile, update their avatar/name across all posts in feed
+  useEffect(() => {
+    const handleProfileUpdate = (e) => {
+      const updated = e.detail;
+      if (!updated || !updated.username) return;
+      const targetUser = updated.username.toLowerCase();
+      setPosts((prevPosts) =>
+        prevPosts.map((p) => {
+          if (p.userId?.username?.toLowerCase() === targetUser) {
+            return {
+              ...p,
+              userId: {
+                ...p.userId,
+                name: updated.name || p.userId.name,
+                profilePicture: updated.profilePicture || p.userId.profilePicture,
+                profilePic: updated.profilePicture || p.userId.profilePic,
+                avatar: updated.profilePicture || p.userId.avatar,
+              },
+            };
+          }
+          return p;
+        })
+      );
+    };
+
+    window.addEventListener("user_profile_updated", handleProfileUpdate);
+    return () => window.removeEventListener("user_profile_updated", handleProfileUpdate);
+  }, []);
+
   // Auto-play videos when they scroll into view (matches fondpeace.com)
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -805,7 +834,7 @@ const handleShare = async (postData) => {
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
                 <div className="bg-[var(--bg-surface)] p-[1.5px] rounded-full w-full h-full">
                   <img 
-                    src={post.userId?.profilePic || post.userId?.avatar || "/Fondpeace.jpg"} 
+                    src={post.userId?.profilePicture || post.userId?.profilePic || post.userId?.avatar || "/Fondpeace.jpg"} 
                     alt={post.userId?.username || "creator"} 
                     className="w-full h-full rounded-full object-cover" 
                     onError={(e) => { e.currentTarget.src = "/Fondpeace.jpg"; }}

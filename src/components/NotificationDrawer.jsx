@@ -289,7 +289,7 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
               notifications.map((n) => {
                 const sender = n.sender || {};
                 const senderName = sender.username || "Someone";
-                const avatar = sender.avatar || sender.profilePic || "/Fondpeace.jpg";
+                const avatar = sender.profilePicture || sender.avatar || sender.profilePic || "/Fondpeace.jpg";
                 const postLink = n.post?._id ? `/post/${n.post._id}` : null;
 
                 return (

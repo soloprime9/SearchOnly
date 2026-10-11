@@ -147,7 +147,7 @@ function Posts () {
                             
                             <div className=' flex items-start gap-3 mb-4 '>
                             <Link href={`/profile/${post?.userId?.username}`}>
-                            <img src={post?.UserId?.profilePic || "/Fondpeace.jpg"} alt={post?.userId?.username || "User"} className='w-10 h-10 rounded-full border-2 cursor-pointer' />
+                            <img src={post?.userId?.profilePicture || post?.userId?.profilePic || post?.userId?.avatar || post?.UserId?.profilePicture || post?.UserId?.profilePic || "/Fondpeace.jpg"} alt={post?.userId?.username || "User"} className='w-10 h-10 rounded-full border-2 cursor-pointer object-cover' onError={(e) => { e.currentTarget.src = "/Fondpeace.jpg"; }} />
                             </Link>
                             <div className='flex flex-col'>
                             <Link href={`/profile/${post?.userId?.username}`}>

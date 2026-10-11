@@ -163,7 +163,7 @@ export default function SearchFull({ onSelect }) {
                       className="flex items-center gap-3 p-2 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors"
                     >
                       <img
-                        src={u.avatar || u.profilePic || "/Fondpeace.jpg"}
+                        src={u.profilePicture || u.avatar || u.profilePic || "/Fondpeace.jpg"}
                         alt={u.username}
                         className="w-8 h-8 rounded-full object-cover bg-gray-200"
                         onError={(e) => {

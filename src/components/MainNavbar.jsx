@@ -18,6 +18,7 @@ export default function MainNavbar() {
   const [showSavedPosts, setShowSavedPosts] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [username, setUsername] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
@@ -28,6 +29,13 @@ export default function MainNavbar() {
         const decoded = jwtDecode(token);
         if (decoded?.username) {
           setUsername(decoded.username);
+          const cached = localStorage.getItem(`fondpeace_profile_${decoded.username.toLowerCase()}`);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed.profilePicture && parsed.profilePicture !== "/Fondpeace.jpg") {
+              setProfilePicture(parsed.profilePicture);
+            }
+          }
         }
       }
     } catch (_) {}
@@ -61,10 +69,18 @@ export default function MainNavbar() {
     window.addEventListener("notifications_seen", handleNotificationsSeen);
     window.addEventListener("notifications_updated", handleNotificationsUpdated);
 
+    const handleProfileUpdate = (e) => {
+      if (e.detail?.profilePicture) {
+        setProfilePicture(e.detail.profilePicture);
+      }
+    };
+    window.addEventListener("user_profile_updated", handleProfileUpdate);
+
     return () => {
       clearInterval(interval);
       window.removeEventListener("notifications_seen", handleNotificationsSeen);
       window.removeEventListener("notifications_updated", handleNotificationsUpdated);
+      window.removeEventListener("user_profile_updated", handleProfileUpdate);
     };
   }, []);
 
@@ -173,8 +189,14 @@ export default function MainNavbar() {
               onClick={() => playTap()}
               className="flex items-center gap-2 pl-1 group cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm group-hover:scale-105 transition-transform border border-white/20">
-                {username ? username[0] : <User size={14} />}
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm group-hover:scale-105 transition-transform border border-white/20">
+                {profilePicture && profilePicture !== "/Fondpeace.jpg" ? (
+                  <img src={profilePicture} alt={username} className="w-full h-full object-cover" />
+                ) : username ? (
+                  username[0]
+                ) : (
+                  <User size={14} />
+                )}
               </div>
             </Link>
           </div>

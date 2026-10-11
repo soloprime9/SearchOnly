@@ -209,7 +209,8 @@ export default function SuggestedCreatorsWidget({
             const creatorId = String(creator._id);
             const state = followingStates[creatorId] || "idle";
             const isLeaving = leavingIds.has(creatorId);
-            const hasCustomPhoto = creator.profilePicture && creator.profilePicture !== "/Fondpeace.jpg";
+            const photoUrl = creator.profilePicture || creator.profilePic || creator.avatar;
+            const hasCustomPhoto = photoUrl && photoUrl !== "/Fondpeace.jpg";
             const initial = (creator.username?.[0] || "C").toUpperCase();
 
             return (
@@ -223,7 +224,7 @@ export default function SuggestedCreatorsWidget({
                   <div className="w-12 h-12 rounded-full overflow-hidden shadow-xs ring-2 ring-[var(--bg-surface)]">
                     {hasCustomPhoto ? (
                       <img
-                        src={creator.profilePicture}
+                        src={photoUrl}
                         alt={creator.username}
                         className="w-full h-full object-cover"
                         onError={(e) => {

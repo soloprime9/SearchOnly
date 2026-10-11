@@ -256,7 +256,7 @@ export default function RelatedPosts() {
               <div className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600 shrink-0">
                 <div className="bg-zinc-950 p-[1.5px] rounded-full w-full h-full overflow-hidden">
                   <img
-                    src={post.userId?.profilePic || "/Fondpeace.jpg"}
+                    src={post.userId?.profilePicture || post.userId?.profilePic || post.userId?.avatar || "/Fondpeace.jpg"}
                     alt={post.userId?.username}
                     className="w-full h-full object-cover"
                     loading="lazy"
