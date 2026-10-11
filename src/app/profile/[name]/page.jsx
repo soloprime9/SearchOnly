@@ -25,6 +25,9 @@ async function resolveUserProfile(username) {
     if (res.ok) {
       const data = await res.json();
       if (data?.Profile?.user) {
+        if (Array.isArray(data.Profile.posts)) {
+          data.Profile.posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
         return data.Profile;
       }
     }

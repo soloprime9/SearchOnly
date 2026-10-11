@@ -22,9 +22,10 @@ import {
   Edit3, 
   Heart, 
   MessageCircle, 
-  Plus, 
+  Plus,
   Play,
-  Camera
+  Camera,
+  ArrowUpRight
 } from "lucide-react";
 import { playPop, playTap } from "@/utils/soundEffects";
 import { API_BASE } from "@/utils/apiConfig";
@@ -106,7 +107,10 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(!initialProfile);
   const [followLoading, setFollowLoading] = useState(false);
-  const [activeMediaTab, setActiveMediaTab] = useState("all"); // "all" | "shorts" | "photos"
+  const [activeMediaTab, setActiveMediaTab] = useState("all"); // "all" | "shorts" | "photos" | "links" | "discussions" | "liked"
+  const [fetchedLikedPosts, setFetchedLikedPosts] = useState(null);
+  const [fetchedDiscussionPosts, setFetchedDiscussionPosts] = useState(null);
+  const [tabLoading, setTabLoading] = useState(false);
   const [authSession, setAuthSession] = useState({
     userId: null,
     username: null,
@@ -253,6 +257,16 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
               (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
             );
           }
+          if (Array.isArray(resolvedProfile.likedPosts)) {
+            resolvedProfile.likedPosts = [...resolvedProfile.likedPosts].sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+          }
+          if (Array.isArray(resolvedProfile.discussionPosts)) {
+            resolvedProfile.discussionPosts = [...resolvedProfile.discussionPosts].sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+          }
 
           setProfile(resolvedProfile);
           setError(null);
@@ -295,6 +309,40 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
     window.addEventListener("user_profile_updated", handleProfileUpdated);
     return () => window.removeEventListener("user_profile_updated", handleProfileUpdated);
   }, [profile]);
+
+  // Lazy fetch for liked and discussion posts on tab selection if not pre-populated
+  useEffect(() => {
+    if (!profile?.user?.username) return;
+    const clean = profile.user.username;
+
+    if (activeMediaTab === "liked" && fetchedLikedPosts === null && (!profile.likedPosts || profile.likedPosts.length === 0)) {
+      setTabLoading(true);
+      axios.get(`${API_BASE}/user/profile-public/${encodeURIComponent(clean)}/liked`)
+        .then(res => {
+          if (Array.isArray(res.data?.posts)) {
+            setFetchedLikedPosts(res.data.posts);
+          } else {
+            setFetchedLikedPosts([]);
+          }
+        })
+        .catch(() => setFetchedLikedPosts([]))
+        .finally(() => setTabLoading(false));
+    }
+
+    if (activeMediaTab === "discussions" && fetchedDiscussionPosts === null && (!profile.discussionPosts || profile.discussionPosts.length === 0)) {
+      setTabLoading(true);
+      axios.get(`${API_BASE}/user/profile-public/${encodeURIComponent(clean)}/discussions`)
+        .then(res => {
+          if (Array.isArray(res.data?.posts)) {
+            setFetchedDiscussionPosts(res.data.posts);
+          } else {
+            setFetchedDiscussionPosts([]);
+          }
+        })
+        .catch(() => setFetchedDiscussionPosts([]))
+        .finally(() => setTabLoading(false));
+    }
+  }, [activeMediaTab, profile?.user?.username, profile?.likedPosts, profile?.discussionPosts, fetchedLikedPosts, fetchedDiscussionPosts]);
 
   // Handle follow / unfollow
   const handleFollow = async () => {
@@ -377,30 +425,62 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
     return false;
   }, [profile, authSession]);
 
-  // Calculate total likes and media categories (integrates video files & YouTube link posts)
-  const { totalLikes, videoPosts, photoPosts } = useMemo(() => {
+  // Calculate total likes and media categories (integrates video files, photos, links & discussions)
+  const { totalLikes, videoPosts, photoPosts, linkPosts, derivedDiscussionPosts } = useMemo(() => {
     const posts = profile?.posts || [];
     let likes = 0;
     const vids = [];
     const photos = [];
+    const links = [];
+    const discs = [];
 
     posts.forEach((p) => {
       if (Array.isArray(p.likes)) likes += p.likes.length;
-      const { isVideo } = resolvePostVisuals(p);
+      const { isVideo, ytVideoId } = resolvePostVisuals(p);
+      const isLink = Boolean(p.linkPreview?.url || ytVideoId || p.mediaType === "link");
+      const isDiscussion = Boolean(
+        p.poll?.question ||
+        p.mediaType === "discussion" ||
+        p.mediaType === "text" ||
+        (!p.media && !p.linkPreview) ||
+        (Array.isArray(p.comments) && p.comments.length > 0)
+      );
+
       if (isVideo) vids.push(p);
-      else photos.push(p);
+      if (isLink) links.push(p);
+      if (isDiscussion) discs.push(p);
+      if (!isVideo && !isLink && (p.media || p.thumbnail || p.mediaType === "image" || p.mediaType === "photo")) {
+        photos.push(p);
+      }
     });
 
-    return { totalLikes: likes, videoPosts: vids, photoPosts: photos };
+    return { totalLikes: likes, videoPosts: vids, photoPosts: photos, linkPosts: links, derivedDiscussionPosts: discs };
   }, [profile?.posts]);
+
+  // Effective liked posts list
+  const effectiveLikedPosts = useMemo(() => {
+    if (Array.isArray(profile?.likedPosts) && profile.likedPosts.length > 0) return profile.likedPosts;
+    if (Array.isArray(fetchedLikedPosts)) return fetchedLikedPosts;
+    return [];
+  }, [profile?.likedPosts, fetchedLikedPosts]);
+
+  // Effective discussion posts list
+  const effectiveDiscussionPosts = useMemo(() => {
+    if (Array.isArray(profile?.discussionPosts) && profile.discussionPosts.length > 0) return profile.discussionPosts;
+    if (Array.isArray(fetchedDiscussionPosts) && fetchedDiscussionPosts.length > 0) return fetchedDiscussionPosts;
+    return derivedDiscussionPosts;
+  }, [profile?.discussionPosts, fetchedDiscussionPosts, derivedDiscussionPosts]);
 
   // Filter posts based on active tab
   const filteredPosts = useMemo(() => {
     const posts = profile?.posts || [];
     if (activeMediaTab === "shorts") return videoPosts;
     if (activeMediaTab === "photos") return photoPosts;
+    if (activeMediaTab === "links") return linkPosts;
+    if (activeMediaTab === "discussions") return effectiveDiscussionPosts;
+    if (activeMediaTab === "liked") return effectiveLikedPosts;
     return posts;
-  }, [activeMediaTab, profile?.posts, videoPosts, photoPosts]);
+  }, [activeMediaTab, profile?.posts, videoPosts, photoPosts, linkPosts, effectiveDiscussionPosts, effectiveLikedPosts]);
 
   // 1. ERROR (Creator not found) STATE
   if (error) {
@@ -824,15 +904,15 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
       </div>
 
       {/* ══════════════════════════════════════════════════════════
-          3. MODERN MINIMAL TABS (Instagram / Threads Underline)
+          3. MODERN MINIMAL TABS (Posts, Shorts, Photos, Links, Discussions, Liked)
       ══════════════════════════════════════════════════════════ */}
-      <div className="flex items-center justify-around border-b border-[var(--border-subtle)] mt-2">
+      <div className="flex items-center justify-start sm:justify-around border-b border-[var(--border-subtle)] mt-2 overflow-x-auto no-scrollbar scroll-smooth gap-1 sm:gap-2 px-1">
         <button
           onClick={() => {
             playTap();
             setActiveMediaTab("all");
           }}
-          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative ${
+          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative shrink-0 ${
             activeMediaTab === "all"
               ? "text-[var(--text-primary)]"
               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -850,7 +930,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             playTap();
             setActiveMediaTab("shorts");
           }}
-          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative ${
+          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative shrink-0 ${
             activeMediaTab === "shorts"
               ? "text-[var(--text-primary)]"
               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -868,7 +948,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             playTap();
             setActiveMediaTab("photos");
           }}
-          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative ${
+          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative shrink-0 ${
             activeMediaTab === "photos"
               ? "text-[var(--text-primary)]"
               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -880,23 +960,85 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--text-primary)] rounded-full" />
           )}
         </button>
+
+        <button
+          onClick={() => {
+            playTap();
+            setActiveMediaTab("links");
+          }}
+          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative shrink-0 ${
+            activeMediaTab === "links"
+              ? "text-[var(--text-primary)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          }`}
+        >
+          <Globe size={15} />
+          <span>Links ({linkPosts.length})</span>
+          {activeMediaTab === "links" && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--text-primary)] rounded-full" />
+          )}
+        </button>
+
+        <button
+          onClick={() => {
+            playTap();
+            setActiveMediaTab("discussions");
+          }}
+          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative shrink-0 ${
+            activeMediaTab === "discussions"
+              ? "text-[var(--text-primary)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          }`}
+        >
+          <MessageCircle size={15} />
+          <span>Discussions ({effectiveDiscussionPosts.length})</span>
+          {activeMediaTab === "discussions" && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--text-primary)] rounded-full" />
+          )}
+        </button>
+
+        <button
+          onClick={() => {
+            playTap();
+            setActiveMediaTab("liked");
+          }}
+          className={`flex items-center gap-1.5 py-3 px-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer relative shrink-0 ${
+            activeMediaTab === "liked"
+              ? "text-rose-500"
+              : "text-[var(--text-secondary)] hover:text-rose-400"
+          }`}
+        >
+          <Heart size={15} className={activeMediaTab === "liked" ? "fill-rose-500" : ""} />
+          <span>Liked ({effectiveLikedPosts.length})</span>
+          {activeMediaTab === "liked" && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-rose-500 rounded-full" />
+          )}
+        </button>
       </div>
 
       {/* ══════════════════════════════════════════════════════════
           4. POSTS GALLERY GRID (Rich Link Previews & Media Cards)
       ══════════════════════════════════════════════════════════ */}
       <div className="mt-3">
-        {filteredPosts.length > 0 ? (
-          <div className="grid grid-cols-3 gap-1 sm:gap-2.5 md:gap-3">
+        {tabLoading ? (
+          <div className="py-12 flex flex-col items-center justify-center gap-2">
+            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs text-[var(--text-secondary)] font-medium">Loading posts...</span>
+          </div>
+        ) : filteredPosts.length > 0 ? (
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 md:gap-3">
             {filteredPosts.map((post) => {
               const { isDirectVideo, isVideo, ytVideoId, displayImage, cleanTitle, siteName } = resolvePostVisuals(post);
+              const isTargetShort = Boolean(isDirectVideo || isVideo || post.mediaType === "video");
+              const targetHref = isTargetShort ? `/short/${post._id}` : `/post/${post._id}`;
 
               return (
                 <Link
                   key={post._id}
-                  href={isDirectVideo ? `/short/${post._id}` : `/post/${post._id}`}
+                  href={targetHref}
                   onClick={() => playTap()}
-                  className="group block rounded-md sm:rounded-xl overflow-hidden bg-[var(--bg-subtle)] relative aspect-[4/5] sm:aspect-[4/5] shadow-2xs hover:shadow-md transition-all duration-300"
+                  className="group block rounded-md sm:rounded-xl overflow-hidden bg-[var(--bg-subtle)] relative aspect-[4/5] sm:aspect-[4/5] shadow-2xs hover:shadow-xl hover:ring-2 hover:ring-blue-500/50 transition-all duration-300 cursor-pointer"
+                  title={`Click to open ${isTargetShort ? "Short" : "Post"}: ${cleanTitle}`}
                 >
                   {/* Visual Render: Direct Video vs Image / Link Thumbnail vs Discussion Card */}
                   {isDirectVideo ? (
@@ -909,9 +1051,15 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                         preload="metadata"
                         className="w-full h-full object-cover"
                       />
-                      {/* Video indicator badge */}
-                      <div className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 backdrop-blur-xs text-white">
-                        <Film size={11} />
+                      {/* Top Left Badge */}
+                      <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-xs text-white text-[9px] sm:text-[10px] font-bold flex items-center gap-1 border border-white/10 shadow-xs">
+                        <Film size={10} className="text-rose-400" />
+                        <span>Short</span>
+                      </div>
+                      {/* Top Right "Watch" Affordance */}
+                      <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-blue-600/90 text-white text-[9px] sm:text-[10px] font-bold flex items-center gap-0.5 shadow-xs">
+                        <span>Watch</span>
+                        <ArrowUpRight size={10} />
                       </div>
                     </div>
                   ) : displayImage ? (
@@ -925,43 +1073,77 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                           e.currentTarget.style.display = "none";
                         }}
                       />
-                      {/* Video / YouTube Play Badge */}
-                      {isVideo && (
-                        <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold flex items-center gap-1 border border-white/10">
-                          <Play size={10} className="fill-white" />
-                          <span>{siteName || "Video"}</span>
-                        </div>
-                      )}
+                      {/* Top Left Badge: Video / YouTube vs Link vs Photo */}
+                      <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-xs text-white text-[9px] sm:text-[10px] font-bold flex items-center gap-1 border border-white/10 shadow-xs">
+                        {isVideo ? (
+                          <>
+                            <Play size={9} className="fill-red-500 text-red-500" />
+                            <span>{siteName || "Video"}</span>
+                          </>
+                        ) : post.linkPreview ? (
+                          <>
+                            <Globe size={9} className="text-blue-400" />
+                            <span>{siteName || "Link"}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Camera size={9} className="text-emerald-400" />
+                            <span>Photo</span>
+                          </>
+                        )}
+                      </div>
+                      {/* Top Right "Open" Affordance */}
+                      <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/70 group-hover:bg-blue-600 text-white text-[9px] sm:text-[10px] font-bold flex items-center gap-0.5 transition-colors shadow-xs">
+                        <span>{isTargetShort ? "Watch" : "Open"}</span>
+                        <ArrowUpRight size={10} />
+                      </div>
                     </div>
                   ) : (
-                    // Typographic Card for discussions without any media
-                    <div className="w-full h-full p-2.5 sm:p-4 flex flex-col justify-between bg-gradient-to-br from-blue-600/10 via-[var(--bg-surface)] to-indigo-600/10 border border-[var(--border-subtle)]">
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-blue-500">
-                        Discussion
-                      </span>
-                      <p className="text-[11px] sm:text-xs font-bold text-[var(--text-primary)] line-clamp-3 leading-snug">
+                    // Typographic Card for discussions without media
+                    <div className="w-full h-full p-2.5 sm:p-4 flex flex-col justify-between bg-gradient-to-br from-blue-600/10 via-[var(--bg-surface)] to-indigo-600/10 border border-[var(--border-subtle)] relative overflow-hidden">
+                      <div className="flex items-center justify-between">
+                        <span className="px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-500 text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider">
+                          {post.poll ? "Poll" : "Discussion"}
+                        </span>
+                        <span className="text-[9px] sm:text-[10px] font-bold text-blue-500 flex items-center gap-0.5">
+                          <span>Read</span>
+                          <ArrowUpRight size={10} />
+                        </span>
+                      </div>
+                      <p className="text-[11px] sm:text-xs font-bold text-[var(--text-primary)] line-clamp-3 sm:line-clamp-4 leading-snug my-1">
                         {cleanTitle}
                       </p>
-                      <span className="text-[9px] text-[var(--text-secondary)] font-mono">
-                        Read →
-                      </span>
+                      <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-[var(--text-secondary)] font-medium">
+                        <span>{post.comments?.length || 0} comments</span>
+                        <span>{post.likes?.length || 0} likes</span>
+                      </div>
                     </div>
                   )}
 
                   {/* Dark gradient overlay on hover (Desktop) */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-2 sm:p-3 flex flex-col justify-between pointer-events-none">
-                    <p className="text-white text-[11px] font-semibold line-clamp-2 drop-shadow-sm">
+                  <div className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition-opacity p-2.5 sm:p-3 flex flex-col justify-between pointer-events-none z-10">
+                    <p className="text-white text-[11px] sm:text-xs font-bold line-clamp-2 drop-shadow-md">
                       {cleanTitle}
                     </p>
-                    <div className="flex items-center justify-between text-white text-[11px] font-bold">
-                      <span className="flex items-center gap-1 text-rose-400">
-                        <Heart size={11} className="fill-rose-400" />
-                        <span>{post.likes?.length || 0}</span>
-                      </span>
-                      <span className="flex items-center gap-1 text-gray-200">
-                        <Eye size={11} />
-                        <span>{post.views || 0}</span>
-                      </span>
+                    <div>
+                      <div className="flex items-center justify-between text-white text-[10px] sm:text-[11px] font-bold mb-2">
+                        <span className="flex items-center gap-1 text-rose-400">
+                          <Heart size={11} className="fill-rose-400" />
+                          <span>{post.likes?.length || 0}</span>
+                        </span>
+                        <span className="flex items-center gap-1 text-blue-300">
+                          <MessageCircle size={11} />
+                          <span>{post.comments?.length || 0}</span>
+                        </span>
+                        <span className="flex items-center gap-1 text-zinc-300">
+                          <Eye size={11} />
+                          <span>{post.views || 0}</span>
+                        </span>
+                      </div>
+                      <div className="w-full py-1.5 rounded-lg bg-blue-600 text-white text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 shadow-md">
+                        <span>{isTargetShort ? "Watch Short" : "Open Post"}</span>
+                        <ArrowUpRight size={12} />
+                      </div>
                     </div>
                   </div>
                 </Link>
