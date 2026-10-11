@@ -832,13 +832,30 @@ const handleShare = async (postData) => {
             <Link href={`/profile/${post.userId?.username}`} className="relative group">
               {/* Story-style gradient ring */}
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
-                <div className="bg-[var(--bg-surface)] p-[1.5px] rounded-full w-full h-full">
-                  <img 
-                    src={post.userId?.profilePicture || post.userId?.profilePic || post.userId?.avatar || "/Fondpeace.jpg"} 
-                    alt={post.userId?.username || "creator"} 
-                    className="w-full h-full rounded-full object-cover" 
-                    onError={(e) => { e.currentTarget.src = "/Fondpeace.jpg"; }}
-                  />
+                <div className="bg-[var(--bg-surface)] p-[1.5px] rounded-full w-full h-full flex items-center justify-center overflow-hidden">
+                  {(() => {
+                    const rawAuthorPic = post.userId?.profilePicture || post.userId?.profilePic || post.userId?.avatar;
+                    const hasAuthorPic = rawAuthorPic && rawAuthorPic !== "/Fondpeace.jpg" && rawAuthorPic.trim() !== "";
+                    const authorInitial = (post.userId?.username?.[0] || post.userId?.name?.[0] || "C").toUpperCase();
+                    if (hasAuthorPic) {
+                      return (
+                        <img 
+                          src={rawAuthorPic} 
+                          alt={post.userId?.username || "creator"} 
+                          className="w-full h-full rounded-full object-cover" 
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(post.userId?.username || "creator")}`;
+                          }}
+                        />
+                      );
+                    }
+                    return (
+                      <div className="w-full h-full rounded-full flex items-center justify-center bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white font-black text-xs select-none">
+                        {authorInitial}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </Link>

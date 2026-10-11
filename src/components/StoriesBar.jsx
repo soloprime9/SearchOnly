@@ -10,7 +10,8 @@ import { playTap, playPop } from "@/utils/soundEffects";
 
 export default function StoriesBar() {
   const [creators, setCreators] = useState([]);
-  const [currentUserAvatar, setCurrentUserAvatar] = useState("/Fondpeace.jpg");
+  const [currentUserAvatar, setCurrentUserAvatar] = useState("");
+  const [currentInitial, setCurrentInitial] = useState("U");
   const API_BASE = getApiBase();
 
   const loadUserAvatar = () => {
@@ -21,15 +22,32 @@ export default function StoriesBar() {
         const decoded = jwt.decode(token);
         const username = decoded?.username || decoded?.name;
         if (username) {
+          setCurrentInitial(username[0]?.toUpperCase() || "U");
           const cached = localStorage.getItem(`fondpeace_profile_${username.toLowerCase()}`);
           if (cached) {
             const parsed = JSON.parse(cached);
             if (parsed.profilePicture && parsed.profilePicture !== "/Fondpeace.jpg") {
               setCurrentUserAvatar(parsed.profilePicture);
-              return;
             }
           }
         }
+
+        // Live server sync from /user/me
+        axios
+          .get(`${API_BASE}/user/me`, {
+            headers: { "x-auth-token": token, Authorization: `Bearer ${token}` }
+          })
+          .then((res) => {
+            if (res.data?.success && res.data?.user) {
+              const u = res.data.user;
+              if (u.username) setCurrentInitial(u.username[0]?.toUpperCase() || "U");
+              const pic = u.profilePicture || u.profilePic || u.avatar;
+              if (pic && pic !== "/Fondpeace.jpg" && pic.trim() !== "") {
+                setCurrentUserAvatar(pic);
+              }
+            }
+          })
+          .catch(() => {});
       }
     } catch (_) {}
   };
@@ -50,6 +68,9 @@ export default function StoriesBar() {
     const handleProfileUpdate = (e) => {
       if (e.detail?.profilePicture) {
         setCurrentUserAvatar(e.detail.profilePicture);
+      }
+      if (e.detail?.username) {
+        setCurrentInitial(e.detail.username[0]?.toUpperCase() || "U");
       }
     };
 
@@ -73,14 +94,20 @@ export default function StoriesBar() {
           >
             <div className="relative w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-cyan-400 group-hover:scale-105 transition-transform">
               <div className="w-full h-full rounded-full bg-[#0a0b12] flex items-center justify-center overflow-hidden">
-                <img
-                  src={currentUserAvatar}
-                  alt="Your Story"
-                  className="w-full h-full rounded-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = "/Fondpeace.jpg";
-                  }}
-                />
+                {currentUserAvatar && currentUserAvatar !== "/Fondpeace.jpg" ? (
+                  <img
+                    src={currentUserAvatar}
+                    alt="Your Story"
+                    className="w-full h-full rounded-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full flex items-center justify-center bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white font-black text-sm select-none">
+                    {currentInitial}
+                  </div>
+                )}
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center border-2 border-[#0e111d] shadow-md group-hover:scale-110 transition-transform">
                 <Plus size={11} className="stroke-[3]" />
@@ -93,7 +120,10 @@ export default function StoriesBar() {
 
           {/* Creators Stories Tray */}
           {creators.map((creator, i) => {
-            const avatarUrl = creator.profilePicture || creator.profilePic || creator.avatar || "/Fondpeace.jpg";
+            const rawPic = creator.profilePicture || creator.profilePic || creator.avatar;
+            const hasCustomPhoto = rawPic && rawPic !== "/Fondpeace.jpg" && rawPic.trim() !== "";
+            const initial = (creator.username?.[0] || creator.name?.[0] || "C").toUpperCase();
+
             return (
               <Link
                 key={creator._id || i}
@@ -102,15 +132,22 @@ export default function StoriesBar() {
                 className="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer"
               >
                 <div className="relative w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 group-hover:scale-105 transition-transform">
-                  <div className="w-full h-full rounded-full bg-[#0a0b12] p-[1.5px] overflow-hidden">
-                    <img
-                      src={avatarUrl}
-                      alt={creator.username}
-                      className="w-full h-full rounded-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "/Fondpeace.jpg";
-                      }}
-                    />
+                  <div className="w-full h-full rounded-full bg-[#0a0b12] p-[1.5px] overflow-hidden flex items-center justify-center">
+                    {hasCustomPhoto ? (
+                      <img
+                        src={rawPic}
+                        alt={creator.username}
+                        className="w-full h-full rounded-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(creator.username || "creator")}`;
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-full flex items-center justify-center bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white font-black text-sm select-none">
+                        {initial}
+                      </div>
+                    )}
                   </div>
                   {/* Live / New Ring Badge */}
                   {i % 2 === 0 && (

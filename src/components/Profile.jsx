@@ -162,27 +162,11 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
         } catch (_) {}
       }
 
-      // If initialProfile was provided and matches target user, check for owner updates
+      // Immediately render initialProfile if available so UI appears instantly without blank flash
       if (initialProfile?.user && (initialProfile.user.username?.toLowerCase() === cleanName.toLowerCase() || initialProfile.user._id === cleanName)) {
-        let effectiveUser = { ...initialProfile.user };
-        // Check if logged-in owner has recent updates saved in localStorage
-        if (typeof window !== "undefined" && loggedUsername && loggedUsername.toLowerCase() === cleanName.toLowerCase()) {
-          try {
-            const cached = localStorage.getItem(`fondpeace_profile_${cleanName.toLowerCase()}`);
-            if (cached) {
-              const parsed = JSON.parse(cached);
-              effectiveUser = { ...effectiveUser, ...parsed };
-            }
-          } catch (_) {}
-        }
-        if (!profile) setProfile({ ...initialProfile, user: effectiveUser });
+        if (!profile) setProfile(initialProfile);
         if (loggedUserId && Array.isArray(initialProfile.user.Followers)) {
           setIsFollowing(initialProfile.user.Followers.some(id => String(id) === String(loggedUserId)));
-        }
-        // Only skip live fetch for non-owners; owners get live background refresh
-        if (loggedUsername?.toLowerCase() !== cleanName.toLowerCase()) {
-          setLoading(false);
-          return;
         }
       }
 
@@ -530,7 +514,8 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
   }
 
   const { user, posts = [] } = profile;
-  const isDefaultAvatar = !user.profilePicture || user.profilePicture === "/Fondpeace.jpg" || user.profilePicture === "";
+  const userPhoto = user.profilePicture || user.profilePic || user.avatar || "";
+  const isDefaultAvatar = !userPhoto || userPhoto === "/Fondpeace.jpg" || userPhoto.trim() === "";
   const rawBio = user.bio ? user.bio.trim() : "";
   const isDefaultBio = !rawBio || rawBio === "Add About You";
   const userInitial = (user.username?.[0] || user.name?.[0] || "C").toUpperCase();
@@ -631,11 +616,12 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full ring-2 ring-[var(--border-subtle)] p-0.5 overflow-hidden bg-[var(--bg-surface)] shadow-sm">
               {!isDefaultAvatar ? (
                 <img
-                  src={user.profilePicture}
+                  src={userPhoto}
                   alt={user.username}
                   className="w-full h-full rounded-full object-cover"
                   onError={(e) => {
-                    e.currentTarget.style.display = "none";
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(user.username || "creator")}`;
                   }}
                 />
               ) : (

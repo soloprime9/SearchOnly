@@ -208,15 +208,31 @@ export default function EditProfile({ initialUsername }) {
       try {
         let profileUser = null;
 
-        // Tier 1: Try authenticated endpoint /user/profile/:username
+        // Tier 0: Direct authenticated /user/me (Primary source of truth for logged-in user)
         try {
-          const res = await axios.get(`${API_BASE}/user/profile/${encodeURIComponent(target)}`, {
+          const meRes = await axios.get(`${API_BASE}/user/me`, {
             headers: { "x-auth-token": token, Authorization: `Bearer ${token}` }
           });
-          if (res.data?.Profile?.user) {
-            profileUser = res.data.Profile.user;
+          if (meRes.data?.success && meRes.data?.user) {
+            profileUser = meRes.data.user;
+            if (profileUser.username) {
+              loggedUsername = profileUser.username;
+              setCurrentSessionUser({ id: profileUser._id, username: profileUser.username });
+            }
           }
         } catch (_) {}
+
+        // Tier 1: Try authenticated endpoint /user/profile/:username
+        if (!profileUser && target) {
+          try {
+            const res = await axios.get(`${API_BASE}/user/profile/${encodeURIComponent(target)}`, {
+              headers: { "x-auth-token": token, Authorization: `Bearer ${token}` }
+            });
+            if (res.data?.Profile?.user) {
+              profileUser = res.data.Profile.user;
+            }
+          } catch (_) {}
+        }
 
         // Tier 2: Try authenticated endpoint by loggedUserId
         if (!profileUser && loggedUserId) {
@@ -231,7 +247,7 @@ export default function EditProfile({ initialUsername }) {
         }
 
         // Tier 3: Try public endpoint /user/profile-public/:username
-        if (!profileUser) {
+        if (!profileUser && target) {
           try {
             const res = await axios.get(`${API_BASE}/user/profile-public/${encodeURIComponent(target)}`);
             if (res.data?.Profile?.user) {
@@ -275,12 +291,19 @@ export default function EditProfile({ initialUsername }) {
 
         // If user is accessing someone else's edit page, redirect them to their own edit page
         if (profileUser && loggedUsername && profileUser.username?.toLowerCase() !== loggedUsername.toLowerCase()) {
-          toast.info(`Redirecting to your own profile settings (@${loggedUsername})...`);
-          router.replace(`/edit/${loggedUsername}`);
-          return;
+          // If profileUser._id matches loggedUserId, they just updated their handle, so do not redirect away
+          if (!loggedUserId || String(profileUser._id) !== String(loggedUserId)) {
+            toast.info(`Redirecting to your own profile settings (@${loggedUsername})...`);
+            router.replace(`/edit/${loggedUsername}`);
+            return;
+          }
         }
 
         if (profileUser) {
+          const userAvatar = profileUser?.profilePicture || profileUser?.profilePic || profileUser?.avatar || "";
+          const resolvedPic = (userAvatar && userAvatar !== "/Fondpeace.jpg" && userAvatar.trim() !== "") ? userAvatar : (cachedData?.profilePicture || "");
+          const resolvedCover = profileUser?.coverImage || cachedData?.coverImage || "";
+
           // Populate Form State with live data, falling back to cache if specific field was cached
           const loaded = {
             name: profileUser?.name || profileUser?.username || loggedUsername || "",
@@ -290,8 +313,8 @@ export default function EditProfile({ initialUsername }) {
             category: profileUser?.category || cachedData?.category || "General",
             website: profileUser?.website || cachedData?.website || "",
             location: profileUser?.location || profileUser?.city || cachedData?.location || "",
-            profilePicture: (profileUser?.profilePicture && profileUser.profilePicture !== "/Fondpeace.jpg") ? profileUser.profilePicture : (cachedData?.profilePicture || ""),
-            coverImage: profileUser?.coverImage || cachedData?.coverImage || "",
+            profilePicture: resolvedPic,
+            coverImage: resolvedCover,
             socialLinks: {
               instagram: profileUser?.socialLinks?.instagram || cachedData?.socialLinks?.instagram || "",
               twitter: profileUser?.socialLinks?.twitter || cachedData?.socialLinks?.twitter || "",

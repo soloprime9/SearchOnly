@@ -46,6 +46,22 @@ export default function LeftSidebar({ sticky = false }) {
             }
           }
         }
+
+        // Live server sync from /user/me
+        const apiBase = getApiBase();
+        axios
+          .get(`${apiBase}/user/me`, { headers: getAuthHeaders() })
+          .then((res) => {
+            if (res.data?.success && res.data.user) {
+              const u = res.data.user;
+              if (u.username) setUsername(u.username);
+              const pic = u.profilePicture || u.profilePic || u.avatar;
+              if (pic && pic !== "/Fondpeace.jpg" && pic.trim() !== "") {
+                setProfilePicture(pic);
+              }
+            }
+          })
+          .catch(() => {});
       }
     } catch (_) {
       /* noop */
