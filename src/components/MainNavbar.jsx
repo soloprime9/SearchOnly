@@ -7,6 +7,8 @@ import { jwtDecode } from "jwt-decode";
 import { playTap } from "@/utils/soundEffects";
 import { FaBell, FaBookmark, FaSearch } from "react-icons/fa";
 import { User, Upload } from "lucide-react";
+import axios from "axios";
+import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import NotificationDrawer from "./NotificationDrawer";
 import SavedPostsDrawer from "./SavedPostsDrawer";
 import ThemeBackgroundToggle from "./ThemeBackgroundToggle";
@@ -29,6 +31,41 @@ export default function MainNavbar() {
         }
       }
     } catch (_) {}
+
+    const fetchUnread = async () => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (!token) return;
+      try {
+        const apiBase = getApiBase();
+        const res = await axios.get(`${apiBase}/notification?tab=unread`, {
+          headers: getAuthHeaders(),
+        });
+        if (res.data?.success) {
+          setUnreadCount(res.data.unreadCount || 0);
+        }
+      } catch (_) {}
+    };
+
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 25000);
+
+    const handleNotificationsSeen = () => {
+      setUnreadCount(0);
+    };
+    const handleNotificationsUpdated = (e) => {
+      if (typeof e.detail?.unreadCount === "number") {
+        setUnreadCount(e.detail.unreadCount);
+      }
+    };
+
+    window.addEventListener("notifications_seen", handleNotificationsSeen);
+    window.addEventListener("notifications_updated", handleNotificationsUpdated);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("notifications_seen", handleNotificationsSeen);
+      window.removeEventListener("notifications_updated", handleNotificationsUpdated);
+    };
   }, []);
 
   const handleSearchSubmit = (e) => {

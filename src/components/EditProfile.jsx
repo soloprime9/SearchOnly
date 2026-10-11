@@ -27,7 +27,12 @@ import {
   Loader2,
   ShieldCheck,
   Eye,
-  AlertCircle
+  AlertCircle,
+  Palette,
+  Link as LinkIcon,
+  X,
+  Upload,
+  Image as ImageIcon
 } from "lucide-react";
 import { API_BASE, getAuthHeaders } from "@/utils/apiConfig";
 import { toast } from "@/utils/toast";
@@ -50,6 +55,24 @@ const CATEGORIES = [
   "Education",
   "Finance & Crypto",
   "Lifestyle & Travel"
+];
+
+const PRESET_BANNERS = [
+  { name: "Cosmic Nebula", url: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1600&auto=format&fit=crop&q=80", bg: "from-purple-900 via-indigo-950 to-blue-900" },
+  { name: "Cyber Neon", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&auto=format&fit=crop&q=80", bg: "from-cyan-900 via-slate-950 to-fuchsia-900" },
+  { name: "Sunset Horizon", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&auto=format&fit=crop&q=80", bg: "from-amber-700 via-rose-900 to-indigo-950" },
+  { name: "Aurora Glow", url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1600&auto=format&fit=crop&q=80", bg: "from-emerald-900 via-teal-950 to-slate-900" },
+  { name: "Minimalist Dark", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&auto=format&fit=crop&q=80", bg: "from-zinc-900 via-neutral-900 to-black" },
+  { name: "Electric Violet", url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1600&auto=format&fit=crop&q=80", bg: "from-violet-900 via-purple-950 to-slate-950" }
+];
+
+const PRESET_AVATARS = [
+  { name: "Cyber Peace", url: "https://api.dicebear.com/7.x/bottts/svg?seed=FondPeace" },
+  { name: "Aura Spark", url: "https://api.dicebear.com/7.x/identicon/svg?seed=AuraSpark&backgroundColor=0284c7" },
+  { name: "Cosmic Pulse", url: "https://api.dicebear.com/7.x/identicon/svg?seed=CosmicPulse&backgroundColor=7c3aed" },
+  { name: "Minimal Geometric", url: "https://api.dicebear.com/7.x/shapes/svg?seed=FondMinimal" },
+  { name: "Neon Bot", url: "https://api.dicebear.com/7.x/bottts/svg?seed=NeonPeace" },
+  { name: "Emerald Aura", url: "https://api.dicebear.com/7.x/identicon/svg?seed=EmeraldAura&backgroundColor=059669" }
 ];
 
 // Client-side image compression helper to keep storage fast and crisp
@@ -102,6 +125,14 @@ export default function EditProfile({ initialUsername }) {
   const [uploadingCover, setUploadingCover] = useState(false);
   const [authError, setAuthError] = useState(null);
   const [showLivePreview, setShowLivePreview] = useState(false);
+
+  // Drag-and-drop & Rich Media Customization States
+  const [isDraggingAvatar, setIsDraggingAvatar] = useState(false);
+  const [isDraggingCover, setIsDraggingCover] = useState(false);
+  const [showBannerPresets, setShowBannerPresets] = useState(false);
+  const [showAvatarPresets, setShowAvatarPresets] = useState(false);
+  const [urlModalType, setUrlModalType] = useState(null); // 'avatar' | 'cover' | null
+  const [customUrlInput, setCustomUrlInput] = useState("");
 
   // Form Fields State
   const [formData, setFormData] = useState({
@@ -313,6 +344,48 @@ export default function EditProfile({ initialUsername }) {
       if (type === "avatar") setUploadingAvatar(false);
       else setUploadingCover(false);
     }
+  };
+
+  // Drag & Drop Handlers
+  const handleAvatarDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingAvatar(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) {
+      handleUploadImage(file, "avatar");
+    }
+  };
+
+  const handleCoverDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingCover(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) {
+      handleUploadImage(file, "cover");
+    }
+  };
+
+  // Apply Direct Image URL
+  const handleApplyUrl = (type) => {
+    if (!customUrlInput.trim()) return;
+    try {
+      new URL(customUrlInput.trim());
+    } catch {
+      toast.error("Please enter a valid image URL starting with http:// or https://");
+      return;
+    }
+    if (type === "avatar") {
+      handleChange("profilePicture", customUrlInput.trim());
+      toast.success("Profile photo updated!");
+    } else {
+      handleChange("coverImage", customUrlInput.trim());
+      toast.success("Cover banner updated!");
+    }
+    playPop();
+    setUrlModalType(null);
+    setCustomUrlInput("");
   };
 
   // Save Profile Handler
@@ -539,28 +612,68 @@ export default function EditProfile({ initialUsername }) {
             3. VISUAL BRANDING: COVER & AVATAR
         ══════════════════════════════════════════════════════════ */}
         <section className="rounded-2xl p-4 sm:p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-sm">
-          <h2 className="text-sm font-black uppercase tracking-wider text-[var(--text-secondary)] mb-4 flex items-center gap-2">
-            <Camera size={15} className="text-blue-500" />
-            <span>Visual Branding & Aesthetics</span>
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-black uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-2">
+              <Camera size={15} className="text-blue-500" />
+              <span>Visual Branding & Aesthetics</span>
+            </h2>
+            <span className="text-[11px] text-[var(--text-secondary)] hidden sm:inline">
+              Drag &amp; drop images directly onto banner or avatar
+            </span>
+          </div>
 
-          {/* Cover Banner Container */}
-          <div className="relative h-32 sm:h-44 w-full rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 group mb-14">
+          {/* 1. Cover Banner Container (Standalone Overflow-Hidden, with Drag & Drop) */}
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDraggingCover(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              setIsDraggingCover(false);
+            }}
+            onDrop={handleCoverDrop}
+            className={`relative h-36 sm:h-52 w-full rounded-2xl overflow-hidden border transition-all duration-300 ${
+              isDraggingCover
+                ? "border-blue-500 ring-4 ring-blue-500/30 scale-[1.008]"
+                : "border-[var(--border-subtle)]"
+            } bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 group`}
+          >
             {formData.coverImage ? (
               <img
                 src={formData.coverImage}
                 alt="Cover Banner"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-xs text-slate-400 font-medium">
+              <div className="w-full h-full flex flex-col items-center justify-center text-xs text-slate-400 font-medium p-4 text-center">
+                <UploadCloud size={28} className="text-slate-500 mb-1.5 opacity-60" />
                 <span>Upload a widescreen banner (16:9 or 3:1)</span>
+                <span className="text-[10px] text-slate-500 mt-0.5">Drag &amp; drop banner image anywhere here</span>
               </div>
             )}
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors pointer-events-none" />
 
-            {/* Cover Banner Action Buttons */}
-            <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+            {/* Dragging State Overlay */}
+            {isDraggingCover && (
+              <div className="absolute inset-0 bg-blue-600/80 backdrop-blur-xs flex flex-col items-center justify-center text-white z-20 animate-in fade-in">
+                <UploadCloud size={36} className="animate-bounce mb-2" />
+                <span className="text-sm font-black tracking-wide">Drop Widescreen Banner Here</span>
+                <span className="text-xs opacity-90">16:9 or 3:1 recommended</span>
+              </div>
+            )}
+
+            {/* Uploading Overlay */}
+            {uploadingCover && (
+              <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-white z-20">
+                <Loader2 size={28} className="animate-spin mb-1.5 text-blue-400" />
+                <span className="text-xs font-bold">Uploading Banner...</span>
+              </div>
+            )}
+
+            <div className="absolute inset-0 bg-black/35 group-hover:bg-black/45 transition-colors pointer-events-none" />
+
+            {/* Cover Banner Action Toolbar */}
+            <div className="absolute top-3 right-3 flex items-center flex-wrap gap-1.5 z-10">
               <input
                 ref={coverInputRef}
                 type="file"
@@ -570,11 +683,13 @@ export default function EditProfile({ initialUsername }) {
                   if (e.target.files?.[0]) handleUploadImage(e.target.files[0], "cover");
                 }}
               />
+
               <button
                 type="button"
                 onClick={() => coverInputRef.current?.click()}
                 disabled={uploadingCover}
                 className="px-3 py-1.5 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md text-white text-xs font-bold border border-white/20 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-md"
+                title="Upload banner image"
               >
                 {uploadingCover ? (
                   <Loader2 size={13} className="animate-spin" />
@@ -584,10 +699,40 @@ export default function EditProfile({ initialUsername }) {
                 <span>{formData.coverImage ? "Change Cover" : "Add Cover"}</span>
               </button>
 
+              <button
+                type="button"
+                onClick={() => {
+                  setShowBannerPresets(!showBannerPresets);
+                  setShowAvatarPresets(false);
+                }}
+                className="px-2.5 py-1.5 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md text-white text-xs font-medium border border-white/20 transition-all active:scale-95 flex items-center gap-1 cursor-pointer shadow-md"
+                title="Choose from curated wallpapers"
+              >
+                <Palette size={13} className="text-purple-300" />
+                <span className="hidden sm:inline">Presets</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUrlModalType("cover");
+                  setCustomUrlInput(formData.coverImage || "");
+                }}
+                className="px-2.5 py-1.5 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md text-white text-xs font-medium border border-white/20 transition-all active:scale-95 flex items-center gap-1 cursor-pointer shadow-md"
+                title="Paste image link"
+              >
+                <LinkIcon size={13} className="text-emerald-300" />
+                <span className="hidden sm:inline">URL</span>
+              </button>
+
               {formData.coverImage && (
                 <button
                   type="button"
-                  onClick={() => handleChange("coverImage", "")}
+                  onClick={() => {
+                    playPop();
+                    handleChange("coverImage", "");
+                    toast.success("Cover banner removed");
+                  }}
                   className="p-1.5 rounded-full bg-black/70 hover:bg-rose-900/80 backdrop-blur-md text-white hover:text-rose-300 text-xs border border-white/20 transition-all active:scale-95 cursor-pointer shadow-md"
                   title="Remove cover banner"
                 >
@@ -595,11 +740,71 @@ export default function EditProfile({ initialUsername }) {
                 </button>
               )}
             </div>
+          </div>
 
-            {/* Avatar - Positioned overlapping the bottom of the cover banner */}
-            <div className="absolute -bottom-10 left-4 sm:left-6 z-20">
-              <div className="relative group/avatar">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full ring-4 ring-[var(--bg-canvas)] overflow-hidden bg-[var(--bg-surface)] shadow-xl">
+          {/* Banner Presets Tray (Expandable) */}
+          {showBannerPresets && (
+            <div className="mt-3 p-3.5 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] animate-in fade-in slide-in-from-top-1">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                  <Palette size={13} className="text-purple-400" />
+                  Select Curated Banner Theme
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowBannerPresets(false)}
+                  className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {PRESET_BANNERS.map((preset, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      playPop();
+                      handleChange("coverImage", preset.url);
+                      setShowBannerPresets(false);
+                      toast.success(`Applied ${preset.name} banner!`);
+                    }}
+                    className="relative group/preset h-16 rounded-lg overflow-hidden border border-[var(--border-subtle)] hover:border-blue-500 transition-all active:scale-95 text-left"
+                  >
+                    <img src={preset.url} alt={preset.name} className="w-full h-full object-cover group-hover/preset:scale-110 transition-transform duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-end p-1.5">
+                      <span className="text-[10px] font-bold text-white truncate drop-shadow-xs">{preset.name}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 2. UNCLIPPED Overlapping Avatar & Action Row */}
+          <div className="relative -mt-12 sm:-mt-16 px-2 sm:px-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 z-20">
+            <div className="flex items-end gap-3 sm:gap-4">
+              {/* Avatar Circle with Dropzone and Camera Badge */}
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDraggingAvatar(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setIsDraggingAvatar(false);
+                }}
+                onDrop={handleAvatarDrop}
+                className={`relative group/avatar cursor-pointer rounded-full transition-transform ${
+                  isDraggingAvatar ? "scale-105" : ""
+                }`}
+              >
+                <div
+                  onClick={() => avatarInputRef.current?.click()}
+                  className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full ring-4 ring-[var(--bg-canvas)] overflow-hidden bg-[var(--bg-surface)] shadow-2xl relative transition-all duration-300 ${
+                    isDraggingAvatar ? "ring-4 ring-blue-500" : ""
+                  }`}
+                >
                   {formData.profilePicture ? (
                     <img
                       src={formData.profilePicture}
@@ -607,21 +812,35 @@ export default function EditProfile({ initialUsername }) {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 text-white font-black text-3xl">
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 text-white font-black text-3xl sm:text-4xl select-none">
                       {userInitial}
+                    </div>
+                  )}
+
+                  {/* Hover Overlay with Change Prompt */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-200">
+                    <Camera size={22} className="text-white mb-0.5" />
+                    <span className="text-[10px] font-bold tracking-wide">Change</span>
+                  </div>
+
+                  {/* Dragging State Overlay */}
+                  {isDraggingAvatar && (
+                    <div className="absolute inset-0 bg-blue-600/85 backdrop-blur-xs flex flex-col items-center justify-center text-white text-center p-1 z-20">
+                      <Upload size={22} className="animate-bounce mb-1" />
+                      <span className="text-[10px] font-black leading-tight">Drop Photo</span>
                     </div>
                   )}
 
                   {/* Uploading Overlay */}
                   {uploadingAvatar && (
-                    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white">
+                    <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-white z-20">
                       <Loader2 size={24} className="animate-spin mb-1 text-blue-400" />
                       <span className="text-[10px] font-bold">Uploading...</span>
                     </div>
                   )}
                 </div>
 
-                {/* Avatar Change Trigger */}
+                {/* Always-Visible Camera Badge */}
                 <input
                   ref={avatarInputRef}
                   type="file"
@@ -633,29 +852,160 @@ export default function EditProfile({ initialUsername }) {
                 />
                 <button
                   type="button"
-                  onClick={() => avatarInputRef.current?.click()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    avatarInputRef.current?.click();
+                  }}
                   disabled={uploadingAvatar}
-                  className="absolute bottom-1 right-1 p-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-lg ring-2 ring-[var(--bg-canvas)] transition-all active:scale-90 cursor-pointer"
+                  className="absolute bottom-0 right-0 p-2 sm:p-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-xl ring-3 ring-[var(--bg-canvas)] transition-all transform hover:scale-110 active:scale-95 cursor-pointer z-30"
                   title="Upload profile photo"
                 >
-                  <Camera size={14} />
+                  <Camera size={14} className="sm:w-4 sm:h-4" />
                 </button>
+              </div>
+
+              {/* Avatar Action Buttons */}
+              <div className="flex flex-col gap-1.5 pb-1">
+                <div className="flex items-center flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                    className="px-3 py-1.5 rounded-xl bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition flex items-center gap-1.5 active:scale-95 cursor-pointer shadow-xs"
+                  >
+                    <Upload size={12} className="text-blue-500" />
+                    <span>Upload Photo</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAvatarPresets(!showAvatarPresets);
+                      setShowBannerPresets(false);
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-medium transition flex items-center gap-1 active:scale-95 cursor-pointer shadow-xs"
+                    title="Choose from preset avatars"
+                  >
+                    <Palette size={12} className="text-purple-400" />
+                    <span>Presets</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUrlModalType("avatar");
+                      setCustomUrlInput(formData.profilePicture || "");
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-medium transition flex items-center gap-1 active:scale-95 cursor-pointer shadow-xs"
+                    title="Paste direct photo link"
+                  >
+                    <LinkIcon size={12} className="text-emerald-400" />
+                    <span>URL</span>
+                  </button>
+
+                  {formData.profilePicture && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playPop();
+                        handleChange("profilePicture", "");
+                        toast.success("Profile photo reset to default monogram");
+                      }}
+                      className="p-1.5 rounded-xl bg-[var(--bg-subtle)] hover:bg-rose-500/10 text-rose-500 border border-[var(--border-subtle)] text-xs transition active:scale-95 cursor-pointer"
+                      title="Reset to default initials monogram"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-[var(--text-secondary)] font-medium">
+                  Drag &amp; drop square photo or browse (JPG, PNG, WebP)
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mt-3 pt-2">
-            <span>Avatar recommendations: 500x500px square photo</span>
-            {formData.profilePicture && (
-              <button
-                type="button"
-                onClick={() => handleChange("profilePicture", "")}
-                className="text-rose-500 hover:underline font-semibold text-[11px] cursor-pointer"
-              >
-                Reset to default initials
-              </button>
-            )}
-          </div>
+          {/* Avatar Presets Tray (Expandable) */}
+          {showAvatarPresets && (
+            <div className="mt-4 p-3.5 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] animate-in fade-in slide-in-from-top-1">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                  <Palette size={13} className="text-purple-400" />
+                  Select Avatar Style
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowAvatarPresets(false)}
+                  className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {PRESET_AVATARS.map((preset, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      playPop();
+                      handleChange("profilePicture", preset.url);
+                      setShowAvatarPresets(false);
+                      toast.success(`Selected ${preset.name} avatar!`);
+                    }}
+                    className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] hover:border-blue-500 transition-all active:scale-95 group/av"
+                  >
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-800 ring-2 ring-[var(--border-subtle)] group-hover/av:ring-blue-500 transition-all">
+                      <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-[10px] font-bold text-[var(--text-secondary)] group-hover/av:text-[var(--text-primary)] truncate max-w-[70px]">
+                      {preset.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 3. Direct Image URL Input Modal / Tray */}
+          {urlModalType && (
+            <div className="mt-4 p-3.5 rounded-xl bg-[var(--bg-subtle)] border border-blue-500/30 animate-in fade-in slide-in-from-top-1">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-blue-500 flex items-center gap-1.5">
+                  <LinkIcon size={13} />
+                  Paste Direct Image URL for {urlModalType === "avatar" ? "Profile Photo" : "Cover Banner"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setUrlModalType(null)}
+                  className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="url"
+                  value={customUrlInput}
+                  onChange={(e) => setCustomUrlInput(e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                  className="flex-1 px-3 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] focus:border-blue-500 text-xs text-[var(--text-primary)] outline-none"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleApplyUrl(urlModalType);
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleApplyUrl(urlModalType)}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition active:scale-95 cursor-pointer shadow-xs shrink-0"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* ══════════════════════════════════════════════════════════

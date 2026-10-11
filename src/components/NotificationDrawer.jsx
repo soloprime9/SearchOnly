@@ -45,6 +45,9 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
         const unread = res.data.unreadCount || 0;
         setUnreadCount(unread);
         if (onUnreadCountChange) onUnreadCountChange(unread);
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("notifications_updated", { detail: { unreadCount: unread } }));
+        }
       }
     } catch (err) {
       console.error("Error fetching notifications:", err);
@@ -53,13 +56,21 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
     }
   };
 
+  // Auto-mark notifications as read when the drawer is opened and viewed ("akhir user ne dekh liye hai")
   useEffect(() => {
     if (isOpen) {
       fetchNotifications(tab);
+
+      // Give user a brief moment (1 second) to perceive which items were unread before auto-clearing
+      const timer = setTimeout(() => {
+        handleMarkAllReadSilently();
+      }, 1000);
+
+      return () => clearTimeout(timer);
     }
   }, [isOpen, tab]);
 
-  // Periodic poll for unread badge count (every 45s if drawer not open)
+  // Periodic poll for live unread badge count
   useEffect(() => {
     const checkUnread = async () => {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -73,6 +84,9 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
           const unread = res.data.unreadCount || 0;
           setUnreadCount(unread);
           if (onUnreadCountChange) onUnreadCountChange(unread);
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("notifications_updated", { detail: { unreadCount: unread } }));
+          }
         }
       } catch {
         /* noop */
@@ -80,9 +94,31 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
     };
 
     checkUnread();
-    const interval = setInterval(checkUnread, 45000);
+    const interval = setInterval(checkUnread, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleMarkAllReadSilently = async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) return;
+    try {
+      const apiBase = getApiBase();
+      await axios.put(
+        `${apiBase}/notification/mark-read`,
+        {},
+        { headers: getAuthHeaders() }
+      );
+      setUnreadCount(0);
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      if (onUnreadCountChange) onUnreadCountChange(0);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("fondpeace_last_seen_notification_time", Date.now().toString());
+        window.dispatchEvent(new CustomEvent("notifications_seen", { detail: { unreadCount: 0 } }));
+      }
+    } catch (_) {
+      // Backend silent catch
+    }
+  };
 
   const handleMarkAllRead = async () => {
     playChime();
@@ -96,7 +132,11 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
       setUnreadCount(0);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       if (onUnreadCountChange) onUnreadCountChange(0);
-      toast.success("All notifications marked as read");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("fondpeace_last_seen_notification_time", Date.now().toString());
+        window.dispatchEvent(new CustomEvent("notifications_seen", { detail: { unreadCount: 0 } }));
+      }
+      toast.success("All notifications marked as read ✨");
     } catch {
       toast.error("Failed to mark notifications read");
     }
@@ -113,8 +153,14 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
       setNotifications((prev) =>
         prev.map((n) => (n._id === notificationId ? { ...n, isRead: true } : n))
       );
-      setUnreadCount((c) => Math.max(0, c - 1));
-      if (onUnreadCountChange) onUnreadCountChange(Math.max(0, unreadCount - 1));
+      setUnreadCount((c) => {
+        const next = Math.max(0, c - 1);
+        if (onUnreadCountChange) onUnreadCountChange(next);
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("notifications_updated", { detail: { unreadCount: next } }));
+        }
+        return next;
+      });
     } catch {
       /* noop */
     }
@@ -283,7 +329,10 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
                         <p className="text-xs text-gray-800 dark:text-gray-200 leading-snug">
                           <Link
                             href={`/profile/${senderName}`}
-                            onClick={onClose}
+                            onClick={() => {
+                              if (!n.isRead) handleMarkSingleRead(n._id);
+                              onClose();
+                            }}
                             className="font-bold text-gray-900 dark:text-white hover:underline"
                           >
                             @{senderName}
@@ -308,7 +357,10 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
                         {postLink && (
                           <Link
                             href={postLink}
-                            onClick={onClose}
+                            onClick={() => {
+                              if (!n.isRead) handleMarkSingleRead(n._id);
+                              onClose();
+                            }}
                             className="mt-1 block text-xs text-blue-600 dark:text-blue-400 font-medium hover:underline truncate"
                           >
                             &quot;{n.post?.title || "View Post"}&quot;
