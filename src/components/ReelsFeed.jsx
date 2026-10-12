@@ -4,15 +4,22 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { FaVolumeMute, FaVolumeUp, FaArrowLeft, FaPlay } from "react-icons/fa";
-import { ShieldCheck, Music, ChevronUp, ChevronDown } from "lucide-react";
+import { FaVolumeMute, FaVolumeUp, FaArrowLeft, FaPlay, FaTimes, FaFire, FaClock } from "react-icons/fa";
+import { ShieldCheck, Music, ChevronUp, ChevronDown, Sparkles } from "lucide-react";
 import axios from "axios";
 import ReelInteractions from "./ReelInteractions";
 import { getApiBase } from "@/utils/apiConfig";
-import { playPop, playTap } from "@/utils/soundEffects";
+import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 
 const API_BASE = getApiBase();
+
+function formatTime(seconds) {
+  if (!seconds || isNaN(seconds)) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s < 10 ? "0" : ""}${s}`;
+}
 
 export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   const router = useRouter();
@@ -27,12 +34,15 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
     return initialRelated;
   });
 
+  const [feedSortMode, setFeedSortMode] = useState("trending");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isFastForward, setIsFastForward] = useState(false);
   const [showVolumeIcon, setShowVolumeIcon] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
+  const [activeSoundModal, setActiveSoundModal] = useState(null);
+  const [hoverTimeTooltip, setHoverTimeTooltip] = useState(null);
 
   const containerRef = useRef(null);
   const videoRefs = useRef([]);
@@ -73,7 +83,6 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   /* ==============================
      PASSIVE WATCH TELEMETRY LOGGER
      Automatically tracks watch duration & completion
-     without requesting user inputs.
   ============================== */
   const logWatchTelemetry = useCallback(async (postId, duration, completed) => {
     if (!postId) return;
@@ -86,16 +95,14 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
           duration: Math.round(duration || 0),
           completed: Boolean(completed),
           screen: typeof window !== "undefined" ? `${window.innerWidth}x${window.innerHeight}` : "",
-          source: "shorts_feed",
+          source: `shorts_feed_${feedSortMode}`,
         },
         {
           headers: token ? { "x-auth-token": token } : {},
         }
       );
-    } catch (_) {
-      // Passive background telemetry; fail silently without disrupting user
-    }
-  }, []);
+    } catch (_) {}
+  }, [feedSortMode]);
 
   /* ==============================
      AUTOPLAY & VIEW INTERSECTION OBSERVER
@@ -125,7 +132,6 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
               const playPromise = video.play();
               if (playPromise !== undefined) {
                 playPromise.catch(() => {
-                  // Autoplay policy fallback: mute and retry
                   video.muted = true;
                   setIsMuted(true);
                   video.play().catch(() => {});
@@ -141,7 +147,6 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
               if (!seenPostsRef.current.has(id)) {
                 seenPostsRef.current.add(id);
                 saveSeenToSession();
-                // Send initial watch telemetry ping
                 logWatchTelemetry(id, 2, false);
               }
             }
@@ -158,20 +163,22 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   /* ==============================
      LOAD MORE SHORTS (DEDUPLICATED FEED)
   ============================== */
-  const loadMorePosts = useCallback(async () => {
-    if (loadingRef.current || !hasMoreRef.current) return;
+  const loadMorePosts = useCallback(async (customPage = null, resetFeed = false) => {
+    if (loadingRef.current || (!hasMoreRef.current && !resetFeed)) return;
     loadingRef.current = true;
 
     try {
-      pageRef.current += 1;
+      const targetPage = customPage !== null ? customPage : pageRef.current + 1;
+      pageRef.current = targetPage;
+
       const excludeIds = Array.from(seenPostsRef.current)
-        .concat(posts.map((p) => String(p._id)))
+        .concat(resetFeed ? [] : posts.map((p) => String(p._id)))
         .slice(-150)
         .join(",");
 
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const res = await axios.get(
-        `${API_BASE}/post/shorts/feed?page=${pageRef.current}&limit=6&exclude=${excludeIds}`,
+        `${API_BASE}/post/shorts/feed?page=${targetPage}&limit=6&sort=${feedSortMode}&exclude=${excludeIds}`,
         {
           headers: token ? { "x-auth-token": token } : {},
         }
@@ -182,17 +189,18 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
         hasMoreRef.current = false;
       } else {
         setPosts((prev) => {
+          if (resetFeed) return incoming;
           const existingIds = new Set(prev.map((p) => String(p._id)));
           const fresh = incoming.filter((p) => !existingIds.has(String(p._id)));
           return [...prev, ...fresh];
         });
       }
     } catch (err) {
-      console.error("Error loading more shorts:", err);
+      console.error("Error loading shorts feed:", err);
     } finally {
       loadingRef.current = false;
     }
-  }, [posts]);
+  }, [posts, feedSortMode]);
 
   // Observer on last item to trigger infinite scroll
   useEffect(() => {
@@ -212,6 +220,18 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
     endObserver.observe(lastElement);
     return () => endObserver.disconnect();
   }, [posts.length, loadMorePosts]);
+
+  /* ==============================
+     SWITCH FEED MODE (TRENDING VS LATEST)
+  ============================== */
+  const handleSwitchFeedMode = (mode) => {
+    if (mode === feedSortMode) return;
+    playTap();
+    setFeedSortMode(mode);
+    hasMoreRef.current = true;
+    pageRef.current = 1;
+    loadMorePosts(1, true);
+  };
 
   /* ==============================
      NAVIGATION HELPERS (DESKTOP ARROWS & KEYBOARD)
@@ -313,7 +333,6 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
     const timeDiff = now - lastTapRef.current.time;
 
     if (timeDiff < 320) {
-      // Double tap detected -> Heart burst like
       const clientX = e.clientX || window.innerWidth / 2;
       const clientY = e.clientY || window.innerHeight / 2;
       triggerHeartBurst(clientX, clientY);
@@ -333,13 +352,12 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       lastTapRef.current = { time: 0, x: 0, y: 0 };
     } else {
       lastTapRef.current = { time: now, x: e.clientX, y: e.clientY };
-      // Single tap toggles play/pause
       togglePlayPause();
     }
   };
 
   /* ==============================
-     PROGRESS TRACKING
+     PROGRESS TRACKING & SCRUBBING
   ============================== */
   const handleTimeUpdate = (e, post) => {
     const video = e.currentTarget;
@@ -347,7 +365,6 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       const progress = (video.currentTime / video.duration) * 100;
       setVideoProgress(progress);
 
-      // Log completion telemetry if watched >= 80%
       if (progress >= 80 && post?._id && !post._loggedCompleted) {
         post._loggedCompleted = true;
         logWatchTelemetry(post._id, video.currentTime, true);
@@ -355,16 +372,29 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
     }
   };
 
+  const handleScrubberSeek = (e, index) => {
+    e.stopPropagation();
+    const bar = e.currentTarget;
+    const rect = bar.getBoundingClientRect();
+    const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const percentage = clickX / rect.width;
+    const video = videoRefs.current[index];
+    if (video && video.duration) {
+      video.currentTime = percentage * video.duration;
+      setVideoProgress(percentage * 100);
+    }
+  };
+
   if (!posts.length) {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-black text-white gap-3">
-        <p className="text-base font-semibold text-zinc-400">No shorts available right now</p>
-        <Link
-          href="/"
-          className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition"
+        <p className="text-base font-semibold text-zinc-400">No shorts available in this feed</p>
+        <button
+          onClick={() => handleSwitchFeedMode("trending")}
+          className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition cursor-pointer"
         >
-          Back to Discovery
-        </Link>
+          Reload Trending Shorts
+        </button>
       </div>
     );
   }
@@ -373,7 +403,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
   return (
     <div className="bg-black w-full h-[100dvh] flex items-center justify-center overflow-hidden select-none relative">
-      {/* ── Desktop Ambient Theater Glow (Sampling current video) ── */}
+      {/* ── Desktop Ambient Theater Glow (Dynamic blur behind card) ── */}
       {currentActivePost?.thumbnail && (
         <div
           className="hidden md:block absolute inset-0 bg-cover bg-center blur-[120px] opacity-25 scale-125 pointer-events-none transition-all duration-700 ease-out"
@@ -381,8 +411,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
         />
       )}
 
-      {/* ── Fixed Floating Top Bar ── */}
-      <header className="fixed top-0 inset-x-0 z-40 max-w-[500px] mx-auto px-4 py-3 flex items-center justify-between pointer-events-none">
+      {/* ── Fixed Floating Top Bar with Mode Switcher ── */}
+      <header className="fixed top-0 inset-x-0 z-40 max-w-[500px] mx-auto px-3.5 py-3 flex items-center justify-between pointer-events-none">
         <Link
           href="/"
           onClick={() => playTap()}
@@ -392,9 +422,32 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
           <span className="hidden sm:inline">Discovery</span>
         </Link>
 
-        <div className="pointer-events-none flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/10 text-white text-xs font-black tracking-wide">
-          <span>FondPeace</span>
-          <span className="text-rose-500 font-extrabold uppercase text-[10px]">Shorts</span>
+        {/* Trending vs Latest Switcher Tabs */}
+        <div className="pointer-events-auto flex items-center bg-black/60 backdrop-blur-md rounded-full p-0.5 border border-white/15 shadow-xl text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => handleSwitchFeedMode("trending")}
+            className={`flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer ${
+              feedSortMode === "trending"
+                ? "bg-rose-600 text-white shadow-md font-extrabold"
+                : "text-zinc-300 hover:text-white"
+            }`}
+          >
+            <FaFire className="text-[10px]" />
+            <span>Trending</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSwitchFeedMode("latest")}
+            className={`flex items-center gap-1 px-3 py-1 rounded-full transition-all cursor-pointer ${
+              feedSortMode === "latest"
+                ? "bg-rose-600 text-white shadow-md font-extrabold"
+                : "text-zinc-300 hover:text-white"
+            }`}
+          >
+            <Sparkles size={11} />
+            <span>Latest</span>
+          </button>
         </div>
 
         <button
@@ -455,6 +508,9 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
               "U"
             ).toUpperCase();
 
+            // Zero-second preloading: auto-preload current and immediate neighbor reels
+            const shouldPreloadAuto = Math.abs(index - currentIndex) <= 1;
+
             return (
               <section
                 key={item._id || index}
@@ -489,7 +545,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     />
                   )}
 
-                  {/* Vertical Video Element */}
+                  {/* Vertical Video Element with Smart Preload */}
                   <video
                     ref={(el) => (videoRefs.current[index] = el)}
                     src={item.media || item.mediaUrl}
@@ -505,7 +561,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     loop
                     playsInline
                     muted={isMuted}
-                    preload="metadata"
+                    preload={shouldPreloadAuto ? "auto" : "metadata"}
                     onTimeUpdate={(e) => handleTimeUpdate(e, item)}
                     className="relative z-10 w-full h-full object-cover mx-auto bg-black"
                   />
@@ -570,13 +626,21 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     {item.title}
                   </p>
 
-                  {/* Animated Audio Waveform Pill */}
-                  <div className="flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/10 text-[11px] text-gray-200 w-fit max-w-full">
+                  {/* Clickable Animated Audio Track Pill */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playTap();
+                      setActiveSoundModal(item);
+                    }}
+                    className="flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md border border-white/10 text-[11px] text-gray-200 w-fit max-w-full transition active:scale-95 cursor-pointer"
+                  >
                     <Music size={11} className="shrink-0 text-white animate-pulse" />
                     <span className="truncate">
                       {item.userId?.username || "Original Audio"} • FondPeace Sound
                     </span>
-                  </div>
+                  </button>
                 </div>
 
                 {/* ── Right-Side Vertical Floating Interactions ── */}
@@ -589,18 +653,80 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                   }}
                 />
 
-                {/* ── Bottom Slim Video Progress Scrubber ── */}
-                <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 z-30 pointer-events-none">
-                  <div
-                    className="h-full bg-rose-500 transition-all duration-100 ease-linear"
-                    style={{ width: `${currentIndex === index ? videoProgress : 0}%` }}
-                  />
+                {/* ── Interactive Bottom Progress Scrubber ── */}
+                <div
+                  className="absolute inset-x-0 bottom-0 h-4 flex items-end z-30 cursor-pointer group/scrub"
+                  onClick={(e) => handleScrubberSeek(e, index)}
+                >
+                  <div className="w-full h-1 group-hover/scrub:h-2 bg-white/20 transition-all relative">
+                    <div
+                      className="h-full bg-rose-500 transition-all duration-100 ease-linear relative"
+                      style={{ width: `${currentIndex === index ? videoProgress : 0}%` }}
+                    >
+                      {/* Glowing knob visible on hover */}
+                      <span className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-md opacity-0 group-hover/scrub:opacity-100 transition-opacity" />
+                    </div>
+                  </div>
                 </div>
               </section>
             );
           })}
         </main>
       </div>
+
+      {/* ── Sound Details Bottom Sheet Modal ── */}
+      {activeSoundModal && (
+        <div
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-end justify-center animate-in fade-in duration-200"
+          onClick={() => setActiveSoundModal(null)}
+        >
+          <div
+            className="bg-[#0f121d] text-white w-full max-w-[440px] rounded-t-3xl p-5 border-t border-x border-white/15 shadow-2xl animate-in slide-in-from-bottom duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-white/30 rounded-full mx-auto mb-3" />
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+              <h3 className="font-bold text-sm flex items-center gap-2">
+                <Music size={15} className="text-rose-500" />
+                <span>Audio Track Details</span>
+              </h3>
+              <button
+                onClick={() => setActiveSoundModal(null)}
+                className="p-1.5 rounded-full bg-white/10 text-gray-300 hover:text-white"
+              >
+                <FaTimes size={13} />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3.5 mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-500 via-purple-600 to-indigo-600 flex items-center justify-center shadow-lg">
+                <Music size={24} className="text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-sm truncate">{activeSoundModal.userId?.username || "Original Audio"}</h4>
+                <p className="text-xs text-zinc-400 mt-0.5">Original Sound • FondPeace Creator Network</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Link
+                href={`/profile/${activeSoundModal.userId?.username}`}
+                onClick={() => setActiveSoundModal(null)}
+                className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-center text-xs font-bold transition"
+              >
+                View Creator Profile
+              </Link>
+              <Link
+                href="/upload"
+                onClick={() => setActiveSoundModal(null)}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-center text-xs font-bold transition shadow-md"
+              >
+                Create Short
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
