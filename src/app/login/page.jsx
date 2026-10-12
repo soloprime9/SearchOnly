@@ -49,6 +49,12 @@ const Login = () => {
         localStorage.setItem('token', result.data.token);
         if (result.data?.UserDetail) {
           localStorage.setItem('user', JSON.stringify(result.data.UserDetail));
+          if (result.data.UserDetail.email) {
+            localStorage.setItem('fondpeace_remembered_email', result.data.UserDetail.email);
+          }
+          if (result.data.UserDetail.name || result.data.UserDetail.username) {
+            localStorage.setItem('fondpeace_remembered_name', result.data.UserDetail.name || result.data.UserDetail.username);
+          }
         }
       }
 

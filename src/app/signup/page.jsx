@@ -95,6 +95,12 @@ const SignUp = () => {
         localStorage.setItem("token", result.data.token);
         if (result.data?.user) {
           localStorage.setItem("user", JSON.stringify(result.data.user));
+          if (result.data.user.email) {
+            localStorage.setItem("fondpeace_remembered_email", result.data.user.email);
+          }
+          if (result.data.user.name || result.data.user.username) {
+            localStorage.setItem("fondpeace_remembered_name", result.data.user.name || result.data.user.username);
+          }
         }
       }
 
