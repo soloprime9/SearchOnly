@@ -36,7 +36,13 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
   const [feedSortMode, setFeedSortMode] = useState("trending");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("fp_shorts_muted");
+      if (saved !== null) return saved === "true";
+    }
+    return false;
+  });
   const [isPlaying, setIsPlaying] = useState(true);
   const [isFastForward, setIsFastForward] = useState(false);
   const [showVolumeIcon, setShowVolumeIcon] = useState(false);
@@ -44,6 +50,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   const [activeSoundModal, setActiveSoundModal] = useState(null);
   const [hoverScrub, setHoverScrub] = useState(null);
   const [doubleTapHearts, setDoubleTapHearts] = useState([]);
+  const [followedCreators, setFollowedCreators] = useState(new Set());
 
   const containerRef = useRef(null);
   const videoRefs = useRef([]);
@@ -253,12 +260,15 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   }, [currentIndex]);
 
   /* ==============================
-     GLOBAL MUTE & AUDIO TOGGLE
+     GLOBAL MUTE & AUDIO TOGGLE (PERSISTENT)
   ============================== */
   const toggleMute = () => {
     playTap();
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
+    try {
+      localStorage.setItem("fp_shorts_muted", String(nextMuted));
+    } catch (_) {}
 
     videoRefs.current.forEach((v) => {
       if (v) v.muted = nextMuted;
@@ -266,6 +276,37 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
     setShowVolumeIcon(true);
     setTimeout(() => setShowVolumeIcon(false), 900);
+  };
+
+  /* ==============================
+     INLINE FOLLOW CREATOR
+  ============================== */
+  const handleFollowInline = async (e, creatorId, username) => {
+    e.stopPropagation();
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      toast.error("Please login to follow creators");
+      return;
+    }
+    playPop();
+    const nextFollowed = new Set(followedCreators);
+    const isNowFollowing = !nextFollowed.has(String(creatorId));
+    if (isNowFollowing) {
+      nextFollowed.add(String(creatorId));
+      toast.success(`Following @${username || "creator"}! ✨`);
+    } else {
+      nextFollowed.delete(String(creatorId));
+      toast.success(`Unfollowed @${username || "creator"}`);
+    }
+    setFollowedCreators(nextFollowed);
+
+    try {
+      await axios.post(
+        `${API_BASE}/user/follow/${creatorId}`,
+        {},
+        { headers: { "x-auth-token": token } }
+      );
+    } catch (_) {}
   };
 
   /* ==============================
@@ -648,6 +689,26 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
                     {item.userId?.isVerified && (
                       <ShieldCheck size={15} className="text-blue-400 fill-blue-400/25 shrink-0" />
+                    )}
+
+                    {item.userId?._id && (
+                      <button
+                        type="button"
+                        onClick={(e) =>
+                          handleFollowInline(
+                            e,
+                            item.userId?._id,
+                            item.userId?.username
+                          )
+                        }
+                        className={`ml-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold transition active:scale-90 cursor-pointer ${
+                          followedCreators.has(String(item.userId._id))
+                            ? "bg-white/20 text-zinc-300 hover:bg-white/30"
+                            : "bg-rose-600 hover:bg-rose-500 text-white shadow-md"
+                        }`}
+                      >
+                        {followedCreators.has(String(item.userId._id)) ? "Following" : "+ Follow"}
+                      </button>
                     )}
                   </div>
 

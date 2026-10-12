@@ -115,7 +115,7 @@ export default function LeftSidebar({ sticky = false }) {
   const menu = [
     { icon: FaHome,     label: "Home",    href: "/" },
     { icon: FaSearch,   label: "Explore", href: "/search" },
-    { icon: FaVideo,    label: "Shorts",  href: "/short/698c432d0a8059958d20a4f4" },
+    { icon: FaVideo,    label: "Shorts",  href: "/shorts" },
     { icon: FaUpload,   label: "Upload",  href: "/upload" },
     { icon: FaCoins,    label: "Monetize", href: "/monetization" },
     {
@@ -128,6 +128,7 @@ export default function LeftSidebar({ sticky = false }) {
 
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
+    if (href === "/shorts") return pathname?.startsWith("/short");
     return pathname?.startsWith(href);
   };
 

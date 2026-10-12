@@ -3,11 +3,30 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { io } from "socket.io-client";
 import jwt from "jsonwebtoken";
+import { getApiBase } from "@/utils/apiConfig";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, Flame, Clock, Share2, BarChart3, Globe, MapPin } from 'lucide-react';
+import {
+  Activity,
+  Flame,
+  Clock,
+  Share2,
+  BarChart3,
+  Globe,
+  MapPin,
+  Smartphone,
+  Monitor,
+  Tablet,
+  Copy,
+  Check,
+  RefreshCw,
+  Eye,
+  CheckCircle2,
+  Clock3,
+} from 'lucide-react';
 
-const BACKEND = "https://backendk-z915.onrender.com/analytics";
-const SOCKET_BACKEND = "https://backendk-z915.onrender.com";
+const API_ROOT = getApiBase();
+const BACKEND = `${API_ROOT}/analytics`;
+const SOCKET_BACKEND = API_ROOT;
 
 export default function AdminClient({ initialPosts }) {
   const router = useRouter();
@@ -19,6 +38,9 @@ export default function AdminClient({ initialPosts }) {
   const [loading, setLoading] = useState(false);
   const [authorized, setAuthorized] = useState(false);
   const [activeUsers30m, setActiveUsers30m] = useState(0);
+  const [shortsTelemetry, setShortsTelemetry] = useState([]);
+  const [telemetryLoading, setTelemetryLoading] = useState(false);
+  const [copiedIp, setCopiedIp] = useState(null);
 
   /* ================= AUTH CHECK ================= */
   useEffect(() => {
@@ -88,6 +110,50 @@ export default function AdminClient({ initialPosts }) {
     setPostDetails(data);
   };
 
+  const fetchShortsTelemetry = useCallback(async () => {
+    setTelemetryLoading(true);
+    try {
+      const res = await fetch(`${BACKEND}/shorts/recent-telemetry?limit=50`);
+      const data = await res.json();
+      if (Array.isArray(data.records)) {
+        setShortsTelemetry(data.records);
+      }
+    } catch (err) {
+      console.error("Telemetry fetch error:", err);
+    } finally {
+      setTelemetryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authorized && activeTab === "shorts-telemetry") {
+      fetchShortsTelemetry();
+    }
+  }, [activeTab, authorized, fetchShortsTelemetry]);
+
+  const telemetryStats = useMemo(() => {
+    if (!shortsTelemetry.length) {
+      return { total: 0, uniqueIps: 0, avgDuration: 0, completionRate: 0 };
+    }
+    const total = shortsTelemetry.length;
+    const uniqueIps = new Set(shortsTelemetry.map((t) => t.ip || "0.0.0.0")).size;
+    const totalDuration = shortsTelemetry.reduce(
+      (acc, t) => acc + (Number(t.watchDuration) || 0),
+      0
+    );
+    const avgDuration = Math.round(totalDuration / total);
+    const completedCount = shortsTelemetry.filter((t) => t.completed).length;
+    const completionRate = Math.round((completedCount / total) * 100);
+
+    return { total, uniqueIps, avgDuration, completionRate };
+  }, [shortsTelemetry]);
+
+  const copyToClipboard = (text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIp(id);
+    setTimeout(() => setCopiedIp(null), 2000);
+  };
+
   // Fake chart data generation based on view count for visual feedback
   const chartData = useMemo(() => {
     return Array.from({ length: 12 }, (_, i) => ({
@@ -129,6 +195,9 @@ export default function AdminClient({ initialPosts }) {
             <button onClick={() => setActiveTab("live")} className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "live" ? "bg-green-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}>
               <Activity size={16} className="inline mr-2" /> Live Traffic
             </button>
+            <button onClick={() => setActiveTab("shorts-telemetry")} className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "shorts-telemetry" ? "bg-purple-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}>
+              <Smartphone size={16} className="inline mr-2" /> Shorts IP & Telemetry
+            </button>
           </div>
 
           {activeTab === "live" && (
@@ -165,7 +234,7 @@ export default function AdminClient({ initialPosts }) {
         )}
 
         {/* LIVE TRAFFIC TAB (LIST VIEW WITH CHART & HOVER) */}
-        {activeTab !== "latest" && (
+        {(activeTab === "trending" || activeTab === "live") && (
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-3">
               {posts.map((post, i) => {
@@ -208,6 +277,181 @@ export default function AdminClient({ initialPosts }) {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SHORTS TELEMETRY & AUDIENCE INTELLIGENCE TAB */}
+        {activeTab === "shorts-telemetry" && (
+          <div className="space-y-6">
+            {/* Top KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                  <Smartphone size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Shorts Logs</p>
+                  <p className="text-2xl font-black text-slate-900">{telemetryStats.total}</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                  <Globe size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Unique Viewer IPs</p>
+                  <p className="text-2xl font-black text-slate-900">{telemetryStats.uniqueIps}</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                  <Clock3 size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Avg Watch Time</p>
+                  <p className="text-2xl font-black text-slate-900">{telemetryStats.avgDuration}s</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  <CheckCircle2 size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Completion Rate</p>
+                  <p className="text-2xl font-black text-slate-900">{telemetryStats.completionRate}%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Header with Refresh Button */}
+            <div className="flex items-center justify-between bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm">
+              <div>
+                <h3 className="font-black text-base text-slate-800">Passive Viewer Telemetry Log</h3>
+                <p className="text-xs text-slate-400">Captured automatically in background without requiring viewer inputs</p>
+              </div>
+              <button
+                type="button"
+                onClick={fetchShortsTelemetry}
+                disabled={telemetryLoading}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw size={14} className={telemetryLoading ? "animate-spin" : ""} />
+                <span>{telemetryLoading ? "Refreshing..." : "Refresh Logs"}</span>
+              </button>
+            </div>
+
+            {/* Telemetry Data Table */}
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
+                    <tr>
+                      <th className="py-3.5 px-5">Viewer IP</th>
+                      <th className="py-3.5 px-5">Location</th>
+                      <th className="py-3.5 px-5">Device & Screen</th>
+                      <th className="py-3.5 px-5">Short Watched</th>
+                      <th className="py-3.5 px-5">Watch Duration</th>
+                      <th className="py-3.5 px-5">Status</th>
+                      <th className="py-3.5 px-5">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {shortsTelemetry.map((item, idx) => {
+                      const postTitle = item.postId?.title || "Short Video";
+                      const postThumb = item.postId?.thumbnail;
+                      const isCompleted = item.completed;
+                      const deviceType = item.deviceType || "desktop";
+
+                      return (
+                        <tr key={item._id || idx} className="hover:bg-slate-50/70 transition-colors">
+                          {/* IP Address */}
+                          <td className="py-3.5 px-5 font-mono font-bold text-slate-800">
+                            <div className="flex items-center gap-2">
+                              <span>{item.ip || "0.0.0.0"}</span>
+                              <button
+                                onClick={() => copyToClipboard(item.ip, item._id || idx)}
+                                className="text-slate-400 hover:text-purple-600 transition cursor-pointer"
+                                title="Copy IP"
+                              >
+                                {copiedIp === (item._id || idx) ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                              </button>
+                            </div>
+                          </td>
+
+                          {/* Location */}
+                          <td className="py-3.5 px-5">
+                            <div className="flex items-center gap-1.5 font-medium text-slate-700">
+                              <MapPin size={13} className="text-purple-500 shrink-0" />
+                              <span>{item.city && item.city !== "Unknown" ? item.city : "City"}</span>
+                              <span className="text-slate-400">({item.country && item.country !== "Unknown" ? item.country : "Global"})</span>
+                            </div>
+                          </td>
+
+                          {/* Device & Screen */}
+                          <td className="py-3.5 px-5">
+                            <div className="flex items-center gap-2">
+                              <span className={`p-1.5 rounded-lg text-xs ${deviceType === "mobile" ? "bg-blue-50 text-blue-600" : deviceType === "tablet" ? "bg-amber-50 text-amber-600" : "bg-slate-100 text-slate-600"}`}>
+                                {deviceType === "mobile" ? <Smartphone size={13} /> : deviceType === "tablet" ? <Tablet size={13} /> : <Monitor size={13} />}
+                              </span>
+                              <span className="capitalize font-bold text-slate-700">{deviceType}</span>
+                              {item.screenResolution && (
+                                <span className="text-[10px] text-slate-400 font-mono">({item.screenResolution})</span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Short Watched */}
+                          <td className="py-3.5 px-5 max-w-[220px]">
+                            <div className="flex items-center gap-2.5 truncate">
+                              {postThumb && (
+                                <img src={postThumb} alt="" className="w-7 h-9 rounded-md object-cover shrink-0 border border-slate-200" />
+                              )}
+                              <span className="truncate font-semibold text-slate-800" title={postTitle}>{postTitle}</span>
+                            </div>
+                          </td>
+
+                          {/* Watch Duration */}
+                          <td className="py-3.5 px-5">
+                            <span className="px-2.5 py-1 rounded-full bg-slate-100 font-mono font-bold text-slate-800">
+                              {item.watchDuration || 0}s
+                            </span>
+                          </td>
+
+                          {/* Completion Status */}
+                          <td className="py-3.5 px-5">
+                            {isCompleted ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px]">
+                                <Check size={11} className="stroke-[3]" /> Completed
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold text-[10px]">
+                                <Clock3 size={11} /> Watching
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Timestamp */}
+                          <td className="py-3.5 px-5 text-slate-400 text-[11px] whitespace-nowrap">
+                            {item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : "Recently"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+
+                    {!shortsTelemetry.length && !telemetryLoading && (
+                      <tr>
+                        <td colSpan={7} className="py-12 text-center text-slate-400 font-medium">
+                          No shorts telemetry records found yet. Watch a short to generate logs!
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
