@@ -187,7 +187,7 @@ export default async function ShortsDetailPage({ params }) {
     const pageUrl = `${SITE_ROOT}/shorts/${post._id || id}`;
     const authorName = post?.userId?.username;
 
-    const rawMedia = post.media || post.mediaUrl || post.link || post.linkPreview?.url || "";
+    const rawMedia = `${post.media || ""} ${post.mediaUrl || ""} ${post.link || ""} ${post.linkPreview?.url || ""} ${post.title || ""}`;
     const isVideo =
       post.mediaType?.startsWith("video") ||
       Boolean(getYouTubeVideoId(rawMedia)) ||
