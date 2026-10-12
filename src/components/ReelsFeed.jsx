@@ -34,6 +34,9 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
     return initialRelated;
   });
 
+  const [isInitialLoading, setIsInitialLoading] = useState(
+    !initialPost && (!initialRelated || !initialRelated.length)
+  );
   const [feedSortMode, setFeedSortMode] = useState("trending");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(() => {
@@ -212,6 +215,14 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       loadingRef.current = false;
     }
   }, [posts, feedSortMode]);
+
+  // Trigger initial feed fetch on mount if no initial posts were passed
+  useEffect(() => {
+    if (!posts.length) {
+      setIsInitialLoading(true);
+      loadMorePosts(1, true).finally(() => setIsInitialLoading(false));
+    }
+  }, []);
 
   // Observer on last item to trigger infinite scroll
   useEffect(() => {
@@ -456,6 +467,16 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   };
 
   if (!posts.length) {
+    if (isInitialLoading) {
+      return (
+        <div className="h-screen w-full flex flex-col items-center justify-center bg-black text-white gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-rose-500/30 border-t-rose-500 animate-spin" />
+          <p className="text-sm font-bold text-zinc-300 animate-pulse tracking-wide">
+            Loading Fresh Shorts...
+          </p>
+        </div>
+      );
+    }
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-black text-white gap-3">
         <p className="text-base font-semibold text-zinc-400">No shorts available in this feed</p>

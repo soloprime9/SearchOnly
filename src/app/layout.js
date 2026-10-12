@@ -14,6 +14,7 @@ import FloatingDock from "@/components/FloatingDock";
 import NetworkSentinel from "@/components/NetworkSentinel";
 import GoogleOneTapPrompt from "@/components/GoogleOneTapPrompt";
 import { ThemeBackgroundProvider } from "@/context/ThemeBackgroundContext";
+import PassiveTelemetryTracker from "@/components/PassiveTelemetryTracker";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -144,6 +145,7 @@ export default function RootLayout({ children }) {
           <CommandPalette />
           <FloatingDock />
           <GoogleOneTapPrompt />
+          <PassiveTelemetryTracker />
 
         {/* Global Schema.org JSON-LD Structured Data (Organization + WebSite + SearchAction) */}
         <script

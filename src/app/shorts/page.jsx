@@ -1,21 +1,49 @@
-import { redirect } from "next/navigation";
+// src/app/shorts/page.jsx
+import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
 import { getApiBase } from "@/utils/apiConfig";
 
 export const dynamic = "force-dynamic";
 
-export default async function ShortsRedirectPage() {
+export const metadata = {
+  title: "Shorts & Reels | FondPeace - Trending Vertical Videos",
+  description:
+    "Watch trending shorts and reels on FondPeace. High-octane vertical videos, fresh creators, and viral moments.",
+  alternates: {
+    canonical: "https://www.fondpeace.com/shorts",
+  },
+  openGraph: {
+    title: "Shorts & Reels | FondPeace",
+    description: "Watch trending shorts and viral vertical videos on FondPeace.",
+    url: "https://www.fondpeace.com/shorts",
+    siteName: "FondPeace",
+    images: [{ url: "https://www.fondpeace.com/Fondpeace.jpg" }],
+    type: "website",
+  },
+};
+
+export default async function ShortsPage() {
   const API_BASE = getApiBase();
-  let targetId = "698c432d0a8059958d20a4f4"; // Fallback popular short
+  let initialPost = null;
+  let initialRelated = [];
 
   try {
-    const res = await fetch(`${API_BASE}/post/shorts?page=1&limit=1`, {
-      next: { revalidate: 30 },
+    const res = await fetch(`${API_BASE}/post/shorts/feed?page=1&limit=6&sort=trending`, {
+      cache: "no-store",
     });
-    const data = await res.json();
-    if (Array.isArray(data?.videos) && data.videos[0]?._id) {
-      targetId = data.videos[0]._id;
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data?.videos) && data.videos.length > 0) {
+        initialPost = data.videos[0];
+        initialRelated = data.videos.slice(1);
+      }
     }
-  } catch (_) {}
+  } catch (err) {
+    console.error("Error fetching initial shorts feed:", err);
+  }
 
-  redirect(`/short/${targetId}`);
+  return (
+    <main className="w-full h-[100dvh] bg-black text-white overflow-hidden select-none">
+      <ReelsFeedWrapper initialPost={initialPost} initialRelated={initialRelated} />
+    </main>
+  );
 }

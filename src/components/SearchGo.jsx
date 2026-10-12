@@ -236,7 +236,7 @@ export default function SearchGo() {
                 </div>
               </div>
               <Link
-                href="/short/698c432d0a8059958d20a4f4"
+                href="/shorts"
                 className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
               >
                 <span>Watch Shorts</span>

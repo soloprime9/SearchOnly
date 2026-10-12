@@ -73,7 +73,7 @@ export default function NotFound() {
           </Link>
 
           <Link
-            href="/short/698c432d0a8059958d20a4f4"
+            href="/shorts"
             onClick={() => playTap()}
             className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white/70 dark:bg-zinc-950/50 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] shadow-sm hover:shadow-md hover:border-pink-500/40 hover:-translate-y-0.5 transition-all group"
           >

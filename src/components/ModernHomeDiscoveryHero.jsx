@@ -44,7 +44,7 @@ export default function ModernHomeDiscoveryHero({ onSelectCategory }) {
       tag: "9:16 Video Player",
       desc: "Full-screen vertical videos, instant audio, and creator highlights.",
       icon: Film,
-      href: "/short/698c432d0a8059958d20a4f4",
+      href: "/shorts",
       actionText: "Watch Shorts",
       badge: "Live",
     },
@@ -242,7 +242,7 @@ export default function ModernHomeDiscoveryHero({ onSelectCategory }) {
                 </Link>
 
                 <Link
-                  href="/short/698c432d0a8059958d20a4f4"
+                  href="/shorts"
                   onClick={() => playTap()}
                   className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white font-bold text-xs border border-white/15 transition active:scale-95"
                 >
