@@ -44,7 +44,7 @@ export default function FloatingDock() {
     setSoundActive(next);
   };
 
-  if (pathname === "/") return null;
+  if (pathname === "/" || pathname?.startsWith("/shorts") || pathname?.startsWith("/reel")) return null;
 
   return (
     <div className="hidden lg:flex fixed bottom-5 left-1/2 -translate-x-1/2 z-[9000] pointer-events-none">

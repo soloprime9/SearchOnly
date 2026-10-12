@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { FaVolumeMute, FaVolumeUp, FaArrowLeft, FaPlay, FaTimes, FaFire, FaClock, FaHeart } from "react-icons/fa";
+import { FaVolumeMute, FaVolumeUp, FaArrowLeft, FaPlay, FaTimes, FaFire, FaClock, FaHeart, FaYoutube, FaPlus } from "react-icons/fa";
 import { ShieldCheck, Music, ChevronUp, ChevronDown, Sparkles } from "lucide-react";
 import axios from "axios";
 import ReelInteractions from "./ReelInteractions";
@@ -18,6 +18,47 @@ import { triggerHeartBurst } from "@/utils/confetti";
 
 const API_BASE = getApiBase();
 
+export const SAMPLE_SHORTS = [
+  {
+    _id: "yt_demo_sample_1",
+    title: "🌌 Deep Space Exploration & Nebula 4K",
+    media: "https://www.youtube.com/shorts/51YJzH1eP6E",
+    mediaType: "video",
+    youtubeId: "51YJzH1eP6E",
+    thumbnail: "https://img.youtube.com/vi/51YJzH1eP6E/hqdefault.jpg",
+    userId: {
+      _id: "yt_curated_1",
+      username: "CosmosShorts",
+      name: "Cosmos Shorts",
+      isVerified: true,
+      profilePicture: "https://img.youtube.com/vi/51YJzH1eP6E/hqdefault.jpg",
+    },
+    likes: [1, 2, 3, 4, 5],
+    comments: [],
+    views: 48920,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: "yt_demo_sample_2",
+    title: "🤖 Future Artificial Intelligence & Robotics 2026",
+    media: "https://www.youtube.com/shorts/3l01eD8Q_U8",
+    mediaType: "video",
+    youtubeId: "3l01eD8Q_U8",
+    thumbnail: "https://img.youtube.com/vi/3l01eD8Q_U8/hqdefault.jpg",
+    userId: {
+      _id: "yt_curated_2",
+      username: "TechPulse",
+      name: "Tech Pulse",
+      isVerified: true,
+      profilePicture: "https://img.youtube.com/vi/3l01eD8Q_U8/hqdefault.jpg",
+    },
+    likes: [1, 2, 3],
+    comments: [],
+    views: 31200,
+    createdAt: new Date().toISOString(),
+  },
+];
+
 function formatTime(seconds) {
   if (!seconds || isNaN(seconds)) return "0:00";
   const m = Math.floor(seconds / 60);
@@ -30,12 +71,15 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
   const [posts, setPosts] = useState(() => {
     if (initialPost) {
-      const relatedFiltered = initialRelated.filter(
+      const relatedFiltered = (initialRelated || []).filter(
         (p) => String(p._id) !== String(initialPost._id)
       );
+      if (!relatedFiltered.length) {
+        return [initialPost, ...SAMPLE_SHORTS];
+      }
       return [initialPost, ...relatedFiltered];
     }
-    return initialRelated;
+    return (initialRelated && initialRelated.length) ? initialRelated : SAMPLE_SHORTS;
   });
 
   const [isInitialLoading, setIsInitialLoading] = useState(
@@ -58,6 +102,97 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   const [hoverScrub, setHoverScrub] = useState(null);
   const [doubleTapHearts, setDoubleTapHearts] = useState([]);
   const [followedCreators, setFollowedCreators] = useState(new Set());
+  const [showAddShortModal, setShowAddShortModal] = useState(false);
+  const [inputUrl, setInputUrl] = useState("");
+  const [inputTitle, setInputTitle] = useState("");
+  const [isSubmittingShort, setIsSubmittingShort] = useState(false);
+
+  const handlePlayNow = (overrideUrl, overrideTitle) => {
+    const targetUrl = (overrideUrl || inputUrl).trim();
+    const ytId = getYouTubeVideoId(targetUrl);
+    if (!ytId) {
+      toast.error("Please enter a valid YouTube Shorts link!");
+      return;
+    }
+    const titleText = (overrideTitle || inputTitle).trim() || "Trending YouTube Short";
+    const customShort = {
+      _id: `yt_${ytId}_${Date.now()}`,
+      title: titleText,
+      media: `https://www.youtube.com/shorts/${ytId}`,
+      mediaType: "video",
+      youtubeId: ytId,
+      thumbnail: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
+      userId: {
+        _id: "yt_creator",
+        username: "YouTubeCreator",
+        name: "YouTube Shorts",
+        isVerified: true,
+        profilePicture: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
+      },
+      likes: [],
+      comments: [],
+      views: 1250,
+      createdAt: new Date().toISOString(),
+    };
+
+    setPosts((prev) => [customShort, ...prev]);
+    setCurrentIndex(0);
+    setShowAddShortModal(false);
+    setInputUrl("");
+    setInputTitle("");
+    playChime();
+    toast.success("Short loaded! Playing in 9:16 vertical view");
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleSaveAndPost = async () => {
+    const targetUrl = inputUrl.trim();
+    const ytId = getYouTubeVideoId(targetUrl);
+    if (!ytId) {
+      toast.error("Please enter a valid YouTube Shorts link!");
+      return;
+    }
+    setIsSubmittingShort(true);
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const titleText = inputTitle.trim() || "Viral YouTube Short";
+      const res = await axios.post(
+        `${API_BASE}/post/create`,
+        {
+          title: titleText,
+          media: `https://www.youtube.com/shorts/${ytId}`,
+          mediaType: "video",
+          thumbnail: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
+          category: "Entertainment",
+        },
+        {
+          headers: token ? { "x-auth-token": token } : {},
+        }
+      );
+
+      const saved = res.data?.post || res.data;
+      if (saved && saved._id) {
+        toast.success("Short published to FondPeace feed!");
+        setPosts((prev) => [saved, ...prev]);
+        setCurrentIndex(0);
+        setShowAddShortModal(false);
+        setInputUrl("");
+        setInputTitle("");
+        if (containerRef.current) {
+          containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      } else {
+        handlePlayNow();
+      }
+    } catch (err) {
+      console.warn("Could not save to DB, playing locally:", err);
+      handlePlayNow();
+    } finally {
+      setIsSubmittingShort(false);
+    }
+  };
 
   const containerRef = useRef(null);
   const videoRefs = useRef([]);
@@ -553,14 +688,30 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={toggleMute}
-          className="pointer-events-auto p-2 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md text-white border border-white/10 shadow-lg transition active:scale-90 cursor-pointer"
-          title={isMuted ? "Unmute Sound (M)" : "Mute Sound (M)"}
-        >
-          {isMuted ? <FaVolumeMute className="text-sm text-rose-400" /> : <FaVolumeUp className="text-sm" />}
-        </button>
+        <div className="pointer-events-auto flex items-center gap-1.5">
+          {/* Quick YouTube Short Button */}
+          <button
+            type="button"
+            onClick={() => {
+              playTap();
+              setShowAddShortModal(true);
+            }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-red-600 hover:bg-red-500 text-white font-black text-xs shadow-lg shadow-red-600/30 transition-all hover:scale-105 active:scale-95 cursor-pointer border border-red-400/30"
+            title="Paste or test a YouTube Short"
+          >
+            <FaYoutube className="text-sm" />
+            <span className="hidden sm:inline text-[11px]">Add Short</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="p-2 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md text-white border border-white/10 shadow-lg transition active:scale-90 cursor-pointer"
+            title={isMuted ? "Unmute Sound (M)" : "Mute Sound (M)"}
+          >
+            {isMuted ? <FaVolumeMute className="text-sm text-rose-400" /> : <FaVolumeUp className="text-sm" />}
+          </button>
+        </div>
       </header>
 
       {/* ── Fast Forward Indicator Pill ── */}
@@ -710,6 +861,17 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
                 {/* ── Bottom Overlay Info (Creator, Verified Badge, Caption, Sound Wave) ── */}
                 <div className="absolute left-4 bottom-7 text-white max-w-[74%] z-20 pointer-events-auto">
+                  {ytId && (
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-600/90 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-md border border-red-500/40 shadow-lg shadow-red-600/30">
+                        <FaYoutube className="text-xs" />
+                        YouTube Short
+                      </span>
+                      <span className="text-[10px] text-zinc-300 font-semibold bg-black/50 px-2 py-0.5 rounded-full border border-white/10">
+                        Zero Storage
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 mb-2">
                     <Link
                       href={`/profile/${authorUsername}`}
@@ -874,6 +1036,105 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
               >
                 Create Short
               </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Add / Test YouTube Short Modal ── */}
+      {showAddShortModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="relative w-full max-w-md bg-zinc-950/95 border border-white/15 rounded-3xl p-6 text-white shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/30">
+                  <FaYoutube className="text-lg text-white" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black tracking-tight">Add YouTube Short</h3>
+                  <p className="text-[11px] text-zinc-400">Play instantly in 9:16 vertical reels</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddShortModal(false)}
+                className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition active:scale-90"
+              >
+                <FaTimes size={16} />
+              </button>
+            </div>
+
+            {/* Quick Sample Presets */}
+            <div className="my-4">
+              <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-2">
+                Quick 1-Click Samples:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {SAMPLE_SHORTS.map((sample, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setInputUrl(sample.media);
+                      setInputTitle(sample.title);
+                      playTap();
+                    }}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/10 hover:bg-red-600/30 hover:border-red-500/50 border border-white/10 text-zinc-200 hover:text-white transition active:scale-95 text-left"
+                  >
+                    {sample.title.slice(0, 24)}...
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* URL Input */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-zinc-300 mb-1">
+                  YouTube Short Link
+                </label>
+                <input
+                  type="text"
+                  value={inputUrl}
+                  onChange={(e) => setInputUrl(e.target.value)}
+                  placeholder="https://youtube.com/shorts/... or youtu.be/..."
+                  className="w-full px-3.5 py-2.5 bg-black/60 border border-white/15 focus:border-red-500 rounded-xl text-sm text-white placeholder-zinc-500 outline-none transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-300 mb-1">
+                  Title / Caption (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={inputTitle}
+                  onChange={(e) => setInputTitle(e.target.value)}
+                  placeholder="Cool short video caption..."
+                  className="w-full px-3.5 py-2.5 bg-black/60 border border-white/15 focus:border-red-500 rounded-xl text-sm text-white placeholder-zinc-500 outline-none transition"
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-6 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => handlePlayNow()}
+                disabled={!inputUrl.trim()}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs transition active:scale-95 border border-white/10"
+              >
+                🚀 Play Instantly
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSaveAndPost()}
+                disabled={!inputUrl.trim() || isSubmittingShort}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs shadow-lg shadow-red-600/30 transition active:scale-95 border border-red-400/30"
+              >
+                {isSubmittingShort ? "Publishing..." : "💾 Save & Post"}
+              </button>
             </div>
           </div>
         </div>

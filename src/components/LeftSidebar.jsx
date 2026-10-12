@@ -145,8 +145,8 @@ export default function LeftSidebar({ sticky = false }) {
           onMouseLeave={() => setExpanded(false)}
           className={`
             flex flex-col ${sticky ? "sticky top-0" : "fixed left-0 top-0"} h-screen z-40
-            bg-[var(--bg-canvas)] backdrop-blur-2xl
-            border-r border-[var(--border-subtle)]
+            bg-white/95 dark:bg-[#0c0d12]/95 backdrop-blur-2xl
+            border-r border-black/10 dark:border-white/10
             transition-all duration-300 ease-in-out
             overflow-hidden
             ${expanded ? "w-56 shadow-[8px_0_30px_rgba(0,0,0,0.7)]" : "w-[68px]"}
@@ -200,7 +200,7 @@ export default function LeftSidebar({ sticky = false }) {
                   className={`
                     shrink-0 text-[18px] ml-0.5
                     transition-transform duration-200
-                    ${active ? "text-black" : "group-hover:scale-110 text-zinc-400 group-hover:text-white"}
+                    ${active ? "text-blue-600 dark:text-blue-400" : "group-hover:scale-110 text-zinc-400 group-hover:text-white"}
                   `}
                 />
 

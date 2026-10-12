@@ -1,6 +1,7 @@
 // app/shorts/[id]/page.jsx
 import { notFound, permanentRedirect } from "next/navigation";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
+import { getYouTubeVideoId } from "@/components/YouTubeShortEmbed";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 
@@ -186,8 +187,10 @@ export default async function ShortsDetailPage({ params }) {
     const pageUrl = `${SITE_ROOT}/shorts/${post._id || id}`;
     const authorName = post?.userId?.username;
 
+    const rawMedia = post.media || post.mediaUrl || post.link || post.linkPreview?.url || "";
     const isVideo =
       post.mediaType?.startsWith("video") ||
+      Boolean(getYouTubeVideoId(rawMedia)) ||
       /\.(mp4|webm|mov|m3u8)$/i.test(mediaUrl || "");
 
     if (!isVideo) {
