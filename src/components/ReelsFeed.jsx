@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { FaVolumeMute, FaVolumeUp, FaArrowLeft, FaPlay, FaTimes, FaFire, FaClock } from "react-icons/fa";
+import { FaVolumeMute, FaVolumeUp, FaArrowLeft, FaPlay, FaTimes, FaFire, FaClock, FaHeart } from "react-icons/fa";
 import { ShieldCheck, Music, ChevronUp, ChevronDown, Sparkles } from "lucide-react";
 import axios from "axios";
 import ReelInteractions from "./ReelInteractions";
@@ -42,7 +42,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   const [showVolumeIcon, setShowVolumeIcon] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
   const [activeSoundModal, setActiveSoundModal] = useState(null);
-  const [hoverTimeTooltip, setHoverTimeTooltip] = useState(null);
+  const [hoverScrub, setHoverScrub] = useState(null);
+  const [doubleTapHearts, setDoubleTapHearts] = useState([]);
 
   const containerRef = useRef(null);
   const videoRefs = useRef([]);
@@ -118,11 +119,14 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
             setCurrentIndex(index);
             setIsPlaying(true);
 
-            // Pause all other videos
+            // Pause all other videos and conserve memory for distant items
             videoRefs.current.forEach((v, idx) => {
               if (v && idx !== index) {
                 v.pause();
                 v.playbackRate = 1.0;
+                if (Math.abs(idx - index) > 3) {
+                  v.currentTime = 0;
+                }
               }
             });
 
@@ -333,10 +337,16 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
     const timeDiff = now - lastTapRef.current.time;
 
     if (timeDiff < 320) {
-      const clientX = e.clientX || window.innerWidth / 2;
-      const clientY = e.clientY || window.innerHeight / 2;
+      const clientX = e.clientX || (typeof window !== "undefined" ? window.innerWidth / 2 : 200);
+      const clientY = e.clientY || (typeof window !== "undefined" ? window.innerHeight / 2 : 300);
       triggerHeartBurst(clientX, clientY);
       playPop();
+
+      const heartId = Date.now() + Math.random();
+      setDoubleTapHearts((prev) => [...prev, { id: heartId, x: clientX, y: clientY }]);
+      setTimeout(() => {
+        setDoubleTapHearts((prev) => prev.filter((h) => h.id !== heartId));
+      }, 900);
 
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       if (token && post?._id) {
@@ -383,6 +393,25 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       video.currentTime = percentage * video.duration;
       setVideoProgress(percentage * 100);
     }
+  };
+
+  const handleScrubberMouseMove = (e, index) => {
+    const bar = e.currentTarget;
+    const rect = bar.getBoundingClientRect();
+    const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const percentage = (clickX / rect.width) * 100;
+    const video = videoRefs.current[index];
+    const dur = video?.duration || 0;
+    const time = (percentage / 100) * dur;
+    setHoverScrub({
+      percent: percentage,
+      timeStr: `${formatTime(time)} / ${formatTime(dur)}`,
+      index,
+    });
+  };
+
+  const handleScrubberMouseLeave = () => {
+    setHoverScrub(null);
   };
 
   if (!posts.length) {
@@ -508,8 +537,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
               "U"
             ).toUpperCase();
 
-            // Zero-second preloading: auto-preload current and immediate neighbor reels
-            const shouldPreloadAuto = Math.abs(index - currentIndex) <= 1;
+            // Zero-second preloading: auto-preload active, previous, and next 2 upcoming reels
+            const shouldPreloadAuto = index >= currentIndex - 1 && index <= currentIndex + 2;
 
             return (
               <section
@@ -655,9 +684,20 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
                 {/* ── Interactive Bottom Progress Scrubber ── */}
                 <div
-                  className="absolute inset-x-0 bottom-0 h-4 flex items-end z-30 cursor-pointer group/scrub"
+                  className="absolute inset-x-0 bottom-0 h-5 flex items-end z-30 cursor-pointer group/scrub"
                   onClick={(e) => handleScrubberSeek(e, index)}
+                  onMouseMove={(e) => handleScrubberMouseMove(e, index)}
+                  onMouseLeave={handleScrubberMouseLeave}
                 >
+                  {/* Hover Timestamp Preview Tooltip */}
+                  {hoverScrub && hoverScrub.index === index && (
+                    <div
+                      className="absolute bottom-4 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-black/85 backdrop-blur-md text-white text-[10px] font-mono border border-white/20 shadow-xl pointer-events-none transition-all"
+                      style={{ left: `${hoverScrub.percent}%` }}
+                    >
+                      {hoverScrub.timeStr}
+                    </div>
+                  )}
                   <div className="w-full h-1 group-hover/scrub:h-2 bg-white/20 transition-all relative">
                     <div
                       className="h-full bg-rose-500 transition-all duration-100 ease-linear relative"
@@ -727,6 +767,19 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
           </div>
         </div>
       )}
+      {/* ── Double-Tap Floating Heart Burst Overlay ── */}
+      {doubleTapHearts.map((h) => (
+        <div
+          key={h.id}
+          style={{ left: `${h.x}px`, top: `${h.y}px` }}
+          className="fixed z-50 -translate-x-1/2 -translate-y-1/2 pointer-events-none animate-in zoom-in-50 fade-out-0 duration-700 select-none"
+        >
+          <div className="relative flex items-center justify-center">
+            <FaHeart className="text-rose-500 drop-shadow-[0_0_35px_rgba(244,63,94,0.95)] text-8xl md:text-9xl -rotate-12 transform scale-110" />
+            <FaHeart className="absolute text-white/50 text-7xl md:text-8xl -rotate-12 transform scale-90" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
