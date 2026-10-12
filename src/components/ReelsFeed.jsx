@@ -9,6 +9,9 @@ import { ShieldCheck, Music, ChevronUp, ChevronDown, Sparkles } from "lucide-rea
 import axios from "axios";
 import ReelInteractions from "./ReelInteractions";
 import LeftSidebar from "./LeftSidebar";
+import YouTubeShortEmbed from "./YouTubeShortEmbed";
+import { getYouTubeVideoId } from "./LinkPreviewCard";
+import { FEATURE_FLAGS } from "@/utils/featureFlags";
 import { getApiBase } from "@/utils/apiConfig";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
@@ -609,6 +612,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
             ).toUpperCase();
             const authorId = item.userId?._id || (typeof item.userId === "string" ? item.userId : null);
             const authorUsername = item.userId?.username || item.userId?.name || "Creator";
+            const ytId = item.youtubeId || getYouTubeVideoId(item.media || item.mediaUrl || item.link || item.linkPreview?.url || "");
 
             // Zero-second preloading: auto-preload active, previous, and next 2 upcoming reels
             const shouldPreloadAuto = index >= currentIndex - 1 && index <= currentIndex + 2;
@@ -650,26 +654,37 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     </div>
                   )}
 
-                  {/* Video Element: object-contain preserves 100% video resolution and framing with zero cuts */}
-                  <video
-                    ref={(el) => (videoRefs.current[index] = el)}
-                    src={item.media || item.mediaUrl}
-                    poster={
-                      item.thumbnail &&
-                      !item.thumbnail.includes("Fondpeace.jpg") &&
-                      !item.thumbnail.includes("default.jpg")
-                        ? item.thumbnail
-                        : undefined
-                    }
-                    data-index={index}
-                    data-id={item._id}
-                    loop
-                    playsInline
-                    muted={isMuted}
-                    preload={shouldPreloadAuto ? "auto" : "metadata"}
-                    onTimeUpdate={(e) => handleTimeUpdate(e, item)}
-                    className="relative z-10 w-full h-full object-contain mx-auto"
-                  />
+                  {/* Video Player: YouTube Shorts Embed or Native HTML5 Video */}
+                  {FEATURE_FLAGS.ENABLE_YOUTUBE_SHORTS && ytId ? (
+                    <YouTubeShortEmbed
+                      youtubeId={ytId}
+                      isActive={currentIndex === index}
+                      isMuted={isMuted}
+                      thumbnail={item.thumbnail}
+                      title={item.title}
+                    />
+                  ) : (
+                    /* Native Video Element: object-contain preserves 100% video resolution and framing with zero cuts */
+                    <video
+                      ref={(el) => (videoRefs.current[index] = el)}
+                      src={item.media || item.mediaUrl}
+                      poster={
+                        item.thumbnail &&
+                        !item.thumbnail.includes("Fondpeace.jpg") &&
+                        !item.thumbnail.includes("default.jpg")
+                          ? item.thumbnail
+                          : undefined
+                      }
+                      data-index={index}
+                      data-id={item._id}
+                      loop
+                      playsInline
+                      muted={isMuted}
+                      preload={shouldPreloadAuto ? "auto" : "metadata"}
+                      onTimeUpdate={(e) => handleTimeUpdate(e, item)}
+                      className="relative z-10 w-full h-full object-contain mx-auto"
+                    />
+                  )}
 
                   {/* Central Play/Pause Animation Overlay */}
                   {!isPlaying && currentIndex === index && (
