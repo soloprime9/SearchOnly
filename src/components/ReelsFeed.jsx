@@ -8,6 +8,7 @@ import { FaVolumeMute, FaVolumeUp, FaArrowLeft, FaPlay, FaTimes, FaFire, FaClock
 import { ShieldCheck, Music, ChevronUp, ChevronDown, Sparkles } from "lucide-react";
 import axios from "axios";
 import ReelInteractions from "./ReelInteractions";
+import LeftSidebar from "./LeftSidebar";
 import { getApiBase } from "@/utils/apiConfig";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
@@ -498,7 +499,10 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   const currentActivePost = posts[currentIndex];
 
   return (
-    <div className="bg-black w-full h-[100dvh] flex items-center justify-center overflow-hidden select-none relative">
+    <div className="bg-black w-full h-[100dvh] flex items-center justify-center overflow-hidden select-none relative lg:pl-[68px]">
+      {/* ── Desktop Left Sidebar Navigation ── */}
+      <LeftSidebar />
+
       {/* ── Desktop Ambient Theater Glow (Dynamic blur behind card) ── */}
       {currentActivePost?.thumbnail && (
         <div
@@ -508,7 +512,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       )}
 
       {/* ── Fixed Floating Top Bar with Mode Switcher ── */}
-      <header className="fixed top-0 inset-x-0 z-40 max-w-[500px] mx-auto px-3.5 py-3 flex items-center justify-between pointer-events-none">
+      <header className="fixed top-0 inset-x-0 lg:left-[68px] lg:right-0 z-40 max-w-[500px] mx-auto px-3.5 py-3 flex items-center justify-between pointer-events-none">
         <Link
           href="/"
           onClick={() => playTap()}
