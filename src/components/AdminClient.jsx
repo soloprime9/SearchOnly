@@ -363,16 +363,22 @@ export default function AdminClient({ initialPosts }) {
                   All Actions
                 </button>
                 <button
-                  onClick={() => { setFilterAction("page_view"); fetchActivityLogs("page_view", filterIp); }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${filterAction === "page_view" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                  onClick={() => { setFilterAction("pages"); fetchActivityLogs("pages", filterIp); }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${filterAction === "pages" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
                 >
-                  Page Views
+                  All Pages
                 </button>
                 <button
-                  onClick={() => { setFilterAction("shorts_view"); fetchActivityLogs("shorts_view", filterIp); }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${filterAction === "shorts_view" ? "bg-purple-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                  onClick={() => { setFilterAction("shorts"); fetchActivityLogs("shorts", filterIp); }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${filterAction === "shorts" ? "bg-purple-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
                 >
-                  Shorts Views
+                  Shorts / Reels
+                </button>
+                <button
+                  onClick={() => { setFilterAction("auth"); fetchActivityLogs("auth", filterIp); }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${filterAction === "auth" ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                >
+                  Auth & Logins
                 </button>
 
                 {filterIp && (
