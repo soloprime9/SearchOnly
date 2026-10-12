@@ -156,7 +156,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
             const activePost = posts[index];
             if (activePost?._id) {
               const id = String(activePost._id);
-              window.history.replaceState(null, "", `/short/${id}`);
+              window.history.replaceState(null, "", `/shorts/${id}`);
 
               if (!seenPostsRef.current.has(id)) {
                 seenPostsRef.current.add(id);
@@ -315,7 +315,12 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       await axios.post(
         `${API_BASE}/user/follow/${creatorId}`,
         {},
-        { headers: { "x-auth-token": token } }
+        {
+          headers: {
+            "x-auth-token": token,
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
     } catch (_) {}
   };
@@ -598,6 +603,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
               item.userId?.name?.[0] ||
               "U"
             ).toUpperCase();
+            const authorId = item.userId?._id || (typeof item.userId === "string" ? item.userId : null);
+            const authorUsername = item.userId?.username || item.userId?.name || "Creator";
 
             // Zero-second preloading: auto-preload active, previous, and next 2 upcoming reels
             const shouldPreloadAuto = index >= currentIndex - 1 && index <= currentIndex + 2;
@@ -623,20 +630,23 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     }
                   }}
                 >
-                  {/* Subtle Ambient Background */}
+                  {/* Ambient Dynamic Glow Backdrop (fills letterbox areas naturally without clipping) */}
                   {(item.thumbnail || item.media) && (
-                    <img
-                      src={item.thumbnail || item.media}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-25 scale-125 pointer-events-none select-none"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
+                    <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none z-0">
+                      <img
+                        src={item.thumbnail || item.media}
+                        alt=""
+                        aria-hidden="true"
+                        className="w-full h-full object-cover blur-3xl opacity-35 scale-125"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/30" />
+                    </div>
                   )}
 
-                  {/* Vertical Video Element with Smart Preload */}
+                  {/* Video Element: object-contain preserves 100% video resolution and framing with zero cuts */}
                   <video
                     ref={(el) => (videoRefs.current[index] = el)}
                     src={item.media || item.mediaUrl}
@@ -654,7 +664,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     muted={isMuted}
                     preload={shouldPreloadAuto ? "auto" : "metadata"}
                     onTimeUpdate={(e) => handleTimeUpdate(e, item)}
-                    className="relative z-10 w-full h-full object-cover mx-auto bg-black"
+                    className="relative z-10 w-full h-full object-contain mx-auto"
                   />
 
                   {/* Central Play/Pause Animation Overlay */}
@@ -683,7 +693,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                 <div className="absolute left-4 bottom-7 text-white max-w-[74%] z-20 pointer-events-auto">
                   <div className="flex items-center gap-2 mb-2">
                     <Link
-                      href={`/profile/${item.userId?.username}`}
+                      href={`/profile/${authorUsername}`}
                       onClick={(e) => e.stopPropagation()}
                       className="flex items-center gap-1.5 group"
                     >
@@ -692,7 +702,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                           {rawAuthorPic && rawAuthorPic !== "/Fondpeace.jpg" ? (
                             <img
                               src={rawAuthorPic}
-                              alt={item.userId?.username || "creator"}
+                              alt={authorUsername}
                               className="w-full h-full rounded-full object-cover"
                               onError={(e) => {
                                 e.currentTarget.src = "/Fondpeace.jpg";
@@ -704,7 +714,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                         </div>
                       </div>
                       <span className="font-bold text-sm hover:underline drop-shadow-md">
-                        @{item.userId?.username || "Creator"}
+                        @{authorUsername}
                       </span>
                     </Link>
 
@@ -712,23 +722,23 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                       <ShieldCheck size={15} className="text-blue-400 fill-blue-400/25 shrink-0" />
                     )}
 
-                    {item.userId?._id && (
+                    {authorId && (
                       <button
                         type="button"
                         onClick={(e) =>
                           handleFollowInline(
                             e,
-                            item.userId?._id,
-                            item.userId?.username
+                            authorId,
+                            authorUsername
                           )
                         }
                         className={`ml-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold transition active:scale-90 cursor-pointer ${
-                          followedCreators.has(String(item.userId._id))
+                          followedCreators.has(String(authorId))
                             ? "bg-white/20 text-zinc-300 hover:bg-white/30"
                             : "bg-rose-600 hover:bg-rose-500 text-white shadow-md"
                         }`}
                       >
-                        {followedCreators.has(String(item.userId._id)) ? "Following" : "+ Follow"}
+                        {followedCreators.has(String(authorId)) ? "Following" : "+ Follow"}
                       </button>
                     )}
                   </div>

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-const API_SINGLE = "https://backend-k.vercel.app/post/single/";
+const API_SINGLE = "https://backendk-z915.onrender.com/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
 
 export const dynamic = "force-dynamic";

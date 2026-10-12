@@ -5,6 +5,7 @@ import axios from "axios";
 import jwt from "jsonwebtoken";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 import {
   FaHeart,
   FaRegHeart,
@@ -25,7 +26,9 @@ const API_BASE = getApiBase();
 const safeArray = (v) => (Array.isArray(v) ? v : []);
 
 function formatCount(num) {
-  const n = Number(num) || 0;
+  if (Array.isArray(num)) return formatCount(num.length);
+  const n = Number(num);
+  if (isNaN(n) || n <= 0) return "0";
   if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
   if (n >= 1000) return (n / 1000).toFixed(1) + "K";
   return n.toString();
@@ -73,6 +76,65 @@ export default function ReelInteractions({ post, updatePost }) {
       }
     } catch (_) {}
   }, []);
+
+  // Real-time live synchronization for Likes, Comments, and Follows
+  useEffect(() => {
+    if (typeof window === "undefined" || !data._id) return;
+    let socket = null;
+    try {
+      socket = io(API_BASE, {
+        transports: ["websocket", "polling"],
+        reconnection: true,
+        reconnectionAttempts: 5,
+      });
+
+      socket.on("post_like_update", (payload) => {
+        if (payload && String(payload.postId) === String(data._id)) {
+          setData((prev) => {
+            const nextLikes = Array.isArray(payload.likes) ? payload.likes : prev.likes;
+            const updated = { ...prev, likes: nextLikes };
+            if (updatePost) updatePost(updated);
+            return updated;
+          });
+        }
+      });
+
+      socket.on("post_comment_update", (payload) => {
+        if (payload && String(payload.postId) === String(data._id) && payload.comment) {
+          setData((prev) => {
+            const prevComments = safeArray(prev.comments);
+            const exists = prevComments.some(
+              (c) => String(c._id) === String(payload.comment._id)
+            );
+            if (exists) return prev;
+            const updated = {
+              ...prev,
+              comments: [...prevComments, payload.comment],
+            };
+            if (updatePost) updatePost(updated);
+            return updated;
+          });
+        }
+      });
+
+      socket.on("user_follow_update", (payload) => {
+        const currentCreatorId = String(data.userId?._id || data.userId || "");
+        if (payload && String(payload.targetUserId) === currentCreatorId) {
+          if (userId && payload.followerUserId === userId) {
+            setIsFollowingCreator(Boolean(payload.isFollowing));
+          }
+        }
+      });
+    } catch (err) {
+      console.error("Socket connection error in ReelInteractions:", err);
+    }
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [data._id, userId, updatePost]);
 
   const syncParent = useCallback(
     (updated) => {
@@ -249,7 +311,7 @@ export default function ReelInteractions({ post, updatePost }) {
   // ===== SHARE HANDLER =====
   const handleShare = async () => {
     playTap();
-    const url = `${typeof window !== "undefined" ? window.location.origin : "https://www.fondpeace.com"}/short/${data._id}`;
+    const url = `${typeof window !== "undefined" ? window.location.origin : "https://www.fondpeace.com"}/shorts/${data._id}`;
     const shareData = {
       title: data.title || "FondPeace Short",
       text: `Watch this short on FondPeace: ${data.title || ""}`,
@@ -268,14 +330,14 @@ export default function ReelInteractions({ post, updatePost }) {
 
   const handleCopyLink = async () => {
     playPop();
-    const url = `${window.location.origin}/short/${data._id}`;
+    const url = `${window.location.origin}/shorts/${data._id}`;
     await navigator.clipboard.writeText(url);
     setCopiedLink(true);
     toast.success("Link copied to clipboard! 📋");
     setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://www.fondpeace.com"}/short/${data._id}`;
+  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://www.fondpeace.com"}/shorts/${data._id}`;
 
   return (
     <>
@@ -429,11 +491,11 @@ export default function ReelInteractions({ post, updatePost }) {
       {/* ── Comments Slide-Up Bottom Drawer ── */}
       {showComments && (
         <div
-          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-end justify-center animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[1000] flex items-end justify-center animate-in fade-in duration-200"
           onClick={() => setShowComments(false)}
         >
           <div
-            className="bg-[#0f121d] text-white w-full max-w-[480px] h-[70vh] rounded-t-3xl p-4 sm:p-5 flex flex-col relative border-t border-x border-white/15 shadow-2xl animate-in slide-in-from-bottom duration-300"
+            className="bg-[#0f121d] text-white w-full max-w-[480px] h-[75vh] max-h-[85vh] rounded-t-3xl p-4 sm:p-5 pb-24 sm:pb-6 flex flex-col relative border-t border-x border-white/15 shadow-2xl animate-in slide-in-from-bottom duration-300 z-[1001]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header with drag indicator */}
@@ -462,11 +524,31 @@ export default function ReelInteractions({ post, updatePost }) {
                 </div>
               ) : (
                 safeArray(data.comments).map((cmt) => (
-                  <div key={cmt._id} className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.06] space-y-1.5">
+                  <div key={cmt._id || Math.random()} className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.06] space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-blue-400">
-                        @{cmt.userId?.username || "creator"}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10 shrink-0 border border-white/10">
+                          <img
+                            src={cmt.userId?.profilePicture || cmt.userId?.profilePic || cmt.userId?.avatar || "/Fondpeace.jpg"}
+                            alt={cmt.userId?.username || "user"}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "/Fondpeace.jpg";
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-bold text-xs text-zinc-100">
+                            {cmt.userId?.name || cmt.userId?.username || "FondPeace User"}
+                          </span>
+                          <span className="text-[11px] text-blue-400">
+                            @{cmt.userId?.username || "user"}
+                          </span>
+                          {cmt.userId?.isVerified && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" title="Verified" />
+                          )}
+                        </div>
+                      </div>
                       <button
                         onClick={() => setActiveReplyId(activeReplyId === cmt._id ? null : cmt._id)}
                         className="text-[11px] text-zinc-400 hover:text-white transition-colors cursor-pointer"
@@ -480,7 +562,7 @@ export default function ReelInteractions({ post, updatePost }) {
                     {safeArray(cmt.replies).length > 0 && (
                       <div className="pl-3 mt-2 border-l-2 border-white/10 space-y-1.5">
                         {safeArray(cmt.replies).map((rep) => (
-                          <div key={rep._id} className="text-xs">
+                          <div key={rep._id || Math.random()} className="text-xs">
                             <span className="font-bold text-indigo-400">@{rep.userId?.username || "user"}: </span>
                             <span className="text-zinc-300">{rep.replyText}</span>
                           </div>
@@ -527,8 +609,8 @@ export default function ReelInteractions({ post, updatePost }) {
               ))}
             </div>
 
-            {/* Comment Composer Input */}
-            <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+            {/* Comment Composer Input (Elevated above floating dock) */}
+            <div className="flex items-center gap-2 pt-2 border-t border-white/10 mb-6 sm:mb-1">
               <input
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}

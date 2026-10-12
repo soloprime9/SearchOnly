@@ -179,7 +179,7 @@ export async function generateMetadata({ params }) {
       return {
         title: `${post.title || "Video"}`,
         description: post.title || "Watch on FondPeace",
-        alternates: { canonical: `${SITE_ROOT}/short/${id}` },
+        alternates: { canonical: `${SITE_ROOT}/shorts/${id}` },
         robots: { index: false, follow: true },
       };
     }
@@ -255,7 +255,7 @@ export default async function Page({ params }) {
 
   // If this post is a video, redirect 308/301 permanently to the dedicated watch page
   if (isVideo) {
-    permanentRedirect(`/short/${id}`);
+    permanentRedirect(`/shorts/${id}`);
   }
 
 const related = data?.related ?? [];

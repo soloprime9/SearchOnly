@@ -47,7 +47,7 @@ export default function TrendingShortsRail() {
             tag: v.category || "Video",
             image: v.thumbnail || "/Fondpeace.jpg",
             media: v.media,
-            href: `/short/${v._id}`,
+            href: `/shorts/${v._id}`,
           }));
           setShorts(mapped);
           if (mapped[0]?.id) {
@@ -111,7 +111,7 @@ export default function TrendingShortsRail() {
             <ChevronRight size={14} />
           </button>
           <Link
-            href={firstShortId ? `/short/${firstShortId}` : "/upload"}
+            href={firstShortId ? `/shorts/${firstShortId}` : "/shorts"}
             onClick={() => playTap()}
             className="text-xs font-bold text-zinc-400 hover:text-white transition ml-1 hover:underline"
           >
