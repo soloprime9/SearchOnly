@@ -707,6 +707,15 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
                     >
                       {followLoading ? "..." : isFollowing ? "✓ Following" : "+ Follow"}
                     </button>
+                    <Link
+                      href={`/messages?userId=${user._id}&name=${encodeURIComponent(user.username || user.name || "")}`}
+                      onClick={() => playTap()}
+                      className="px-3.5 py-1.5 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--bg-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)] text-xs font-bold transition active:scale-95 shadow-xs flex items-center gap-1.5"
+                      title="Send Encrypted Message"
+                    >
+                      <MessageCircle size={13} className="text-blue-500" />
+                      <span>Message</span>
+                    </Link>
                     <button
                       onClick={handleShare}
                       className="p-1.5 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
@@ -876,6 +885,15 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
               >
                 {followLoading ? "..." : isFollowing ? "✓ Following" : "+ Follow"}
               </button>
+              <Link
+                href={`/messages?userId=${user._id}&name=${encodeURIComponent(user.username || user.name || "")}`}
+                onClick={() => playTap()}
+                className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition active:scale-95 flex items-center justify-center gap-1.5 shadow-xs"
+                title="Send Encrypted Message"
+              >
+                <MessageCircle size={14} className="text-blue-500" />
+                <span>Message</span>
+              </Link>
               <button
                 onClick={handleShare}
                 className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)]"

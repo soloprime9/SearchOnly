@@ -14,6 +14,7 @@ import {
   FaBell,
   FaBookmark,
   FaCoins,
+  FaCommentDots,
 } from "react-icons/fa";
 import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
@@ -29,6 +30,7 @@ export default function LeftSidebar({ sticky = false }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSavedPosts, setShowSavedPosts] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -92,6 +94,24 @@ export default function LeftSidebar({ sticky = false }) {
     fetchUnread();
     const interval = setInterval(fetchUnread, 25000);
 
+    // Live unread chat messages sync
+    const fetchChatUnread = async () => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (!token) return;
+      try {
+        const apiBase = getApiBase();
+        const res = await axios.get(`${apiBase}/chat/unread-count`, {
+          headers: getAuthHeaders(),
+        });
+        if (res.data?.success) {
+          setUnreadChatCount(res.data.unreadCount || 0);
+        }
+      } catch (_) {}
+    };
+
+    fetchChatUnread();
+    const chatInterval = setInterval(fetchChatUnread, 15000);
+
     const handleNotificationsSeen = () => {
       setUnreadCount(0);
     };
@@ -100,30 +120,37 @@ export default function LeftSidebar({ sticky = false }) {
         setUnreadCount(e.detail.unreadCount);
       }
     };
+    const handleChatRead = () => {
+      setUnreadChatCount(0);
+    };
 
     window.addEventListener("notifications_seen", handleNotificationsSeen);
     window.addEventListener("notifications_updated", handleNotificationsUpdated);
+    window.addEventListener("chat_messages_seen", handleChatRead);
 
     return () => {
       clearInterval(interval);
+      clearInterval(chatInterval);
       window.removeEventListener("notifications_seen", handleNotificationsSeen);
       window.removeEventListener("notifications_updated", handleNotificationsUpdated);
+      window.removeEventListener("chat_messages_seen", handleChatRead);
       window.removeEventListener("user_profile_updated", handleProfileUpdate);
     };
   }, []);
 
   const menu = [
-    { icon: FaHome,     label: "Home",    href: "/" },
-    { icon: FaSearch,   label: "Explore", href: "/search" },
-    { icon: FaVideo,    label: "Shorts",  href: "/shorts" },
-    { icon: FaUpload,   label: "Upload",  href: "/upload" },
-    { icon: FaCoins,    label: "Monetize", href: "/monetization" },
+    { icon: FaHome,        label: "Home",     href: "/" },
+    { icon: FaSearch,      label: "Explore",  href: "/search" },
+    { icon: FaVideo,       label: "Shorts",   href: "/shorts" },
+    { icon: FaCommentDots, label: "Messages", href: "/messages", badge: unreadChatCount },
+    { icon: FaUpload,      label: "Upload",   href: "/upload" },
+    { icon: FaCoins,       label: "Monetize", href: "/monetization" },
     {
       icon: FaUser,
       label: "Profile",
       href: username ? `/profile/${username}` : "/login",
     },
-    { icon: FaShareAlt, label: "About",   href: "/aboutus" },
+    { icon: FaShareAlt,    label: "About",    href: "/aboutus" },
   ];
 
   const isActive = (href) => {
@@ -196,22 +223,32 @@ export default function LeftSidebar({ sticky = false }) {
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-blue-500 rounded-r-full" />
                 )}
 
-                <item.icon
-                  className={`
-                    shrink-0 text-[18px] ml-0.5
-                    transition-transform duration-200
-                    ${active ? "text-blue-600 dark:text-blue-400" : "group-hover:scale-110 text-zinc-400 group-hover:text-white"}
-                  `}
-                />
+                <div className="relative shrink-0">
+                  <item.icon
+                    className={`
+                      shrink-0 text-[18px] ml-0.5
+                      transition-transform duration-200
+                      ${active ? "text-blue-600 dark:text-blue-400" : "group-hover:scale-110 text-zinc-400 group-hover:text-white"}
+                    `}
+                  />
+                  {item.badge > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 rounded-full ring-2 ring-white dark:ring-[#070a13] animate-pulse" />
+                  )}
+                </div>
 
                 <span
                   className={`
                     text-[13.5px] whitespace-nowrap
-                    transition-all duration-200
+                    transition-all duration-200 flex items-center justify-between flex-1
                     ${expanded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-3 pointer-events-none w-0"}
                   `}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {item.badge > 0 && (
+                    <span className="ml-1.5 px-1.5 py-0.5 text-[10px] rounded-full bg-blue-600 text-white font-bold">
+                      {item.badge}
+                    </span>
+                  )}
                 </span>
               </Link>
             );

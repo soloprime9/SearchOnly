@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { playTap } from "@/utils/soundEffects";
-import { FaBell, FaBookmark, FaSearch } from "react-icons/fa";
+import { FaBell, FaBookmark, FaSearch, FaCommentDots } from "react-icons/fa";
 import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import NotificationDrawer from "./NotificationDrawer";
@@ -15,6 +15,7 @@ export default function MobileHeader() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSavedPosts, setShowSavedPosts] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,8 +33,26 @@ export default function MobileHeader() {
       } catch (_) {}
     };
 
+    const fetchChatUnread = async () => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (!token) return;
+      try {
+        const apiBase = getApiBase();
+        const res = await axios.get(`${apiBase}/chat/unread-count`, {
+          headers: getAuthHeaders(),
+        });
+        if (res.data?.success) {
+          setUnreadChatCount(res.data.unreadCount || 0);
+        }
+      } catch (_) {}
+    };
+
     fetchUnread();
-    const interval = setInterval(fetchUnread, 25000);
+    fetchChatUnread();
+    const interval = setInterval(() => {
+      fetchUnread();
+      fetchChatUnread();
+    }, 20000);
 
     const handleNotificationsSeen = () => {
       setUnreadCount(0);
@@ -43,14 +62,19 @@ export default function MobileHeader() {
         setUnreadCount(e.detail.unreadCount);
       }
     };
+    const handleChatRead = () => {
+      setUnreadChatCount(0);
+    };
 
     window.addEventListener("notifications_seen", handleNotificationsSeen);
     window.addEventListener("notifications_updated", handleNotificationsUpdated);
+    window.addEventListener("chat_messages_seen", handleChatRead);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("notifications_seen", handleNotificationsSeen);
       window.removeEventListener("notifications_updated", handleNotificationsUpdated);
+      window.removeEventListener("chat_messages_seen", handleChatRead);
     };
   }, []);
 
@@ -97,6 +121,19 @@ export default function MobileHeader() {
           >
             <FaBookmark className="w-3.5 h-3.5" />
           </button>
+
+          {/* Messages Link */}
+          <Link
+            href="/messages"
+            onClick={() => playTap()}
+            className="relative w-8 h-8 rounded-full bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface)] text-cyan-400 border border-[var(--border-subtle)] flex items-center justify-center transition active:scale-95 cursor-pointer"
+            aria-label="Direct Messages"
+          >
+            <FaCommentDots className="w-3.5 h-3.5" />
+            {unreadChatCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-500 rounded-full ring-2 ring-[var(--bg-canvas)] animate-pulse" />
+            )}
+          </Link>
 
           {/* Notifications Drawer Trigger */}
           <button
