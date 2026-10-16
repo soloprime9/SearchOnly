@@ -19,6 +19,8 @@ export function getYouTubeVideoId(url) {
 export default function YouTubeShortEmbed({
   youtubeId,
   isActive = false,
+  shouldPreload = false,
+  isNearby = true,
   isMuted = false,
   thumbnail = null,
   title = "YouTube Short",
@@ -44,10 +46,12 @@ export default function YouTubeShortEmbed({
     if (!isLoaded) return;
     if (isActive) {
       sendCommand("playVideo");
+      if (isMuted) sendCommand("mute");
+      else sendCommand("unMute");
     } else {
       sendCommand("pauseVideo");
     }
-  }, [isActive, isLoaded]);
+  }, [isActive, isLoaded, isMuted]);
 
   // Sync Mute / Unmute state
   useEffect(() => {
@@ -58,6 +62,15 @@ export default function YouTubeShortEmbed({
       sendCommand("unMute");
     }
   }, [isMuted, isLoaded]);
+
+  // Fallback timeout to ensure poster fades out even if iframe event is delayed
+  useEffect(() => {
+    if (!youtubeId || (!isActive && !shouldPreload)) return;
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [youtubeId, isActive, shouldPreload]);
 
   if (!youtubeId || hasError) {
     return (
@@ -103,31 +116,35 @@ export default function YouTubeShortEmbed({
         </div>
       )}
 
-      {/* Sandboxed YouTube Player Frame (Fills 9:16 cleanly) */}
-      <iframe
-        ref={iframeRef}
-        src={embedUrl}
-        title={title}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
-        onLoad={() => {
-          setIsLoaded(true);
-          if (isActive) {
-            sendCommand("playVideo");
-            if (isMuted) sendCommand("mute");
-            else sendCommand("unMute");
-          }
-        }}
-        onError={() => setHasError(true)}
-        className={`relative z-0 w-full h-full border-0 pointer-events-auto transition-opacity duration-300 ${
-          isLoaded ? "opacity-100" : "opacity-0"
-        }`}
-        style={{
-          width: "100%",
-          height: "100%",
-          aspectRatio: "9/16",
-        }}
-      />
+      {/* Sandboxed YouTube Player Frame (Fills 9:16 cleanly) - Only mounts when active, preloading, or nearby */}
+      {(isActive || shouldPreload || isNearby) ? (
+        <iframe
+          ref={iframeRef}
+          src={embedUrl}
+          title={title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          onLoad={() => {
+            setIsLoaded(true);
+            if (isActive) {
+              sendCommand("playVideo");
+              if (isMuted) sendCommand("mute");
+              else sendCommand("unMute");
+            } else {
+              sendCommand("pauseVideo");
+            }
+          }}
+          onError={() => setHasError(true)}
+          className={`relative z-0 w-full h-full border-0 pointer-events-auto transition-opacity duration-300 ${
+            isLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          style={{
+            width: "100%",
+            height: "100%",
+            aspectRatio: "9/16",
+          }}
+        />
+      ) : null}
 
       {/* Sleek Source Badge (Non-intrusive) */}
       <div className="absolute top-4 right-4 z-20 pointer-events-none flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold shadow-lg">

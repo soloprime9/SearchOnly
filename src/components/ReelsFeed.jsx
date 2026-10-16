@@ -217,6 +217,67 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   }, [posts, isMuted, logWatchTelemetry, saveSeenToSession]);
 
   /* ==============================
+     NEXT VIDEO PRE-BUFFERING ENGINE (ZERO LATENCY SWIPING)
+     Pre-buffers the next upcoming video 1-2s ahead so swiping has 0ms delay!
+  ============================== */
+  useEffect(() => {
+    if (!posts || !posts.length) return;
+
+    // Buffer the upcoming video after current video has played smoothly for ~1 second
+    const prebufferTimer = setTimeout(() => {
+      const nextIdx = currentIndex + 1;
+      const nextPost = posts[nextIdx];
+      if (!nextPost) return;
+
+      const ytId = extractPostYouTubeId(nextPost);
+      const nextUrl = nextPost.media || nextPost.mediaUrl;
+
+      // Case A: Native HTML5 Video Pre-buffering
+      if (!ytId && nextUrl && typeof nextUrl === "string") {
+        // 1. Proactively warm native video element if mounted
+        const nextVideo = videoRefs.current[nextIdx];
+        if (nextVideo) {
+          try {
+            nextVideo.preload = "auto";
+            if (nextVideo.readyState < 2) {
+              nextVideo.load();
+            }
+          } catch (_) {}
+        }
+
+        // 2. Proactively fetch first 2MB range into browser HTTP cache
+        if (typeof window !== "undefined" && window.fetch) {
+          try {
+            fetch(nextUrl, {
+              headers: { Range: "bytes=0-2097152" },
+              cache: "force-cache",
+            }).catch(() => {});
+          } catch (_) {}
+        }
+      }
+
+      // Case B: Sub-next video (currentIndex + 2) metadata preparation
+      const subNextIdx = currentIndex + 2;
+      const subNextPost = posts[subNextIdx];
+      if (subNextPost) {
+        const subYt = extractPostYouTubeId(subNextPost);
+        const subUrl = subNextPost.media || subNextPost.mediaUrl;
+        if (!subYt && subUrl) {
+          const subVideo = videoRefs.current[subNextIdx];
+          if (subVideo && subVideo.readyState < 1) {
+            try {
+              subVideo.preload = "metadata";
+              subVideo.load();
+            } catch (_) {}
+          }
+        }
+      }
+    }, 1000);
+
+    return () => clearTimeout(prebufferTimer);
+  }, [currentIndex, posts]);
+
+  /* ==============================
      LOAD MORE SHORTS (DEDUPLICATED FEED)
   ============================== */
   const loadMorePosts = useCallback(async (customPage = null, resetFeed = false) => {
@@ -661,7 +722,10 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
             const resolvedThumbnail = item.thumbnail || item.linkPreview?.image || (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : "");
 
             // Zero-second preloading: auto-preload active, previous, and next 2 upcoming reels
-            const shouldPreloadAuto = index >= currentIndex - 1 && index <= currentIndex + 2;
+            const isCurrent = index === currentIndex;
+            const isNext = index === currentIndex + 1;
+            const isSubNext = index === currentIndex + 2;
+            const isNearby = Math.abs(index - currentIndex) <= 2;
 
             return (
               <section
@@ -704,7 +768,9 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                   {FEATURE_FLAGS.ENABLE_YOUTUBE_SHORTS && ytId ? (
                     <YouTubeShortEmbed
                       youtubeId={ytId}
-                      isActive={currentIndex === index}
+                      isActive={isCurrent}
+                      shouldPreload={isNext || isSubNext}
+                      isNearby={isNearby}
                       isMuted={isMuted}
                       thumbnail={resolvedThumbnail}
                       title={item.title}
@@ -726,7 +792,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                       loop
                       playsInline
                       muted={isMuted}
-                      preload={shouldPreloadAuto ? "auto" : "metadata"}
+                      preload={isCurrent || isNext ? "auto" : isSubNext ? "metadata" : "none"}
                       onTimeUpdate={(e) => handleTimeUpdate(e, item)}
                       className="relative z-10 w-full h-full object-contain mx-auto"
                     />
