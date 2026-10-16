@@ -124,31 +124,20 @@ export async function getUnifiedFeedPosts({
       return discussionsOnly.slice(startIndex, startIndex + limit);
     }
 
-    // Type === "all": Interleave video, image, discussion posts naturally
-    // Deduplicate by _id
+    // Type === "all": Natural chronological feed order without artificial interleaving
+    const allPosts = [...filteredVideos, ...filteredNonVideos];
     const seen = new Set();
-    const interleaved = [];
-    const maxLen = Math.max(filteredVideos.length, filteredNonVideos.length);
-
-    for (let i = 0; i < maxLen; i++) {
-      if (i < filteredNonVideos.length) {
-        const p = filteredNonVideos[i];
-        if (!seen.has(p._id)) {
-          seen.add(p._id);
-          interleaved.push(p);
-        }
-      }
-      if (i < filteredVideos.length) {
-        const p = filteredVideos[i];
-        if (!seen.has(p._id)) {
-          seen.add(p._id);
-          interleaved.push(p);
-        }
+    const deduped = [];
+    for (const p of allPosts) {
+      if (!seen.has(p._id)) {
+        seen.add(p._id);
+        deduped.push(p);
       }
     }
+    deduped.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
     const startIndex = (page - 1) * limit;
-    return interleaved.slice(startIndex, startIndex + limit);
+    return deduped.slice(startIndex, startIndex + limit);
   } catch (err) {
     console.error("getUnifiedFeedPosts error:", err);
     return [];

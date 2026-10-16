@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
@@ -18,6 +18,8 @@ import {
   FaCommentDots,
   FaShareAlt,
   FaEye,
+  FaVolumeMute,
+  FaVolumeUp,
 } from "react-icons/fa";
 import { Pin, Sparkles, Repeat2, Bookmark, Quote, ShieldCheck, MapPin, Film, Image as ImageIcon } from "lucide-react";
 
@@ -90,6 +92,54 @@ export default function SinglePostInteractions({ initialPost }) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [repostCount, setRepostCount] = useState(initialPost?.repostsCount || 0);
   const router = useRouter();
+
+  const [isGlobalMuted, setIsGlobalMuted] = useState(true);
+  const singleVideoRef = useRef(null);
+
+  useEffect(() => {
+    try {
+      const storedMute = localStorage.getItem("fondpeace_global_muted");
+      if (storedMute !== null) {
+        setIsGlobalMuted(storedMute === "true");
+      }
+    } catch (_) {}
+
+    const handleGlobalMuteSync = (e) => {
+      if (typeof e.detail?.isMuted === "boolean") {
+        setIsGlobalMuted(e.detail.isMuted);
+        if (singleVideoRef.current) {
+          singleVideoRef.current.muted = e.detail.isMuted;
+        }
+      }
+    };
+    window.addEventListener("fondpeace_mute_changed", handleGlobalMuteSync);
+    return () => window.removeEventListener("fondpeace_mute_changed", handleGlobalMuteSync);
+  }, []);
+
+  const toggleGlobalMute = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const nextMuted = !isGlobalMuted;
+    setIsGlobalMuted(nextMuted);
+    try {
+      localStorage.setItem("fondpeace_global_muted", String(nextMuted));
+    } catch (_) {}
+    if (singleVideoRef.current) {
+      singleVideoRef.current.muted = nextMuted;
+    }
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("fondpeace_mute_changed", { detail: { isMuted: nextMuted } })
+      );
+    }
+    playTap();
+    toast.success(nextMuted ? "Sound muted 🔇" : "Sound unmuted 🔊", {
+      duration: 1500,
+      id: "single-mute-toast"
+    });
+  };
 
   const handleRepost = async () => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -449,17 +499,41 @@ export default function SinglePostInteractions({ initialPost }) {
       </div>
 
       {/* 3. MEDIA / EMBEDDED CONTENT SECTION - Exactly matching Village.jsx */}
-      {post.media ? (
-        <div className="relative w-full bg-black flex items-center justify-center overflow-hidden max-h-[560px] rounded-xl my-1">
+      {post.media && !post.media.includes("youtube.com") && !post.media.includes("youtu.be") ? (
+        <div className="relative w-full bg-black flex items-center justify-center overflow-hidden max-h-[560px] rounded-xl my-1 group">
           {isVideo ? (
-            <video
-              src={post.media}
-              controls
-              autoPlay
-              playsInline
-              preload="metadata"
-              className="w-full max-h-[560px] object-contain block mx-auto shadow-2xl"
-            />
+            <>
+              <video
+                ref={singleVideoRef}
+                src={post.media}
+                controls
+                autoPlay
+                playsInline
+                muted={isGlobalMuted}
+                preload="metadata"
+                onVolumeChange={(e) => {
+                  const muted = e.target.muted;
+                  if (muted !== isGlobalMuted) {
+                    setIsGlobalMuted(muted);
+                    try {
+                      localStorage.setItem("fondpeace_global_muted", String(muted));
+                    } catch (_) {}
+                    window.dispatchEvent(
+                      new CustomEvent("fondpeace_mute_changed", { detail: { isMuted: muted } })
+                    );
+                  }
+                }}
+                className="w-full max-h-[560px] object-contain block mx-auto shadow-2xl"
+              />
+              <button
+                onClick={toggleGlobalMute}
+                aria-label={isGlobalMuted ? "Unmute video" : "Mute video"}
+                className="absolute top-3 right-3 z-20 p-2.5 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
+                title={isGlobalMuted ? "Sound is muted (Click to unmute)" : "Sound is on (Click to mute)"}
+              >
+                {isGlobalMuted ? <FaVolumeMute size={14} /> : <FaVolumeUp size={14} />}
+              </button>
+            </>
           ) : (
             <img
               src={post.media}
@@ -468,9 +542,15 @@ export default function SinglePostInteractions({ initialPost }) {
             />
           )}
         </div>
-      ) : post.linkPreview ? (
+      ) : (post.linkPreview || (typeof post.media === "string" && (post.media.includes("youtube.com") || post.media.includes("youtu.be")))) ? (
         <div className="px-3 sm:px-4 my-1">
-          <LinkPreviewCard preview={post.linkPreview} postId={post._id} inFeed={true} />
+          <LinkPreviewCard 
+            preview={post.linkPreview || { url: post.media, title: post.title }} 
+            postId={post._id} 
+            inFeed={false} 
+            isGlobalMuted={isGlobalMuted}
+            onToggleMute={toggleGlobalMute}
+          />
         </div>
       ) : post.poll ? (
         <div className="px-3 sm:px-4 my-1">

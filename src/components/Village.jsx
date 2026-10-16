@@ -171,6 +171,20 @@ export default function Village({ initialPosts = [] }) {
     } catch (_) {}
   }, []);
 
+  // Listen for global mute events dispatched from individual videos, link preview cards, or reels
+  useEffect(() => {
+    const handleGlobalMuteSync = (e) => {
+      if (typeof e.detail?.isMuted === "boolean") {
+        setIsGlobalMuted(e.detail.isMuted);
+        videoRefs.current.forEach((video) => {
+          if (video) video.muted = e.detail.isMuted;
+        });
+      }
+    };
+    window.addEventListener("fondpeace_mute_changed", handleGlobalMuteSync);
+    return () => window.removeEventListener("fondpeace_mute_changed", handleGlobalMuteSync);
+  }, []);
+
   // Real-time synchronization: when user edits profile, update their avatar/name across all posts in feed
   useEffect(() => {
     const handleProfileUpdate = (e) => {
@@ -346,55 +360,6 @@ export default function Village({ initialPosts = [] }) {
           `${API_BASE}/post/mango/getall?page=${targetPage}&limit=12${typeParam}${catParam}`
         );
         const data = Array.isArray(res.data) ? res.data : [];
-
-        if (targetType === "all" && data.length > 0) {
-          const hasNonVideo = data.some(
-            (p) =>
-              p.mediaType === "image" ||
-              p.mediaType === "text" ||
-              p.mediaType === "discussion" ||
-              (p.media && !p.media.endsWith(".mp4")) ||
-              !p.media
-          );
-
-          if (!hasNonVideo) {
-            // Live backend returned only video batch; fetch image and discussion posts to ensure a multi-type feed!
-            const [imgRes, textRes] = await Promise.all([
-              axios
-                .get(
-                  `${API_BASE}/post/mango/getall?page=${targetPage}&limit=6&type=image${catParam}`
-                )
-                .catch(() => ({ data: [] })),
-              axios
-                .get(
-                  `${API_BASE}/post/mango/getall?page=${targetPage}&limit=6&type=discussion${catParam}`
-                )
-                .catch(() => ({ data: [] })),
-            ]);
-
-            const nonVideos = [
-              ...(Array.isArray(imgRes.data) ? imgRes.data : []),
-              ...(Array.isArray(textRes.data) ? textRes.data : []),
-            ];
-
-            if (nonVideos.length > 0) {
-              const interleaved = [];
-              const maxLen = Math.max(data.length, nonVideos.length);
-              const seen = new Set();
-              for (let i = 0; i < maxLen; i++) {
-                if (i < nonVideos.length && !seen.has(nonVideos[i]._id)) {
-                  seen.add(nonVideos[i]._id);
-                  interleaved.push(nonVideos[i]);
-                }
-                if (i < data.length && !seen.has(data[i]._id)) {
-                  seen.add(data[i]._id);
-                  interleaved.push(data[i]);
-                }
-              }
-              return interleaved.slice(0, 12);
-            }
-          }
-        }
         return data;
       } catch {
         return [];
@@ -668,6 +633,12 @@ const increaseView = useCallback(
         video.muted = nextMuted;
       }
     });
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("fondpeace_mute_changed", { detail: { isMuted: nextMuted } })
+      );
+    }
 
     playTap();
     toast.success(nextMuted ? "Sound muted for all posts 🔇" : "Sound unmuted for all posts 🔊", {
@@ -957,7 +928,7 @@ const handleShare = async (postData) => {
     </div>
 
     {/* 2. MEDIA / EMBEDDED CONTENT SECTION */}
-    {post.media ? (
+    {post.media && !post.media.includes("youtube.com") && !post.media.includes("youtu.be") ? (
       <div className="relative w-full bg-black flex items-center justify-center overflow-hidden max-h-[520px] rounded-xl my-1 group/media">
         <Link 
           href={isVideo ? `/short/${post._id}` : `/post/${post._id}`} 
@@ -999,13 +970,15 @@ const handleShare = async (postData) => {
           </button>
         )}
       </div>
-    ) : post.linkPreview ? (
+    ) : (post.linkPreview || (typeof post.media === "string" && (post.media.includes("youtube.com") || post.media.includes("youtu.be")))) ? (
       /* 🔗 Rich Embedded Link Card (YouTube, News, Article, Website) */
       <div className="px-3 sm:px-4 my-1">
         <LinkPreviewCard 
-          preview={post.linkPreview} 
+          preview={post.linkPreview || { url: post.media, title: post.title }} 
           postId={post._id} 
-          inFeed={true} 
+          inFeed={true}
+          isGlobalMuted={isGlobalMuted}
+          onToggleMute={toggleGlobalMute}
         />
       </div>
     ) : post.poll ? (
@@ -1288,19 +1261,15 @@ const handleShare = async (postData) => {
 
   return (
     <div className="w-full">
-      {/* ─── Sleek Community Header & Tabs ─── */}
+      {/* ─── Sleek Feed Filter Switcher ─── */}
       <div className="flex items-center justify-between px-1 mb-4">
-        <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-          Community
-        </h2>
-        {/* Streamlined minimal filter switcher */}
-        <div className="flex items-center gap-1 p-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl backdrop-blur-xl transition-colors">
+        <div className="flex items-center gap-1 p-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl backdrop-blur-xl transition-colors overflow-x-auto no-scrollbar max-w-full">
           <button
             onClick={() => {
               if (activeTab !== "foryou") handleTabChange("foryou");
               if (mediaTypeFilter !== "all") handleMediaTypeChange("all");
             }}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === "foryou" && mediaTypeFilter === "all"
                 ? "bg-white text-black font-extrabold shadow-sm"
                 : "text-zinc-400 hover:text-white"
@@ -1310,7 +1279,7 @@ const handleShare = async (postData) => {
           </button>
           <button
             onClick={() => handleTabChange("following")}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === "following"
                 ? "bg-white text-black font-extrabold shadow-sm"
                 : "text-zinc-400 hover:text-white"
@@ -1323,7 +1292,7 @@ const handleShare = async (postData) => {
               if (activeTab !== "foryou") handleTabChange("foryou");
               handleMediaTypeChange("video");
             }}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               mediaTypeFilter === "video"
                 ? "bg-white text-black font-extrabold shadow-sm"
                 : "text-zinc-400 hover:text-white"
@@ -1336,7 +1305,7 @@ const handleShare = async (postData) => {
               if (activeTab !== "foryou") handleTabChange("foryou");
               handleMediaTypeChange("discussion");
             }}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               mediaTypeFilter === "discussion"
                 ? "bg-white text-black font-extrabold shadow-sm"
                 : "text-zinc-400 hover:text-white"
@@ -1347,7 +1316,7 @@ const handleShare = async (postData) => {
           <button
             onClick={handleRefreshFeed}
             disabled={isRefreshing}
-            className="p-1.5 text-zinc-400 hover:text-white transition-all active:scale-90 cursor-pointer"
+            className="p-1.5 text-zinc-400 hover:text-white transition-all active:scale-90 cursor-pointer ml-1"
             title="Refresh Feed"
           >
             <RotateCw size={13} className={isRefreshing ? "animate-spin text-white" : ""} />

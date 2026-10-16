@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ExternalLink, Globe, ArrowRight, Play, MessageCircle, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ExternalLink, Globe } from "lucide-react";
+import { FaVolumeMute, FaVolumeUp, FaPlay, FaPause } from "react-icons/fa";
 
 // Safe, universal YouTube Video ID extractor
 export function getYouTubeVideoId(url) {
@@ -12,8 +14,24 @@ export function getYouTubeVideoId(url) {
   return match && match[1] ? match[1] : null;
 }
 
-export default function LinkPreviewCard({ preview, postId = null, inFeed = false }) {
-  const [isPlaying, setIsPlaying] = useState(false);
+export default function LinkPreviewCard({
+  preview,
+  postId = null,
+  inFeed = false,
+  isGlobalMuted = null,
+  onToggleMute = null,
+}) {
+  const router = useRouter();
+  const [isLoaded, setIsLoaded] = useState(false);
+  // On Single Post Page (!inFeed), start inView = true immediately so autoplay starts on visit!
+  const [isInView, setIsInView] = useState(!inFeed);
+  const [hasObserverChecked, setHasObserverChecked] = useState(!inFeed);
+  const [isMuted, setIsMuted] = useState(isGlobalMuted !== null ? isGlobalMuted : true);
+  const [isPlayingState, setIsPlayingState] = useState(true);
+  const [showPlayPauseRipple, setShowPlayPauseRipple] = useState(false);
+
+  const iframeRef = useRef(null);
+  const containerRef = useRef(null);
 
   if (!preview || !preview.url) return null;
 
@@ -25,133 +43,237 @@ export default function LinkPreviewCard({ preview, postId = null, inFeed = false
     }
   })();
 
-  const youtubeVideoId = getYouTubeVideoId(preview.url);
-  const isYouTube = Boolean(
-    youtubeVideoId ||
-    domain.includes("youtube.com") || 
-    domain.includes("youtu.be") || 
-    preview.siteName?.toLowerCase() === "youtube"
-  );
+  const youtubeVideoId =
+    preview.youtubeId ||
+    getYouTubeVideoId(preview.url) ||
+    getYouTubeVideoId(preview.media) ||
+    getYouTubeVideoId(preview.link);
+  const isYouTubeVideo = Boolean(youtubeVideoId);
 
-  // CASE 1: In Feed / Community Homepage
-  if (inFeed && postId) {
+  // Sync mute state with global preference and listen for global sound changes
+  useEffect(() => {
+    if (isGlobalMuted !== null) {
+      setIsMuted(isGlobalMuted);
+    } else {
+      try {
+        const stored = localStorage.getItem("fondpeace_global_muted");
+        if (stored !== null) setIsMuted(stored === "true");
+      } catch (_) {}
+    }
+
+    const handleMuteChange = (e) => {
+      if (typeof e.detail?.isMuted === "boolean") {
+        setIsMuted(e.detail.isMuted);
+      }
+    };
+
+    window.addEventListener("fondpeace_mute_changed", handleMuteChange);
+    return () => window.removeEventListener("fondpeace_mute_changed", handleMuteChange);
+  }, [isGlobalMuted]);
+
+  // Send command to YouTube Iframe Player via PostMessage API
+  const sendCommand = useCallback((func, args = []) => {
+    try {
+      if (iframeRef.current?.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(
+          JSON.stringify({ event: "command", func, args }),
+          "*"
+        );
+      }
+    } catch (_) {}
+  }, []);
+
+  // Safety fallback: ensure isLoaded becomes true after timeout even if iframe onLoad lags
+  useEffect(() => {
+    if (!isYouTubeVideo) return;
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [isYouTubeVideo]);
+
+  // IntersectionObserver: For inFeed posts, autoplay when visible and pause when scrolled away
+  useEffect(() => {
+    if (!isYouTubeVideo || !inFeed || !containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setHasObserverChecked(true);
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
+            setIsInView(true);
+          } else if (!entry.isIntersecting || entry.intersectionRatio < 0.2) {
+            setIsInView(false);
+          }
+        });
+      },
+      { threshold: [0, 0.25, 0.5] }
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [isYouTubeVideo, inFeed]);
+
+  // Sync Play / Pause when scrolled in or out of view
+  useEffect(() => {
+    if (!isLoaded || !isYouTubeVideo) return;
+    if (!hasObserverChecked && inFeed) return;
+
+    if ((!inFeed || isInView) && isPlayingState) {
+      sendCommand("playVideo");
+    } else {
+      sendCommand("pauseVideo");
+    }
+  }, [isInView, isLoaded, isPlayingState, isYouTubeVideo, hasObserverChecked, inFeed, sendCommand]);
+
+  // Sync Audio Mute / Unmute
+  useEffect(() => {
+    if (!isLoaded || !isYouTubeVideo) return;
+    sendCommand(isMuted ? "mute" : "unMute");
+  }, [isMuted, isLoaded, isYouTubeVideo, sendCommand]);
+
+  // Handle Mute / Unmute toggle matching native videos
+  const handleToggleMute = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (onToggleMute) {
+      onToggleMute(e);
+    } else {
+      const nextMuted = !isMuted;
+      setIsMuted(nextMuted);
+      try {
+        localStorage.setItem("fondpeace_global_muted", String(nextMuted));
+      } catch (_) {}
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("fondpeace_mute_changed", { detail: { isMuted: nextMuted } })
+        );
+      }
+    }
+  };
+
+  // Handle clicking on media: on feed navigates to post, on single post toggles play/pause
+  const handleMediaClick = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (inFeed && postId) {
+      router.push(`/post/${postId}`);
+    } else {
+      const nextPlay = !isPlayingState;
+      setIsPlayingState(nextPlay);
+      sendCommand(nextPlay ? "playVideo" : "pauseVideo");
+      setShowPlayPauseRipple(true);
+      setTimeout(() => setShowPlayPauseRipple(false), 700);
+    }
+  };
+
+  // ==========================================
+  // CASE 1: YOUTUBE VIDEO LINK (AUTOPLAY LIKE NATIVE VIDEOS)
+  // ==========================================
+  if (isYouTubeVideo) {
+    const resolvedThumbnail =
+      preview.image ||
+      `https://img.youtube.com/vi/${youtubeVideoId}/hqdefault.jpg`;
+
+    const currentOrigin =
+      typeof window !== "undefined" && window.location.origin
+        ? window.location.origin
+        : "https://www.fondpeace.com";
+
+    // Embed URL optimized for silent seamless background autoplay, loop, and zero clutter
+    const embedUrl = `https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${youtubeVideoId}&modestbranding=1&rel=0&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(
+      currentOrigin
+    )}&iv_load_policy=3&fs=0&disablekb=1`;
+
     return (
       <div className="my-2.5 block rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-subtle)] hover:border-blue-500/40 transition-all duration-200 shadow-md hover:shadow-xl relative">
-        {/* If user clicked Play on a YouTube link, play inline right on FondPeace */}
-        {isPlaying && youtubeVideoId ? (
-          <div className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
-              title={preview.title || "YouTube video"}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className="w-full h-full border-0"
-            />
-            {/* Control Bar Overlay: Open on external YouTube or Close player */}
-            <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  window.open(preview.url, "_blank", "noopener,noreferrer");
-                }}
-                className="px-2.5 py-1 rounded-full bg-black/85 hover:bg-black text-white text-[11px] font-semibold backdrop-blur-md flex items-center gap-1 border border-white/20 shadow-lg cursor-pointer transition-transform hover:scale-105 active:scale-95"
-                title="Watch on YouTube directly"
-              >
-                <ExternalLink className="w-3 h-3 text-red-500" />
-                <span>Visit YouTube</span>
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsPlaying(false);
-                }}
-                className="px-2.5 py-1 rounded-full bg-black/85 hover:bg-black text-white text-[11px] font-semibold backdrop-blur-md flex items-center gap-1 border border-white/20 shadow-lg cursor-pointer transition-transform hover:scale-105 active:scale-95"
-                title="Close Inline Player"
-              >
-                <X className="w-3.5 h-3.5 text-white" />
-                <span>Close</span>
-              </button>
-            </div>
-          </div>
-        ) : (
-          preview.image && (
-            <div 
-              className="relative w-full aspect-video overflow-hidden bg-black flex items-center justify-center cursor-pointer group"
-              onClick={(e) => {
-                if (isYouTube && youtubeVideoId) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsPlaying(true);
-                }
-              }}
-            >
+        <div
+          ref={containerRef}
+          className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden"
+        >
+          {/* Sandboxed YouTube Player Frame (No controls, looping, autoplaying) */}
+          <iframe
+            ref={iframeRef}
+            src={embedUrl}
+            title={preview.title || "Video"}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            className="w-full h-full border-0 absolute inset-0 pointer-events-none"
+            onLoad={() => {
+              setIsLoaded(true);
+              if (!inFeed || isInView) {
+                sendCommand("playVideo");
+                sendCommand(isMuted ? "mute" : "unMute");
+                setTimeout(() => {
+                  sendCommand("playVideo");
+                  sendCommand(isMuted ? "mute" : "unMute");
+                }, 250);
+                setTimeout(() => {
+                  sendCommand("playVideo");
+                }, 600);
+              }
+            }}
+          />
+
+          {/* Smooth Poster Transition: Eliminates initial blank flash */}
+          <div
+            className={`absolute inset-0 z-10 bg-black flex items-center justify-center transition-opacity duration-700 pointer-events-none ${
+              isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+            }`}
+          >
+            {resolvedThumbnail && (
               <img
-                src={preview.image}
-                alt={preview.title || domain}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                src={resolvedThumbnail}
+                alt={preview.title || "Video thumbnail"}
+                className="w-full h-full object-cover"
                 loading="lazy"
-                onError={(e) => {
-                  e.currentTarget.parentElement.style.display = "none";
-                }}
               />
+            )}
+          </div>
 
-              {/* YouTube Play Icon - Clicking plays directly on FondPeace */}
-              {isYouTube && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (youtubeVideoId) setIsPlaying(true);
-                      else window.open(preview.url, "_blank", "noopener,noreferrer");
-                    }}
-                    className="w-16 h-16 rounded-full bg-red-600/95 hover:bg-red-600 text-white flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 cursor-pointer ring-4 ring-white/30"
-                    title="Play on FondPeace"
-                  >
-                    <Play className="w-7 h-7 fill-white text-white ml-1" />
-                  </button>
-                </div>
-              )}
+          {/* Transparent Click Shield: User interaction stays on FondPeace */}
+          <div
+            className="absolute inset-0 z-20 cursor-pointer"
+            onClick={handleMediaClick}
+          />
 
-              {/* Top Source Badge */}
-              <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-md border border-white/10 pointer-events-none">
-                <Globe className={`w-3 h-3 ${isYouTube ? "text-red-500" : "text-blue-400"}`} />
-                <span className="text-white truncate max-w-[150px]">{preview.siteName || (isYouTube ? "YouTube" : domain)}</span>
+          {/* Single Post Play/Pause Ripple Indicator */}
+          {!inFeed && showPlayPauseRipple && (
+            <div className="absolute inset-0 z-25 flex items-center justify-center pointer-events-none">
+              <div className="w-16 h-16 rounded-full bg-black/75 backdrop-blur-md text-white flex items-center justify-center shadow-2xl transition-all scale-110">
+                {isPlayingState ? <FaPlay size={22} className="ml-1" /> : <FaPause size={22} />}
               </div>
-
-              {/* Direct External Link: Always takes user to the external platform (YouTube, etc.) */}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  window.open(preview.url, "_blank", "noopener,noreferrer");
-                }}
-                className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/75 hover:bg-black/95 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1 shadow-md border border-white/10 transition-all hover:scale-105 active:scale-95 cursor-pointer z-10"
-                title={`Visit ${domain} directly`}
-              >
-                <ExternalLink className="w-3 h-3 text-white" />
-                <span className="text-white">Visit</span>
-              </button>
             </div>
-          )
-        )}
+          )}
 
-        {/* Post details area below media - navigates to post page */}
+          {/* Single Post Paused Indicator */}
+          {!inFeed && !isPlayingState && (
+            <div className="absolute inset-0 z-25 flex items-center justify-center pointer-events-none">
+              <div className="w-14 h-14 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center shadow-xl border border-white/20">
+                <FaPlay size={18} className="ml-1" />
+              </div>
+            </div>
+          )}
+
+          {/* Sleek Native-Matching Mute / Unmute Button */}
+          <button
+            type="button"
+            onClick={handleToggleMute}
+            className="absolute bottom-3 right-3 z-30 bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full backdrop-blur-md transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
+            title={isMuted ? "Sound is muted" : "Sound is on"}
+          >
+            {isMuted ? <FaVolumeMute size={14} /> : <FaVolumeUp size={14} />}
+          </button>
+        </div>
+
+        {/* Post Details (Navigates to /post/[id] on FondPeace) */}
         <Link
-          href={`/post/${postId}`}
+          href={postId ? `/post/${postId}` : "#"}
           className="block p-3.5 sm:p-4 no-underline text-inherit cursor-pointer hover:bg-[var(--bg-surface-hover)] transition-colors"
         >
-          <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] font-medium mb-1.5 truncate">
-            <Globe className={`w-3.5 h-3.5 ${isYouTube ? "text-red-500" : "text-blue-500"} shrink-0`} />
-            <span className="truncate">{preview.siteName || (isYouTube ? "YouTube" : domain)}</span>
-          </div>
-
           {preview.title && (
             <h4 className="font-bold text-sm sm:text-base text-[var(--text-primary)] line-clamp-2 leading-snug hover:text-blue-500 transition-colors mb-1">
               {preview.title}
@@ -168,135 +290,64 @@ export default function LinkPreviewCard({ preview, postId = null, inFeed = false
     );
   }
 
-  // CASE 2: Inside Single Post Page (/post/[id])
+  // ==========================================
+  // CASE 2: REGULAR EXTERNAL LINK (Articles, Blogs, News, Websites)
+  // ==========================================
   return (
-    <div className="my-3 block rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-subtle)] shadow-md">
-      {isPlaying && youtubeVideoId ? (
-        <div className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
-            title={preview.title || "YouTube video"}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            className="w-full h-full border-0"
+    <div className="my-2.5 block rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-subtle)] hover:border-blue-500/40 transition-all duration-200 shadow-md hover:shadow-xl relative">
+      {preview.image && (
+        <a
+          href={preview.url}
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+          className="relative w-full aspect-video overflow-hidden bg-black flex items-center justify-center group block cursor-pointer"
+        >
+          <img
+            src={preview.image}
+            alt={preview.title || domain}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.parentElement.style.display = "none";
+            }}
           />
-          <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.open(preview.url, "_blank", "noopener,noreferrer");
-              }}
-              className="px-2.5 py-1 rounded-full bg-black/85 hover:bg-black text-white text-[11px] font-semibold backdrop-blur-md flex items-center gap-1 border border-white/20 shadow-lg cursor-pointer transition-transform hover:scale-105 active:scale-95"
-            >
-              <ExternalLink className="w-3 h-3 text-red-500" />
-              <span>Watch on YouTube</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsPlaying(false)}
-              className="px-2.5 py-1 rounded-full bg-black/85 hover:bg-black text-white text-[11px] font-semibold backdrop-blur-md flex items-center gap-1 border border-white/20 shadow-lg cursor-pointer transition-transform hover:scale-105 active:scale-95"
-            >
-              <X className="w-3.5 h-3.5 text-white" />
-              <span>Close</span>
-            </button>
+
+          {/* Top Source Badge */}
+          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-md border border-white/10 pointer-events-none">
+            <Globe className="w-3 h-3 text-blue-400" />
+            <span className="text-white truncate max-w-[150px]">{preview.siteName || domain}</span>
           </div>
-        </div>
-      ) : (
-        preview.image && (
-          <div className="relative w-full aspect-video overflow-hidden bg-black flex items-center justify-center group">
-            <img
-              src={preview.image}
-              alt={preview.title || domain}
-              className="w-full h-full object-cover"
-              loading="lazy"
-              onError={(e) => {
-                e.currentTarget.parentElement.style.display = "none";
-              }}
-            />
-            {isYouTube && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <button
-                  type="button"
-                  onClick={() => setIsPlaying(true)}
-                  className="w-16 h-16 rounded-full bg-red-600/95 hover:bg-red-600 text-white flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 cursor-pointer ring-4 ring-white/30"
-                  title="Play on FondPeace"
-                >
-                  <Play className="w-7 h-7 fill-white text-white ml-1" />
-                </button>
-              </div>
-            )}
-            <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-md border border-white/10 pointer-events-none">
-              <Globe className={`w-3 h-3 ${isYouTube ? "text-red-500" : "text-blue-400"}`} />
-              <span className="text-white truncate max-w-[150px]">{preview.siteName || (isYouTube ? "YouTube" : domain)}</span>
-            </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.open(preview.url, "_blank", "noopener,noreferrer");
-              }}
-              className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/75 hover:bg-black/95 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1 shadow-md border border-white/10 transition-all hover:scale-105 active:scale-95 cursor-pointer z-10"
-              title={`Visit ${domain} directly`}
-            >
-              <ExternalLink className="w-3 h-3 text-white" />
-              <span className="text-white">Visit</span>
-            </button>
+
+          {/* External Link Visit Badge */}
+          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1 shadow-md border border-white/10 pointer-events-none">
+            <ExternalLink className="w-3 h-3 text-white" />
+            <span className="text-white">Visit</span>
           </div>
-        )
+        </a>
       )}
 
-      <div className="p-4 sm:p-5">
-        <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] font-medium mb-1.5">
-          <Globe className={`w-3.5 h-3.5 ${isYouTube ? "text-red-500" : "text-blue-500"}`} />
-          <span className="truncate">{preview.siteName || (isYouTube ? "YouTube" : domain)}</span>
+      {/* Post details area below media */}
+      <Link
+        href={postId ? `/post/${postId}` : preview.url}
+        className="block p-3.5 sm:p-4 no-underline text-inherit cursor-pointer hover:bg-[var(--bg-surface-hover)] transition-colors"
+      >
+        <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] font-medium mb-1.5 truncate">
+          <Globe className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+          <span className="truncate">{preview.siteName || domain}</span>
         </div>
 
         {preview.title && (
-          <h4 className="font-bold text-base sm:text-lg text-[var(--text-primary)] leading-snug mb-1.5">
+          <h4 className="font-bold text-sm sm:text-base text-[var(--text-primary)] line-clamp-2 leading-snug hover:text-blue-500 transition-colors mb-1">
             {preview.title}
           </h4>
         )}
 
         {preview.description && (
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-3 leading-relaxed mb-4">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed">
             {preview.description}
           </p>
         )}
-
-        <div className="flex flex-wrap items-center gap-2">
-          {isYouTube && youtubeVideoId && !isPlaying && (
-            <button
-              type="button"
-              onClick={() => setIsPlaying(true)}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
-            >
-              <Play className="w-4 h-4 fill-white text-white" />
-              <span>Play on FondPeace</span>
-            </button>
-          )}
-          <a
-            href={preview.url}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 no-underline cursor-pointer"
-          >
-            {isYouTube ? (
-              <>
-                <ExternalLink className="w-4 h-4" />
-                <span>Watch on YouTube</span>
-              </>
-            ) : (
-              <>
-                <span>Visit {preview.siteName || domain}</span>
-                <ExternalLink className="w-4 h-4" />
-              </>
-            )}
-          </a>
-        </div>
-      </div>
+      </Link>
     </div>
   );
 }

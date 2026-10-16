@@ -67,7 +67,9 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("fp_shorts_muted");
+      const saved =
+        localStorage.getItem("fondpeace_global_muted") ??
+        localStorage.getItem("fp_shorts_muted");
       if (saved !== null) return saved === "true";
     }
     return false;
@@ -109,6 +111,20 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       seenPostsRef.current.add(String(initialPost._id));
     }
   }, [initialPost?._id]);
+
+  // Sync mute state across the platform (Feed, Single Post, Shorts)
+  useEffect(() => {
+    const handleGlobalMuteSync = (e) => {
+      if (typeof e.detail?.isMuted === "boolean") {
+        setIsMuted(e.detail.isMuted);
+        videoRefs.current.forEach((v) => {
+          if (v) v.muted = e.detail.isMuted;
+        });
+      }
+    };
+    window.addEventListener("fondpeace_mute_changed", handleGlobalMuteSync);
+    return () => window.removeEventListener("fondpeace_mute_changed", handleGlobalMuteSync);
+  }, []);
 
   const saveSeenToSession = useCallback(() => {
     try {
@@ -304,12 +320,19 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
     try {
+      localStorage.setItem("fondpeace_global_muted", String(nextMuted));
       localStorage.setItem("fp_shorts_muted", String(nextMuted));
     } catch (_) {}
 
     videoRefs.current.forEach((v) => {
       if (v) v.muted = nextMuted;
     });
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("fondpeace_mute_changed", { detail: { isMuted: nextMuted } })
+      );
+    }
 
     setShowVolumeIcon(true);
     setTimeout(() => setShowVolumeIcon(false), 900);

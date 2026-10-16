@@ -72,54 +72,8 @@ export default async function HomePage() {
       next: { revalidate: 30 },
     });
     const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
-      // Check if data already contains diverse post types
-      const hasNonVideo = data.some(
-        (p) =>
-          p.mediaType === "image" ||
-          p.mediaType === "text" ||
-          p.mediaType === "discussion" ||
-          (p.media && !p.media.endsWith(".mp4")) ||
-          !p.media
-      );
-
-      if (hasNonVideo) {
-        posts = data;
-      } else {
-        // Concurrently query image and discussion posts to weave them into the feed
-        const [imagesRes, textRes] = await Promise.all([
-          fetch(`${API_BASE}/post/mango/getall?page=1&limit=10&type=image`, { next: { revalidate: 30 } })
-            .then((r) => (r.ok ? r.json() : []))
-            .catch(() => []),
-          fetch(`${API_BASE}/post/mango/getall?page=1&limit=10&type=discussion`, { next: { revalidate: 30 } })
-            .then((r) => (r.ok ? r.json() : []))
-            .catch(() => []),
-        ]);
-
-        const nonVideos = [
-          ...(Array.isArray(imagesRes) ? imagesRes : []),
-          ...(Array.isArray(textRes) ? textRes : []),
-        ];
-
-        if (nonVideos.length > 0) {
-          const interleaved = [];
-          const maxLen = Math.max(data.length, nonVideos.length);
-          const seen = new Set();
-          for (let i = 0; i < maxLen; i++) {
-            if (i < nonVideos.length && !seen.has(nonVideos[i]._id)) {
-              seen.add(nonVideos[i]._id);
-              interleaved.push(nonVideos[i]);
-            }
-            if (i < data.length && !seen.has(data[i]._id)) {
-              seen.add(data[i]._id);
-              interleaved.push(data[i]);
-            }
-          }
-          posts = interleaved;
-        } else {
-          posts = data;
-        }
-      }
+    if (Array.isArray(data)) {
+      posts = data;
     }
   } catch (err) {
     posts = [];

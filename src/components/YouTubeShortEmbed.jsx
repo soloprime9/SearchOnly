@@ -3,6 +3,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaYoutube } from "react-icons/fa";
 
+// Safe, universal YouTube Video ID extractor
+export function getYouTubeVideoId(url) {
+  if (!url || typeof url !== "string") return null;
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/|live\/)|youtu\.be\/)([^"&?\/\s]{11})/i;
+  const match = url.match(regExp);
+  return match && match[1] ? match[1] : null;
+}
+
 /**
  * 🎬 YouTubeShortEmbed - Isolated, Zero-Risk YouTube Shorts Player
  * Plays YouTube Shorts natively inside the 9:16 vertical player frame.
@@ -65,11 +73,18 @@ export default function YouTubeShortEmbed({
     );
   }
 
+  const currentOrigin =
+    typeof window !== "undefined" && window.location.origin
+      ? window.location.origin
+      : "https://www.fondpeace.com";
+
   const embedUrl = `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=${
     isActive ? 1 : 0
   }&mute=${
     isMuted ? 1 : 0
-  }&controls=0&loop=1&playlist=${youtubeId}&modestbranding=1&rel=0&playsinline=1&enablejsapi=1&iv_load_policy=3&fs=0&disablekb=1`;
+  }&controls=0&loop=1&playlist=${youtubeId}&modestbranding=1&rel=0&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(
+    currentOrigin
+  )}&iv_load_policy=3&fs=0&disablekb=1`;
 
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden select-none">
