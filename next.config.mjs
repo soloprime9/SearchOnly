@@ -12,6 +12,11 @@ const nextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "*.vercel-storage.com" },
+      { protocol: "https", hostname: "*.r2.dev" },
+      { protocol: "https", hostname: "pub-fe2880e50b8a49beb15457c1336be948.r2.dev" },
+      { protocol: "https", hostname: "i.ytimg.com" },
+      { protocol: "https", hostname: "img.youtube.com" },
+      { protocol: "https", hostname: "api.dicebear.com" },
     ],
   },
   async headers() {
