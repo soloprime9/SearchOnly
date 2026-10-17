@@ -120,6 +120,17 @@ export async function generateMetadata({ params }) {
       description,
       keywords: extractKeywords(post),
       alternates: { canonical: pageUrl },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-video-preview": -1,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      },
       openGraph: {
         title,
         description,
@@ -188,25 +199,43 @@ export default async function ShortsDetailPage({ params }) {
     const authorName = post?.userId?.username;
 
     const rawMedia = `${post.media || ""} ${post.mediaUrl || ""} ${post.link || ""} ${post.linkPreview?.url || ""} ${post.title || ""}`;
+    const ytId = getYouTubeVideoId(rawMedia);
     const isVideo =
       post.mediaType?.startsWith("video") ||
-      Boolean(getYouTubeVideoId(rawMedia)) ||
+      Boolean(ytId) ||
       /\.(mp4|webm|mov|m3u8)$/i.test(mediaUrl || "");
 
     if (!isVideo) {
       permanentRedirect(`/post/${id}`);
     }
 
+    const primaryThumb = resolvePostThumbnail(post);
+    const thumbnailList = [primaryThumb];
+    if (ytId) {
+      thumbnailList.push(
+        `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`,
+        `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+      );
+    }
+
     const videoSchema = {
       "@context": "https://schema.org",
       "@type": "VideoObject",
       "@id": `${pageUrl}#video`,
-      name: post.title,
-      headline: post.title,
+      name: post.title || "FondPeace Short Video",
+      headline: post.title || "FondPeace Short Video",
       description: buildDescription(post),
-      thumbnailUrl: [resolvePostThumbnail(post)],
-      contentUrl: mediaUrl,
-      embedUrl: `${SITE_ROOT}/embed/short/${post._id || id}`,
+      thumbnailUrl: thumbnailList,
+      thumbnail: {
+        "@type": "ImageObject",
+        url: primaryThumb,
+        width: 1200,
+        height: 630,
+      },
+      contentUrl: mediaUrl || undefined,
+      embedUrl: ytId
+        ? `https://www.youtube-nocookie.com/embed/${ytId}`
+        : `${SITE_ROOT}/embed/short/${post._id || id}`,
       url: pageUrl,
       uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
       duration: secToISO(Number(post.duration || 30)),
