@@ -58,7 +58,14 @@ export async function getUnifiedFeedPosts({
       const mediaUrl = p.media || p.imageURL || p.videoUrl || null;
       const mediaTypeRaw = (p.mediaType || "").toLowerCase();
 
-      if (mediaTypeRaw.includes("video") || (mediaUrl && (mediaUrl.includes(".mp4") || mediaUrl.includes("/video/upload/")))) {
+      const isYouTube = Boolean(
+        (mediaUrl && (mediaUrl.includes("youtube.com") || mediaUrl.includes("youtu.be"))) ||
+        (p.linkPreview?.url && (p.linkPreview.url.includes("youtube.com") || p.linkPreview.url.includes("youtu.be"))) ||
+        (p.linkPreview?.siteName && p.linkPreview.siteName.toLowerCase().includes("youtube")) ||
+        (p.linkPreview?.image && (p.linkPreview.image.includes("ytimg.com") || p.linkPreview.image.includes("youtube.com")))
+      );
+
+      if (mediaTypeRaw.includes("video") || isYouTube || (mediaUrl && (mediaUrl.includes(".mp4") || mediaUrl.includes("/video/upload/")))) {
         isVideo = true;
       }
 
@@ -72,6 +79,8 @@ export async function getUnifiedFeedPosts({
         _id: String(p._id || p.id || Math.random()),
         title: p.title || p.content || "",
         media: mediaUrl,
+        thumbnail: p.thumbnail || p.linkPreview?.image || "",
+        linkPreview: p.linkPreview || (isYouTube ? { url: mediaUrl, title: p.title } : null),
         mediaType: determinedType,
         userId: p.userId || {
           username: "creator",

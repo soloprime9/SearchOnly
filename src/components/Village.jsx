@@ -970,11 +970,17 @@ const handleShare = async (postData) => {
           </button>
         )}
       </div>
-    ) : (post.linkPreview || (typeof post.media === "string" && (post.media.includes("youtube.com") || post.media.includes("youtu.be")))) ? (
+    ) : (post.linkPreview || (typeof post.media === "string" && (post.media.includes("youtube.com") || post.media.includes("youtu.be"))) || (typeof post.thumbnail === "string" && (post.thumbnail.includes("youtube.com") || post.thumbnail.includes("ytimg.com")))) ? (
       /* 🔗 Rich Embedded Link Card (YouTube, News, Article, Website) */
       <div className="px-3 sm:px-4 my-1">
         <LinkPreviewCard 
-          preview={post.linkPreview || { url: post.media, title: post.title }} 
+          preview={{
+            ...(post.linkPreview || {}),
+            url: post.linkPreview?.url || (typeof post.media === "string" ? post.media : "") || "",
+            image: post.linkPreview?.image || post.thumbnail || "",
+            media: post.media || "",
+            title: post.title || post.linkPreview?.title || ""
+          }} 
           postId={post._id} 
           inFeed={true}
           isGlobalMuted={isGlobalMuted}

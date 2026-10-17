@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -46,7 +46,7 @@ import { toast } from "@/utils/toast";
 
 const API_BASE = getApiBase();
 
-export default function MessagesPage() {
+function MessagesPageContent() {
   const searchParams = useSearchParams();
   const directTargetUserId = searchParams.get("user") || searchParams.get("userId");
 
@@ -1768,5 +1768,19 @@ export default function MessagesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="w-full h-screen flex items-center justify-center bg-[var(--bg-main)] text-[var(--text-secondary)]">
+          <div className="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+        </div>
+      }
+    >
+      <MessagesPageContent />
+    </Suspense>
   );
 }

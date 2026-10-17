@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { ExternalLink, Globe } from "lucide-react";
 import { FaVolumeMute, FaVolumeUp, FaPlay, FaPause } from "react-icons/fa";
 
-// Safe, universal YouTube Video ID extractor
+// Safe, universal YouTube Video ID extractor (supports watch, embed, shorts, youtu.be, and ytimg CDN)
 export function getYouTubeVideoId(url) {
   if (!url || typeof url !== "string") return null;
-  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/|live\/)|youtu\.be\/)([^"&?\/\s]{11})/i;
+  const regExp = /(?:(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|vi)\/|.*[?&]v=|shorts\/|live\/))|(?:youtu\.be\/)|(?:ytimg\.com\/vi\/))([^"&?\/\s]{11})/i;
   const match = url.match(regExp);
   return match && match[1] ? match[1] : null;
 }
@@ -33,22 +33,28 @@ export default function LinkPreviewCard({
   const iframeRef = useRef(null);
   const containerRef = useRef(null);
 
-  if (!preview || !preview.url) return null;
-
-  const domain = preview.domain || (() => {
-    try {
-      return new URL(preview.url).hostname.replace(/^www\./, "");
-    } catch {
-      return "external link";
-    }
-  })();
+  if (!preview) return null;
+  const effectiveUrl = preview.url || preview.media || preview.link || "";
 
   const youtubeVideoId =
     preview.youtubeId ||
-    getYouTubeVideoId(preview.url) ||
+    getYouTubeVideoId(effectiveUrl) ||
     getYouTubeVideoId(preview.media) ||
-    getYouTubeVideoId(preview.link);
+    getYouTubeVideoId(preview.image) ||
+    getYouTubeVideoId(preview.link) ||
+    getYouTubeVideoId(preview.title) ||
+    (preview.siteName?.toLowerCase() === "youtube" ? getYouTubeVideoId(preview.image || preview.description) : null);
   const isYouTubeVideo = Boolean(youtubeVideoId);
+
+  if (!effectiveUrl && !isYouTubeVideo && !preview.image) return null;
+
+  const domain = preview.domain || (() => {
+    try {
+      return new URL(effectiveUrl).hostname.replace(/^www\./, "");
+    } catch {
+      return isYouTubeVideo ? "youtube.com" : "external link";
+    }
+  })();
 
   // Sync mute state with global preference and listen for global sound changes
   useEffect(() => {
