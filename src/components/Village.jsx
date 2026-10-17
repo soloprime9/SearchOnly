@@ -171,6 +171,13 @@ export default function Village({ initialPosts = [] }) {
     } catch (_) {}
   }, []);
 
+  // Synchronize posts if initialPosts updates from SSR
+  useEffect(() => {
+    if (Array.isArray(initialPosts) && initialPosts.length > 0) {
+      setPosts(initialPosts);
+    }
+  }, [initialPosts]);
+
   // Listen for global mute events dispatched from individual videos, link preview cards, or reels
   useEffect(() => {
     const handleGlobalMuteSync = (e) => {

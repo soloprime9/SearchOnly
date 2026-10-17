@@ -27,6 +27,7 @@ export default function YouTubeShortEmbed({
 }) {
   const iframeRef = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isPlaybackActive, setIsPlaybackActive] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   // Send command to YouTube player via postMessage
@@ -40,6 +41,43 @@ export default function YouTubeShortEmbed({
       }
     } catch (_) {}
   };
+
+  // Reset playback active state when youtubeId changes
+  useEffect(() => {
+    setIsPlaybackActive(false);
+    setIsLoaded(false);
+  }, [youtubeId]);
+
+  // Listen for YouTube Iframe API state change to eliminate 2-3s black screen
+  useEffect(() => {
+    if (!youtubeId) return;
+
+    const handleMessage = (event) => {
+      try {
+        let data = event.data;
+        if (typeof data === "string") {
+          try {
+            data = JSON.parse(data);
+          } catch (_) {
+            return;
+          }
+        }
+        if (!data) return;
+
+        // YT.PlayerState.PLAYING is 1. When video actually renders frames:
+        if (
+          (data.event === "onStateChange" && data.info === 1) ||
+          (data.event === "infoDelivery" && (data.info?.playerState === 1 || data.info?.currentTime > 0.05))
+        ) {
+          setIsPlaybackActive(true);
+          setIsLoaded(true);
+        }
+      } catch (_) {}
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [youtubeId]);
 
   // Sync Play / Pause when user scrolls into / out of this short
   useEffect(() => {
@@ -67,8 +105,9 @@ export default function YouTubeShortEmbed({
   useEffect(() => {
     if (!youtubeId || (!isActive && !shouldPreload)) return;
     const timer = setTimeout(() => {
+      setIsPlaybackActive(true);
       setIsLoaded(true);
-    }, 1200);
+    }, 3500);
     return () => clearTimeout(timer);
   }, [youtubeId, isActive, shouldPreload]);
 
@@ -101,20 +140,25 @@ export default function YouTubeShortEmbed({
 
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden select-none">
-      {/* High-Resolution Poster while iframe initializes */}
-      {!isLoaded && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black">
-          <img
-            src={thumbnail || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
-            alt={title}
-            className="w-full h-full object-contain"
-          />
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
+      {/* High-Resolution Poster while iframe initializes (Eliminates 2-3s black screen) */}
+      <div
+        className={`absolute inset-0 z-10 flex items-center justify-center bg-black transition-opacity duration-500 ease-out pointer-events-none ${
+          isPlaybackActive ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
+      >
+        <img
+          src={thumbnail || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+          alt={title}
+          className="w-full h-full object-contain"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+        {!isPlaybackActive && (
           <div className="absolute w-12 h-12 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-2xl animate-pulse">
             <FaYoutube size={26} />
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Sandboxed YouTube Player Frame (Fills 9:16 cleanly) - Only mounts when active, preloading, or nearby */}
       {(isActive || shouldPreload || isNearby) ? (
@@ -126,6 +170,12 @@ export default function YouTubeShortEmbed({
           allowFullScreen
           onLoad={() => {
             setIsLoaded(true);
+            try {
+              iframeRef.current?.contentWindow?.postMessage(
+                JSON.stringify({ event: "listening" }),
+                "*"
+              );
+            } catch (_) {}
             if (isActive) {
               sendCommand("playVideo");
               if (isMuted) sendCommand("mute");
@@ -136,7 +186,7 @@ export default function YouTubeShortEmbed({
           }}
           onError={() => setHasError(true)}
           className={`relative z-0 w-full h-full border-0 pointer-events-auto transition-opacity duration-300 ${
-            isLoaded ? "opacity-100" : "opacity-0"
+            isPlaybackActive ? "opacity-100" : "opacity-0"
           }`}
           style={{
             width: "100%",

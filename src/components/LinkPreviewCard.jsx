@@ -23,6 +23,7 @@ export default function LinkPreviewCard({
 }) {
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isPlaybackActive, setIsPlaybackActive] = useState(false);
   // On Single Post Page (!inFeed), start inView = true immediately so autoplay starts on visit!
   const [isInView, setIsInView] = useState(!inFeed);
   const [hasObserverChecked, setHasObserverChecked] = useState(!inFeed);
@@ -89,12 +90,44 @@ export default function LinkPreviewCard({
     } catch (_) {}
   }, []);
 
-  // Safety fallback: ensure isLoaded becomes true after timeout even if iframe onLoad lags
+  // Listen for YouTube Iframe API state changes to eliminate 2-3s black screen
+  useEffect(() => {
+    if (!isYouTubeVideo) return;
+
+    const handleMessage = (event) => {
+      try {
+        let data = event.data;
+        if (typeof data === "string") {
+          try {
+            data = JSON.parse(data);
+          } catch (_) {
+            return;
+          }
+        }
+        if (!data) return;
+
+        // YT.PlayerState.PLAYING is 1. When video begins actual frame playback:
+        if (
+          (data.event === "onStateChange" && data.info === 1) ||
+          (data.event === "infoDelivery" && (data.info?.playerState === 1 || data.info?.currentTime > 0.05))
+        ) {
+          setIsPlaybackActive(true);
+          setIsLoaded(true);
+        }
+      } catch (_) {}
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [isYouTubeVideo]);
+
+  // Safety fallback: ensure poster fades out smoothly even if player events are blocked
   useEffect(() => {
     if (!isYouTubeVideo) return;
     const timer = setTimeout(() => {
+      setIsPlaybackActive(true);
       setIsLoaded(true);
-    }, 1500);
+    }, 3500);
     return () => clearTimeout(timer);
   }, [isYouTubeVideo]);
 
@@ -210,6 +243,12 @@ export default function LinkPreviewCard({
             className="w-full h-full border-0 absolute inset-0 pointer-events-none"
             onLoad={() => {
               setIsLoaded(true);
+              try {
+                iframeRef.current?.contentWindow?.postMessage(
+                  JSON.stringify({ event: "listening" }),
+                  "*"
+                );
+              } catch (_) {}
               if (!inFeed || isInView) {
                 sendCommand("playVideo");
                 sendCommand(isMuted ? "mute" : "unMute");
@@ -224,10 +263,10 @@ export default function LinkPreviewCard({
             }}
           />
 
-          {/* Smooth Poster Transition: Eliminates initial blank flash */}
+          {/* Smooth Poster Transition: Eliminates 2-3s black screen entirely */}
           <div
-            className={`absolute inset-0 z-10 bg-black flex items-center justify-center transition-opacity duration-700 pointer-events-none ${
-              isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
+            className={`absolute inset-0 z-10 bg-black flex items-center justify-center transition-opacity duration-500 ease-out pointer-events-none ${
+              isPlaybackActive ? "opacity-0 pointer-events-none" : "opacity-100"
             }`}
           >
             {resolvedThumbnail && (
@@ -235,8 +274,13 @@ export default function LinkPreviewCard({
                 src={resolvedThumbnail}
                 alt={preview.title || "Video thumbnail"}
                 className="w-full h-full object-cover"
-                loading="lazy"
+                loading="eager"
               />
+            )}
+            {!isPlaybackActive && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
+                <div className="w-9 h-9 rounded-full border-2 border-white/20 border-t-white animate-spin shadow-xl" />
+              </div>
             )}
           </div>
 

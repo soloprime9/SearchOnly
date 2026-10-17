@@ -135,6 +135,13 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
+        {/* Preconnect to media and embed CDNs to accelerate video start and eliminate black screen */}
+        <link rel="preconnect" href="https://www.youtube-nocookie.com" />
+        <link rel="preconnect" href="https://i.ytimg.com" />
+        <link rel="preconnect" href="https://img.youtube.com" />
+        <link rel="dns-prefetch" href="https://www.youtube-nocookie.com" />
+        <link rel="dns-prefetch" href="https://i.ytimg.com" />
+        <link rel="dns-prefetch" href="https://pub-fe2880e50b8a49beb15457c1336be948.r2.dev" />
       </head>
       <body className={`${inter.variable} bg-[var(--bg-canvas)] text-[var(--text-primary)] min-h-screen antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200`}>
         <ThemeBackgroundProvider>
