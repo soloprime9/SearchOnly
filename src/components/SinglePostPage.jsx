@@ -236,6 +236,15 @@ export default function SinglePostInteractions({ initialPost }) {
       triggerHeartBurst(window.innerWidth / 2, window.innerHeight / 2);
     }
 
+    // ⚡ Optimistic UI Update: Toggle like immediately (0ms perceived latency)
+    const currentLikes = safeArray(post.likes);
+    const wasLiked = currentLikes.some((id) => String(id?._id || id) === String(userId));
+    const nextLikes = wasLiked
+      ? currentLikes.filter((id) => String(id?._id || id) !== String(userId))
+      : [...currentLikes, userId];
+
+    setPost((p) => ({ ...p, likes: nextLikes }));
+
     try {
       const res = await axios.post(
         `${API_BASE}/post/like/${post._id}`,
@@ -243,11 +252,14 @@ export default function SinglePostInteractions({ initialPost }) {
         { headers: getAuthHeaders() }
       );
 
-      setPost((p) => ({
-        ...p,
-        likes: safeArray(res.data.likes),
-      }));
+      if (res.data?.likes) {
+        setPost((p) => ({
+          ...p,
+          likes: safeArray(res.data.likes),
+        }));
+      }
     } catch (err) {
+      setPost((p) => ({ ...p, likes: currentLikes }));
       toast.error(err.response?.data?.message || "Failed to update like");
     }
   };

@@ -9,6 +9,7 @@ import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye, FaVolumeMute, Fa
 import PostActionsMenu from "./PostActionsMenu";
 import PollCard from "./PollCard";
 import LinkPreviewCard from "./LinkPreviewCard";
+import VirtualNativeVideo from "./VirtualNativeVideo";
 import QuickAuthGateModal from "./QuickAuthGateModal";
 import ImageLightboxModal from "./ImageLightboxModal";
 import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
@@ -177,6 +178,54 @@ export default function Village({ initialPosts = [] }) {
       setPosts(initialPosts);
     }
   }, [initialPosts]);
+
+  // Instant Back-Navigation Cache: Restore feed state & scroll position on browser back
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem("fondpeace_feed_cache");
+      if (cached) {
+        const data = JSON.parse(cached);
+        if (Array.isArray(data.posts) && data.posts.length > 0) {
+          setPosts(data.posts);
+          if (data.page) setPage(data.page);
+          if (data.activeTab) setActiveTab(data.activeTab);
+          if (data.categoryFilter) setCategoryFilter(data.categoryFilter);
+          if (data.mediaTypeFilter) setMediaTypeFilter(data.mediaTypeFilter);
+          if (data.scrollY && data.scrollY > 80) {
+            setTimeout(() => {
+              window.scrollTo({ top: data.scrollY, behavior: "instant" });
+            }, 60);
+          }
+        }
+      }
+    } catch (_) {}
+  }, []);
+
+  // Save current feed state before navigating away
+  useEffect(() => {
+    if (!posts || posts.length === 0) return;
+    const saveFeedCache = () => {
+      try {
+        sessionStorage.setItem(
+          "fondpeace_feed_cache",
+          JSON.stringify({
+            posts: posts.slice(0, 36),
+            page,
+            activeTab,
+            categoryFilter,
+            mediaTypeFilter,
+            scrollY: window.scrollY,
+          })
+        );
+      } catch (_) {}
+    };
+
+    window.addEventListener("beforeunload", saveFeedCache);
+    return () => {
+      saveFeedCache();
+      window.removeEventListener("beforeunload", saveFeedCache);
+    };
+  }, [posts, page, activeTab, categoryFilter, mediaTypeFilter]);
 
   // Listen for global mute events dispatched from individual videos, link preview cards, or reels
   useEffect(() => {
@@ -409,6 +458,9 @@ export default function Village({ initialPosts = [] }) {
     setIsRefreshing(true);
     setPage(1);
     try {
+      sessionStorage.removeItem("fondpeace_feed_cache");
+    } catch (_) {}
+    try {
       const data = await fetchFeedData(1, mediaTypeFilter, categoryFilter);
       if (data.length > 0) {
         const rotated = [...data].sort(() => Math.random() - 0.25);
@@ -564,10 +616,33 @@ const increaseView = useCallback(
       setAuthGateOpen(true);
       return;
     }
+
+    playPop();
+
+    // ⚡ Optimistic UI Update: Toggle like immediately for instant 0ms feedback
+    let previousLikes = [];
+    setPosts((prev) =>
+      prev.map((p) => {
+        if (p._id !== postId) return p;
+        const currentLikes = Array.isArray(p.likes) ? p.likes : [];
+        previousLikes = currentLikes;
+        const wasLiked = currentLikes.some((id) => (id?._id || id)?.toString() === userId?.toString());
+        const updatedLikes = wasLiked
+          ? currentLikes.filter((id) => (id?._id || id)?.toString() !== userId?.toString())
+          : [...currentLikes, userId];
+        return { ...p, likes: updatedLikes };
+      })
+    );
+
     try {
       const res = await axios.post(`${API_BASE}/post/like/${postId}`, {}, { headers: { "x-auth-token": token } });
-      setPosts((prev) => prev.map((p) => p._id === postId ? { ...p, likes: res.data.likes } : p));
-    } catch (err) { toast.error("Failed to like"); }
+      if (res.data?.likes) {
+        setPosts((prev) => prev.map((p) => p._id === postId ? { ...p, likes: res.data.likes } : p));
+      }
+    } catch (err) {
+      setPosts((prev) => prev.map((p) => p._id === postId ? { ...p, likes: previousLikes } : p));
+      toast.error("Failed to like post");
+    }
   };
 
   const handleComment = async (postId) => {
@@ -579,12 +654,42 @@ const increaseView = useCallback(
     }
     const comment = commentTextMap[postId]?.trim();
     if (!comment) return;
+
+    playPop();
+    setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
+
+    // ⚡ Optimistic UI Update: Add temporary comment for instant feedback
+    const tempComment = {
+      _id: `temp_${Date.now()}`,
+      CommentText: comment,
+      userId: currentUserData || { _id: userId, username: "You", profilePicture: "/Fondpeace.jpg" },
+      likes: [],
+      createdAt: new Date().toISOString(),
+      replies: []
+    };
+
+    setPosts((prev) =>
+      prev.map((p) => {
+        if (p._id !== postId) return p;
+        return { ...p, comments: [...(Array.isArray(p.comments) ? p.comments : []), tempComment] };
+      })
+    );
+
     try {
       const res = await axios.post(`${API_BASE}/post/comment/${postId}`, { CommentText: comment, userId }, { headers: { "x-auth-token": token } });
-      setCommentTextMap((prev) => ({ ...prev, [postId]: "" }));
-      setPosts((prev) => prev.map((p) => p._id === postId ? { ...p, comments: res.data.comments } : p));
-      toast.success("Commented");
-    } catch { toast.error("Error"); }
+      if (res.data?.comments) {
+        setPosts((prev) => prev.map((p) => p._id === postId ? { ...p, comments: res.data.comments } : p));
+      }
+      toast.success("Comment posted! 💬");
+    } catch {
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p._id !== postId) return p;
+          return { ...p, comments: (p.comments || []).filter((c) => c._id !== tempComment._id) };
+        })
+      );
+      toast.error("Could not post comment");
+    }
   };
 
   const handleDoubleTapMedia = (postId, e) => {
@@ -953,15 +1058,13 @@ const handleShare = async (postData) => {
           className="w-full h-auto flex items-center justify-center bg-black cursor-pointer"
         >
           {isVideo ? (
-            <video
-              ref={(ref) => (videoRefs.current[index] = ref)}
+            <VirtualNativeVideo
+              onRef={(ref) => (videoRefs.current[index] = ref)}
               src={post.media}
-              autoPlay
-              loop
-              playsInline
-              muted={isGlobalMuted}
-              preload="metadata"
+              thumbnail={post.thumbnail}
+              isMuted={isGlobalMuted}
               className="w-full max-h-[520px] object-contain block mx-auto"
+              alt={post.title || "video"}
             />
           ) : (
             <img 
