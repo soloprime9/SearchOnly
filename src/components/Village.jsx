@@ -375,6 +375,17 @@ export default function Village({ initialPosts = [] }) {
     [API_BASE, mediaTypeFilter, categoryFilter, preferredTopics]
   );
 
+  // If initialPosts was empty (e.g. cold backend during SSR), auto-fetch discovery feed on client
+  useEffect(() => {
+    if (posts.length === 0 && activeTab === "foryou") {
+      fetchFeedData(1, mediaTypeFilter, categoryFilter).then((data) => {
+        if (data && data.length > 0) {
+          setPosts(data);
+        }
+      });
+    }
+  }, [fetchFeedData, activeTab, mediaTypeFilter, categoryFilter, posts.length]);
+
   const handleMediaTypeChange = async (type) => {
     if (type === mediaTypeFilter) return;
     playTap();
