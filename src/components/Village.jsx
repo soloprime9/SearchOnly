@@ -1,11 +1,12 @@
 'use client'; 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import jwt from "jsonwebtoken";
 import toast from "react-hot-toast";
 import { FaHeart, FaRegHeart, FaCommentDots, FaShareAlt, FaEye, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+import { getFeedCache, saveFeedCache, updateFeedScroll, clearFeedCache } from "@/utils/feedCache";
 import PostActionsMenu from "./PostActionsMenu";
 import PollCard from "./PollCard";
 import LinkPreviewCard from "./LinkPreviewCard";
@@ -109,15 +110,21 @@ function renderFormattedCaption(text, onHashtagClick) {
 
 
 export default function Village({ initialPosts = [] }) {
-  const [posts, setPosts] = useState(Array.isArray(initialPosts) ? initialPosts : []);
-  const [activeTab, setActiveTab] = useState("foryou"); // "foryou" | "following"
-  const [categoryFilter, setCategoryFilter] = useState("All");
+  const cachedFeed = useMemo(() => getFeedCache(), []);
+
+  const [posts, setPosts] = useState(() => {
+    if (cachedFeed?.posts?.length) return cachedFeed.posts;
+    return Array.isArray(initialPosts) ? initialPosts : [];
+  });
+  const [activeTab, setActiveTab] = useState(() => cachedFeed?.activeTab || "foryou"); // "foryou" | "following"
+  const [categoryFilter, setCategoryFilter] = useState(() => cachedFeed?.categoryFilter || "All");
+  const [mediaTypeFilter, setMediaTypeFilter] = useState(() => cachedFeed?.mediaTypeFilter || "all"); // "all" | "video" | "image" | "discussion"
   const [viewMode, setViewMode] = useState("stream"); // "stream" | "grid"
   const [isZenMode, setIsZenMode] = useState(false);
   const [followingMap, setFollowingMap] = useState({});
   const [followingLoading, setFollowingLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(() => cachedFeed?.page || 1);
+  const [hasMore, setHasMore] = useState(() => cachedFeed?.hasMore ?? true);
   const observerRef = useRef(null);
 
   const [commentTextMap, setCommentTextMap] = useState({});
@@ -151,7 +158,6 @@ export default function Village({ initialPosts = [] }) {
   const videoRefs = useRef([]);
   const router = useRouter();
   const API_BASE = getApiBase();
-  const [mediaTypeFilter, setMediaTypeFilter] = useState("all"); // "all" | "video" | "image" | "discussion"
   const [filterLoading, setFilterLoading] = useState(false);
   const [showPersonalizeModal, setShowPersonalizeModal] = useState(false);
   const [preferredTopics, setPreferredTopics] = useState([]);
@@ -172,60 +178,59 @@ export default function Village({ initialPosts = [] }) {
     } catch (_) {}
   }, []);
 
-  // Synchronize posts if initialPosts updates from SSR
+  // Synchronize initialPosts ONLY on fresh landing when no feed cache exists
   useEffect(() => {
-    if (Array.isArray(initialPosts) && initialPosts.length > 0) {
+    if (!cachedFeed && Array.isArray(initialPosts) && initialPosts.length > 0) {
       setPosts(initialPosts);
     }
-  }, [initialPosts]);
+  }, [initialPosts, cachedFeed]);
 
-  // Instant Back-Navigation Cache: Restore feed state & scroll position on browser back
+  // Instant Back-Navigation Cache: Restore exact scroll position on browser back
   useEffect(() => {
-    try {
-      const cached = sessionStorage.getItem("fondpeace_feed_cache");
-      if (cached) {
-        const data = JSON.parse(cached);
-        if (Array.isArray(data.posts) && data.posts.length > 0) {
-          setPosts(data.posts);
-          if (data.page) setPage(data.page);
-          if (data.activeTab) setActiveTab(data.activeTab);
-          if (data.categoryFilter) setCategoryFilter(data.categoryFilter);
-          if (data.mediaTypeFilter) setMediaTypeFilter(data.mediaTypeFilter);
-          if (data.scrollY && data.scrollY > 80) {
-            setTimeout(() => {
-              window.scrollTo({ top: data.scrollY, behavior: "instant" });
-            }, 60);
-          }
-        }
+    if (cachedFeed && cachedFeed.scrollY > 40) {
+      if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+        window.history.scrollRestoration = "manual";
       }
-    } catch (_) {}
+
+      // Multi-stage RAF ensures layout & images render at full previous height
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: cachedFeed.scrollY, behavior: "instant" });
+        setTimeout(() => {
+          window.scrollTo({ top: cachedFeed.scrollY, behavior: "instant" });
+        }, 50);
+      });
+    }
+  }, [cachedFeed]);
+
+  // Continuously record scroll position into in-memory engine
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateFeedScroll(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Save current feed state before navigating away
+  // Save full feed state whenever posts, page, or filters change, and on unmount
   useEffect(() => {
     if (!posts || posts.length === 0) return;
-    const saveFeedCache = () => {
-      try {
-        sessionStorage.setItem(
-          "fondpeace_feed_cache",
-          JSON.stringify({
-            posts: posts.slice(0, 36),
-            page,
-            activeTab,
-            categoryFilter,
-            mediaTypeFilter,
-            scrollY: window.scrollY,
-          })
-        );
-      } catch (_) {}
-    };
-
-    window.addEventListener("beforeunload", saveFeedCache);
-    return () => {
-      saveFeedCache();
-      window.removeEventListener("beforeunload", saveFeedCache);
-    };
-  }, [posts, page, activeTab, categoryFilter, mediaTypeFilter]);
+    saveFeedCache({
+      posts,
+      page,
+      activeTab,
+      categoryFilter,
+      mediaTypeFilter,
+      hasMore,
+    });
+  }, [posts, page, activeTab, categoryFilter, mediaTypeFilter, hasMore]);
 
   // Listen for global mute events dispatched from individual videos, link preview cards, or reels
   useEffect(() => {
@@ -457,9 +462,7 @@ export default function Village({ initialPosts = [] }) {
     playTap();
     setIsRefreshing(true);
     setPage(1);
-    try {
-      sessionStorage.removeItem("fondpeace_feed_cache");
-    } catch (_) {}
+    clearFeedCache();
     try {
       const data = await fetchFeedData(1, mediaTypeFilter, categoryFilter);
       if (data.length > 0) {
@@ -959,7 +962,8 @@ const handleShare = async (postData) => {
               </Link>
               <div className="flex items-center gap-1 text-[11px] text-zinc-400 mt-0.5 font-medium">
                 <Link 
-                  href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
+                  href={isVideo ? `/shorts/${post._id}` : `/post/${post._id}`}
+                  onClick={() => saveFeedCache({ posts, page, activeTab, categoryFilter, mediaTypeFilter, scrollY: window.scrollY, hasMore })}
                   className="hover:underline hover:text-zinc-200 transition-colors"
                   title="Open post"
                 >
@@ -1054,7 +1058,8 @@ const handleShare = async (postData) => {
     {post.media && !post.media.includes("youtube.com") && !post.media.includes("youtu.be") ? (
       <div className="relative w-full bg-black flex items-center justify-center overflow-hidden max-h-[520px] rounded-xl my-1 group/media">
         <Link 
-          href={isVideo ? `/short/${post._id}` : `/post/${post._id}`} 
+          href={isVideo ? `/shorts/${post._id}` : `/post/${post._id}`} 
+          onClick={() => saveFeedCache({ posts, page, activeTab, categoryFilter, mediaTypeFilter, scrollY: window.scrollY, hasMore })}
           className="w-full h-auto flex items-center justify-center bg-black cursor-pointer"
         >
           {isVideo ? (
@@ -1124,6 +1129,7 @@ const handleShare = async (postData) => {
       /* Modern Discussion / Thought Card (When no image or video is attached) */
       <Link 
         href={`/post/${post._id}`}
+        onClick={() => saveFeedCache({ posts, page, activeTab, categoryFilter, mediaTypeFilter, scrollY: window.scrollY, hasMore })}
         className="block relative mx-3 my-1 p-5 sm:p-7 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white shadow-lg overflow-hidden border border-white/10 hover:border-blue-500/40 hover:shadow-indigo-500/10 transition-all cursor-pointer group"
       >
         <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-blue-500/15 rounded-full blur-3xl pointer-events-none group-hover:scale-125 transition-transform" />
