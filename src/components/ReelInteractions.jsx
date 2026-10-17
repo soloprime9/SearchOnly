@@ -147,7 +147,7 @@ export default function ReelInteractions({ post, updatePost }) {
   const hasLiked = (likes) =>
     userId && safeArray(likes).some((id) => String(id?._id || id) === userId);
 
-  // ===== LIKE POST =====
+  // ===== LIKE POST (⚡ 0ms Optimistic Update) =====
   const handleLike = async (e) => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) {
@@ -156,7 +156,10 @@ export default function ReelInteractions({ post, updatePost }) {
     }
 
     playPop();
-    const alreadyLiked = hasLiked(data.likes);
+    const currentLikes = safeArray(data.likes);
+    const alreadyLiked = hasLiked(currentLikes);
+    const activeUserId = userId || "me";
+
     if (!alreadyLiked) {
       if (e && e.clientX && e.clientY) {
         triggerHeartBurst(e.clientX, e.clientY);
@@ -165,6 +168,13 @@ export default function ReelInteractions({ post, updatePost }) {
       }
     }
 
+    // ⚡ Optimistic toggle (0ms perceived latency)
+    const nextLikes = alreadyLiked
+      ? currentLikes.filter((id) => String(id?._id || id) !== activeUserId)
+      : [...currentLikes, activeUserId];
+
+    syncParent({ ...data, likes: nextLikes });
+
     try {
       const res = await axios.post(
         `${API_BASE}/post/like/${data._id}`,
@@ -172,14 +182,19 @@ export default function ReelInteractions({ post, updatePost }) {
         { headers: { "x-auth-token": token } }
       );
 
-      syncParent({
-        ...data,
-        likes: safeArray(res.data.likes),
-      });
-    } catch (_) {}
+      if (res.data?.likes) {
+        syncParent({
+          ...data,
+          likes: safeArray(res.data.likes),
+        });
+      }
+    } catch (_) {
+      syncParent({ ...data, likes: currentLikes });
+      toast.error("Could not update like");
+    }
   };
 
-  // ===== TOGGLE BOOKMARK =====
+  // ===== TOGGLE BOOKMARK (⚡ 0ms Optimistic Update) =====
   const handleBookmark = async () => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) {
@@ -198,10 +213,13 @@ export default function ReelInteractions({ post, updatePost }) {
         {},
         { headers: { "x-auth-token": token } }
       );
-    } catch (_) {}
+    } catch (_) {
+      setIsBookmarked(!nextBookmarked);
+      toast.error("Failed to update bookmark");
+    }
   };
 
-  // ===== FOLLOW CREATOR =====
+  // ===== FOLLOW CREATOR (⚡ 0ms Optimistic Update) =====
   const handleFollowCreator = async () => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const creatorId = data.userId?._id || data.userId;
@@ -211,16 +229,23 @@ export default function ReelInteractions({ post, updatePost }) {
     }
 
     playPop();
+    const prevFollowing = isFollowingCreator;
     setIsFollowingCreator(true);
     toast.success(`Following @${data.userId?.username || "creator"}! ✨`);
 
     try {
-      await axios.post(
+      const res = await axios.post(
         `${API_BASE}/user/follow/${creatorId}`,
         {},
         { headers: { "x-auth-token": token } }
       );
-    } catch (_) {}
+      if (res.data?.isFollowing !== undefined) {
+        setIsFollowingCreator(res.data.isFollowing);
+      }
+    } catch (_) {
+      setIsFollowingCreator(prevFollowing);
+      toast.error("Failed to follow creator");
+    }
   };
 
   // ===== REPOST =====

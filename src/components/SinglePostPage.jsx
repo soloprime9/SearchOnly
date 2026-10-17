@@ -173,7 +173,10 @@ export default function SinglePostInteractions({ initialPost }) {
         {},
         { headers: getAuthHeaders() }
       );
-    } catch (_) {}
+    } catch (_) {
+      setIsBookmarked(!nextState);
+      toast.error("Failed to update bookmark");
+    }
   };
 
   /* ================= AUTH ================= */
@@ -264,39 +267,77 @@ export default function SinglePostInteractions({ initialPost }) {
     }
   };
 
-  /* ================= COMMENT ================= */
+  /* ================= COMMENT (⚡ 0ms Optimistic Update) ================= */
   const handleComment = async () => {
-    if (!comment.trim()) return;
+    const trimmed = comment.trim();
+    if (!trimmed) return;
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) return toast.error("Please log in to comment");
 
-    playTap();
+    playPop();
+    setComment("");
+
+    const tempComment = {
+      _id: `temp_${Date.now()}`,
+      CommentText: trimmed,
+      userId: { _id: userId, username: "You", profilePicture: "/Fondpeace.jpg" },
+      likes: [],
+      createdAt: new Date().toISOString(),
+      replies: [],
+    };
+
+    setPost((p) => ({
+      ...p,
+      comments: [...safeArray(p.comments), tempComment],
+    }));
+    toast.success("Comment posted! 💬");
+
     try {
       const res = await axios.post(
         `${API_BASE}/post/comment/${post._id}`,
-        { CommentText: comment, userId },
+        { CommentText: trimmed, userId },
         { headers: getAuthHeaders() }
       );
 
+      if (res.data?.comments) {
+        setPost((p) => ({
+          ...p,
+          comments: safeArray(res.data.comments),
+        }));
+      }
+    } catch (err) {
       setPost((p) => ({
         ...p,
-        comments: safeArray(res.data.comments),
+        comments: safeArray(p.comments).filter((c) => c._id !== tempComment._id),
       }));
-      setComment("");
-      playChime();
-      toast.success("Comment posted");
-    } catch (err) {
       toast.error(err.response?.data?.message || "Failed to post comment");
     }
   };
 
-  /* ================= COMMENT LIKE ================= */
+  /* ================= COMMENT LIKE (⚡ 0ms Optimistic Update) ================= */
   const handleCommentLike = async (commentId) => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) return toast.error("Please log in");
 
     playPop();
+
+    const previousComments = post.comments;
+    const targetComment = safeArray(post.comments).find((c) => c._id === commentId);
+    const wasLiked = targetComment && safeArray(targetComment.likes).some((id) => String(id?._id || id) === String(userId));
+
+    setPost((p) => ({
+      ...p,
+      comments: safeArray(p.comments).map((c) => {
+        if (c._id !== commentId) return c;
+        const currentLikes = safeArray(c.likes);
+        const nextLikes = wasLiked
+          ? currentLikes.filter((id) => String(id?._id || id) !== String(userId))
+          : [...currentLikes, userId];
+        return { ...c, likes: nextLikes };
+      }),
+    }));
+
     try {
       const res = await axios.post(
         `${API_BASE}/post/comment/like/${post._id}/${commentId}`,
@@ -304,22 +345,11 @@ export default function SinglePostInteractions({ initialPost }) {
         { headers: getAuthHeaders() }
       );
 
-      setPost((p) => ({
-        ...p,
-        comments: p.comments.map((c) =>
-          c._id === commentId
-            ? {
-                ...c,
-                likes: res.data.liked
-                  ? [...safeArray(c.likes), userId]
-                  : safeArray(c.likes).filter(
-                      (id) => String(id?._id || id) !== String(userId)
-                    ),
-              }
-            : c
-        ),
-      }));
+      if (res.data?.comments) {
+        setPost((p) => ({ ...p, comments: safeArray(res.data.comments) }));
+      }
     } catch (err) {
+      setPost((p) => ({ ...p, comments: previousComments }));
       toast.error("Failed to like comment");
     }
   };

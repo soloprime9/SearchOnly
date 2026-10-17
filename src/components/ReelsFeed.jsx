@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { FaVolumeMute, FaVolumeUp, FaArrowLeft, FaPlay, FaTimes, FaFire, FaClock, FaHeart, FaYoutube } from "react-icons/fa";
 import { ShieldCheck, Music, ChevronUp, ChevronDown, Sparkles } from "lucide-react";
 import axios from "axios";
+import jwt from "jsonwebtoken";
 import ReelInteractions from "./ReelInteractions";
 import LeftSidebar from "./LeftSidebar";
 import YouTubeShortEmbed from "./YouTubeShortEmbed";
@@ -517,14 +518,37 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       if (token && post?._id) {
+        // ⚡ 0ms Optimistic like toggle on double tap
+        const currentLikes = Array.isArray(post.likes) ? post.likes : [];
+        let uid = "me";
+        try {
+          const dec = jwt.decode(token);
+          if (dec?.UserId || dec?.id) uid = String(dec.UserId || dec.id);
+        } catch (_) {}
+
+        const wasLiked = currentLikes.some((id) => String(id?._id || id) === uid);
+        if (!wasLiked) {
+          setPosts((prev) =>
+            prev.map((p) => (p._id === post._id ? { ...p, likes: [...currentLikes, uid] } : p))
+          );
+        }
+
         axios
           .post(`${API_BASE}/post/like/${post._id}`, {}, { headers: { "x-auth-token": token } })
           .then((res) => {
-            setPosts((prev) =>
-              prev.map((p) => (p._id === post._id ? { ...p, likes: res.data.likes } : p))
-            );
+            if (res.data?.likes) {
+              setPosts((prev) =>
+                prev.map((p) => (p._id === post._id ? { ...p, likes: res.data.likes } : p))
+              );
+            }
           })
-          .catch(() => {});
+          .catch(() => {
+            if (!wasLiked) {
+              setPosts((prev) =>
+                prev.map((p) => (p._id === post._id ? { ...p, likes: currentLikes } : p))
+              );
+            }
+          });
       }
       lastTapRef.current = { time: 0, x: 0, y: 0 };
     } else {
