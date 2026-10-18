@@ -15,6 +15,7 @@ import {
   FaBookmark,
   FaCoins,
   FaCommentDots,
+  FaDownload,
 } from "react-icons/fa";
 import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
@@ -297,6 +298,27 @@ export default function LeftSidebar({ sticky = false }) {
               }`}
             >
               Saved Posts
+            </span>
+          </button>
+
+          {/* Install PWA App Button */}
+          <button
+            onClick={() => {
+              playTap();
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("open-pwa-install"));
+              }
+            }}
+            className="relative flex items-center gap-3.5 h-11 px-2.5 rounded-xl transition-all duration-150 text-gray-600 dark:text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white group w-full text-left"
+            title="Install FondPeace App"
+          >
+            <FaDownload className="shrink-0 text-[15px] ml-0.5 group-hover:scale-110 transition-transform text-sky-400" />
+            <span
+              className={`text-[13.5px] font-medium whitespace-nowrap transition-all duration-200 ${
+                expanded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-3 pointer-events-none w-0"
+              }`}
+            >
+              Install App
             </span>
           </button>
         </nav>

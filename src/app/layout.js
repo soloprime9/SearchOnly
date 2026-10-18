@@ -153,6 +153,7 @@ export default function RootLayout({ children }) {
           <FloatingDock />
           <GoogleOneTapPrompt />
           <PassiveTelemetryTracker />
+          <InstallPWA />
 
         {/* Global Schema.org JSON-LD Structured Data (Organization + WebSite + SearchAction) */}
         <script
