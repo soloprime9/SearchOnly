@@ -208,6 +208,21 @@ export default function UploadPost() {
   const [showLocationInput, setShowLocationInput] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
 
+  // Daily Video Limit state (Max 2 videos / 24 hours & 25MB max size)
+  const [videoDailyStatus, setVideoDailyStatus] = useState(null);
+
+  useEffect(() => {
+    const API = getApiBase();
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) return;
+    axios
+      .get(`${API}/demo/video-daily-status`, { headers: { "x-auth-token": token } })
+      .then((res) => {
+        if (res.data) setVideoDailyStatus(res.data);
+      })
+      .catch(() => {});
+  }, []);
+
   const detectCurrentLocation = () => {
     if (typeof window === "undefined" || !navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
@@ -293,11 +308,18 @@ export default function UploadPost() {
       return setErrorMsg("Invalid format. Please select an MP4, WebM, JPG, PNG, or WebP file.");
     }
 
-    // ── Pre-check 1: File Size Limit for Free Cloudflare R2 ──
-    if (isVideo && selectedFile.size > 50 * 1024 * 1024) {
+    // ── Pre-check 1: Daily Video Upload Limit (Max 2 videos per day) ──
+    if (isVideo && videoDailyStatus && videoDailyStatus.allowed === false) {
       playPop();
       if (fileRef.current) fileRef.current.value = "";
-      return setErrorMsg(`⚠️ Video size (${(selectedFile.size / 1024 / 1024).toFixed(1)} MB) exceeds the 50MB free-tier storage limit for Shorts & Reels. Please select a shorter video or compress it.`);
+      return setErrorMsg(`⚠️ Daily Video Limit Reached: You have uploaded ${videoDailyStatus.uploadedToday} of ${videoDailyStatus.maxDaily} allowed videos today. You can still publish high-resolution photos, community discussions, articles, or polls today!`);
+    }
+
+    // ── Pre-check 2: Video Size Limit (Max 25MB for optimal speed & cloud storage) ──
+    if (isVideo && selectedFile.size > 25 * 1024 * 1024) {
+      playPop();
+      if (fileRef.current) fileRef.current.value = "";
+      return setErrorMsg(`⚠️ Video size (${(selectedFile.size / 1024 / 1024).toFixed(1)} MB) exceeds the 25MB limit. To ensure instant playback and smooth streaming, please select a video under 25MB.`);
     }
 
     if (isImage && selectedFile.size > 15 * 1024 * 1024) {
@@ -599,6 +621,19 @@ export default function UploadPost() {
       triggerConfetti();
       toast.success("Post published successfully! 🎉");
 
+      if (isVideo) {
+        setVideoDailyStatus((prev) => {
+          if (!prev) return null;
+          const newUploaded = prev.uploadedToday + 1;
+          return {
+            ...prev,
+            uploadedToday: newUploaded,
+            remaining: Math.max(0, prev.maxDaily - newUploaded),
+            allowed: newUploaded < prev.maxDaily,
+          };
+        });
+      }
+
       // Reset form
       setFile(null);
       setTitle("");
@@ -689,9 +724,24 @@ export default function UploadPost() {
           {activeMode === "all" && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Attach Photo / Video <span className="text-gray-400 font-normal capitalize">(Optional)</span>
-                </label>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    Attach Photo / Video <span className="text-gray-400 font-normal capitalize">(Optional)</span>
+                  </label>
+                  {videoDailyStatus && (
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border transition-colors ${
+                        videoDailyStatus.allowed
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                          : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                      }`}
+                      title="Daily video upload limit is 2 videos per 24 hours"
+                    >
+                      <Film className="w-3 h-3" />
+                      <span>{videoDailyStatus.uploadedToday}/{videoDailyStatus.maxDaily} Videos Today</span>
+                    </span>
+                  )}
+                </div>
                 {file && (
                   <button
                     type="button"
@@ -702,6 +752,17 @@ export default function UploadPost() {
                   </button>
                 )}
               </div>
+
+              {/* Informative limit reached notice */}
+              {videoDailyStatus && !videoDailyStatus.allowed && !file && (
+                <div className="mb-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-xs flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold text-amber-300">Daily Video Limit (2/2): </span>
+                    You have shared 2 videos today. Photo, Community Discussion, Article & Poll uploads are still completely open!
+                  </div>
+                </div>
+              )}
 
               {!preview ? (
                 <div
@@ -730,7 +791,7 @@ export default function UploadPost() {
                     Drop photo or video here, or <span className="text-blue-400 underline">browse</span>
                   </h3>
                   <p className="text-xs text-zinc-400 mt-1 max-w-sm">
-                    Reels & Shorts up to 90s & 50MB • Photos up to 15MB (Auto-compressed) • 100% Free Cloud Storage
+                    Videos up to 90s & 25MB (Max 2 videos/day) • Photos up to 15MB • 100% Free Cloud Storage
                   </p>
                 </div>
               ) : (
