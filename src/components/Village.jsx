@@ -466,8 +466,7 @@ export default function Village({ initialPosts = [] }) {
     try {
       const data = await fetchFeedData(1, mediaTypeFilter, categoryFilter);
       if (data.length > 0) {
-        const rotated = [...data].sort(() => Math.random() - 0.25);
-        setPosts(rotated);
+        setPosts(data);
         playChime();
         toast.success("Feed refreshed with fresh stories! 🌟", { duration: 1500 });
       }
