@@ -247,9 +247,18 @@ export default function RelatedPosts({ currentPostId = null }) {
   const renderPost = useCallback(
     (post) => {
       const expanded = expandedPosts[post._id];
+      const isYouTube =
+        Boolean(post.isYouTubeShort) ||
+        (typeof post.media === "string" && (post.media.includes("youtube.com") || post.media.includes("youtu.be"))) ||
+        (typeof post.linkPreview?.url === "string" && (post.linkPreview.url.includes("youtube.com") || post.linkPreview.url.includes("youtu.be"))) ||
+        (typeof post.linkPreview?.siteName === "string" && post.linkPreview.siteName.toLowerCase().includes("youtube"));
+
       const isVid =
+        isYouTube ||
         post.mediaType?.startsWith("video") ||
-        post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
+        (typeof post.media === "string" && post.media.match(/\.(mp4|mov|webm|mkv|m4v)$/i));
+
+      const hasDirectNativeMedia = post.media && !isYouTube;
       const title = post.title || "";
       const displayTitle =
         expanded ? title : title.slice(0, 100) + (title.length > 100 ? "…" : "");
@@ -327,7 +336,7 @@ export default function RelatedPosts({ currentPostId = null }) {
           </div>
 
           {/* ── Media / Embedded content ── */}
-          {post.media ? (
+          {hasDirectNativeMedia ? (
             <div className="relative w-full max-h-[520px] bg-black rounded-xl overflow-hidden flex items-center justify-center my-1 group">
               <Link
                 href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
@@ -371,7 +380,7 @@ export default function RelatedPosts({ currentPostId = null }) {
                 </button>
               )}
             </div>
-          ) : (post.linkPreview || (typeof post.media === "string" && (post.media.includes("youtube.com") || post.media.includes("youtu.be"))) || (typeof post.thumbnail === "string" && (post.thumbnail.includes("youtube.com") || post.thumbnail.includes("ytimg.com")))) ? (
+          ) : (post.linkPreview || isYouTube || (typeof post.thumbnail === "string" && (post.thumbnail.includes("youtube.com") || post.thumbnail.includes("ytimg.com")))) ? (
             <div className="px-3 sm:px-4 my-1">
               <LinkPreviewCard
                 preview={{
