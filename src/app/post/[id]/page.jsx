@@ -179,7 +179,7 @@ export async function generateMetadata({ params }) {
       return {
         title: `${post.title || "Video"}`,
         description: post.title || "Watch on FondPeace",
-        alternates: { canonical: `${SITE_ROOT}/shorts/${id}` },
+        alternates: { canonical: `${SITE_ROOT}/short/${id}` },
         robots: { index: false, follow: true },
       };
     }
@@ -266,7 +266,7 @@ export default async function Page({ params }) {
 
   // If this post is a video, redirect 308/301 permanently to the dedicated watch page
   if (isVideo) {
-    permanentRedirect(`/shorts/${id}`);
+    permanentRedirect(`/short/${id}`);
   }
 
 const related = data?.related ?? [];
@@ -388,10 +388,10 @@ const related = data?.related ?? [];
           }
         })),
 
-        // Related canonical links (direct to /shorts/ or /post/)
+        // Related canonical links (direct to /short/ or /post/)
         "relatedLink": (related || []).map((r) => {
           const isVid = r.mediaType?.startsWith("video") || /\.(mp4|mov|webm|mkv)$/i.test(r.media || r.mediaUrl || "");
-          return isVid ? `${SITE_ROOT}/shorts/${r._id}` : `${SITE_ROOT}/post/${r._id}`;
+          return isVid ? `${SITE_ROOT}/short/${r._id}` : `${SITE_ROOT}/post/${r._id}`;
         })
       }
     ]

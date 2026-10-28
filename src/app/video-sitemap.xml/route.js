@@ -39,7 +39,7 @@ ${posts
 
     return `
   <url>
-    <loc>${SITE_URL}/shorts/${post._id}</loc>
+    <loc>${SITE_URL}/short/${post._id}</loc>
 
     <video:video>
       <video:thumbnail_loc>

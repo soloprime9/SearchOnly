@@ -343,7 +343,7 @@ export default function RelatedPosts({
                   )}
                 </div>
                 <Link
-                  href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
+                  href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
                   className="text-[10.5px] text-[var(--text-secondary)] hover:text-blue-500 transition-colors font-medium"
                 >
                   {new Date(post.createdAt).toLocaleDateString(undefined, {
@@ -356,7 +356,7 @@ export default function RelatedPosts({
             </div>
 
             <Link
-              href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
+              href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
               className="text-xs font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               View Thread →
@@ -367,7 +367,7 @@ export default function RelatedPosts({
           {hasDirectNativeMedia ? (
             <div className="relative w-full max-h-[520px] bg-black rounded-xl overflow-hidden flex items-center justify-center my-1 group">
               <Link
-                href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
+                href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
                 className="w-full h-auto flex items-center justify-center bg-black cursor-pointer group/media"
               >
                 {isVid ? (
