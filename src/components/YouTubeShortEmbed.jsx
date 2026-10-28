@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FaYoutube } from "react-icons/fa";
 
 // Safe, universal YouTube Video ID extractor
@@ -12,9 +12,8 @@ export function getYouTubeVideoId(url) {
 }
 
 /**
- * 🎬 YouTubeShortEmbed - Isolated, Zero-Risk YouTube Shorts Player
- * Plays YouTube Shorts natively inside the 9:16 vertical player frame.
- * Controlled seamlessly via YouTube IFrame Player PostMessage API.
+ * 🎬 YouTubeShortEmbed - High-Performance, Zero-Delay YouTube Shorts Player
+ * Directly renders YouTube Short iframe with zero thumbnail lag or blocking overlays.
  */
 export default function YouTubeShortEmbed({
   youtubeId,
@@ -22,13 +21,9 @@ export default function YouTubeShortEmbed({
   shouldPreload = false,
   isNearby = true,
   isMuted = false,
-  thumbnail = null,
   title = "YouTube Short",
 }) {
   const iframeRef = useRef(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isPlaybackActive, setIsPlaybackActive] = useState(false);
-  const [hasError, setHasError] = useState(false);
 
   // Send command to YouTube player via postMessage
   const sendCommand = (func, args = []) => {
@@ -42,46 +37,9 @@ export default function YouTubeShortEmbed({
     } catch (_) {}
   };
 
-  // Reset playback active state when youtubeId changes
-  useEffect(() => {
-    setIsPlaybackActive(false);
-    setIsLoaded(false);
-  }, [youtubeId]);
-
-  // Listen for YouTube Iframe API state change to eliminate 2-3s black screen
+  // Sync Play / Pause immediately when active state changes
   useEffect(() => {
     if (!youtubeId) return;
-
-    const handleMessage = (event) => {
-      try {
-        let data = event.data;
-        if (typeof data === "string") {
-          try {
-            data = JSON.parse(data);
-          } catch (_) {
-            return;
-          }
-        }
-        if (!data) return;
-
-        // YT.PlayerState.PLAYING is 1. When video actually renders frames:
-        if (
-          (data.event === "onStateChange" && data.info === 1) ||
-          (data.event === "infoDelivery" && (data.info?.playerState === 1 || data.info?.currentTime > 0.05))
-        ) {
-          setIsPlaybackActive(true);
-          setIsLoaded(true);
-        }
-      } catch (_) {}
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [youtubeId]);
-
-  // Sync Play / Pause when user scrolls into / out of this short
-  useEffect(() => {
-    if (!isLoaded) return;
     if (isActive) {
       sendCommand("playVideo");
       if (isMuted) sendCommand("mute");
@@ -89,38 +47,12 @@ export default function YouTubeShortEmbed({
     } else {
       sendCommand("pauseVideo");
     }
-  }, [isActive, isLoaded, isMuted]);
+  }, [isActive, isMuted, youtubeId]);
 
-  // Sync Mute / Unmute state
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (isMuted) {
-      sendCommand("mute");
-    } else {
-      sendCommand("unMute");
-    }
-  }, [isMuted, isLoaded]);
-
-  // Fallback timeout to ensure poster fades out even if iframe onLoad event is slightly delayed
-  useEffect(() => {
-    if (!youtubeId || (!isActive && !shouldPreload)) return;
-    const timer = setTimeout(() => {
-      setIsPlaybackActive(true);
-      setIsLoaded(true);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [youtubeId, isActive, shouldPreload]);
-
-  if (!youtubeId || hasError) {
+  if (!youtubeId) {
     return (
       <div className="relative w-full h-full flex items-center justify-center bg-black">
-        {thumbnail && (
-          <img
-            src={thumbnail}
-            alt={title}
-            className="w-full h-full object-contain"
-          />
-        )}
+        <FaYoutube className="text-zinc-600 text-4xl" />
       </div>
     );
   }
@@ -130,6 +62,7 @@ export default function YouTubeShortEmbed({
       ? window.location.origin
       : "https://www.fondpeace.com";
 
+  // Highly optimized YouTube embed with autoplay enabled & zero thumbnail delays
   const embedUrl = `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=${
     isActive ? 1 : 0
   }&mute=${
@@ -140,22 +73,7 @@ export default function YouTubeShortEmbed({
 
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden select-none">
-      {/* Background Poster: Only visible for a split-second before first video frame renders */}
-      <div
-        className={`absolute inset-0 z-0 flex items-center justify-center bg-black transition-opacity duration-300 ease-out pointer-events-none ${
-          isPlaybackActive || isLoaded ? "opacity-0" : "opacity-100"
-        }`}
-      >
-        <img
-          src={thumbnail || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
-          alt={title}
-          className="w-full h-full object-contain"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-black/10" />
-      </div>
-
-      {/* Sandboxed YouTube Player Frame (Fills 9:16 cleanly) - Active & immediately visible */}
+      {/* Direct YouTube IFrame: Mounts when active or nearby with zero blocking overlays */}
       {(isActive || shouldPreload || isNearby) ? (
         <iframe
           ref={iframeRef}
@@ -164,31 +82,24 @@ export default function YouTubeShortEmbed({
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
           onLoad={() => {
-            setIsLoaded(true);
-            setIsPlaybackActive(true);
-            try {
-              iframeRef.current?.contentWindow?.postMessage(
-                JSON.stringify({ event: "listening" }),
-                "*"
-              );
-            } catch (_) {}
             if (isActive) {
               sendCommand("playVideo");
               if (isMuted) sendCommand("mute");
               else sendCommand("unMute");
-            } else {
-              sendCommand("pauseVideo");
             }
           }}
-          onError={() => setHasError(true)}
-          className="relative z-10 w-full h-full border-0 pointer-events-auto opacity-100"
+          className="relative z-10 w-full h-full border-0 pointer-events-auto"
           style={{
             width: "100%",
             height: "100%",
             aspectRatio: "9/16",
           }}
         />
-      ) : null}
+      ) : (
+        <div className="relative z-10 w-full h-full bg-black flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-rose-500 animate-spin" />
+        </div>
+      )}
 
       {/* Sleek Source Badge (Non-intrusive) */}
       <div className="absolute top-4 right-4 z-20 pointer-events-none flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold shadow-lg">

@@ -686,13 +686,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       {/* ── Desktop Left Sidebar Navigation ── */}
       <LeftSidebar />
 
-      {/* ── Desktop Ambient Theater Glow (Dynamic blur behind card) ── */}
-      {currentActivePost?.thumbnail && (
-        <div
-          className="hidden md:block absolute inset-0 bg-cover bg-center blur-[120px] opacity-25 scale-125 pointer-events-none transition-all duration-700 ease-out"
-          style={{ backgroundImage: `url(${currentActivePost.thumbnail})` }}
-        />
-      )}
+      {/* ── Desktop Ambient Theater Glow (Lightweight CSS Gradient with 0% GPU Overhead) ── */}
+      <div className="hidden md:block absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/40 via-black to-black pointer-events-none" />
 
       {/* ── Fixed Floating Top Bar with Mode Switcher ── */}
       <header className="fixed top-0 inset-x-0 lg:left-[68px] lg:right-0 z-40 max-w-[500px] mx-auto px-3.5 py-3 flex items-center justify-between pointer-events-none">
@@ -822,23 +817,10 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     }
                   }}
                 >
-                  {/* Ambient Dynamic Glow Backdrop (fills letterbox areas naturally without clipping) */}
-                  {(resolvedThumbnail || item.media) && (
-                    <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none z-0">
-                      <img
-                        src={resolvedThumbnail || item.media}
-                        alt=""
-                        aria-hidden="true"
-                        className="w-full h-full object-cover blur-3xl opacity-35 scale-125"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/30" />
-                    </div>
-                  )}
+                  {/* Clean Dark Theater Backdrop (Zero Image Download or GPU Blur Overhead) */}
+                  <div className="absolute inset-0 bg-black pointer-events-none select-none z-0" />
 
-                  {/* Video Player: YouTube Shorts Embed or Native HTML5 Video */}
+                  {/* Video Player: YouTube Shorts Embed or Virtualized Native HTML5 Video */}
                   {FEATURE_FLAGS.ENABLE_YOUTUBE_SHORTS && ytId ? (
                     <YouTubeShortEmbed
                       youtubeId={ytId}
@@ -846,31 +828,28 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                       shouldPreload={isNext || isSubNext}
                       isNearby={isNearby}
                       isMuted={isMuted}
-                      thumbnail={resolvedThumbnail}
                       title={item.title}
                     />
-                  ) : (
-                    /* Native Video Element: object-contain preserves 100% video resolution and framing with zero cuts */
+                  ) : isNearby ? (
+                    /* Native Video Element: object-contain with direct video stream decoding and zero poster delay */
                     <video
                       ref={(el) => (videoRefs.current[index] = el)}
                       src={resolvePlayableVideoSource(item)}
-                      poster={
-                        item.thumbnail &&
-                        !item.thumbnail.includes("Fondpeace.jpg") &&
-                        !item.thumbnail.includes("default.jpg")
-                          ? item.thumbnail
-                          : undefined
-                      }
                       data-index={index}
                       data-id={item._id}
                       loop
                       playsInline
                       autoPlay={isCurrent}
                       muted={isMuted}
-                      preload={isCurrent || isNext ? "auto" : isSubNext ? "metadata" : "none"}
+                      preload={isCurrent || isNext ? "auto" : "metadata"}
                       onTimeUpdate={(e) => handleTimeUpdate(e, item)}
                       className="relative z-10 w-full h-full object-contain mx-auto"
                     />
+                  ) : (
+                    /* Lightweight DOM Placeholder: Releases hardware video decoders for distant slides to prevent tab freeze */
+                    <div className="relative z-10 w-full h-full bg-black flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-rose-500 animate-spin" />
+                    </div>
                   )}
 
                   {/* Central Play/Pause Animation Overlay */}
