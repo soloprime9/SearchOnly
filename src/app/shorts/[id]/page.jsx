@@ -1,12 +1,19 @@
 // app/shorts/[id]/page.jsx
 import { notFound, permanentRedirect } from "next/navigation";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
-import { getYouTubeVideoId } from "@/components/YouTubeShortEmbed";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 
+// Safe server-side YouTube ID extractor (zero client-component proxy dependency)
+function getYouTubeVideoId(url) {
+  if (!url || typeof url !== "string") return null;
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/|live\/)|youtu\.be\/)([^"&?\/\s]{11})/i;
+  const match = url.match(regExp);
+  return match && match[1] ? match[1] : null;
+}
+
 // Server-side Constants
-const API_BASE = getApiBase();
+const API_BASE = getApiBase().replace(/\/+$/, "");
 const API_SINGLE = `${API_BASE}/post/single/`;
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/Fondpeace.jpg`;
@@ -182,101 +189,112 @@ export default async function ShortsDetailPage({ params }) {
   if (!id) return notFound();
 
   try {
-    const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
-    if (!res.ok) {
-      return notFound();
-    }
-    const data = await res.json();
-    const post = data?.post || null;
-    const related = data?.related || [];
+    let post = null;
+    let related = [];
 
-    if (!post) {
-      return notFound();
-    }
-
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
-    const pageUrl = `${SITE_ROOT}/shorts/${post._id || id}`;
-    const authorName = post?.userId?.username;
-
-    const rawMedia = `${post.media || ""} ${post.mediaUrl || ""} ${post.link || ""} ${post.linkPreview?.url || ""} ${post.title || ""}`;
-    const ytId = getYouTubeVideoId(rawMedia);
-    const isVideo =
-      post.mediaType?.startsWith("video") ||
-      Boolean(ytId) ||
-      /\.(mp4|webm|mov|m3u8)$/i.test(mediaUrl || "");
-
-    if (!isVideo) {
-      permanentRedirect(`/post/${id}`);
+    try {
+      const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        post = data?.post || null;
+        related = data?.related || [];
+      }
+    } catch (fetchErr) {
+      console.error("Failed to fetch single short post:", fetchErr);
     }
 
-    const primaryThumb = resolvePostThumbnail(post);
-    const thumbnailList = [primaryThumb];
-    if (ytId) {
-      thumbnailList.push(
-        `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`,
-        `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+    if (post) {
+      const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
+      const pageUrl = `${SITE_ROOT}/shorts/${post._id || id}`;
+      const authorName = post?.userId?.username;
+
+      const rawMedia = `${post.media || ""} ${post.mediaUrl || ""} ${post.link || ""} ${post.linkPreview?.url || ""} ${post.title || ""}`;
+      const ytId = getYouTubeVideoId(rawMedia);
+      const isVideo =
+        post.mediaType?.startsWith("video") ||
+        Boolean(ytId) ||
+        /\.(mp4|webm|mov|m3u8)$/i.test(mediaUrl || "");
+
+      if (!isVideo) {
+        permanentRedirect(`/post/${id}`);
+      }
+
+      const primaryThumb = resolvePostThumbnail(post);
+      const thumbnailList = [primaryThumb];
+      if (ytId) {
+        thumbnailList.push(
+          `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`,
+          `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+        );
+      }
+
+      const videoSchema = {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "@id": `${pageUrl}#video`,
+        name: post.title || "FondPeace Short Video",
+        headline: post.title || "FondPeace Short Video",
+        description: buildDescription(post),
+        thumbnailUrl: thumbnailList,
+        thumbnail: {
+          "@type": "ImageObject",
+          url: primaryThumb,
+          width: 1200,
+          height: 630,
+        },
+        contentUrl: mediaUrl || undefined,
+        embedUrl: ytId
+          ? `https://www.youtube-nocookie.com/embed/${ytId}`
+          : `${SITE_ROOT}/embed/short/${post._id || id}`,
+        url: pageUrl,
+        uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
+        duration: secToISO(Number(post.duration || 30)),
+        inLanguage: "en",
+        isFamilyFriendly: true,
+        isAccessibleForFree: true,
+        author: {
+          "@type": "Person",
+          name: authorName || "FondPeace",
+          url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`,
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "FondPeace",
+          url: SITE_ROOT,
+          logo: {
+            "@type": "ImageObject",
+            url: `${SITE_ROOT}/Fondpeace.jpg`,
+          },
+        },
+        interactionStatistic: buildInteractionSchema(post) || [],
+        potentialAction: {
+          "@type": "WatchAction",
+          target: pageUrl,
+        },
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": pageUrl,
+        },
+      };
+
+      return (
+        <main className="w-full h-[100dvh] bg-black text-white overflow-hidden select-none">
+          <script
+            key="video-jsonld"
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(videoSchema),
+            }}
+          />
+          <ReelsFeedWrapper initialPost={post} initialRelated={related} />
+        </main>
       );
     }
 
-    const videoSchema = {
-      "@context": "https://schema.org",
-      "@type": "VideoObject",
-      "@id": `${pageUrl}#video`,
-      name: post.title || "FondPeace Short Video",
-      headline: post.title || "FondPeace Short Video",
-      description: buildDescription(post),
-      thumbnailUrl: thumbnailList,
-      thumbnail: {
-        "@type": "ImageObject",
-        url: primaryThumb,
-        width: 1200,
-        height: 630,
-      },
-      contentUrl: mediaUrl || undefined,
-      embedUrl: ytId
-        ? `https://www.youtube-nocookie.com/embed/${ytId}`
-        : `${SITE_ROOT}/embed/short/${post._id || id}`,
-      url: pageUrl,
-      uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
-      duration: secToISO(Number(post.duration || 30)),
-      inLanguage: "en",
-      isFamilyFriendly: true,
-      isAccessibleForFree: true,
-      author: {
-        "@type": "Person",
-        name: authorName || "FondPeace",
-        url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`,
-      },
-      publisher: {
-        "@type": "Organization",
-        name: "FondPeace",
-        url: SITE_ROOT,
-        logo: {
-          "@type": "ImageObject",
-          url: `${SITE_ROOT}/Fondpeace.jpg`,
-        },
-      },
-      interactionStatistic: buildInteractionSchema(post) || [],
-      potentialAction: {
-        "@type": "WatchAction",
-        target: pageUrl,
-      },
-      mainEntityOfPage: {
-        "@type": "WebPage",
-        "@id": pageUrl,
-      },
-    };
-
+    // Fallback: If post is temporarily unavailable or loading, render Reels player seamlessly
     return (
       <main className="w-full h-[100dvh] bg-black text-white overflow-hidden select-none">
-        <script
-          key="video-jsonld"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(videoSchema),
-          }}
-        />
-        <ReelsFeedWrapper initialPost={post} initialRelated={related} />
+        <ReelsFeedWrapper initialPost={null} initialRelated={[]} />
       </main>
     );
   } catch (e) {
@@ -284,6 +302,10 @@ export default async function ShortsDetailPage({ params }) {
       throw e;
     }
     console.error("ShortsDetailPage component error:", e);
-    return notFound();
+    return (
+      <main className="w-full h-[100dvh] bg-black text-white overflow-hidden select-none">
+        <ReelsFeedWrapper initialPost={null} initialRelated={[]} />
+      </main>
+    );
   }
 }
