@@ -199,7 +199,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
             const activePost = posts[index];
             if (activePost?._id) {
               const id = String(activePost._id);
-              window.history.replaceState(null, "", `/short/${id}`);
+              window.history.replaceState(null, "", `/shorts/${id}`);
 
               if (!seenPostsRef.current.has(id)) {
                 seenPostsRef.current.add(id);
