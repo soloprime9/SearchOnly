@@ -366,45 +366,8 @@ export default function ReelInteractions({ post, updatePost }) {
 
   return (
     <>
-      {/* ── Vertical Floating Actions Column ── */}
-      <div className="absolute right-3 sm:right-4 bottom-24 flex flex-col items-center gap-4 text-white z-30 select-none">
-        {/* Creator Avatar with Quick Follow Plus Badge */}
-        {data.userId && (
-          <div className="relative mb-1">
-            <Link
-              href={`/profile/${data.userId?.username || ""}`}
-              onClick={(e) => e.stopPropagation()}
-              className="block w-11 h-11 rounded-full border-2 border-white overflow-hidden shadow-xl hover:scale-105 transition-transform bg-zinc-900"
-            >
-              <img
-                src={data.userId?.profilePicture || data.userId?.avatar || "/Fondpeace.jpg"}
-                alt={data.userId?.username || "creator"}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = "/Fondpeace.jpg";
-                }}
-              />
-            </Link>
-            {!isFollowingCreator && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleFollowCreator();
-                }}
-                className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center shadow-lg active:scale-75 transition-all cursor-pointer ring-2 ring-black"
-                title="Follow Creator"
-              >
-                <Plus size={11} className="stroke-[3]" />
-              </button>
-            )}
-            {isFollowingCreator && (
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center ring-2 ring-black pointer-events-none">
-                <Check size={10} className="stroke-[3]" />
-              </div>
-            )}
-          </div>
-        )}
-
+      {/* ── Vertical Floating Actions Column (Professional Bottom-Right Docked) ── */}
+      <div className="absolute right-2.5 sm:right-3.5 bottom-6 sm:bottom-7 flex flex-col items-center gap-2 sm:gap-2.5 text-white z-30 select-none">
         {/* Like Button */}
         <button
           onClick={(e) => {
@@ -414,14 +377,14 @@ export default function ReelInteractions({ post, updatePost }) {
           className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
           title="Like"
         >
-          <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md flex items-center justify-center group-hover:bg-black/65 transition-colors border border-white/10 shadow-lg">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
             {hasLiked(data.likes) ? (
-              <FaHeart className="text-red-500 text-2xl drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] scale-110" />
+              <FaHeart className="text-red-500 text-xl sm:text-2xl drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] scale-110" />
             ) : (
-              <FaRegHeart className="text-2xl text-white drop-shadow-md group-hover:text-red-400 transition-colors" />
+              <FaRegHeart className="text-lg sm:text-xl text-white drop-shadow-md group-hover:text-red-400 transition-colors" />
             )}
           </div>
-          <p className="text-[11px] font-bold mt-1 text-white drop-shadow-md">
+          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
             {formatCount(safeArray(data.likes).length)}
           </p>
         </button>
@@ -436,10 +399,10 @@ export default function ReelInteractions({ post, updatePost }) {
           className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
           title="Comments"
         >
-          <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md flex items-center justify-center group-hover:bg-black/65 transition-colors border border-white/10 shadow-lg">
-            <FaCommentDots className="text-2xl text-white drop-shadow-md group-hover:text-blue-400 transition-colors" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
+            <FaCommentDots className="text-lg sm:text-xl text-white drop-shadow-md group-hover:text-blue-400 transition-colors" />
           </div>
-          <p className="text-[11px] font-bold mt-1 text-white drop-shadow-md">
+          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
             {formatCount(safeArray(data.comments).length)}
           </p>
         </button>
@@ -453,14 +416,14 @@ export default function ReelInteractions({ post, updatePost }) {
           className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
           title={isBookmarked ? "Saved" : "Save Bookmark"}
         >
-          <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md flex items-center justify-center group-hover:bg-black/65 transition-colors border border-white/10 shadow-lg">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
             {isBookmarked ? (
-              <FaBookmark className="text-amber-400 text-xl drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
+              <FaBookmark className="text-amber-400 text-base sm:text-lg drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
             ) : (
-              <FaRegBookmark className="text-xl text-white drop-shadow-md group-hover:text-amber-300 transition-colors" />
+              <FaRegBookmark className="text-base sm:text-lg text-white drop-shadow-md group-hover:text-amber-300 transition-colors" />
             )}
           </div>
-          <p className="text-[11px] font-bold mt-1 text-white drop-shadow-md">
+          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
             {isBookmarked ? "Saved" : "Save"}
           </p>
         </button>
@@ -474,10 +437,10 @@ export default function ReelInteractions({ post, updatePost }) {
           className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
           title="Repost"
         >
-          <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md flex items-center justify-center group-hover:bg-black/65 transition-colors border border-white/10 shadow-lg">
-            <Repeat2 size={22} className={hasReposted ? "text-emerald-400" : "text-white"} />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
+            <Repeat2 size={18} className={hasReposted ? "text-emerald-400" : "text-white"} />
           </div>
-          <p className="text-[11px] font-bold mt-1 text-white drop-shadow-md">
+          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
             {formatCount(repostCount)}
           </p>
         </button>
@@ -491,24 +454,24 @@ export default function ReelInteractions({ post, updatePost }) {
           className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
           title="Share"
         >
-          <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md flex items-center justify-center group-hover:bg-black/65 transition-colors border border-white/10 shadow-lg">
-            <FaShareAlt className="text-xl text-white drop-shadow-md group-hover:text-cyan-400 transition-colors" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
+            <FaShareAlt className="text-base sm:text-lg text-white drop-shadow-md group-hover:text-cyan-400 transition-colors" />
           </div>
-          <p className="text-[11px] font-bold mt-1 text-white drop-shadow-md">Share</p>
+          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">Share</p>
         </button>
 
         {/* Rotating Vinyl Record Animation */}
-        <div className="relative mt-1 flex flex-col items-center">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-zinc-900 via-black to-zinc-800 border-2 border-zinc-700/80 p-1 flex items-center justify-center animate-[spin_4s_linear_infinite] shadow-xl">
-            <div className="w-3.5 h-3.5 rounded-full bg-rose-500 flex items-center justify-center text-[7px] text-white font-bold">
+        <div className="relative mt-0.5 flex flex-col items-center">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-900 via-black to-zinc-800 border border-zinc-700/80 p-0.5 flex items-center justify-center animate-[spin_4s_linear_infinite] shadow-xl">
+            <div className="w-2.5 h-2.5 rounded-full bg-rose-500 flex items-center justify-center text-[6px] text-white font-bold">
               ♪
             </div>
           </div>
-          <div className="flex items-center gap-0.5 mt-1.5">
-            <span className="w-0.5 h-2 bg-white/80 rounded-full animate-pulse" />
-            <span className="w-0.5 h-3 bg-cyan-400 rounded-full animate-pulse delay-75" />
-            <span className="w-0.5 h-1.5 bg-rose-400 rounded-full animate-pulse delay-150" />
-            <span className="w-0.5 h-2.5 bg-indigo-400 rounded-full animate-pulse delay-100" />
+          <div className="flex items-center gap-0.5 mt-1">
+            <span className="w-0.5 h-1.5 bg-white/80 rounded-full animate-pulse" />
+            <span className="w-0.5 h-2.5 bg-cyan-400 rounded-full animate-pulse delay-75" />
+            <span className="w-0.5 h-1 bg-rose-400 rounded-full animate-pulse delay-150" />
+            <span className="w-0.5 h-2 bg-indigo-400 rounded-full animate-pulse delay-100" />
           </div>
         </div>
       </div>

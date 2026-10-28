@@ -41,6 +41,38 @@ export function extractPostYouTubeId(item) {
   return null;
 }
 
+export function resolvePlayableVideoSource(item) {
+  if (!item) return "";
+  const candidates = [
+    item.media,
+    item.mediaUrl,
+    item.link,
+    item.linkPreview?.url,
+  ];
+  for (const c of candidates) {
+    if (typeof c === "string" && c.trim()) {
+      const clean = c.trim();
+      if (/\.(mp4|webm|mov|m4v|m3u8)(\?.*)?$/i.test(clean)) {
+        return clean;
+      }
+    }
+  }
+  // If item.media is not an image extension
+  if (item.media && typeof item.media === "string") {
+    const cleanMedia = item.media.trim();
+    if (!/\.(jpe?g|png|gif|webp|svg|bmp)(\?.*)?$/i.test(cleanMedia)) {
+      return cleanMedia;
+    }
+  }
+  if (item.mediaUrl && typeof item.mediaUrl === "string") {
+    const cleanMediaUrl = item.mediaUrl.trim();
+    if (!/\.(jpe?g|png|gif|webp|svg|bmp)(\?.*)?$/i.test(cleanMediaUrl)) {
+      return cleanMediaUrl;
+    }
+  }
+  return item.media || item.mediaUrl || "";
+}
+
 function formatTime(seconds) {
   if (!seconds || isNaN(seconds)) return "0:00";
   const m = Math.floor(seconds / 60);
@@ -216,6 +248,24 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
     itemRefs.current.forEach((el) => el && observer.observe(el));
     return () => observer.disconnect();
   }, [posts, isMuted, logWatchTelemetry, saveSeenToSession]);
+
+  /* ==============================
+     INSTANT AUTOPLAY ENGINE (NO THUMBNAIL LAG)
+     Plays active video immediately on mount & page index change
+  ============================== */
+  useEffect(() => {
+    const activeVideo = videoRefs.current[currentIndex];
+    if (activeVideo) {
+      activeVideo.muted = isMuted;
+      const playPromise = activeVideo.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          activeVideo.muted = true;
+          activeVideo.play().catch(() => {});
+        });
+      }
+    }
+  }, [currentIndex, posts, isMuted]);
 
   /* ==============================
      NEXT VIDEO PRE-BUFFERING ENGINE (ZERO LATENCY SWIPING)
@@ -803,7 +853,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     /* Native Video Element: object-contain preserves 100% video resolution and framing with zero cuts */
                     <video
                       ref={(el) => (videoRefs.current[index] = el)}
-                      src={item.media || item.mediaUrl}
+                      src={resolvePlayableVideoSource(item)}
                       poster={
                         item.thumbnail &&
                         !item.thumbnail.includes("Fondpeace.jpg") &&
@@ -815,6 +865,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                       data-id={item._id}
                       loop
                       playsInline
+                      autoPlay={isCurrent}
                       muted={isMuted}
                       preload={isCurrent || isNext ? "auto" : isSubNext ? "metadata" : "none"}
                       onTimeUpdate={(e) => handleTimeUpdate(e, item)}

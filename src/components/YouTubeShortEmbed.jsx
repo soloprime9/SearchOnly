@@ -101,13 +101,13 @@ export default function YouTubeShortEmbed({
     }
   }, [isMuted, isLoaded]);
 
-  // Fallback timeout to ensure poster fades out even if iframe event is delayed
+  // Fallback timeout to ensure poster fades out even if iframe onLoad event is slightly delayed
   useEffect(() => {
     if (!youtubeId || (!isActive && !shouldPreload)) return;
     const timer = setTimeout(() => {
       setIsPlaybackActive(true);
       setIsLoaded(true);
-    }, 3500);
+    }, 600);
     return () => clearTimeout(timer);
   }, [youtubeId, isActive, shouldPreload]);
 
@@ -140,10 +140,10 @@ export default function YouTubeShortEmbed({
 
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden select-none">
-      {/* High-Resolution Poster while iframe initializes (Eliminates 2-3s black screen) */}
+      {/* Background Poster: Only visible for a split-second before first video frame renders */}
       <div
-        className={`absolute inset-0 z-10 flex items-center justify-center bg-black transition-opacity duration-500 ease-out pointer-events-none ${
-          isPlaybackActive ? "opacity-0 pointer-events-none" : "opacity-100"
+        className={`absolute inset-0 z-0 flex items-center justify-center bg-black transition-opacity duration-300 ease-out pointer-events-none ${
+          isPlaybackActive || isLoaded ? "opacity-0" : "opacity-100"
         }`}
       >
         <img
@@ -152,15 +152,10 @@ export default function YouTubeShortEmbed({
           className="w-full h-full object-contain"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
-        {!isPlaybackActive && (
-          <div className="absolute w-12 h-12 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-2xl animate-pulse">
-            <FaYoutube size={26} />
-          </div>
-        )}
+        <div className="absolute inset-0 bg-black/10" />
       </div>
 
-      {/* Sandboxed YouTube Player Frame (Fills 9:16 cleanly) - Only mounts when active, preloading, or nearby */}
+      {/* Sandboxed YouTube Player Frame (Fills 9:16 cleanly) - Active & immediately visible */}
       {(isActive || shouldPreload || isNearby) ? (
         <iframe
           ref={iframeRef}
@@ -170,6 +165,7 @@ export default function YouTubeShortEmbed({
           allowFullScreen
           onLoad={() => {
             setIsLoaded(true);
+            setIsPlaybackActive(true);
             try {
               iframeRef.current?.contentWindow?.postMessage(
                 JSON.stringify({ event: "listening" }),
@@ -185,9 +181,7 @@ export default function YouTubeShortEmbed({
             }
           }}
           onError={() => setHasError(true)}
-          className={`relative z-0 w-full h-full border-0 pointer-events-auto transition-opacity duration-300 ${
-            isPlaybackActive ? "opacity-100" : "opacity-0"
-          }`}
+          className="relative z-10 w-full h-full border-0 pointer-events-auto opacity-100"
           style={{
             width: "100%",
             height: "100%",
