@@ -69,7 +69,7 @@ export default async function HomePage() {
 
   try {
     const res = await fetch(`${API_BASE}/post/mango/getall?page=1&limit=20`, {
-      next: { revalidate: 30 },
+      cache: "no-store",
     });
     const data = await res.json();
     if (Array.isArray(data)) {

@@ -14,21 +14,34 @@ let memoryFeedCache = null;
 export function getFeedCache() {
   if (typeof window === "undefined") return null;
 
-  // 1. Check in-memory singleton first (instant 0ms object reference)
+  // On page reload (F5 / browser refresh), bypass stale session cache so fresh discovery loads immediately
+  try {
+    const navEntries = performance.getEntriesByType?.("navigation");
+    const isReload =
+      (navEntries && navEntries.length > 0 && navEntries[0].type === "reload") ||
+      (window.performance?.navigation?.type === 1);
+    if (isReload) {
+      memoryFeedCache = null;
+      sessionStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+  } catch (_) {}
+
+  // 1. Check in-memory singleton first (instant 0ms object reference for SPA Back navigation)
   if (memoryFeedCache && Array.isArray(memoryFeedCache.posts) && memoryFeedCache.posts.length > 0) {
-    // Valid for 30 minutes
-    if (Date.now() - (memoryFeedCache.timestamp || 0) < 30 * 60 * 1000) {
+    // Valid for 2 minutes (immediate back navigation only)
+    if (Date.now() - (memoryFeedCache.timestamp || 0) < 2 * 60 * 1000) {
       return memoryFeedCache;
     }
   }
 
-  // 2. Fallback to sessionStorage if page was reloaded
+  // 2. Fallback to sessionStorage if navigated back
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed?.posts) && parsed.posts.length > 0) {
-        if (Date.now() - (parsed.timestamp || 0) < 30 * 60 * 1000) {
+        if (Date.now() - (parsed.timestamp || 0) < 2 * 60 * 1000) {
           memoryFeedCache = parsed;
           return memoryFeedCache;
         }
