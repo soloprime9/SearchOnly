@@ -388,8 +388,11 @@ const related = data?.related ?? [];
           }
         })),
 
-        // Related canonical links
-        "relatedLink": (related || []).map((r) => `${SITE_ROOT}/short/${r._id}`)
+        // Related canonical links (direct to /shorts/ or /post/)
+        "relatedLink": (related || []).map((r) => {
+          const isVid = r.mediaType?.startsWith("video") || /\.(mp4|mov|webm|mkv)$/i.test(r.media || r.mediaUrl || "");
+          return isVid ? `${SITE_ROOT}/shorts/${r._id}` : `${SITE_ROOT}/post/${r._id}`;
+        })
       }
     ]
   };
@@ -725,7 +728,12 @@ return (
           <SinglePostPage initialPost={post} />
 
           {/* Related Community Discussions Feed */}
-          <RelatedPosts currentPostId={post._id} />
+          <RelatedPosts
+            currentPostId={post._id}
+            category={post.category}
+            tags={post.tags}
+            initialRelated={related}
+          />
         </section>
 
         {/* Right Sidebar (Matching Homepage) */}

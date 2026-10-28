@@ -37,12 +37,24 @@ const PostSkeleton = () => (
 );
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function RelatedPosts({ currentPostId = null }) {
-  const [posts, setPosts] = useState([]);
+export default function RelatedPosts({
+  currentPostId = null,
+  category = null,
+  tags = [],
+  initialRelated = [],
+}) {
+  const [posts, setPosts] = useState(() => {
+    if (Array.isArray(initialRelated) && initialRelated.length > 0) {
+      return initialRelated.filter((p) => String(p._id) !== String(currentPostId));
+    }
+    return [];
+  });
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(() => {
+    return !Array.isArray(initialRelated) || initialRelated.length === 0;
+  });
 
   const observerRef = useRef(null);
   const viewObserver = useRef(null);
@@ -75,8 +87,16 @@ export default function RelatedPosts({ currentPostId = null }) {
     if (!initialLoad) return;
     setLoading(true);
     setInitialLoad(false);
+
+    const params = new URLSearchParams({
+      page: "1",
+      limit: "15",
+      ...(currentPostId ? { currentPostId: String(currentPostId) } : {}),
+      ...(category && category !== "All" && category !== "Community" ? { category } : {}),
+    });
+
     axios
-      .get(`${API_BASE}/post/related/mango/getall?page=1`)
+      .get(`${API_BASE}/post/related/mango/getall?${params.toString()}`)
       .then((res) => {
         const data = res.data;
         if (!Array.isArray(data) || !data.length) {
@@ -95,14 +115,22 @@ export default function RelatedPosts({ currentPostId = null }) {
         setHasMore(false);
       })
       .finally(() => setLoading(false));
-  }, [API_BASE, currentPostId, initialLoad]);
+  }, [API_BASE, currentPostId, category, initialLoad]);
 
   // ── Fetch subsequent pages ────────────────────────────────────────────────
   useEffect(() => {
     if (page === 1 || !hasMore || loading) return;
     setLoading(true);
+
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: "15",
+      ...(currentPostId ? { currentPostId: String(currentPostId) } : {}),
+      ...(category && category !== "All" && category !== "Community" ? { category } : {}),
+    });
+
     axios
-      .get(`${API_BASE}/post/related/mango/getall?page=${page}`)
+      .get(`${API_BASE}/post/related/mango/getall?${params.toString()}`)
       .then((res) => {
         const data = res.data;
         if (!Array.isArray(data) || !data.length) {
@@ -120,7 +148,7 @@ export default function RelatedPosts({ currentPostId = null }) {
       })
       .catch(() => setHasMore(false))
       .finally(() => setLoading(false));
-  }, [page, API_BASE, currentPostId, hasMore, loading]);
+  }, [page, API_BASE, currentPostId, category, hasMore, loading]);
 
   // ── View tracking ─────────────────────────────────────────────────────────
   const increaseView = useCallback(
@@ -315,7 +343,7 @@ export default function RelatedPosts({ currentPostId = null }) {
                   )}
                 </div>
                 <Link
-                  href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
+                  href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
                   className="text-[10.5px] text-[var(--text-secondary)] hover:text-blue-500 transition-colors font-medium"
                 >
                   {new Date(post.createdAt).toLocaleDateString(undefined, {
@@ -328,7 +356,7 @@ export default function RelatedPosts({ currentPostId = null }) {
             </div>
 
             <Link
-              href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
+              href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
               className="text-xs font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               View Thread →
@@ -339,7 +367,7 @@ export default function RelatedPosts({ currentPostId = null }) {
           {hasDirectNativeMedia ? (
             <div className="relative w-full max-h-[520px] bg-black rounded-xl overflow-hidden flex items-center justify-center my-1 group">
               <Link
-                href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
+                href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
                 className="w-full h-auto flex items-center justify-center bg-black cursor-pointer group/media"
               >
                 {isVid ? (
