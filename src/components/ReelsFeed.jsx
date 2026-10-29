@@ -499,6 +499,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
         video.pause();
         setIsPlaying(false);
       }
+    } else {
+      setIsPlaying((prev) => !prev);
     }
   };
 
@@ -824,7 +826,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                   {FEATURE_FLAGS.ENABLE_YOUTUBE_SHORTS && ytId ? (
                     <YouTubeShortEmbed
                       youtubeId={ytId}
-                      isActive={isCurrent}
+                      isActive={isCurrent && isPlaying}
                       shouldPreload={isNext || isSubNext}
                       isNearby={isNearby}
                       isMuted={isMuted}
@@ -876,17 +878,6 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
                 {/* ── Bottom Overlay Info (Creator, Verified Badge, Caption, Sound Wave) ── */}
                 <div className="absolute left-4 bottom-7 text-white max-w-[74%] z-20 pointer-events-auto">
-                  {ytId && (
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-600/90 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-md border border-red-500/40 shadow-lg shadow-red-600/30">
-                        <FaYoutube className="text-xs" />
-                        YouTube Short
-                      </span>
-                      <span className="text-[10px] text-zinc-300 font-semibold bg-black/50 px-2 py-0.5 rounded-full border border-white/10">
-                        Zero Storage
-                      </span>
-                    </div>
-                  )}
                   <div className="flex items-center gap-2 mb-2">
                     <Link
                       href={`/profile/${authorUsername}`}
