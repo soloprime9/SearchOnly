@@ -21,6 +21,7 @@ import { Plus, Repeat2, Check, Bookmark, Share2, Copy } from "lucide-react";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { getApiBase } from "@/utils/apiConfig";
+import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 
 const API_BASE = getApiBase();
 const safeArray = (v) => (Array.isArray(v) ? v : []);
@@ -639,6 +640,28 @@ export default function ReelInteractions({ post, updatePost }) {
               >
                 <FaTimes size={13} />
               </button>
+            </div>
+
+            {/* Short / Link Post Thumbnail Preview Card */}
+            <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/[0.06] border border-white/10 mb-4">
+              <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl overflow-hidden bg-black shrink-0 relative border border-white/10 shadow-md">
+                <img
+                  src={resolvePostThumbnail(data)}
+                  alt={data.title || "Short"}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = "/Fondpeace.jpg";
+                  }}
+                />
+              </div>
+              <div className="flex-1 min-w-0 pr-1">
+                <h4 className="font-bold text-xs sm:text-sm text-white line-clamp-2 leading-snug">
+                  {data.title || "Watch this short on FondPeace"}
+                </h4>
+                <p className="text-[11px] text-zinc-400 mt-1 truncate">
+                  @{data.userId?.username || "creator"} • FondPeace Shorts
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3 mb-4">
