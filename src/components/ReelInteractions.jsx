@@ -357,7 +357,8 @@ export default function ReelInteractions({ post, updatePost }) {
   const handleCopyLink = async () => {
     playPop();
     const url = `${window.location.origin}/shorts/${data._id}`;
-    await navigator.clipboard.writeText(url);
+    const shareText = data.title ? `${data.title}\n${url}` : url;
+    await navigator.clipboard.writeText(shareText);
     setCopiedLink(true);
     toast.success("Link copied to clipboard! 📋");
     setTimeout(() => setCopiedLink(false), 2500);

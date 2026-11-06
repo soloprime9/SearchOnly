@@ -193,14 +193,14 @@ export default function LinkPreviewCard({
     }
   };
 
-  // Handle clicking on media: on feed navigates to post, on single post toggles play/pause
+  // Handle clicking on media: on feed navigates to short (if YouTube/video) or post, on single post toggles play/pause
   const handleMediaClick = (e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     if (inFeed && postId) {
-      router.push(`/post/${postId}`);
+      router.push(isYouTubeVideo ? `/shorts/${postId}` : `/post/${postId}`);
     } else {
       const nextPlay = !isPlayingState;
       setIsPlayingState(nextPlay);
@@ -319,9 +319,9 @@ export default function LinkPreviewCard({
           </button>
         </div>
 
-        {/* Post Details (Navigates to /post/[id] on FondPeace) */}
+        {/* Post Details (Navigates to /shorts/[id] if video/YouTube, else /post/[id]) */}
         <Link
-          href={postId ? `/post/${postId}` : "#"}
+          href={postId ? (isYouTubeVideo ? `/shorts/${postId}` : `/post/${postId}`) : "#"}
           className="block p-3.5 sm:p-4 no-underline text-inherit cursor-pointer hover:bg-[var(--bg-surface-hover)] transition-colors"
         >
           {preview.title && (

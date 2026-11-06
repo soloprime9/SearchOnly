@@ -9,6 +9,7 @@ import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { toast } from "@/utils/toast";
+import { getPostShareUrl } from "@/utils/postMediaUtils";
 import PollCard from "./PollCard";
 import LinkPreviewCard from "./LinkPreviewCard";
 import PostActionsMenu from "./PostActionsMenu";
@@ -38,7 +39,7 @@ function renderFormattedCaption(text) {
       return (
         <a
           key={i}
-          href={`/searchbro?q=${encodeURIComponent(part.replace(/^#+/, ""))}`}
+          href={`/search?q=${encodeURIComponent(part.replace(/^#+/, ""))}`}
           className="text-blue-500 dark:text-blue-400 font-bold hover:underline inline mr-1"
         >
           {part}
@@ -431,8 +432,8 @@ export default function SinglePostInteractions({ initialPost }) {
   /* ================= SHARE ================= */
   const handleShare = async () => {
     playTap();
+    const url = getPostShareUrl(post, window.location.origin);
     try {
-      const url = `${window.location.origin}/post/${post._id}`;
       if (navigator.share) {
         await navigator.share({
           title: post.title || "FondPeace Post",
@@ -443,7 +444,6 @@ export default function SinglePostInteractions({ initialPost }) {
         toast.success("Link copied to clipboard!");
       }
     } catch {
-      const url = `${window.location.origin}/post/${post._id}`;
       await navigator.clipboard.writeText(`${post.title}\n${url}`);
       toast.success("Link copied to clipboard!");
     }
@@ -720,7 +720,7 @@ export default function SinglePostInteractions({ initialPost }) {
             {allPostTags.map((t, idx) => (
               <a
                 key={idx}
-                href={`/searchbro?q=${encodeURIComponent(t.replace(/^#+/, ""))}`}
+                href={`/search?q=${encodeURIComponent(t.replace(/^#+/, ""))}`}
                 className="text-xs text-blue-500 hover:text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 rounded-full font-medium transition-colors"
               >
                 {t}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { jwtDecode } from "jwt-decode";
@@ -49,6 +50,7 @@ const API_BASE = getApiBase();
 function MessagesPageContent() {
   const searchParams = useSearchParams();
   const directTargetUserId = searchParams.get("user") || searchParams.get("userId");
+  const directTargetUsername = searchParams.get("username") || searchParams.get("name");
 
   // Auth & Identity State
   const [currentUser, setCurrentUser] = useState(null);
@@ -106,7 +108,10 @@ function MessagesPageContent() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      setLoadingChats(false);
+      return;
+    }
 
     try {
       const decoded = jwtDecode(token);
@@ -117,9 +122,12 @@ function MessagesPageContent() {
           name: decoded.name || decoded.username || "Me",
         });
         setAuthToken(token);
+      } else {
+        setLoadingChats(false);
       }
     } catch (err) {
       console.error("Token decode error:", err);
+      setLoadingChats(false);
     }
   }, []);
 
@@ -280,6 +288,18 @@ function MessagesPageContent() {
 
         if (directTargetUserId && !activeConversation) {
           initiateDirectChat(directTargetUserId);
+        } else if (directTargetUsername && !activeConversation) {
+          try {
+            const cleanUser = directTargetUsername.replace(/^@/, "");
+            const uRes = await axios.get(`${API_BASE}/user/search?q=${encodeURIComponent(cleanUser)}`);
+            const rawList = uRes.data?.users || (Array.isArray(uRes.data) ? uRes.data : []);
+            const found = rawList.find(
+              (u) => u.username?.toLowerCase() === cleanUser.toLowerCase()
+            ) || rawList[0];
+            if (found?._id) {
+              initiateDirectChat(found._id);
+            }
+          } catch (_) {}
         }
       }
     } catch (err) {
@@ -287,7 +307,7 @@ function MessagesPageContent() {
     } finally {
       setLoadingChats(false);
     }
-  }, [authToken, directTargetUserId]);
+  }, [authToken, directTargetUserId, directTargetUsername]);
 
   useEffect(() => {
     fetchConversations();
@@ -654,15 +674,14 @@ function MessagesPageContent() {
     try {
       setSearchingAddMember(true);
       const res = await axios.get(`${API_BASE}/user/search?q=${encodeURIComponent(q)}`);
-      if (res.data?.users) {
-        // Filter out existing participants
-        const existingIds = new Set(
-          (activeConversation.participants || []).map((p) =>
-            typeof p === "object" ? String(p._id) : String(p)
-          )
-        );
-        setAddMemberResults(res.data.users.filter((u) => !existingIds.has(String(u._id))));
-      }
+      const rawUsers = res.data?.users || (Array.isArray(res.data) ? res.data : []);
+      // Filter out existing participants
+      const existingIds = new Set(
+        (activeConversation.participants || []).map((p) =>
+          typeof p === "object" ? String(p._id) : String(p)
+        )
+      );
+      setAddMemberResults(rawUsers.filter((u) => !existingIds.has(String(u._id))));
     } catch (_) {
     } finally {
       setSearchingAddMember(false);
@@ -755,9 +774,8 @@ function MessagesPageContent() {
     try {
       setSearchingUsers(true);
       const res = await axios.get(`${API_BASE}/user/search?q=${encodeURIComponent(q)}`);
-      if (res.data?.users) {
-        setUserSearchResults(res.data.users.filter((u) => u._id !== currentUser?.id));
-      }
+      const rawList = res.data?.users || (Array.isArray(res.data) ? res.data : []);
+      setUserSearchResults(rawList.filter((u) => u._id !== currentUser?.id));
     } catch (_) {
     } finally {
       setSearchingUsers(false);
@@ -885,15 +903,41 @@ function MessagesPageContent() {
             <div className="p-6 text-center text-xs text-[var(--text-secondary)]">
               Loading secure conversations...
             </div>
-          ) : filteredConversations.length === 0 ? (
-            <div className="p-8 text-center flex flex-col items-center justify-center text-gray-500 gap-2">
-              <Users size={32} className="opacity-40" />
-              <p className="text-xs">No conversations found</p>
-              <button
-                onClick={() => setShowNewChatModal(true)}
-                className="text-xs text-blue-400 hover:underline font-semibold cursor-pointer"
+          ) : !authToken ? (
+            <div className="p-8 text-center flex flex-col items-center justify-center text-gray-500 gap-3">
+              <Users size={32} className="opacity-40 text-blue-500" />
+              <p className="text-xs font-semibold text-[var(--text-primary)]">Log in to view messages</p>
+              <p className="text-[11px] text-gray-400 max-w-[200px]">Sign in to chat privately with creators on FondPeace.</p>
+              <Link
+                href="/login"
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20"
               >
-                Start a new conversation
+                Log In
+              </Link>
+            </div>
+          ) : filteredConversations.length === 0 ? (
+            <div className="p-8 text-center flex flex-col items-center justify-center text-gray-500 gap-2.5">
+              <Users size={32} className="opacity-40" />
+              <p className="text-xs">
+                {searchQuery.trim()
+                  ? `No active chats match "${searchQuery}"`
+                  : "No conversations yet"}
+              </p>
+              <button
+                onClick={() => {
+                  setShowNewChatModal(true);
+                  if (searchQuery.trim()) {
+                    handleSearchUsers(searchQuery.trim());
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
+              >
+                <Plus size={13} />
+                <span>
+                  {searchQuery.trim()
+                    ? `Search creators for "${searchQuery}"`
+                    : "Start a new conversation"}
+                </span>
               </button>
             </div>
           ) : (

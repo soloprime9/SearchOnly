@@ -1033,8 +1033,8 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 md:gap-3">
             {filteredPosts.map((post) => {
               const { isDirectVideo, isVideo, ytVideoId, displayImage, cleanTitle, siteName } = resolvePostVisuals(post);
-              const isTargetShort = Boolean(isDirectVideo || isVideo || post.mediaType === "video");
-              const targetHref = isTargetShort ? `/short/${post._id}` : `/post/${post._id}`;
+              const isTargetShort = Boolean(isDirectVideo || isVideo || ytVideoId || post.mediaType === "video");
+              const targetHref = isTargetShort ? `/shorts/${post._id}` : `/post/${post._id}`;
 
               return (
                 <Link

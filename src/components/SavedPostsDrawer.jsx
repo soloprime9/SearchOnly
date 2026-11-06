@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { toast } from "@/utils/toast";
+import { isPlayableShortPost } from "@/utils/postMediaUtils";
 import { Bookmark, X, Trash2, ExternalLink, Inbox } from "lucide-react";
 
 export default function SavedPostsDrawer({ isOpen, onClose }) {
@@ -117,8 +118,8 @@ export default function SavedPostsDrawer({ isOpen, onClose }) {
               </div>
             ) : (
               bookmarks.map((post) => {
-                const isVideo = post.mediaType?.startsWith("video");
-                const path = isVideo ? `/short/${post._id}` : `/post/${post._id}`;
+                const isVideo = isPlayableShortPost(post);
+                const path = isVideo ? `/shorts/${post._id}` : `/post/${post._id}`;
 
                 return (
                   <Link

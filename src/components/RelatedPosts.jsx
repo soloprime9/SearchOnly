@@ -17,6 +17,7 @@ import {
 import { ShieldCheck, Sparkles } from "lucide-react";
 import LinkPreviewCard from "@/components/LinkPreviewCard";
 import { getApiBase } from "@/utils/apiConfig";
+import { isPlayableShortPost, getPostShareText } from "@/utils/postMediaUtils";
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 const PostSkeleton = () => (
@@ -260,11 +261,8 @@ export default function RelatedPosts({
   };
 
   const handleShare = (post) => {
-    const isVid =
-      post.mediaType?.startsWith("video") ||
-      post.media?.match(/\.(mp4|mov|webm|mkv)$/i);
-    const url = `${window.location.origin}/${isVid ? "short" : "post"}/${post._id}`;
-    navigator.clipboard.writeText(url).then(() => {
+    const shareText = getPostShareText(post, window.location.origin);
+    navigator.clipboard.writeText(shareText).then(() => {
       setCopiedPostId(post._id);
       toast.success("Link copied!");
       setTimeout(() => setCopiedPostId(null), 2500);
@@ -343,7 +341,7 @@ export default function RelatedPosts({
                   )}
                 </div>
                 <Link
-                  href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
+                  href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
                   className="text-[10.5px] text-[var(--text-secondary)] hover:text-blue-500 transition-colors font-medium"
                 >
                   {new Date(post.createdAt).toLocaleDateString(undefined, {
@@ -356,7 +354,7 @@ export default function RelatedPosts({
             </div>
 
             <Link
-              href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
+              href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
               className="text-xs font-semibold text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               View Thread →
@@ -367,7 +365,7 @@ export default function RelatedPosts({
           {hasDirectNativeMedia ? (
             <div className="relative w-full max-h-[520px] bg-black rounded-xl overflow-hidden flex items-center justify-center my-1 group">
               <Link
-                href={isVid ? `/short/${post._id}` : `/post/${post._id}`}
+                href={isVid ? `/shorts/${post._id}` : `/post/${post._id}`}
                 className="w-full h-auto flex items-center justify-center bg-black cursor-pointer group/media"
               >
                 {isVid ? (

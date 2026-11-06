@@ -36,6 +36,7 @@ import { UserPlus, Check, Users, Sparkles, Maximize2, Repeat2, Bookmark, BarChar
 import { triggerHeartBurst } from "@/utils/confetti";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { getApiBase, API_BASE } from "@/utils/apiConfig";
+import { isPlayableShortPost, getPostPath, getPostShareText } from "@/utils/postMediaUtils";
 
 // Reading time helper
 function getReadingTime(text) {
@@ -839,12 +840,7 @@ const increaseView = useCallback(
 
 const handleShare = async (postData) => {
   try {
-    // Correctly checking if it's a video/short
-    const isVideo = postData.mediaType?.startsWith('video') || postData.mtype?.startsWith('video'); 
-    const path = isVideo ? 'shorts' : 'post'; // URL path logic
-
-    const url = `${window.location.origin}/${path}/${postData._id}`;
-    const shareText = `${postData.title || 'Check this out!'}\n${url}`;
+    const shareText = getPostShareText(postData, window.location.origin);
 
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(shareText);
@@ -862,15 +858,7 @@ const handleShare = async (postData) => {
 
   const renderPost = useCallback((post, index) => {
     const isExpanded = expandedPosts[post._id];
-    const isVideo = Boolean(
-      post.mediaType?.startsWith("video") ||
-      post.mtype?.startsWith("video") ||
-      (typeof post.media === "string" && (
-        post.media.endsWith(".mp4") ||
-        post.media.endsWith(".webm") ||
-        post.media.includes("/video/")
-      ))
-    );
+    const isVideo = isPlayableShortPost(post);
     const title = post.title || "";
 
     // Clean caption for link posts to avoid repeating raw URL
@@ -977,7 +965,7 @@ const handleShare = async (postData) => {
                         e.stopPropagation();
                         e.preventDefault();
                         playTap();
-                        router.push(`/searchbro?q=${encodeURIComponent(post.location)}`);
+                        router.push(`/search?q=${encodeURIComponent(post.location)}`);
                       }}
                       className="inline-flex items-center gap-0.5 text-[10.5px] text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 font-semibold truncate max-w-[140px] hover:underline cursor-pointer"
                       title={`Explore more posts from ${post.location}`}
@@ -1383,7 +1371,7 @@ const handleShare = async (postData) => {
   const filteredPosts = posts.filter((post) => {
     if (categoryFilter === "All") return true;
     if (categoryFilter === "Shorts") {
-      return post.mediaType?.startsWith("video") || post.mtype?.startsWith("video");
+      return isPlayableShortPost(post);
     }
     return (
       post.category === categoryFilter ||

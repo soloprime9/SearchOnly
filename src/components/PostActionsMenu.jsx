@@ -5,6 +5,7 @@ import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import { toast } from "@/utils/toast";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
+import { getPostShareText } from "@/utils/postMediaUtils";
 import CreatorAnalyticsModal from "./CreatorAnalyticsModal";
 import ReportModal from "./ReportModal";
 import {
@@ -85,8 +86,8 @@ export default function PostActionsMenu({
     setOpen(false);
     playTap();
     try {
-      const shareUrl = `${window.location.origin}/post/${post._id}`;
-      await navigator.clipboard.writeText(shareUrl);
+      const shareText = getPostShareText(post, window.location.origin);
+      await navigator.clipboard.writeText(shareText);
       toast.success("Link copied to clipboard!");
     } catch {
       toast.error("Could not copy link");

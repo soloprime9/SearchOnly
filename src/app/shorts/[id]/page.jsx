@@ -1,8 +1,9 @@
 // app/shorts/[id]/page.jsx
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
+import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
 
 // Safe server-side YouTube ID extractor (zero client-component proxy dependency)
 function getYouTubeVideoId(url) {
@@ -208,15 +209,11 @@ export default async function ShortsDetailPage({ params }) {
       const pageUrl = `${SITE_ROOT}/shorts/${post._id || id}`;
       const authorName = post?.userId?.username;
 
-      const rawMedia = `${post.media || ""} ${post.mediaUrl || ""} ${post.link || ""} ${post.linkPreview?.url || ""} ${post.title || ""}`;
-      const ytId = getYouTubeVideoId(rawMedia);
-      const isVideo =
-        post.mediaType?.startsWith("video") ||
-        Boolean(ytId) ||
-        /\.(mp4|webm|mov|m3u8)$/i.test(mediaUrl || "");
+      const ytId = extractPostYouTubeId(post);
+      const isVideo = isPlayableShortPost(post);
 
       if (!isVideo) {
-        permanentRedirect(`/post/${id}`);
+        redirect(`/post/${id}`);
       }
 
       const primaryThumb = resolvePostThumbnail(post);

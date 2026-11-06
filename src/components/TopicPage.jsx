@@ -5,6 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { Play, Eye, Heart, Hash, Sparkles, Film, Image as ImageIcon } from "lucide-react";
 import { getApiBase } from "@/utils/apiConfig";
+import { isPlayableShortPost } from "@/utils/postMediaUtils";
 
 export default function TopicPage({ topic }) {
   const [posts, setPosts] = useState([]);
@@ -75,13 +76,13 @@ export default function TopicPage({ topic }) {
     <section className="mt-6">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {posts.map((p) => {
-          const isVideo = p.mediaType?.startsWith("video") || p.media?.endsWith(".mp4");
+          const isVideo = isPlayableShortPost(p);
           const thumb = p.thumbnail || p.media || "/Fondpeace.jpg";
 
           return (
             <Link
               key={p._id}
-              href={isVideo ? `/short/${p._id}` : `/post/${p._id}`}
+              href={isVideo ? `/shorts/${p._id}` : `/post/${p._id}`}
               className="group relative flex flex-col bg-white/80 dark:bg-zinc-950/60 backdrop-blur-xl rounded-2xl border border-black/[0.06] dark:border-white/[0.08] hover:border-blue-500/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
             >
               {/* MEDIA CONTAINER */}
