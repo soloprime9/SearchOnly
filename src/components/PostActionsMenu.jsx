@@ -20,6 +20,7 @@ import {
   Bookmark,
   Sparkles,
   Download,
+  Trash2,
 } from "lucide-react";
 
 export default function PostActionsMenu({
@@ -30,6 +31,7 @@ export default function PostActionsMenu({
   onOpenStoryCard,
   onPinToggled,
   onMuted,
+  onPostDeleted,
 }) {
   const [open, setOpen] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
@@ -79,6 +81,30 @@ export default function PostActionsMenu({
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Error toggling pin");
+    }
+  };
+
+  const handleDeletePost = async () => {
+    setOpen(false);
+    if (!window.confirm("Are you sure you want to permanently delete this post? This action cannot be undone.")) {
+      return;
+    }
+    playPop();
+    try {
+      const apiBase = getApiBase();
+      const res = await axios.delete(
+        `${apiBase}/post/delete/${post._id}`,
+        { headers: getAuthHeaders() }
+      );
+      if (res.data?.success) {
+        toast.success("Post deleted successfully");
+        playChime();
+        if (onPostDeleted) onPostDeleted(post._id);
+      } else {
+        toast.error(res.data?.message || "Failed to delete post");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Error deleting post");
     }
   };
 
@@ -210,6 +236,14 @@ export default function PostActionsMenu({
               >
                 <BarChart2 className="w-4 h-4 text-indigo-500" />
                 <span>View Analytics</span>
+              </button>
+
+              <button
+                onClick={handleDeletePost}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors"
+              >
+                <Trash2 className="w-4 h-4 text-rose-500" />
+                <span>Delete Post</span>
               </button>
             </>
           ) : null}

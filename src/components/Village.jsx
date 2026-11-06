@@ -1037,6 +1037,7 @@ const handleShare = async (postData) => {
           onToggleBookmark={() => handleToggleBookmark(post._id)}
           onOpenStoryCard={() => setStoryModalPost(post)}
           onPinToggled={(isPinned) => setPosts(prev => prev.map(p => p._id === post._id ? {...p, isPinned} : p))} 
+          onPostDeleted={(deletedId) => setPosts(prev => prev.filter(p => p._id !== deletedId))}
         />
       </div>
     </div>

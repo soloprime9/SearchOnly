@@ -536,6 +536,9 @@ export default function SinglePostInteractions({ initialPost }) {
             isBookmarked={isBookmarked}
             onToggleBookmark={handleBookmark}
             onPinToggled={(isPinned) => setPost((p) => ({ ...p, isPinned }))}
+            onPostDeleted={() => {
+              router.push("/");
+            }}
           />
         </div>
       </div>
