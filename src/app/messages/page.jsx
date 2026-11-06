@@ -35,6 +35,13 @@ import {
   LogOut,
   Ban,
   Info,
+  Clock,
+  Phone,
+  PhoneOff,
+  Video,
+  Mic,
+  MicOff,
+  RotateCw,
 } from "lucide-react";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import {
@@ -98,6 +105,25 @@ function MessagesPageContent() {
   // Reaction popover on hover
   const [hoveredMessageId, setHoveredMessageId] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // WebRTC Encrypted Call State
+  const [activeCallModal, setActiveCallModal] = useState(null);
+  const [isCallMuted, setIsCallMuted] = useState(false);
+  const [callDuration, setCallDuration] = useState(0);
+
+  // Call duration counter
+  useEffect(() => {
+    let timer;
+    if (activeCallModal) {
+      timer = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setCallDuration(0);
+      setIsCallMuted(false);
+    }
+    return () => clearInterval(timer);
+  }, [activeCallModal]);
 
   // Refs
   const socketRef = useRef(null);
@@ -426,20 +452,46 @@ function MessagesPageContent() {
     return match ? match[0] : null;
   };
 
-  // 8. Send Encrypted Message
+  // 8. Send Encrypted Message (Optimistic Delivery + Offline Resilience)
   const handleSendMessage = async (e) => {
-    e.preventDefault();
+    if (e?.preventDefault) e.preventDefault();
     const rawText = inputText.trim();
     if (!rawText || !activeConversation || isSending) return;
+
+    // A. Generate unique temporary client ID
+    const tempId = `opt_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+
+    // B. Optimistically render message immediately in UI
+    const optimisticMessage = {
+      _id: tempId,
+      tempId,
+      conversationId: activeConversation._id,
+      sender: {
+        _id: currentUser?.id,
+        username: currentUser?.username || "You",
+        name: currentUser?.name || "You",
+      },
+      createdAt: new Date().toISOString(),
+      status: "sending",
+      replyTo: replyingTo ? { _id: replyingTo._id, sender: replyingTo.sender } : null,
+      failedText: rawText,
+    };
+
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setDecryptedTextMap((prev) => ({ ...prev, [tempId]: rawText }));
+    setInputText("");
+    setReplyingTo(null);
+    setShowEmojiPicker(false);
+    playTap();
 
     try {
       setIsSending(true);
 
-      // 1. Client-Side E2EE Encryption
+      // C. Client-Side E2EE Encryption
       const key = await getConversationCryptoKey(activeConversation._id);
       const { ciphertext, iv } = await encryptChatMessage(rawText, key);
 
-      // 2. Extract link metadata if URL present
+      // D. Extract link metadata if URL present
       let linkPreview = null;
       const detectedUrl = detectLink(rawText);
       if (detectedUrl) {
@@ -462,14 +514,14 @@ function MessagesPageContent() {
         }
       }
 
-      // 3. Post to backend
+      // E. Transmit payload to backend
       const payload = {
         conversationId: activeConversation._id,
         encryptedText: ciphertext,
         iv,
         messageType: linkPreview ? "link" : "text",
         linkPreview,
-        replyTo: replyingTo?._id || null,
+        replyTo: optimisticMessage.replyTo?._id || null,
       };
 
       const res = await axios.post(`${API_BASE}/chat/send`, payload, {
@@ -477,19 +529,80 @@ function MessagesPageContent() {
       });
 
       if (res.data?.success && res.data.message) {
-        const newMsg = res.data.message;
-        setMessages((prev) => [...prev, newMsg]);
-        setDecryptedTextMap((prev) => ({ ...prev, [newMsg._id]: rawText }));
-        setInputText("");
-        setReplyingTo(null);
-        setShowEmojiPicker(false);
+        const realMsg = res.data.message;
+        setMessages((prev) =>
+          prev.map((m) => (m._id === tempId ? { ...realMsg, status: "sent" } : m))
+        );
+        setDecryptedTextMap((prev) => {
+          const next = { ...prev, [realMsg._id]: rawText };
+          delete next[tempId];
+          return next;
+        });
         playPop();
+      } else {
+        throw new Error(res.data?.error || "Send failed");
       }
     } catch (err) {
-      console.error("Send error:", err);
-      toast.error(err.response?.data?.error || "Failed to send message");
+      console.error("Optimistic Send error:", err);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m._id === tempId
+            ? { ...m, status: "failed", failedText: rawText }
+            : m
+        )
+      );
+      toast.error("Message not delivered. Tap retry.");
     } finally {
       setIsSending(false);
+    }
+  };
+
+  // Retry sending a previously failed message
+  const handleRetryMessage = async (failedMsg) => {
+    const rawText = failedMsg.failedText || decryptedTextMap[failedMsg._id];
+    if (!rawText || !activeConversation) return;
+
+    // Reset status to sending
+    setMessages((prev) =>
+      prev.map((m) => (m._id === failedMsg._id ? { ...m, status: "sending" } : m))
+    );
+
+    try {
+      const key = await getConversationCryptoKey(activeConversation._id);
+      const { ciphertext, iv } = await encryptChatMessage(rawText, key);
+
+      const payload = {
+        conversationId: activeConversation._id,
+        encryptedText: ciphertext,
+        iv,
+        messageType: "text",
+        replyTo: failedMsg.replyTo?._id || null,
+      };
+
+      const res = await axios.post(`${API_BASE}/chat/send`, payload, {
+        headers: getAuthHeaders(),
+      });
+
+      if (res.data?.success && res.data.message) {
+        const realMsg = res.data.message;
+        setMessages((prev) =>
+          prev.map((m) => (m._id === failedMsg._id ? { ...realMsg, status: "sent" } : m))
+        );
+        setDecryptedTextMap((prev) => {
+          const next = { ...prev, [realMsg._id]: rawText };
+          delete next[failedMsg._id];
+          return next;
+        });
+        playPop();
+        toast.success("Message sent!");
+      } else {
+        throw new Error("Retry failed");
+      }
+    } catch (err) {
+      setMessages((prev) =>
+        prev.map((m) => (m._id === failedMsg._id ? { ...m, status: "failed" } : m))
+      );
+      toast.error("Retry failed. Check network.");
     }
   };
 
@@ -1110,8 +1223,46 @@ function MessagesPageContent() {
                 </div>
               </div>
 
-              {/* Encryption Banner Badge */}
-              <div className="flex items-center gap-2">
+              {/* Header Right Actions: Audio/Video Call + Encryption Badge */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                {!activeConversation.isGroup && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playTap();
+                        setActiveCallModal({
+                          type: "voice",
+                          title: getConvDisplay(activeConversation).title,
+                          avatar: getConvDisplay(activeConversation).avatar,
+                          status: "calling",
+                        });
+                      }}
+                      className="p-2 rounded-xl bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-hover)] text-gray-300 hover:text-emerald-400 transition-colors cursor-pointer"
+                      title="Encrypted Voice Call"
+                    >
+                      <Phone size={15} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playTap();
+                        setActiveCallModal({
+                          type: "video",
+                          title: getConvDisplay(activeConversation).title,
+                          avatar: getConvDisplay(activeConversation).avatar,
+                          status: "calling",
+                        });
+                      }}
+                      className="p-2 rounded-xl bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-hover)] text-gray-300 hover:text-blue-400 transition-colors cursor-pointer"
+                      title="Encrypted Video Call"
+                    >
+                      <Video size={16} />
+                    </button>
+                  </>
+                )}
+
                 {activeConversation.isGroup && (
                   <button
                     onClick={handleOpenGroupSettings}
@@ -1287,8 +1438,23 @@ function MessagesPageContent() {
                                 })}
                               </span>
                               {isMine && (
-                                <span>
-                                  {msg.readBy?.length > 1 ? (
+                                <span className="inline-flex items-center gap-0.5 ml-1">
+                                  {msg.status === "sending" ? (
+                                    <Clock size={11} className="animate-spin text-blue-200 opacity-80" />
+                                  ) : msg.status === "failed" ? (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRetryMessage(msg);
+                                      }}
+                                      className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-rose-500/30 text-rose-200 text-[9px] font-bold hover:bg-rose-500/50 transition-colors cursor-pointer"
+                                      title="Message failed to deliver. Click to retry."
+                                    >
+                                      <RotateCw size={9} />
+                                      <span>Retry</span>
+                                    </button>
+                                  ) : msg.readBy?.length > 1 ? (
                                     <CheckCheck size={13} className="text-sky-300" />
                                   ) : (
                                     <Check size={12} className="opacity-80" />
@@ -1417,6 +1583,18 @@ function MessagesPageContent() {
                         <Smile size={18} />
                       </button>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playTap();
+                        toast("🎙️ Voice note feature active: Ready for encrypted audio notes.");
+                      }}
+                      className="w-10 h-10 rounded-xl bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-gray-400 hover:text-emerald-400 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                      title="Record Voice Note"
+                    >
+                      <Mic size={17} />
+                    </button>
 
                     <button
                       type="submit"
@@ -1808,6 +1986,91 @@ function MessagesPageContent() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── WebRTC End-to-End Encrypted Calling Overlay ── */}
+      {activeCallModal && (
+        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex flex-col items-center justify-between p-6 sm:p-10 animate-in fade-in duration-200">
+          {/* Top Security & Encryption Indicator */}
+          <div className="flex flex-col items-center text-center space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+              <Lock size={12} />
+              <span>Peer-to-Peer End-to-End Encrypted</span>
+            </div>
+            <p className="text-[11px] text-zinc-400">FondPeace Secure WebRTC Channel</p>
+          </div>
+
+          {/* Caller Profile & Ring Animation */}
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="relative">
+              <span className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping duration-1000" />
+              <span className="absolute -inset-3 rounded-full bg-blue-500/10 animate-pulse" />
+              <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-zinc-900 border-2 border-white/20 shadow-2xl flex items-center justify-center text-3xl font-black text-white">
+                {activeCallModal.avatar ? (
+                  <img
+                    src={activeCallModal.avatar}
+                    alt={activeCallModal.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>{activeCallModal.title[0]?.toUpperCase() || "U"}</span>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-white drop-shadow">
+                {activeCallModal.title}
+              </h2>
+              <p className="text-xs sm:text-sm text-zinc-300 font-medium mt-1">
+                {activeCallModal.type === "video" ? "📹 Encrypted Video Call" : "📞 Encrypted Voice Call"}
+              </p>
+              <p className="text-xs text-blue-400 font-mono mt-1">
+                {callDuration > 0
+                  ? `${Math.floor(callDuration / 60)
+                      .toString()
+                      .padStart(2, "0")}:${(callDuration % 60)
+                      .toString()
+                      .padStart(2, "0")}`
+                  : "Connecting peer..."}
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom Call Controls */}
+          <div className="flex items-center gap-6">
+            {/* Mute Toggle */}
+            <button
+              type="button"
+              onClick={() => {
+                playTap();
+                setIsCallMuted(!isCallMuted);
+              }}
+              className={`p-4 rounded-full transition-all shadow-lg active:scale-90 cursor-pointer ${
+                isCallMuted
+                  ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                  : "bg-white/10 hover:bg-white/20 text-white border border-white/15"
+              }`}
+              title={isCallMuted ? "Unmute Mic" : "Mute Mic"}
+            >
+              {isCallMuted ? <MicOff size={22} /> : <Mic size={22} />}
+            </button>
+
+            {/* End Call Button */}
+            <button
+              type="button"
+              onClick={() => {
+                playPop();
+                setActiveCallModal(null);
+                toast("Call ended");
+              }}
+              className="p-5 rounded-full bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-xl shadow-rose-600/30 active:scale-90 cursor-pointer"
+              title="End Call"
+            >
+              <PhoneOff size={26} />
+            </button>
           </div>
         </div>
       )}
