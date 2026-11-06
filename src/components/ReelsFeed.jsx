@@ -798,6 +798,29 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
             const isSubNext = index === currentIndex + 2;
             const isNearby = Math.abs(index - currentIndex) <= 2;
 
+            // 🚀 Virtual Windowing: For distant slides (outside ±2 range), render an ultra-lightweight placeholder
+            // Preserves 100% exact scroll height (h-[100dvh]) and snap alignment while releasing DOM nodes, memory & decoders
+            if (!isNearby) {
+              return (
+                <section
+                  key={item._id || index}
+                  data-index={index}
+                  ref={(el) => (itemRefs.current[index] = el)}
+                  className="snap-start snap-always w-full h-[100dvh] md:h-full relative flex items-center justify-center bg-black overflow-hidden"
+                >
+                  {resolvedThumbnail ? (
+                    <img
+                      src={resolvedThumbnail}
+                      alt={item.title || "Short preview"}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover blur-sm opacity-25 pointer-events-none"
+                    />
+                  ) : null}
+                  <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-rose-500 animate-spin" />
+                </section>
+              );
+            }
+
             return (
               <section
                 key={item._id || index}

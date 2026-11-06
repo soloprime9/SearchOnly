@@ -1063,7 +1063,9 @@ const handleShare = async (postData) => {
             <img 
               src={post.media} 
               alt={post.title || "media"} 
-              className="w-full max-h-[520px] object-contain block mx-auto" 
+              loading={index < 2 ? "eager" : "lazy"}
+              decoding="async"
+              className="w-full max-h-[520px] object-contain block mx-auto transition-opacity duration-300" 
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           )}

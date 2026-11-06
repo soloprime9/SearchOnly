@@ -62,14 +62,16 @@ export const metadata = {
 };
 
 /* =========================
-   HOMEPAGE COMPONENT
+   HOMEPAGE COMPONENT (ISR 60s Cached)
 ========================= */
+export const revalidate = 60; // Next.js ISR: Cache on edge and revalidate every 60 seconds
+
 export default async function HomePage() {
   let posts = [];
 
   try {
     const res = await fetch(`${API_BASE}/post/mango/getall?page=1&limit=20`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     const data = await res.json();
     if (Array.isArray(data)) {
