@@ -26,14 +26,14 @@ import { getApiBase } from "@/utils/apiConfig";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
 
 const REAL_TOPICS = [
-  "Shorts",
-  "Technology",
-  "AI",
-  "Stories",
-  "Community",
-  "Discussion",
   "Viral",
-  "Ideas"
+  "Shorts",
+  "Video",
+  "Love",
+  "Dance",
+  "Comedy",
+  "Episode",
+  "Drama"
 ];
 
 function SearchGoContent() {
@@ -298,9 +298,75 @@ function SearchGoContent() {
             </div>
 
             {totalResultsCount === 0 && (
-              <div className="text-center py-12 text-gray-500">
-                <p className="text-base font-semibold">No results found for "{query}"</p>
-                <p className="text-xs text-gray-400 mt-1">Try searching for a different keyword or username</p>
+              <div className="py-10">
+                <div className="text-center p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mx-auto mb-3">
+                    <Search className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)]">
+                    No results found for "{query}"
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 max-w-sm mx-auto">
+                    Try another keyword, creator username, or explore popular trending topics below.
+                  </p>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    {REAL_TOPICS.slice(0, 5).map((topic, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleTopicClick(topic)}
+                        className="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 transition-colors"
+                      >
+                        #{topic}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {trending.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                      <Flame size={15} className="text-orange-500" />
+                      <span>Trending on FondPeace</span>
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                      {trending.slice(0, 6).map((post) => {
+                        const thumb = post.thumbnail || post.media || post.linkPreview?.image || "/Fondpeace.jpg";
+                        const isVideo = isPlayableShortPost(post);
+                        const postLink = isVideo ? `/shorts/${post._id}` : `/post/${post._id}`;
+
+                        return (
+                          <Link
+                            key={post._id}
+                            href={postLink}
+                            className="group flex flex-col bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] hover:border-blue-500/40 shadow-xs hover:-translate-y-0.5 transition-all overflow-hidden"
+                          >
+                            <div className="relative aspect-video w-full bg-zinc-900 overflow-hidden">
+                              <img
+                                src={thumb}
+                                alt={post.title || "Trending"}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                onError={(e) => { e.currentTarget.src = "/Fondpeace.jpg"; }}
+                              />
+                              {isVideo && (
+                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                  <div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center text-black shadow">
+                                    <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-3">
+                              <p className="font-bold text-xs sm:text-sm text-[var(--text-primary)] line-clamp-2 leading-snug group-hover:text-blue-500">
+                                {post.title}
+                              </p>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

@@ -3,13 +3,37 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { Play, Eye, Heart, Hash, Sparkles, Film, Image as ImageIcon } from "lucide-react";
+import { 
+  Play, 
+  Eye, 
+  Heart, 
+  Hash, 
+  Sparkles, 
+  Film, 
+  FileText, 
+  Users, 
+  Flame,
+  ShieldCheck,
+  TrendingUp
+} from "lucide-react";
 import { getApiBase } from "@/utils/apiConfig";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
+
+const SUGGESTED_TOPICS = [
+  "Viral",
+  "Shorts",
+  "Video",
+  "Love",
+  "Dance",
+  "Comedy",
+  "Episode",
+  "Drama"
+];
 
 export default function TopicPage({ topic }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState("all"); // 'all' | 'videos' | 'discussions'
 
   useEffect(() => {
     if (!topic) return;
@@ -33,6 +57,16 @@ export default function TopicPage({ topic }) {
     fetchPosts();
   }, [topic]);
 
+  const videoPosts = posts.filter((p) => isPlayableShortPost(p));
+  const regularPosts = posts.filter((p) => !isPlayableShortPost(p));
+
+  const filteredPosts = 
+    activeFilter === "videos" 
+      ? videoPosts 
+      : activeFilter === "discussions" 
+      ? regularPosts 
+      : posts;
+
   /* ---------------- LOADING SKELETON ---------------- */
   if (loading) {
     return (
@@ -50,40 +84,111 @@ export default function TopicPage({ topic }) {
   /* ---------------- EMPTY STATE ---------------- */
   if (!posts.length) {
     return (
-      <div className="text-center py-16 px-4 bg-white/40 dark:bg-zinc-950/40 backdrop-blur-xl rounded-3xl border border-black/5 dark:border-white/10 mt-6">
-        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mx-auto mb-3">
-          <Hash className="w-6 h-6" />
+      <div className="text-center py-12 px-4 bg-[var(--bg-surface)] backdrop-blur-xl rounded-3xl border border-[var(--border-subtle)] mt-6 shadow-xs">
+        <div className="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mx-auto mb-3">
+          <Hash className="w-7 h-7" />
         </div>
-        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+        <h3 className="text-lg sm:text-xl font-bold text-[var(--text-primary)]">
           No posts found for #{topic}
         </h3>
-        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">
-          Be the first creator to start this conversation or explore other trending topics.
+        <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 max-w-md mx-auto">
+          Be the first creator to start a post with #{topic}, or explore other trending topics across the community.
         </p>
-        <Link
-          href="/upload"
-          className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-bold rounded-full shadow-md shadow-blue-500/25 transition-all"
-        >
-          <Sparkles className="w-4 h-4" />
-          <span>Create Post</span>
-        </Link>
+
+        {/* Suggested active topics */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2 max-w-lg mx-auto">
+          <span className="text-xs font-semibold text-[var(--text-secondary)] flex items-center gap-1">
+            <TrendingUp size={12} className="text-blue-500" />
+            Trending:
+          </span>
+          {SUGGESTED_TOPICS.map((tag) => (
+            <Link
+              key={tag}
+              href={`/topic/${tag.toLowerCase()}`}
+              className="px-3 py-1.5 rounded-full bg-[var(--bg-subtle)] hover:bg-blue-500/10 border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)] hover:text-blue-500 transition-colors"
+            >
+              #{tag}
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <Link
+            href="/upload"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-bold rounded-full shadow-md shadow-blue-500/25 transition-all"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Post to #{topic}</span>
+          </Link>
+          <Link
+            href="/search"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--bg-subtle)] hover:bg-[var(--bg-subtle-hover)] border border-[var(--border-subtle)] text-xs sm:text-sm font-semibold rounded-full transition-colors text-[var(--text-primary)]"
+          >
+            <span>Explore All Topics</span>
+          </Link>
+        </div>
       </div>
     );
   }
 
-  /* ---------------- CONTENT GRID ---------------- */
+  /* ---------------- CONTENT VIEW WITH FILTER TABS ---------------- */
   return (
-    <section className="mt-6">
+    <section className="mt-4">
+      {/* Category Filter Pills */}
+      <div className="flex items-center gap-2 mb-5 overflow-x-auto no-scrollbar pb-1">
+        <button
+          onClick={() => setActiveFilter("all")}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            activeFilter === "all"
+              ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
+              : "bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:border-blue-500/30"
+          }`}
+        >
+          All ({posts.length})
+        </button>
+
+        {videoPosts.length > 0 && (
+          <button
+            onClick={() => setActiveFilter("videos")}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              activeFilter === "videos"
+                ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
+                : "bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:border-blue-500/30"
+            }`}
+          >
+            <Film size={13} />
+            <span>Shorts & Videos ({videoPosts.length})</span>
+          </button>
+        )}
+
+        {regularPosts.length > 0 && (
+          <button
+            onClick={() => setActiveFilter("discussions")}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              activeFilter === "discussions"
+                ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
+                : "bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:border-blue-500/30"
+            }`}
+          >
+            <FileText size={13} />
+            <span>Discussions ({regularPosts.length})</span>
+          </button>
+        )}
+      </div>
+
+      {/* Grid of Results */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-        {posts.map((p) => {
+        {filteredPosts.map((p) => {
           const isVideo = isPlayableShortPost(p);
-          const thumb = p.thumbnail || p.media || "/Fondpeace.jpg";
+          const postLink = isVideo ? `/shorts/${p._id}` : `/post/${p._id}`;
+          const thumb = p.thumbnail || p.media || p.linkPreview?.image || "/Fondpeace.jpg";
+          const author = p.userId;
 
           return (
             <Link
               key={p._id}
-              href={isVideo ? `/shorts/${p._id}` : `/post/${p._id}`}
-              className="group relative flex flex-col bg-white/80 dark:bg-zinc-950/60 backdrop-blur-xl rounded-2xl border border-black/[0.06] dark:border-white/[0.08] hover:border-blue-500/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
+              href={postLink}
+              className="group relative flex flex-col bg-[var(--bg-surface)] backdrop-blur-xl rounded-2xl border border-[var(--border-subtle)] hover:border-blue-500/40 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden"
             >
               {/* MEDIA CONTAINER */}
               <div className="relative aspect-[4/5] bg-zinc-900 overflow-hidden">
@@ -97,7 +202,7 @@ export default function TopicPage({ topic }) {
 
                 {/* VIDEO INDICATOR BADGE */}
                 {isVideo && (
-                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
                     <div className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-gray-900 shadow-md group-hover:scale-110 transition-transform">
                       <Play className="w-4 h-4 fill-current ml-0.5" />
                     </div>
@@ -123,11 +228,41 @@ export default function TopicPage({ topic }) {
                 )}
               </div>
 
-              {/* TITLE */}
+              {/* CARD DETAILS */}
               <div className="p-3 flex-1 flex flex-col justify-between">
-                <h2 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {p.title}
-                </h2>
+                <div>
+                  {/* Creator Info */}
+                  {author && (
+                    <div className="flex items-center gap-1.5 mb-1.5 text-xs text-[var(--text-secondary)]">
+                      <div className="w-4 h-4 rounded-full overflow-hidden bg-zinc-700 shrink-0">
+                        {author.profilePicture && author.profilePicture !== "/Fondpeace.jpg" ? (
+                          <img src={author.profilePicture} alt={author.username} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-white bg-blue-600">
+                            {author.username?.[0]?.toUpperCase() || "U"}
+                          </div>
+                        )}
+                      </div>
+                      <span className="truncate font-medium text-[11px]">
+                        @{author.username || "creator"}
+                      </span>
+                      {author.isVerified && <ShieldCheck size={11} className="text-blue-500 shrink-0" />}
+                    </div>
+                  )}
+
+                  {/* Title */}
+                  <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] leading-snug line-clamp-2 group-hover:text-blue-500 transition-colors">
+                    {p.title}
+                  </h2>
+                </div>
+
+                {/* Category tag */}
+                {p.category && (
+                  <div className="mt-2 pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-[10px] text-[var(--text-secondary)]">
+                    <span className="font-semibold uppercase tracking-wider">{p.category}</span>
+                    <span className="text-[10px] text-gray-400">{new Date(p.createdAt).toLocaleDateString()}</span>
+                  </div>
+                )}
               </div>
             </Link>
           );
