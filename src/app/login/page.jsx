@@ -4,11 +4,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import LeftSidebar from "@/components/LeftSidebar";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { toast } from "@/utils/toast";
 import { API_BASE } from "@/utils/apiConfig";
-import { User, Lock, Eye, EyeOff, ArrowRight, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
+import { User, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
@@ -76,17 +75,25 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070a13] text-white flex relative overflow-hidden">
-      {/* Platform Navigation */}
-      <LeftSidebar />
+    <div className="min-h-screen bg-[#070a13] text-white flex flex-col relative overflow-hidden">
+      {/* Top Floating Back Link */}
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
+        <Link
+          href="/"
+          onClick={() => playTap()}
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-xs font-semibold text-gray-300 hover:text-white transition-all backdrop-blur-md active:scale-95"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Feed</span>
+        </Link>
+      </div>
 
-      <div className="flex-1 flex flex-col relative pb-20 lg:pb-0">
-        {/* Ambient Radial Glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none" />
+      {/* Ambient Radial Glows */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none" />
 
-        {/* Main Container */}
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 z-10">
+      {/* Main Container */}
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 z-10">
         <div className="w-full max-w-md bg-white/[0.04] dark:bg-black/40 backdrop-blur-2xl border border-white/[0.08] shadow-[0_16px_40px_rgba(0,0,0,0.5)] rounded-3xl p-6 sm:p-8 transition-all">
           
           {/* Logo & Header */}
@@ -221,7 +228,6 @@ const Login = () => {
           </div>
 
         </div>
-      </div>
       </div>
     </div>
   );
