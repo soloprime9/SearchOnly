@@ -1,5 +1,5 @@
 const SITE_URL = "https://www.fondpeace.com";
-const API_BASE = "https://backend-k.vercel.app";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://backendk-z915.onrender.com";
 
 export const revalidate = 3600; // 1 hour cache revalidation
 
@@ -11,6 +11,12 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: "always",
       priority: 1.0,
+    },
+    {
+      url: `${SITE_URL}/search`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
     },
     {
       url: `${SITE_URL}/aboutus`,
@@ -67,11 +73,11 @@ export default async function sitemap() {
         .map((v) => String(v._id))
     );
 
-    // Map videos strictly to canonical watch page: /short/[id]
+    // Map videos strictly to canonical watch player page: /shorts/[id]
     const videoRoutes = (Array.isArray(videoPosts) ? videoPosts : [])
       .filter((v) => v?._id)
       .map((v) => ({
-        url: `${SITE_URL}/short/${v._id}`,
+        url: `${SITE_URL}/shorts/${v._id}`,
         lastModified: new Date(v.updatedAt || v.createdAt || Date.now()),
         changeFrequency: "weekly",
         priority: 0.85,

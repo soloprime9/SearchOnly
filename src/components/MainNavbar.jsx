@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
 import { playTap } from "@/utils/soundEffects";
 import { FaBell, FaBookmark, FaSearch } from "react-icons/fa";
-import { User, Upload } from "lucide-react";
+import { User, Upload, MessageSquare } from "lucide-react";
 import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import NotificationDrawer from "./NotificationDrawer";
@@ -17,6 +17,7 @@ export default function MainNavbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSavedPosts, setShowSavedPosts] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [username, setUsername] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,11 +46,15 @@ export default function MainNavbar() {
       if (!token) return;
       try {
         const apiBase = getApiBase();
-        const res = await axios.get(`${apiBase}/notification?tab=unread`, {
-          headers: getAuthHeaders(),
-        });
-        if (res.data?.success) {
-          setUnreadCount(res.data.unreadCount || 0);
+        const [notifRes, chatRes] = await Promise.all([
+          axios.get(`${apiBase}/notification?tab=unread`, { headers: getAuthHeaders() }).catch(() => null),
+          axios.get(`${apiBase}/chat/unread-count`, { headers: getAuthHeaders() }).catch(() => null),
+        ]);
+        if (notifRes?.data?.success) {
+          setUnreadCount(notifRes.data.unreadCount || 0);
+        }
+        if (chatRes?.data?.success) {
+          setUnreadChatCount(chatRes.data.unreadCount || chatRes.data.totalUnread || 0);
         }
       } catch (_) {}
     };
@@ -166,6 +171,20 @@ export default function MainNavbar() {
             >
               <FaBookmark className="w-3.5 h-3.5" />
             </button>
+
+            {/* Direct Messages Shortcut with Live Unread Indicator */}
+            <Link
+              href="/messages"
+              onClick={() => playTap()}
+              className="relative w-8 h-8 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-gray-300 hover:text-blue-400 flex items-center justify-center transition active:scale-95 cursor-pointer border border-white/[0.06]"
+              aria-label="Direct Messages"
+              title="Encrypted Messages"
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              {unreadChatCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-500 rounded-full ring-2 ring-[#080a13] animate-pulse" />
+              )}
+            </Link>
 
             {/* Notifications Trigger */}
             <button
