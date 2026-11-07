@@ -12,6 +12,7 @@ import ReelInteractions from "./ReelInteractions";
 import LeftSidebar from "./LeftSidebar";
 import FormattedCaption from "./FormattedCaption";
 import YouTubeShortEmbed from "./YouTubeShortEmbed";
+import GuestSoftPushPrompt from "./GuestSoftPushPrompt";
 import { getYouTubeVideoId } from "./LinkPreviewCard";
 import { FEATURE_FLAGS } from "@/utils/featureFlags";
 import { getApiBase } from "@/utils/apiConfig";
@@ -1114,6 +1115,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
           </div>
         </div>
       ))}
+      {/* ── Non-Intrusive Guest Retention Micro-Prompt ── */}
+      <GuestSoftPushPrompt triggerCount={currentIndex} />
     </div>
   );
 }

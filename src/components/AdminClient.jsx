@@ -22,6 +22,10 @@ import {
   Eye,
   CheckCircle2,
   Clock3,
+  Bell,
+  Send,
+  Users,
+  ShieldCheck,
 } from 'lucide-react';
 
 const API_ROOT = getApiBase();
@@ -44,6 +48,66 @@ export default function AdminClient({ initialPosts }) {
   const [filterAction, setFilterAction] = useState("all");
   const [filterIp, setFilterIp] = useState("");
   const [copiedIp, setCopiedIp] = useState(null);
+
+  // Push & Guest Growth Analytics State
+  const [pushStats, setPushStats] = useState(null);
+  const [pushLoading, setPushLoading] = useState(false);
+  const [broadcastTitle, setBroadcastTitle] = useState("");
+  const [broadcastBody, setBroadcastBody] = useState("");
+  const [broadcastUrl, setBroadcastUrl] = useState("/shorts");
+  const [broadcastTarget, setBroadcastTarget] = useState("all");
+  const [sendingBroadcast, setSendingBroadcast] = useState(false);
+  const [broadcastResult, setBroadcastResult] = useState(null);
+
+  const fetchPushStats = useCallback(async () => {
+    setPushLoading(true);
+    try {
+      const res = await fetch(`${API_ROOT}/notification/push/stats?adminKey=fondpeace_secret`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setPushStats(data.stats);
+        }
+      }
+    } catch (e) {
+      console.error("Push stats fetch failed:", e);
+    } finally {
+      setPushLoading(false);
+    }
+  }, []);
+
+  const handleSendBroadcast = async (e) => {
+    if (e) e.preventDefault();
+    if (!broadcastTitle.trim() || !broadcastBody.trim()) return;
+    setSendingBroadcast(true);
+    setBroadcastResult(null);
+    try {
+      const res = await fetch(`${API_ROOT}/notification/push/broadcast`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-key": "fondpeace_secret"
+        },
+        body: JSON.stringify({
+          title: broadcastTitle,
+          body: broadcastBody,
+          url: broadcastUrl || "/",
+          isGuestOnly: broadcastTarget === "guests"
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBroadcastResult(`Push alert delivered to ${data.result?.sent || 0} active devices!`);
+        fetchPushStats();
+      } else {
+        setBroadcastResult(`Error: ${data.message || "Failed to dispatch push"}`);
+      }
+    } catch (err) {
+      setBroadcastResult(`Broadcast failed: ${err.message}`);
+    } finally {
+      setSendingBroadcast(false);
+    }
+  };
 
   /* ================= AUTH CHECK ================= */
   useEffect(() => {
@@ -140,7 +204,10 @@ export default function AdminClient({ initialPosts }) {
     if (authorized && activeTab === "shorts-telemetry") {
       fetchActivityLogs(filterAction, filterIp);
     }
-  }, [activeTab, authorized, filterAction, filterIp, fetchActivityLogs]);
+    if (authorized && activeTab === "push-analytics") {
+      fetchPushStats();
+    }
+  }, [activeTab, authorized, filterAction, filterIp, fetchActivityLogs, fetchPushStats]);
 
   const telemetryStats = useMemo(() => {
     if (!activityLogs.length) {
@@ -221,6 +288,9 @@ export default function AdminClient({ initialPosts }) {
             </button>
             <button onClick={() => setActiveTab("shorts-telemetry")} className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "shorts-telemetry" ? "bg-purple-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}>
               <Globe size={16} className="inline mr-2" /> Visitor IP & Platform Telemetry
+            </button>
+            <button onClick={() => setActiveTab("push-analytics")} className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "push-analytics" ? "bg-indigo-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}>
+              <Bell size={16} className="inline mr-2" /> Push & Guest Growth
             </button>
           </div>
 
@@ -517,6 +587,235 @@ export default function AdminClient({ initialPosts }) {
                       <tr>
                         <td colSpan={7} className="py-12 text-center text-slate-400 font-medium">
                           No visitor activity logs found yet. Navigate anywhere on the site to generate logs!
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── PUSH & GUEST GROWTH ANALYTICS TAB ── */}
+        {activeTab === "push-analytics" && (
+          <div className="space-y-6">
+            {/* Top KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                  <Bell size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Push Subscribers</p>
+                  <p className="text-2xl font-black text-slate-900">{pushStats?.totalSubscribers || 0}</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  <Users size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Guest Subscribers</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-2xl font-black text-slate-900">{pushStats?.guestSubscribers || 0}</p>
+                    {pushStats?.totalSubscribers > 0 && (
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">
+                        {Math.round((pushStats.guestSubscribers / pushStats.totalSubscribers) * 100)}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                  <ShieldCheck size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Registered Members</p>
+                  <p className="text-2xl font-black text-slate-900">{pushStats?.registeredSubscribers || 0}</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+                  <CheckCircle2 size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Anti-Bot Verification</p>
+                  <p className="text-sm font-black text-emerald-600">100% Cryptographic</p>
+                  <p className="text-[10px] text-slate-400">Headless bots auto-pruned</p>
+                </div>
+              </div>
+            </div>
+
+            {/* BROADCAST PUSH DISPATCHER PANEL */}
+            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <Send size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">Send Instant Push Broadcast</h3>
+                    <p className="text-xs text-slate-500">Reach guest users and members directly on Android, Windows & Mac lock screens</p>
+                  </div>
+                </div>
+                <button
+                  onClick={fetchPushStats}
+                  disabled={pushLoading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-600 transition-colors"
+                >
+                  <RefreshCw size={13} className={pushLoading ? "animate-spin" : ""} />
+                  <span>Refresh Stats</span>
+                </button>
+              </div>
+
+              <form onSubmit={handleSendBroadcast} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                      Notification Title
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 🔥 Trending Now on FondPeace"
+                      value={broadcastTitle}
+                      onChange={(e) => setBroadcastTitle(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                      Target Audience
+                    </label>
+                    <select
+                      value={broadcastTarget}
+                      onChange={(e) => setBroadcastTarget(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-500 bg-white"
+                    >
+                      <option value="all">All Subscribers (Guests + Registered)</option>
+                      <option value="guests">Guest Users Only (Bring Back Non-Registered)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                    Notification Message (Body)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 5 new viral reels just dropped. Watch before they blow up!"
+                    value={broadcastBody}
+                    onChange={(e) => setBroadcastBody(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                    Action URL (Where clicking opens)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="/shorts or /topic/viral"
+                    value={broadcastUrl}
+                    onChange={(e) => setBroadcastUrl(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  <button
+                    type="submit"
+                    disabled={sendingBroadcast || !broadcastTitle.trim() || !broadcastBody.trim()}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-500/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                  >
+                    <Send size={15} />
+                    <span>{sendingBroadcast ? "Delivering Push Alerts..." : "🚀 Send Push Alert Now"}</span>
+                  </button>
+
+                  {broadcastResult && (
+                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-100">
+                      {broadcastResult}
+                    </span>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* RECENT SUBSCRIBERS TABLE */}
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Recent Push Subscribers</h3>
+                  <p className="text-xs text-slate-500">Real browser endpoints connected to FondPeace</p>
+                </div>
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600">
+                  Showing latest 15
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      <th className="py-3 px-5">Type</th>
+                      <th className="py-3 px-5">User / Identity</th>
+                      <th className="py-3 px-5">Platform / User Agent</th>
+                      <th className="py-3 px-5">Last Active</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-xs">
+                    {pushStats?.recentSubscribers?.map((sub, i) => (
+                      <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="py-3 px-5">
+                          {sub.isGuest ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-bold text-[10px]">
+                              ● Guest Visitor
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60 font-bold text-[10px]">
+                              ● Member
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-5 font-semibold text-slate-800">
+                          {sub.userId ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center">
+                                {sub.userId.username?.[0]?.toUpperCase() || "U"}
+                              </div>
+                              <span>@{sub.userId.username}</span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 text-[11px]">Anonymous Guest</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-5 text-slate-500 text-[11px] max-w-xs truncate" title={sub.userAgent}>
+                          {sub.userAgent ? (
+                            sub.userAgent.includes("Android") ? "📱 Android Device" :
+                            sub.userAgent.includes("iPhone") || sub.userAgent.includes("iPad") ? "🍎 Apple iOS Device" :
+                            sub.userAgent.includes("Windows") ? "💻 Windows PC" :
+                            sub.userAgent.includes("Mac") ? "🖥️ Mac OS" : "🌐 Web Browser"
+                          ) : "🌐 Browser"}
+                        </td>
+                        <td className="py-3 px-5 text-slate-400 text-[11px]">
+                          {sub.lastActive ? new Date(sub.lastActive).toLocaleString() : "Recently"}
+                        </td>
+                      </tr>
+                    ))}
+
+                    {(!pushStats?.recentSubscribers || pushStats.recentSubscribers.length === 0) && (
+                      <tr>
+                        <td colSpan={4} className="py-8 text-center text-slate-400">
+                          No subscribers recorded yet. Enable notifications from mobile/desktop to see them appear live!
                         </td>
                       </tr>
                     )}

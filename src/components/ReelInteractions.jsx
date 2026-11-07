@@ -24,6 +24,7 @@ import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import ShareModal from "./ShareModal";
 import FormattedCaption from "./FormattedCaption";
+import QuickAuthGateModal from "./QuickAuthGateModal";
 
 const API_BASE = getApiBase();
 const safeArray = (v) => (Array.isArray(v) ? v : []);
@@ -57,6 +58,8 @@ export default function ReelInteractions({ post, updatePost }) {
   const [repostCount, setRepostCount] = useState(post?.repostsCount || 0);
   const [hasReposted, setHasReposted] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showAuthGate, setShowAuthGate] = useState(false);
+  const [authGateAction, setAuthGateAction] = useState("like reels");
 
   // Sync with parent updates
   useEffect(() => {
@@ -154,7 +157,14 @@ export default function ReelInteractions({ post, updatePost }) {
   const handleLike = async (e) => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) {
-      toast.error("Please login to like this short");
+      if (e && e.clientX && e.clientY) {
+        triggerHeartBurst(e.clientX, e.clientY);
+      } else {
+        triggerHeartBurst();
+      }
+      playPop();
+      setAuthGateAction("like reels");
+      setShowAuthGate(true);
       return;
     }
 
@@ -227,7 +237,9 @@ export default function ReelInteractions({ post, updatePost }) {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const creatorId = data.userId?._id || data.userId;
     if (!token || !creatorId) {
-      toast.error("Please login to follow creators");
+      playTap();
+      setAuthGateAction("follow creators");
+      setShowAuthGate(true);
       return;
     }
 
@@ -280,7 +292,9 @@ export default function ReelInteractions({ post, updatePost }) {
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) {
-      toast.error("Please login to post comments");
+      playTap();
+      setAuthGateAction("post comments");
+      setShowAuthGate(true);
       return;
     }
 
@@ -619,6 +633,13 @@ export default function ReelInteractions({ post, updatePost }) {
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
         post={data}
+      />
+
+      {/* ── Smart Guest Conversion Auth Gate Modal ── */}
+      <QuickAuthGateModal
+        isOpen={showAuthGate}
+        onClose={() => setShowAuthGate(false)}
+        actionName={authGateAction}
       />
     </>
   );

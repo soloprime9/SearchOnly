@@ -1,11 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { X, Sparkles, Heart, ArrowRight } from "lucide-react";
-import { playPop, playTap } from "@/utils/soundEffects";
+import { X, Heart, ArrowRight, Bell, Sparkles } from "lucide-react";
+import { playPop, playTap, playChime } from "@/utils/soundEffects";
+import { requestPushPermission } from "@/utils/pushNotifications";
+import toast from "react-hot-toast";
 
 export default function QuickAuthGateModal({ isOpen, onClose, actionName = "interact" }) {
+  const [subscribing, setSubscribing] = useState(false);
+
   if (!isOpen) return null;
 
   const handleGoogleClick = () => {
@@ -14,6 +18,25 @@ export default function QuickAuthGateModal({ isOpen, onClose, actionName = "inte
       window.google.accounts.id.prompt();
     } else {
       window.location.href = "/login";
+    }
+  };
+
+  const handleEnableAlerts = async () => {
+    playTap();
+    setSubscribing(true);
+    try {
+      const perm = await requestPushPermission();
+      if (perm === "granted") {
+        playChime();
+        toast.success("🔔 Alerts enabled! We'll notify you when trending reels drop.");
+        onClose();
+      } else if (perm === "denied") {
+        toast.error("Notification permission was denied in browser settings.");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubscribing(false);
     }
   };
 
@@ -30,7 +53,7 @@ export default function QuickAuthGateModal({ isOpen, onClose, actionName = "inte
             playPop();
             onClose();
           }}
-          className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+          className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -41,18 +64,18 @@ export default function QuickAuthGateModal({ isOpen, onClose, actionName = "inte
         </div>
 
         {/* Heading */}
-        <h3 className="font-bold text-lg text-white mb-1.5 leading-tight">
-          Join the conversation
+        <h3 className="font-bold text-lg text-white mb-1 leading-tight">
+          Enjoying FondPeace?
         </h3>
         <p className="text-xs text-gray-400 mb-5 leading-relaxed">
-          Log in or create an account in 5 seconds to {actionName}, bookmark, and connect with creators.
+          Sign in in 5 seconds to {actionName}, or turn on instant alerts for trending drops without an account.
         </p>
 
         {/* Actions */}
         <div className="space-y-2.5">
           <button
             onClick={handleGoogleClick}
-            className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-white hover:bg-gray-100 text-gray-900 font-bold text-xs shadow-md transition-all active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-white hover:bg-gray-100 text-gray-900 font-bold text-xs shadow-md transition-all active:scale-[0.98] cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -75,6 +98,15 @@ export default function QuickAuthGateModal({ isOpen, onClose, actionName = "inte
             <span>Continue with Google</span>
           </button>
 
+          <button
+            onClick={handleEnableAlerts}
+            disabled={subscribing}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-400 font-bold text-xs transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <Bell className="w-3.5 h-3.5 text-blue-400 animate-bounce" />
+            <span>{subscribing ? "Activating Alerts..." : "Turn on 1-Click Alerts (No Account)"}</span>
+          </button>
+
           <Link
             href="/login"
             onClick={() => {
@@ -83,7 +115,7 @@ export default function QuickAuthGateModal({ isOpen, onClose, actionName = "inte
             }}
             className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-white/[0.07] hover:bg-white/[0.12] text-white font-semibold text-xs transition-colors"
           >
-            <span>Sign in with Username</span>
+            <span>Sign in with Password</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
