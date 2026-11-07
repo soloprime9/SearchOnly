@@ -450,6 +450,12 @@ export default function AdminClient({ initialPosts }) {
                 >
                   Auth & Logins
                 </button>
+                <button
+                  onClick={() => { setFilterAction("interactions"); fetchActivityLogs("interactions", filterIp); }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${filterAction === "interactions" ? "bg-amber-600 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                >
+                  ⚡ User Micro-Actions
+                </button>
 
                 {filterIp && (
                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200">
