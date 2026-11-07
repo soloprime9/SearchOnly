@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import LeftSidebar from "@/components/LeftSidebar";
 import { ArrowLeft, Maximize2, Smartphone, Monitor, Sparkles, CheckCircle2 } from "lucide-react";
 
 const DESIGNS = [
@@ -56,9 +57,29 @@ export default function DesignShowcasePage() {
   const current = DESIGNS.find((d) => d.id === activeTab) || DESIGNS[0];
 
   return (
-    <div className="min-h-screen bg-[#090a0f] text-white p-4 sm:p-8 selection:bg-blue-600 selection:text-white">
-      {/* Top Header */}
-      <header className="max-w-6xl mx-auto flex items-center justify-between pb-6 border-b border-white/10">
+    <div className="min-h-screen bg-[#090a0f] text-white selection:bg-blue-600 selection:text-white">
+      <div
+        className="
+          grid 
+          grid-cols-1 
+          lg:grid-cols-[76px_minmax(0,1fr)] 
+          xl:grid-cols-[220px_minmax(0,1fr)] 
+          max-w-[1440px] 
+          mx-auto
+          gap-4 lg:gap-6
+          px-2 sm:px-4
+          py-3
+        "
+      >
+        {/* Left Sidebar */}
+        <aside className="shrink-0">
+          <LeftSidebar sticky={true} />
+        </aside>
+
+        {/* Center Content */}
+        <div className="w-full min-w-0 max-w-6xl mx-auto py-4 sm:py-6 pb-20 lg:pb-8">
+          {/* Top Header */}
+          <header className="flex items-center justify-between pb-6 border-b border-white/10">
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -173,19 +194,21 @@ export default function DesignShowcasePage() {
         </div>
       </main>
 
-      {/* Fullscreen Lightbox Modal */}
-      {fullscreenImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 cursor-zoom-out"
-          onClick={() => setFullscreenImage(null)}
-        >
-          <img
-            src={fullscreenImage}
-            alt="Fullscreen preview"
-            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-200"
-          />
+          {/* Fullscreen Lightbox Modal */}
+          {fullscreenImage && (
+            <div
+              className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 cursor-zoom-out"
+              onClick={() => setFullscreenImage(null)}
+            >
+              <img
+                src={fullscreenImage}
+                alt="Fullscreen preview"
+                className="max-w-full max-h-full object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-200"
+              />
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

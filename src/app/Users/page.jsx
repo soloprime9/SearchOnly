@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import LeftSidebar from '@/components/LeftSidebar';
 import { Users, Search, Calendar, Mail, ArrowUpRight, ShieldCheck, User } from 'lucide-react';
 import { getApiBase } from '@/utils/apiConfig';
 import { playTap } from '@/utils/soundEffects';
@@ -45,18 +46,38 @@ export default function UsersList() {
   });
 
   return (
-    <div className="w-full max-w-5xl mx-auto py-8 sm:py-12 px-3 sm:px-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/60 text-blue-600 dark:text-blue-400 text-xs font-bold mb-2 shadow-sm">
-            <Users className="w-3.5 h-3.5" />
-            <span>Community Directory</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white tracking-tight">
-            FondPeace Members & Creators
-          </h1>
-        </div>
+    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] transition-colors duration-200">
+      <div
+        className="
+          grid 
+          grid-cols-1 
+          lg:grid-cols-[76px_minmax(0,1fr)] 
+          xl:grid-cols-[220px_minmax(0,1fr)] 
+          max-w-[1440px] 
+          mx-auto
+          gap-4 lg:gap-6
+          px-2 sm:px-4
+          py-3
+        "
+      >
+        {/* Left Sidebar */}
+        <aside className="shrink-0">
+          <LeftSidebar sticky={true} />
+        </aside>
+
+        {/* Center Users List */}
+        <main className="w-full min-w-0 max-w-5xl mx-auto py-6 sm:py-10 px-2 sm:px-4 pb-20 lg:pb-10">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/60 text-blue-600 dark:text-blue-400 text-xs font-bold mb-2 shadow-sm">
+                <Users className="w-3.5 h-3.5" />
+                <span>Community Directory</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white tracking-tight">
+                FondPeace Members & Creators
+              </h1>
+            </div>
 
         {/* Search input */}
         <div className="relative w-full sm:w-72">
@@ -148,6 +169,8 @@ export default function UsersList() {
           )}
         </>
       )}
+        </main>
+      </div>
     </div>
   );
 }

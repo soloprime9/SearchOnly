@@ -44,6 +44,7 @@ import {
   RotateCw,
 } from "lucide-react";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
+import LeftSidebar from "@/components/LeftSidebar";
 import {
   getConversationCryptoKey,
   encryptChatMessage,
@@ -929,14 +930,26 @@ function MessagesPageContent() {
   });
 
   return (
-    <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+    <div className="flex h-screen w-full overflow-hidden bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+      {/* Desktop Left Sidebar */}
+      <div className="hidden lg:block shrink-0">
+        <LeftSidebar sticky={true} />
+      </div>
+
+      {/* When on mobile conversation list, show bottom bar navigation */}
+      {!activeConversation && (
+        <div className="lg:hidden">
+          <LeftSidebar />
+        </div>
+      )}
+
       {/* ══════════════════════════════════════════════════════════
           SIDEBAR: CONVERSATION LIST (Responsive)
       ══════════════════════════════════════════════════════════ */}
       <div
         className={`w-full md:w-80 lg:w-96 flex flex-col border-r border-[var(--border-subtle)] bg-[var(--bg-surface)] shrink-0 transition-all ${
           activeConversation ? "hidden md:flex" : "flex"
-        }`}
+        } ${!activeConversation ? "pb-16 lg:pb-0" : ""}`}
       >
         {/* Top Bar */}
         <div className="flex items-center justify-between p-4 border-b border-[var(--border-subtle)]">

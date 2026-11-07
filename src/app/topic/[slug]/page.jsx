@@ -1,4 +1,5 @@
 import TopicPage from "@/components/TopicPage";
+import LeftSidebar from "@/components/LeftSidebar";
 import Link from "next/link";
 import { Hash, Sparkles, ArrowLeft } from "lucide-react";
 import { getApiBase } from "@/utils/apiConfig";
@@ -89,56 +90,78 @@ export default async function TopicPost({ params }) {
   };
 
   return (
-    <main className="max-w-5xl mx-auto px-3 sm:px-4 py-6">
-      {/* JSON-LD */}
-      {posts.length > 0 && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      )}
+    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] transition-colors duration-200">
+      <div
+        className="
+          grid 
+          grid-cols-1 
+          lg:grid-cols-[76px_minmax(0,1fr)] 
+          xl:grid-cols-[220px_minmax(0,1fr)] 
+          max-w-[1440px] 
+          mx-auto
+          gap-4 lg:gap-6
+          px-2 sm:px-4
+          py-3
+        "
+      >
+        {/* Left Sidebar */}
+        <aside className="shrink-0">
+          <LeftSidebar sticky={true} />
+        </aside>
 
-      {/* Back Link */}
-      <div className="mb-4">
-        <Link
-          href="/search"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-blue-500 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Explore</span>
-        </Link>
-      </div>
+        {/* Center Topic Content */}
+        <main className="w-full min-w-0 max-w-5xl mx-auto py-2 pb-20 lg:pb-8">
+          {/* JSON-LD */}
+          {posts.length > 0 && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+            />
+          )}
 
-      {/* Hero Header with Ambient Mesh */}
-      <header className="relative p-6 sm:p-8 rounded-3xl bg-white/70 dark:bg-zinc-950/60 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-sm overflow-hidden mb-6">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-blue-500/10 via-indigo-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+          {/* Back Link */}
+          <div className="mb-4">
+            <Link
+              href="/search"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-blue-500 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Explore</span>
+            </Link>
+          </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/25 shrink-0">
-              <Hash className="w-6 h-6 sm:w-7 sm:h-7" />
-            </div>
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-[11px] font-bold mb-1">
-                <Sparkles className="w-3 h-3" />
-                <span>Topic Channel</span>
+          {/* Hero Header with Ambient Mesh */}
+          <header className="relative p-6 sm:p-8 rounded-3xl bg-white/70 dark:bg-zinc-950/60 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-sm overflow-hidden mb-6">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-blue-500/10 via-indigo-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/25 shrink-0">
+                  <Hash className="w-6 h-6 sm:w-7 sm:h-7" />
+                </div>
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-[11px] font-bold mb-1">
+                    <Sparkles className="w-3 h-3" />
+                    <span>Topic Channel</span>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white tracking-tight capitalize">
+                    #{topic}
+                  </h1>
+                </div>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white tracking-tight capitalize">
-                #{topic}
-              </h1>
+
+              <div className="flex items-center gap-2">
+                <span className="px-3.5 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.08] text-xs font-bold text-gray-700 dark:text-gray-300">
+                  {posts.length > 0 ? `${posts.length} Posts` : "Active Community"}
+                </span>
+              </div>
             </div>
-          </div>
+          </header>
 
-          <div className="flex items-center gap-2">
-            <span className="px-3.5 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.05] dark:border-white/[0.08] text-xs font-bold text-gray-700 dark:text-gray-300">
-              {posts.length > 0 ? `${posts.length} Posts` : "Active Community"}
-            </span>
-          </div>
-        </div>
-      </header>
-
-      {/* Feed Component */}
-      <TopicPage topic={topic} />
-    </main>
+          {/* Feed Component */}
+          <TopicPage topic={topic} />
+        </main>
+      </div>
+    </div>
   );
 }

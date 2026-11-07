@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import LeftSidebar from "@/components/LeftSidebar";
 import { 
   Mail, 
   User, 
@@ -76,9 +77,29 @@ export default function ContactUs() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto py-8 sm:py-14 px-3 sm:px-4">
-      {/* Container Card */}
-      <div className="relative p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-zinc-950/70 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-[0_16px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_16px_50px_rgba(0,0,0,0.4)]">
+    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] transition-colors duration-200">
+      <div
+        className="
+          grid 
+          grid-cols-1 
+          lg:grid-cols-[76px_minmax(0,1fr)] 
+          xl:grid-cols-[220px_minmax(0,1fr)] 
+          max-w-[1440px] 
+          mx-auto
+          gap-4 lg:gap-6
+          px-2 sm:px-4
+          py-3
+        "
+      >
+        {/* Left Sidebar */}
+        <aside className="shrink-0">
+          <LeftSidebar sticky={true} />
+        </aside>
+
+        {/* Center Contact Area */}
+        <main className="w-full min-w-0 max-w-4xl mx-auto py-6 sm:py-10 pb-20 lg:pb-10">
+          {/* Container Card */}
+          <div className="relative p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-zinc-950/70 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-[0_16px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_16px_50px_rgba(0,0,0,0.4)]">
         
         {/* Ambient Top Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-36 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
@@ -261,6 +282,8 @@ export default function ContactUs() {
 
           </div>
         </div>
+      </div>
+        </main>
       </div>
     </div>
   );

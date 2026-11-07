@@ -405,22 +405,60 @@ export default function LeftSidebar({ sticky = false }) {
             );
           })}
 
-          {/* Mobile Notifications button */}
-          <button
-            onClick={() => {
-              playTap();
-              setShowNotifications(true);
-            }}
-            className="flex flex-col items-center justify-center gap-1 min-w-[52px] py-1 rounded-xl transition-all duration-150 active:scale-90 text-gray-500 dark:text-gray-400"
-          >
-            <div className="relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200">
-              <FaBell className="text-[18px]" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
-              )}
-            </div>
-            <span className="text-[9.5px] font-medium">Alerts</span>
-          </button>
+          {/* Mobile Profile / Sign-in navigation item */}
+          {(() => {
+            const profileHref = username ? `/profile/${username}` : "/login";
+            const isProfileActive = username
+              ? pathname?.startsWith(`/profile/${username}`) || pathname === "/profile"
+              : pathname === "/login" || pathname === "/signup";
+            const profileLabel = username ? "Profile" : "Sign In";
+
+            return (
+              <Link
+                href={profileHref}
+                onClick={() => playTap()}
+                className={`
+                  flex flex-col items-center justify-center gap-1
+                  min-w-[52px] py-1 rounded-xl
+                  transition-all duration-150 active:scale-90
+                  ${isProfileActive ? "text-white font-extrabold" : "text-zinc-400"}
+                `}
+                aria-label={profileLabel}
+              >
+                <div
+                  className={`
+                    relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200
+                    ${isProfileActive ? "bg-white text-black scale-110 shadow-md shadow-white/20" : ""}
+                  `}
+                >
+                  {profilePicture && profilePicture !== "/Fondpeace.jpg" ? (
+                    <img
+                      src={profilePicture}
+                      alt={username || "User"}
+                      className={`w-6 h-6 rounded-full object-cover ring-1.5 ${
+                        isProfileActive ? "ring-black" : "ring-white/30"
+                      }`}
+                    />
+                  ) : (
+                    <FaUser
+                      className={`text-[17px] transition-colors ${
+                        isProfileActive ? "text-black" : "text-zinc-400"
+                      }`}
+                    />
+                  )}
+                  {isProfileActive && (
+                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-black rounded-full" />
+                  )}
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
+                  )}
+                </div>
+                <span className="text-[9.5px] transition-colors font-medium truncate max-w-[56px]">
+                  {profileLabel}
+                </span>
+              </Link>
+            );
+          })()}
         </div>
       </nav>
 

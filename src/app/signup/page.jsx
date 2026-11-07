@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import LeftSidebar from "@/components/LeftSidebar";
 import PhoneField from "@/components/PhoneField";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerConfetti } from "@/utils/confetti";
@@ -128,13 +129,17 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070a13] text-white flex flex-col relative overflow-hidden">
-      {/* Ambient Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-screen bg-[#070a13] text-white flex relative overflow-hidden">
+      {/* Platform Navigation */}
+      <LeftSidebar />
 
-      {/* Main Container */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 z-10">
+      <div className="flex-1 flex flex-col relative pb-20 lg:pb-0">
+        {/* Ambient Glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
+
+        {/* Main Container */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 z-10">
         <div className="w-full max-w-md bg-white/[0.04] dark:bg-black/40 backdrop-blur-2xl border border-white/[0.08] shadow-[0_16px_40px_rgba(0,0,0,0.5)] rounded-3xl p-6 sm:p-8 transition-all">
           
           {/* Logo & Header */}
@@ -343,6 +348,7 @@ const SignUp = () => {
           </div>
 
         </div>
+      </div>
       </div>
     </div>
   );

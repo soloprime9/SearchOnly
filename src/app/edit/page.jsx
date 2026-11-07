@@ -25,13 +25,27 @@ export default function EditRootPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] transition-colors duration-200 flex justify-center gap-6 px-2 sm:px-6 py-4 sm:py-8">
-      <aside className="hidden lg:block w-[72px] shrink-0">
-        <LeftSidebar />
-      </aside>
-      <main className="w-full max-w-2xl shrink-0">
-        <EditProfile initialUsername="" />
-      </main>
+    <div className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] transition-colors duration-200">
+      <div
+        className="
+          grid 
+          grid-cols-1 
+          lg:grid-cols-[76px_minmax(0,1fr)] 
+          xl:grid-cols-[220px_minmax(0,1fr)] 
+          max-w-[1440px] 
+          mx-auto
+          gap-4 lg:gap-6
+          px-2 sm:px-4
+          py-3
+        "
+      >
+        <aside className="shrink-0">
+          <LeftSidebar sticky={true} />
+        </aside>
+        <main className="w-full min-w-0 max-w-2xl mx-auto py-4 sm:py-6 pb-20 lg:pb-8">
+          <EditProfile initialUsername="" />
+        </main>
+      </div>
     </div>
   );
 }
