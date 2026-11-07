@@ -32,6 +32,8 @@ import EmailVerificationModal from "./EmailVerificationModal";
 import SuggestedCreatorsWidget from "./SuggestedCreatorsWidget";
 import PersonalizeFeedModal from "./PersonalizeFeedModal";
 import StoriesBar from "./StoriesBar";
+import ShareModal from "./ShareModal";
+import FormattedCaption from "./FormattedCaption";
 import { UserPlus, Check, Users, Sparkles, Maximize2, Repeat2, Bookmark, BarChart2, Pin, LayoutList, LayoutGrid, Quote, Compass, ArrowUp, ArrowUpRight, ShieldCheck, X, Film, Image as ImageIcon, MessageSquare, MapPin, Smartphone, RotateCw, SlidersHorizontal } from "lucide-react";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
@@ -49,64 +51,7 @@ function getReadingTime(text) {
 
 // Inline hashtag, mention, and link parser
 function renderFormattedCaption(text, onHashtagClick) {
-  if (!text) return null;
-  const tokenRegex = /(https?:\/\/[^\s]+|#[\w\u0590-\u05ff]+|@\w+)/g;
-  const parts = text.split(tokenRegex);
-
-  return parts.map((part, i) => {
-    if (!part) return null;
-    if (part.startsWith("#")) {
-      return (
-        <button
-          key={i}
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onHashtagClick) onHashtagClick(part);
-          }}
-          className="text-blue-400 font-bold hover:underline inline"
-        >
-          {part}
-        </button>
-      );
-    }
-    if (part.startsWith("@")) {
-      const handle = part.slice(1);
-      return (
-        <Link
-          key={i}
-          href={`/profile/${handle}`}
-          onClick={(e) => e.stopPropagation()}
-          className="text-indigo-400 font-bold hover:underline inline"
-        >
-          {part}
-        </Link>
-      );
-    }
-    if (part.startsWith("http://") || part.startsWith("https://")) {
-      let displayUrl = part;
-      try {
-        const u = new URL(part);
-        displayUrl = u.hostname.replace(/^www\./, "") + (u.pathname.length > 1 ? u.pathname.slice(0, 18) + "…" : "");
-      } catch (_) {}
-
-      return (
-        <a
-          key={i}
-          href={part}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="text-sky-400 font-bold hover:underline break-all inline-flex items-center gap-0.5 mx-0.5"
-          title={part}
-        >
-          <span>{displayUrl}</span>
-          <span className="text-[10px] opacity-70">↗</span>
-        </a>
-      );
-    }
-    return <span key={i} className="text-zinc-100">{part}</span>;
-  });
+  return <FormattedCaption text={text} onHashtagClick={onHashtagClick} />;
 }
 
 
@@ -150,6 +95,7 @@ export default function Village({ initialPosts = [] }) {
   const [analyticsModalPostId, setAnalyticsModalPostId] = useState(null);
   const [reactionPickerPostId, setReactionPickerPostId] = useState(null);
   const [selectedHashtag, setSelectedHashtag] = useState(null);
+  const [activeSharePost, setActiveSharePost] = useState(null);
   const [newPostsCount, setNewPostsCount] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(null);
@@ -838,22 +784,9 @@ const increaseView = useCallback(
   return () => viewObserver.current?.disconnect();
 }, [increaseView]);
 
-const handleShare = async (postData) => {
-  try {
-    const shareText = getPostShareText(postData, window.location.origin);
-
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(shareText);
-      
-      // Show "Copied" text for this specific post
-      setCopiedPostId(postData._id);
-      
-      // 2 seconds baad hide kar dein
-      setTimeout(() => setCopiedPostId(null), 2000);
-    }
-  } catch (err) {
-    console.error("Failed to copy:", err);
-  }
+const handleShare = (postData) => {
+  playTap();
+  setActiveSharePost(postData);
 };
 
   const renderPost = useCallback((post, index) => {
@@ -1782,6 +1715,13 @@ const handleShare = async (postData) => {
         onVerificationSuccess={(updatedUser) => {
           setCurrentUserData((prev) => ({ ...prev, isEmailVerified: true }));
         }}
+      />
+
+      {/* Universal Viral Share Sheet Modal */}
+      <ShareModal
+        isOpen={Boolean(activeSharePost)}
+        onClose={() => setActiveSharePost(null)}
+        post={activeSharePost}
       />
     </div>
   );

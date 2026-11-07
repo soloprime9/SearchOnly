@@ -22,6 +22,8 @@ import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
+import ShareModal from "./ShareModal";
+import FormattedCaption from "./FormattedCaption";
 
 const API_BASE = getApiBase();
 const safeArray = (v) => (Array.isArray(v) ? v : []);
@@ -335,22 +337,8 @@ export default function ReelInteractions({ post, updatePost }) {
   };
 
   // ===== SHARE HANDLER =====
-  const handleShare = async () => {
+  const handleShare = () => {
     playTap();
-    const url = `${typeof window !== "undefined" ? window.location.origin : "https://www.fondpeace.com"}/shorts/${data._id}`;
-    const shareData = {
-      title: data.title || "FondPeace Short",
-      text: `Watch this short on FondPeace: ${data.title || ""}`,
-      url,
-    };
-
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share(shareData);
-        return;
-      } catch (_) {}
-    }
-
     setShowShareModal(true);
   };
 
@@ -546,7 +534,9 @@ export default function ReelInteractions({ post, updatePost }) {
                         Reply
                       </button>
                     </div>
-                    <p className="text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap">{cmt.CommentText}</p>
+                    <div className="text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap">
+                      <FormattedCaption text={cmt.CommentText} />
+                    </div>
 
                     {/* Replies */}
                     {safeArray(cmt.replies).length > 0 && (
@@ -554,7 +544,9 @@ export default function ReelInteractions({ post, updatePost }) {
                         {safeArray(cmt.replies).map((rep) => (
                           <div key={rep._id || Math.random()} className="text-xs">
                             <span className="font-bold text-indigo-400">@{rep.userId?.username || "user"}: </span>
-                            <span className="text-zinc-300">{rep.replyText}</span>
+                            <span className="text-zinc-300">
+                              <FormattedCaption text={rep.replyText} />
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -622,96 +614,12 @@ export default function ReelInteractions({ post, updatePost }) {
         </div>
       )}
 
-      {/* ── Share Bottom Sheet Modal ── */}
-      {showShareModal && (
-        <div
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end justify-center animate-in fade-in duration-200"
-          onClick={() => setShowShareModal(false)}
-        >
-          <div
-            className="bg-[#0f121d] text-white w-full max-w-[440px] rounded-t-3xl p-5 border-t border-x border-white/15 shadow-2xl animate-in slide-in-from-bottom duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-10 h-1 bg-white/30 rounded-full mx-auto mb-3" />
-            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-              <h3 className="font-bold text-sm">Share this Short</h3>
-              <button
-                onClick={() => setShowShareModal(false)}
-                className="p-1.5 rounded-full bg-white/10 text-gray-300 hover:text-white"
-              >
-                <FaTimes size={13} />
-              </button>
-            </div>
-
-            {/* Short / Link Post Thumbnail Preview Card */}
-            <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/[0.06] border border-white/10 mb-4">
-              <div className="w-14 h-18 sm:w-16 sm:h-20 rounded-xl overflow-hidden bg-black shrink-0 relative border border-white/10 shadow-md">
-                <img
-                  src={resolvePostThumbnail(data)}
-                  alt={data.title || "Short"}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = "/Fondpeace.jpg";
-                  }}
-                />
-              </div>
-              <div className="flex-1 min-w-0 pr-1">
-                <h4 className="font-bold text-xs sm:text-sm text-white line-clamp-2 leading-snug">
-                  {data.title || "Watch this short on FondPeace"}
-                </h4>
-                <p className="text-[11px] text-zinc-400 mt-1 truncate">
-                  @{data.userId?.username || "creator"} • FondPeace Shorts
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              {/* WhatsApp */}
-              <a
-                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out this short on FondPeace: ${shareUrl}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 transition text-xs font-semibold"
-              >
-                <FaWhatsapp size={22} className="text-emerald-400" />
-                <span>WhatsApp</span>
-              </a>
-
-              {/* Twitter / X */}
-              <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out this short on @FondPeace:`)}&url=${encodeURIComponent(shareUrl)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-400 transition text-xs font-semibold"
-              >
-                <FaTwitter size={20} className="text-cyan-400" />
-                <span>Twitter / X</span>
-              </a>
-
-              {/* Copy Link */}
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-400 transition text-xs font-semibold cursor-pointer"
-              >
-                {copiedLink ? <Check size={20} className="text-emerald-400" /> : <Copy size={20} />}
-                <span>{copiedLink ? "Copied!" : "Copy Link"}</span>
-              </button>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-between text-xs text-zinc-300">
-              <span className="truncate pr-2 select-all">{shareUrl}</span>
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold shrink-0 transition"
-              >
-                {copiedLink ? "Copied" : "Copy"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── Universal Viral Share Sheet Modal ── */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        post={data}
+      />
     </>
   );
 }

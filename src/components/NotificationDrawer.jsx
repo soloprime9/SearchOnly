@@ -7,6 +7,7 @@ import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import { toast } from "@/utils/toast";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import NotificationSettingsModal from "./NotificationSettingsModal";
+import { isPushSupported, getNotificationPermission, requestPushPermission } from "@/utils/pushNotifications";
 import {
   Bell,
   X,
@@ -28,6 +29,22 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [pushPermission, setPushPermission] = useState("default");
+
+  useEffect(() => {
+    setPushPermission(getNotificationPermission());
+  }, [isOpen]);
+
+  const handleEnablePush = async () => {
+    playTap();
+    const result = await requestPushPermission();
+    setPushPermission(result);
+    if (result === "granted") {
+      toast.success("Native push notifications active! 🔔");
+    } else if (result === "denied") {
+      toast.error("Notification permission was denied in browser settings");
+    }
+  };
 
   const fetchNotifications = async (selectedTab = tab) => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -265,6 +282,32 @@ export default function NotificationDrawer({ isOpen, onClose, onUnreadCountChang
               </button>
             ))}
           </div>
+
+          {/* Native PWA Push Notification Enable Banner */}
+          {pushPermission === "default" && isPushSupported() && (
+            <div className="mx-3 mt-3 p-3 rounded-2xl bg-gradient-to-r from-blue-600/15 via-indigo-600/15 to-purple-600/15 border border-blue-500/25 flex items-center justify-between gap-3 animate-in fade-in duration-200">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
+                  <Bell className="w-4 h-4 animate-bounce" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                    Enable Push Alerts
+                  </p>
+                  <p className="text-[10.5px] text-gray-500 dark:text-zinc-400 truncate">
+                    Get phone & desktop alerts for likes & replies
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleEnablePush}
+                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold shrink-0 transition active:scale-95 shadow-sm shadow-blue-500/20 cursor-pointer"
+              >
+                Enable
+              </button>
+            </div>
+          )}
 
           {/* Notification List */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2">

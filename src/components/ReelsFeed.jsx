@@ -10,6 +10,7 @@ import axios from "axios";
 import jwt from "jsonwebtoken";
 import ReelInteractions from "./ReelInteractions";
 import LeftSidebar from "./LeftSidebar";
+import FormattedCaption from "./FormattedCaption";
 import YouTubeShortEmbed from "./YouTubeShortEmbed";
 import { getYouTubeVideoId } from "./LinkPreviewCard";
 import { FEATURE_FLAGS } from "@/utils/featureFlags";
@@ -124,6 +125,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   const hasMoreRef = useRef(true);
   const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
   const holdTimerRef = useRef(null);
+  const singleTapTimerRef = useRef(null);
 
   // Session-persistent seen set to guarantee 0% repeats during user browsing
   const seenPostsRef = useRef(new Set());
@@ -505,30 +507,93 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   };
 
   /* ==============================
+     DOUBLE-TAP & INSTANT LIKE
+  ============================== */
+  const handleDoubleTapLike = (post, clientX, clientY) => {
+    if (!post?._id) return;
+    const x = clientX || (typeof window !== "undefined" ? window.innerWidth / 2 : 200);
+    const y = clientY || (typeof window !== "undefined" ? window.innerHeight / 2 : 300);
+
+    triggerHeartBurst(x, y);
+    playPop();
+
+    const heartId = Date.now() + Math.random();
+    setDoubleTapHearts((prev) => [...prev, { id: heartId, x, y }]);
+    setTimeout(() => {
+      setDoubleTapHearts((prev) => prev.filter((h) => h.id !== heartId));
+    }, 900);
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (token) {
+      // ⚡ 0ms Optimistic like toggle on double tap
+      const currentLikes = Array.isArray(post.likes) ? post.likes : [];
+      let uid = "me";
+      try {
+        const dec = jwt.decode(token);
+        if (dec?.UserId || dec?.id) uid = String(dec.UserId || dec.id);
+      } catch (_) {}
+
+      const wasLiked = currentLikes.some((id) => String(id?._id || id) === uid);
+      if (!wasLiked) {
+        setPosts((prev) =>
+          prev.map((p) => (p._id === post._id ? { ...p, likes: [...currentLikes, uid] } : p))
+        );
+      }
+
+      axios
+        .post(`${API_BASE}/post/like/${post._id}`, {}, { headers: { "x-auth-token": token } })
+        .then((res) => {
+          if (res.data?.likes) {
+            setPosts((prev) =>
+              prev.map((p) => (p._id === post._id ? { ...p, likes: res.data.likes } : p))
+            );
+          }
+        })
+        .catch(() => {
+          if (!wasLiked) {
+            setPosts((prev) =>
+              prev.map((p) => (p._id === post._id ? { ...p, likes: currentLikes } : p))
+            );
+          }
+        });
+    }
+  };
+
+  /* ==============================
      KEYBOARD SHORTCUTS
   ============================== */
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable) return;
 
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === "j" || e.key === "J") {
         e.preventDefault();
         scrollToNext();
-      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+      } else if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "k" || e.key === "K") {
         e.preventDefault();
         scrollToPrev();
-      } else if (e.key === " " || e.key === "k" || e.key === "K") {
+      } else if (e.key === " ") {
         e.preventDefault();
         togglePlayPause();
       } else if (e.key === "m" || e.key === "M") {
         e.preventDefault();
         toggleMute();
+      } else if (e.key === "l" || e.key === "L") {
+        e.preventDefault();
+        const currentPost = posts[currentIndex];
+        if (currentPost) {
+          handleDoubleTapLike(
+            currentPost,
+            typeof window !== "undefined" ? window.innerWidth / 2 : 200,
+            typeof window !== "undefined" ? window.innerHeight / 2 : 300
+          );
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, posts.length, scrollToNext, scrollToPrev]);
+  }, [currentIndex, posts, scrollToNext, scrollToPrev]);
 
   /* ==============================
      TAP & LONG PRESS HANDLERS
@@ -556,56 +621,22 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
     const now = Date.now();
     const timeDiff = now - lastTapRef.current.time;
 
-    if (timeDiff < 320) {
-      const clientX = e.clientX || (typeof window !== "undefined" ? window.innerWidth / 2 : 200);
-      const clientY = e.clientY || (typeof window !== "undefined" ? window.innerHeight / 2 : 300);
-      triggerHeartBurst(clientX, clientY);
-      playPop();
-
-      const heartId = Date.now() + Math.random();
-      setDoubleTapHearts((prev) => [...prev, { id: heartId, x: clientX, y: clientY }]);
-      setTimeout(() => {
-        setDoubleTapHearts((prev) => prev.filter((h) => h.id !== heartId));
-      }, 900);
-
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      if (token && post?._id) {
-        // ⚡ 0ms Optimistic like toggle on double tap
-        const currentLikes = Array.isArray(post.likes) ? post.likes : [];
-        let uid = "me";
-        try {
-          const dec = jwt.decode(token);
-          if (dec?.UserId || dec?.id) uid = String(dec.UserId || dec.id);
-        } catch (_) {}
-
-        const wasLiked = currentLikes.some((id) => String(id?._id || id) === uid);
-        if (!wasLiked) {
-          setPosts((prev) =>
-            prev.map((p) => (p._id === post._id ? { ...p, likes: [...currentLikes, uid] } : p))
-          );
-        }
-
-        axios
-          .post(`${API_BASE}/post/like/${post._id}`, {}, { headers: { "x-auth-token": token } })
-          .then((res) => {
-            if (res.data?.likes) {
-              setPosts((prev) =>
-                prev.map((p) => (p._id === post._id ? { ...p, likes: res.data.likes } : p))
-              );
-            }
-          })
-          .catch(() => {
-            if (!wasLiked) {
-              setPosts((prev) =>
-                prev.map((p) => (p._id === post._id ? { ...p, likes: currentLikes } : p))
-              );
-            }
-          });
+    if (timeDiff < 300) {
+      // ⚡ Double tap detected! Clear pending single tap to prevent pause toggle flicker!
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+        singleTapTimerRef.current = null;
       }
+      handleDoubleTapLike(post, e.clientX, e.clientY);
       lastTapRef.current = { time: 0, x: 0, y: 0 };
     } else {
       lastTapRef.current = { time: now, x: e.clientX, y: e.clientY };
-      togglePlayPause();
+      // Debounce single tap slightly (240ms) so double-tap executes cleanly with zero pause jitter
+      if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+      singleTapTimerRef.current = setTimeout(() => {
+        togglePlayPause();
+        singleTapTimerRef.current = null;
+      }, 240);
     }
   };
 
@@ -954,7 +985,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                   </div>
 
                   <p className="text-xs sm:text-sm line-clamp-3 leading-snug drop-shadow-md text-zinc-100 whitespace-pre-wrap">
-                    {item.title}
+                    <FormattedCaption text={item.title} />
                   </p>
 
                   {/* Clickable Animated Audio Track Pill */}

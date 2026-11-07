@@ -23,43 +23,15 @@ import {
   FaVolumeUp,
 } from "react-icons/fa";
 import { Pin, Sparkles, Repeat2, Bookmark, Quote, ShieldCheck, MapPin, Film, Image as ImageIcon } from "lucide-react";
+import ShareModal from "./ShareModal";
+import FormattedCaption from "./FormattedCaption";
 
 /* ================= UTILS ================= */
 const safeArray = (v) => (Array.isArray(v) ? v : []);
 const API_BASE = getApiBase();
 
 function renderFormattedCaption(text) {
-  if (!text) return null;
-  const tokenRegex = /(https?:\/\/[^\s]+|#[\w\u0590-\u05ff]+|@\w+)/g;
-  const parts = text.split(tokenRegex);
-
-  return parts.map((part, i) => {
-    if (!part) return null;
-    if (part.startsWith("#")) {
-      return (
-        <a
-          key={i}
-          href={`/search?q=${encodeURIComponent(part.replace(/^#+/, ""))}`}
-          className="text-blue-500 dark:text-blue-400 font-bold hover:underline inline mr-1"
-        >
-          {part}
-        </a>
-      );
-    }
-    if (part.startsWith("@")) {
-      const handle = part.slice(1);
-      return (
-        <Link
-          key={i}
-          href={`/profile/${handle}`}
-          className="text-indigo-500 dark:text-indigo-400 font-bold hover:underline inline mr-1"
-        >
-          {part}
-        </Link>
-      );
-    }
-    return <span key={i}>{part}</span>;
-  });
+  return <FormattedCaption text={text} />;
 }
 
 function getCleanCaptionText(rawTitle, preview) {
@@ -92,6 +64,7 @@ export default function SinglePostInteractions({ initialPost }) {
   const [replyText, setReplyText] = useState({});
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [repostCount, setRepostCount] = useState(initialPost?.repostsCount || 0);
+  const [shareOpen, setShareOpen] = useState(false);
   const router = useRouter();
 
   const [isGlobalMuted, setIsGlobalMuted] = useState(true);
@@ -430,23 +403,9 @@ export default function SinglePostInteractions({ initialPost }) {
   };
 
   /* ================= SHARE ================= */
-  const handleShare = async () => {
+  const handleShare = () => {
     playTap();
-    const url = getPostShareUrl(post, window.location.origin);
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: post.title || "FondPeace Post",
-          url: url,
-        });
-      } else {
-        await navigator.clipboard.writeText(`${post.title}\n${url}`);
-        toast.success("Link copied to clipboard!");
-      }
-    } catch {
-      await navigator.clipboard.writeText(`${post.title}\n${url}`);
-      toast.success("Link copied to clipboard!");
-    }
+    setShareOpen(true);
   };
 
   const title = post.title || "";
@@ -772,9 +731,9 @@ export default function SinglePostInteractions({ initialPost }) {
                     {cmt.createdAt ? new Date(cmt.createdAt).toLocaleDateString() : ""}
                   </span>
                 </div>
-                <p className="text-sm text-[var(--text-primary)] mt-1 leading-relaxed">
-                  {cmt.CommentText}
-                </p>
+                <div className="text-sm text-[var(--text-primary)] mt-1 leading-relaxed">
+                  {renderFormattedCaption(cmt.CommentText)}
+                </div>
 
                 <div className="flex items-center gap-4 mt-2.5">
                   <button
@@ -839,9 +798,9 @@ export default function SinglePostInteractions({ initialPost }) {
                         <p className="text-xs font-bold text-gray-900 dark:text-white">
                           @{rep.userId?.username || "user"}
                         </p>
-                        <p className="text-xs text-gray-700 dark:text-gray-300 mt-0.5">
-                          {rep.replyText}
-                        </p>
+                        <div className="text-xs text-gray-700 dark:text-gray-300 mt-0.5">
+                          {renderFormattedCaption(rep.replyText)}
+                        </div>
 
                         <button
                           onClick={() => handleReplyLike(cmt._id, rep._id)}
@@ -863,6 +822,13 @@ export default function SinglePostInteractions({ initialPost }) {
           </div>
         )}
       </div>
+
+      {/* Universal Viral Share Sheet Modal */}
+      <ShareModal
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+        post={post}
+      />
     </article>
   );
 }

@@ -71,3 +71,63 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+
+/* ==========================================================================
+   WEB PUSH NOTIFICATIONS & NATIVE SYSTEM ALERTS
+   ========================================================================== */
+
+// 1. Receive Push Payload from Backend or Service Worker trigger
+self.addEventListener('push', (event) => {
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (_) {
+      data = { body: event.data.text() };
+    }
+  }
+
+  const title = data.title || 'FondPeace Community';
+  const options = {
+    body: data.body || 'You have new activity on FondPeace!',
+    icon: data.icon || '/android-chrome-192x192.png',
+    badge: '/favicon-32x32.png',
+    data: {
+      url: data.url || '/',
+      timestamp: Date.now(),
+    },
+    vibrate: [100, 50, 100],
+    actions: [
+      { action: 'open', title: 'Open FondPeace' },
+      { action: 'dismiss', title: 'Dismiss' },
+    ],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// 2. Handle Native Notification Click (Focus window or open new tab)
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  if (event.action === 'dismiss') return;
+
+  const targetUrl = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((windowClients) => {
+        // If an existing tab is open, focus it and navigate
+        for (const client of windowClients) {
+          if (client.url === targetUrl && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(targetUrl);
+        }
+      })
+  );
+});
+
