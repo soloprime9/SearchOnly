@@ -651,6 +651,53 @@ export default function AdminClient({ initialPosts }) {
               </div>
             </div>
 
+            {/* Reaction & Dismissed (Cut) Telemetry Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  <CheckCircle2 size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Allowed Alerts</p>
+                  <p className="text-2xl font-black text-emerald-600">{pushStats?.allowedCount || 0}</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                  <Clock3 size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Cut / Dismissed (✕)</p>
+                  <p className="text-2xl font-black text-slate-700">{pushStats?.dismissedCount || 0}</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                  <Activity size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Acceptance Rate</p>
+                  <p className="text-2xl font-black text-purple-600">
+                    {(pushStats?.allowedCount || 0) + (pushStats?.dismissedCount || 0) > 0
+                      ? `${Math.round(((pushStats?.allowedCount || 0) / ((pushStats?.allowedCount || 0) + (pushStats?.dismissedCount || 0))) * 100)}%`
+                      : "—"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+                  <Flame size={22} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Guest Like Attempts</p>
+                  <p className="text-2xl font-black text-rose-600">{pushStats?.guestLikes || 0}</p>
+                </div>
+              </div>
+            </div>
+
             {/* BROADCAST PUSH DISPATCHER PANEL */}
             <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-4">

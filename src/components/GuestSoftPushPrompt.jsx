@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Bell, X, Sparkles } from "lucide-react";
 import { isPushSupported, getNotificationPermission, requestPushPermission } from "@/utils/pushNotifications";
 import { playTap, playPop, playChime } from "@/utils/soundEffects";
+import { getApiBase } from "@/utils/apiConfig";
 import toast from "react-hot-toast";
 
 /**
@@ -46,6 +47,16 @@ export default function GuestSoftPushPrompt({ triggerCount = 0 }) {
     setVisible(false);
     try {
       localStorage.setItem("fond_guest_push_dismissed", String(Date.now()));
+      const apiBase = getApiBase();
+      fetch(`${apiBase}/analytics/track-activity`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "push_prompt_dismissed",
+          path: typeof window !== "undefined" ? window.location.pathname : "/shorts",
+          metadata: { reason: "cut_button_clicked", triggerCount }
+        })
+      }).catch(() => {});
     } catch (_) {}
   };
 
@@ -58,6 +69,18 @@ export default function GuestSoftPushPrompt({ triggerCount = 0 }) {
         playChime();
         toast.success("🔔 Alerts enabled! You'll catch trending drops first.");
         setVisible(false);
+        try {
+          const apiBase = getApiBase();
+          fetch(`${apiBase}/analytics/track-activity`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "push_prompt_granted",
+              path: typeof window !== "undefined" ? window.location.pathname : "/shorts",
+              metadata: { source: "soft_pill", triggerCount }
+            })
+          }).catch(() => {});
+        } catch (_) {}
       } else {
         handleDismiss();
       }

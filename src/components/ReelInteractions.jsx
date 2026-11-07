@@ -165,6 +165,20 @@ export default function ReelInteractions({ post, updatePost }) {
       playPop();
       setAuthGateAction("like reels");
       setShowAuthGate(true);
+
+      // Track guest interaction attempt
+      try {
+        fetch(`${API_BASE}/analytics/track-activity`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "guest_like_attempt",
+            postId: data._id,
+            path: typeof window !== "undefined" ? window.location.pathname : "/shorts"
+          })
+        }).catch(() => {});
+      } catch (_) {}
+
       return;
     }
 
