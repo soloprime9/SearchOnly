@@ -13,6 +13,7 @@ import LeftSidebar from "./LeftSidebar";
 import FormattedCaption from "./FormattedCaption";
 import YouTubeShortEmbed from "./YouTubeShortEmbed";
 import GuestSoftPushPrompt from "./GuestSoftPushPrompt";
+import { recordGuestTopicInterest } from "@/utils/deviceFingerprint";
 import { getYouTubeVideoId } from "./LinkPreviewCard";
 import { FEATURE_FLAGS } from "@/utils/featureFlags";
 import { getApiBase } from "@/utils/apiConfig";
@@ -171,9 +172,9 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
 
   /* ==============================
      PASSIVE WATCH TELEMETRY LOGGER
-     Automatically tracks watch duration & completion
+     Automatically tracks watch duration, completion, loop count, drop-off & mute status
   ============================== */
-  const logWatchTelemetry = useCallback(async (postId, duration, completed) => {
+  const logWatchTelemetry = useCallback(async (postId, duration, completed, extraMeta = {}) => {
     if (!postId) return;
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -185,13 +186,16 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
           completed: Boolean(completed),
           screen: typeof window !== "undefined" ? `${window.innerWidth}x${window.innerHeight}` : "",
           source: `shorts_feed_${feedSortMode}`,
+          loopCount: extraMeta.loopCount || 0,
+          dropOffSecond: extraMeta.dropOffSecond || 0,
+          isMuted: typeof extraMeta.isMuted === "boolean" ? extraMeta.isMuted : isMuted,
         },
         {
           headers: token ? { "x-auth-token": token } : {},
         }
       );
     } catch (_) {}
-  }, [feedSortMode]);
+  }, [feedSortMode, isMuted]);
 
   /* ==============================
      AUTOPLAY & VIEW INTERSECTION OBSERVER
@@ -240,6 +244,10 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                 seenPostsRef.current.add(id);
                 saveSeenToSession();
                 logWatchTelemetry(id, 2, false);
+
+                // Passive Guest Interest Vectoring (Ghost Profile)
+                const interestTag = activePost.category || (Array.isArray(activePost.tags) ? activePost.tags[0] : null);
+                if (interestTag) recordGuestTopicInterest(interestTag);
               }
             }
           }
@@ -647,12 +655,29 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   const handleTimeUpdate = (e, post) => {
     const video = e.currentTarget;
     if (video.duration) {
-      const progress = (video.currentTime / video.duration) * 100;
+      const current = video.currentTime;
+
+      // Video Loop Detection (TikTok viral completion multiplier)
+      if (post._lastTime && current < post._lastTime - 0.5) {
+        post._loopCount = (post._loopCount || 0) + 1;
+        logWatchTelemetry(post._id, video.duration, true, {
+          loopCount: post._loopCount,
+          dropOffSecond: Number(current.toFixed(1)),
+          isMuted
+        });
+      }
+      post._lastTime = current;
+
+      const progress = (current / video.duration) * 100;
       setVideoProgress(progress);
 
       if (progress >= 80 && post?._id && !post._loggedCompleted) {
         post._loggedCompleted = true;
-        logWatchTelemetry(post._id, video.currentTime, true);
+        logWatchTelemetry(post._id, current, true, {
+          loopCount: post._loopCount || 0,
+          dropOffSecond: Number(current.toFixed(1)),
+          isMuted
+        });
       }
     }
   };

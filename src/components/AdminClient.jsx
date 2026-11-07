@@ -536,28 +536,90 @@ export default function AdminClient({ initialPosts }) {
                           <td className="py-3.5 px-5">
                             <div className="flex flex-col">
                               <span className="font-mono font-bold text-slate-800 break-all">{pagePath}</span>
-                              <span className="text-[10px] uppercase font-bold text-purple-600 tracking-wider">
-                                {actionType}
-                              </span>
+                              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded tracking-wider ${
+                                  actionType === "rage_click" ? "bg-rose-600 text-white animate-pulse" :
+                                  actionType === "exit_intent" ? "bg-amber-100 text-amber-900 border border-amber-300" :
+                                  actionType === "scroll_milestone" ? "bg-cyan-50 text-cyan-700 border border-cyan-200" :
+                                  actionType.includes("clipboard") ? "bg-amber-100 text-amber-800" :
+                                  actionType.includes("tab_") ? "bg-slate-100 text-slate-600" :
+                                  "text-purple-600 bg-purple-50"
+                                }`}>
+                                  {actionType}
+                                </span>
+                                {item.metadata?.depthPercent && (
+                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800">
+                                    📜 {item.metadata.depthPercent}% Depth
+                                  </span>
+                                )}
+                                {item.metadata?.pwa?.isPwa && (
+                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+                                    PWA App
+                                  </span>
+                                )}
+                              </div>
+                              {item.metadata?.snippet && (
+                                <span className="text-[10px] text-slate-500 italic truncate max-w-[150px]" title={item.metadata.snippet}>
+                                  📋 Copied: "{item.metadata.snippet}"
+                                </span>
+                              )}
+                              {item.metadata?.pastedLength && (
+                                <span className="text-[10px] text-amber-700 italic">
+                                  📥 Pasted {item.metadata.pastedLength} chars {item.metadata.isUrl ? "(URL)" : ""}
+                                </span>
+                              )}
+                              {item.metadata?.targetText && (
+                                <span className="text-[10px] text-rose-600 font-semibold truncate max-w-[150px]" title={item.metadata.targetText}>
+                                  ⚠️ Clicked "{item.metadata.targetText}"
+                                </span>
+                              )}
                             </div>
                           </td>
 
                           {/* Device & Screen */}
                           <td className="py-3.5 px-5">
                             <div className="flex items-center gap-2">
-                              <span className={`p-1.5 rounded-lg text-xs ${deviceType === "mobile" ? "bg-blue-50 text-blue-600" : deviceType === "tablet" ? "bg-amber-50 text-amber-600" : "bg-slate-100 text-slate-600"}`}>
+                              <span className={`p-1.5 rounded-lg text-xs shrink-0 ${deviceType === "mobile" ? "bg-blue-50 text-blue-600" : deviceType === "tablet" ? "bg-amber-50 text-amber-600" : "bg-slate-100 text-slate-600"}`}>
                                 {deviceType === "mobile" ? <Smartphone size={13} /> : deviceType === "tablet" ? <Tablet size={13} /> : <Monitor size={13} />}
                               </span>
-                              <span className="capitalize font-bold text-slate-700">{deviceType}</span>
-                              {item.screenResolution && (
-                                <span className="text-[10px] text-slate-400 font-mono">({item.screenResolution})</span>
-                              )}
+                              <div className="flex flex-col min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="capitalize font-bold text-slate-700">{deviceType}</span>
+                                  {item.screenResolution && (
+                                    <span className="text-[10px] text-slate-400 font-mono">({item.screenResolution})</span>
+                                  )}
+                                  {item.metadata?.hardware?.ramMemory && item.metadata?.hardware?.ramMemory !== "unknown" && (
+                                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">
+                                      {item.metadata.hardware.ramMemory}
+                                    </span>
+                                  )}
+                                  {item.metadata?.jsEngine?.engine && (
+                                    <span className="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-slate-100 text-slate-500" title="JS Engine">
+                                      ⚙️ {item.metadata.jsEngine.engine.split(' ')[0]}
+                                    </span>
+                                  )}
+                                </div>
+                                {item.metadata?.gpuRenderer && item.metadata.gpuRenderer !== "unknown" && (
+                                  <span className="text-[9px] text-indigo-600 font-mono truncate max-w-[170px]" title={item.metadata.gpuRenderer}>
+                                    ⚡ {item.metadata.gpuRenderer}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </td>
 
-                          {/* Referrer */}
-                          <td className="py-3.5 px-5 text-slate-500 max-w-[160px] truncate" title={item.referrer || "Direct"}>
-                            {item.referrer ? item.referrer.replace(/^https?:\/\//, '') : "Direct Visit"}
+                          {/* Referrer & Ad Campaign Attribution */}
+                          <td className="py-3.5 px-5 text-slate-500 max-w-[160px]">
+                            <div className="flex flex-col min-w-0">
+                              <span className="truncate text-xs font-medium" title={item.referrer || "Direct"}>
+                                {item.referrer ? item.referrer.replace(/^https?:\/\//, '') : "Direct Visit"}
+                              </span>
+                              {item.metadata?.adAttribution?.utm_source && (
+                                <span className="text-[9px] font-bold text-indigo-600 truncate mt-0.5" title={`Source: ${item.metadata.adAttribution.utm_source} | Campaign: ${item.metadata.adAttribution.utm_campaign || 'none'}`}>
+                                  🎯 Ad: {item.metadata.adAttribution.utm_source}
+                                </span>
+                              )}
+                            </div>
                           </td>
 
                           {/* Engagement / Duration */}
