@@ -1,5 +1,5 @@
-# FondPeace Robots.txt - High-Performance Social Media Crawler Configuration
-
-# Googlebot (Main Google Search Indexer)
-User-agent: Googlebot
+User-agent: *
 Allow: /
+
+# Sitemap Location
+Sitemap: https://www.fondpeace.com/sitemap.xml
