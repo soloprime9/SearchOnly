@@ -149,12 +149,14 @@ export const STORE_PRODUCTS = [
 
     // Tangible Deliverables
     deliverables: [
-      "⚡ 1-Click Zero-Terminal Execution Launcher (.bat / .sh) with step-by-step visual setup guide",
-      "📜 150+ High-Retention Viral Story Prompts across 5 niches (Psychology, Philosophy, Wealth, Tech, Humor)",
-      "🎨 5 Locked Character Consistency Style Formulas (Classic B&W, Modern Pop, Caveman Satire, Minimal Line Art, Cyberpunk)",
-      "🎙️ 100% Free Neural Voice Stack Setup (Edge-TTS 100+ natural voices, zero monthly subscriptions)",
+      "📱 Android & iPhone 1-Tap Cloud Studio (Google Colab / Mobile Web UI — Run on phone with Zero Install)",
+      "✂️ CapCut Mobile 1-Tap Template & 500+ Green-Screen Stickman Action Overlay Pack",
+      "💻 Windows 1-Click .bat & Mac/Linux .sh Desktop Launchers (Zero-Terminal Setup)",
+      "📜 150+ High-Retention Viral Story Prompts across 5 Top-RPM Niches (Psychology, Wealth, Stoicism, Tech, Satire)",
+      "🎨 5 Character Consistency Art Styles (Classic B&W, Modern Pop Red-Beanie, Caveman, Minimal Line Art, Cyberpunk)",
+      "🎙️ 100% Free Neural Voice Engine (Edge-TTS 100+ natural voices, saves $60/mo on ElevenLabs)",
       "🎵 1,000+ Curated Royalty-Free Foley SFX (Whooshes, Pops, Scratches) & Storytelling Lo-Fi Music Pack",
-      "💰 Faceless Channel Monetization Blueprint: How to scale to $1,000 - $5,000/mo via AdSense, Affiliates & Client Retainers",
+      "💰 Faceless Channel Monetization Blueprint: How to scale to $1,000 - $5,000/mo via AdSense, Affiliates & $800/mo Client Retainers",
       "💎 Lifetime Commercial White-Label License: Create unlimited monetized videos for yourself and clients"
     ],
 
