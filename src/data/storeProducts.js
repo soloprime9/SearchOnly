@@ -155,8 +155,9 @@ export const STORE_PRODUCTS = [
 
     // Tangible Deliverables
     deliverables: [
+      "🎁 FREE BONUS INCLUDED: FondPeace Carousel Studio Pro (Zero-code multi-slide Instagram & LinkedIn carousel designer with 1-click HD PNG export for Android, iOS, Mac & PC)",
       "🧩 StickMotion AI Chrome & Edge Browser Extension (1-Click script & prompt generator)",
-      "🌐 Standalone Visual Multi-AI Web Studio (Gemini, Claude, GPT-4o, DeepSeek, Groq with smart key filtering)",
+      "🌐 Standalone Visual Multi-AI Web Studio (Gemini 2.5 Pro/Flash, Claude 3.5 Sonnet, GPT-4o/o1, DeepSeek V3/R1, Groq Llama 3.3, and Local Ollama with smart key filtering)",
       "📱 Android & iPhone 1-Tap Cloud Studio (Google Colab / Mobile Web UI — Run on phone with Zero Install)",
       "✂️ CapCut Mobile 1-Tap Template & 500+ Green-Screen Stickman Action Overlay Pack",
       "📖 11-Part Master Illustrated Setup & Monetization Guide (How to setup each device, upload, hack algorithms, and earn $1k-$5k/mo)",
