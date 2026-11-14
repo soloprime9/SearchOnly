@@ -393,16 +393,15 @@ export default function LeftSidebar({ sticky = false }) {
       </div>
 
       {/* ═══════════════════════════════════════════════════
-          MOBILE BOTTOM NAVIGATION (Glassmorphic)
+          MOBILE BOTTOM NAVIGATION (Exact 4 Core Tabs: Home, Shorts, FondPeace Store, Profile)
       ═══════════════════════════════════════════════════ */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[var(--bg-canvas)] backdrop-blur-2xl border-t border-[var(--border-subtle)]">
-        {/* Safe area for notched phones - 5 Optimized Tabs */}
+        {/* Safe area for notched phones - 4 Core Actions */}
         <div className="flex items-center justify-around px-2 pt-2 pb-[max(8px,env(safe-area-inset-bottom))]">
           {/* 1. Home */}
           <Link
             href="/"
-            onClick={() => playTap()}
-            className={`flex flex-col items-center justify-center gap-1 min-w-[50px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
+            className={`flex flex-col items-center justify-center gap-1 min-w-[56px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
               pathname === "/" ? "text-white font-extrabold" : "text-zinc-400"
             }`}
           >
@@ -417,8 +416,7 @@ export default function LeftSidebar({ sticky = false }) {
           {/* 2. Shorts */}
           <Link
             href="/shorts"
-            onClick={() => playTap()}
-            className={`flex flex-col items-center justify-center gap-1 min-w-[50px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
+            className={`flex flex-col items-center justify-center gap-1 min-w-[56px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
               pathname?.startsWith("/short") ? "text-white font-extrabold" : "text-zinc-400"
             }`}
           >
@@ -430,35 +428,18 @@ export default function LeftSidebar({ sticky = false }) {
             <span className="text-[9.5px]">Shorts</span>
           </Link>
 
-          {/* 3. Explore */}
-          <Link
-            href="/search"
-            onClick={() => playTap()}
-            className={`flex flex-col items-center justify-center gap-1 min-w-[50px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
-              pathname?.startsWith("/search") ? "text-white font-extrabold" : "text-zinc-400"
-            }`}
-          >
-            <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200 ${
-              pathname?.startsWith("/search") ? "bg-white text-black scale-110 shadow-md shadow-white/20" : ""
-            }`}>
-              <FaSearch className={`text-[17px] transition-colors ${pathname?.startsWith("/search") ? "text-black" : "text-zinc-400"}`} />
-            </div>
-            <span className="text-[9.5px]">Explore</span>
-          </Link>
-
-          {/* 4. STORE - (RIGHT SE 2ND! HIGH-VISIBILITY GLOW) */}
+          {/* 3. FONDPEACE STORE (PROMINENT GLOWING BEACON) */}
           <Link
             href="/store"
-            onClick={() => playTap()}
-            className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[54px] py-1 rounded-xl transition-all duration-150 active:scale-95 group ${
+            className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[76px] py-1 rounded-xl transition-all duration-150 active:scale-95 group ${
               pathname?.startsWith("/store") ? "text-amber-400 font-black scale-105" : "text-amber-400/95"
             }`}
           >
             <div
               className={`
-                relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200
+                relative w-9 h-8 flex items-center justify-center rounded-xl transition-all duration-200
                 bg-gradient-to-tr from-amber-500/25 via-orange-500/20 to-yellow-500/25
-                border border-amber-400/50 shadow-[0_0_12px_rgba(245,158,11,0.4)]
+                border border-amber-400/60 shadow-[0_0_14px_rgba(245,158,11,0.45)]
                 ${pathname?.startsWith("/store") ? "bg-amber-400 text-black scale-110 shadow-lg shadow-amber-400/60 border-amber-300" : "group-hover:border-amber-400 group-hover:scale-105"}
               `}
             >
@@ -471,13 +452,13 @@ export default function LeftSidebar({ sticky = false }) {
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full ring-2 ring-white dark:ring-[#070a13] animate-ping" />
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full shadow-xs" />
             </div>
-            <span className="text-[9.5px] font-extrabold tracking-tight text-amber-400 flex items-center gap-0.5">
-              <span>Store</span>
-              <span className="text-[7.5px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono font-black">HOT</span>
+            <span className="text-[9.5px] font-black tracking-tight text-amber-400 flex items-center gap-0.5 whitespace-nowrap">
+              <span>FondPeace Store</span>
+              <span className="text-[7.5px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono font-black">⚡</span>
             </span>
           </Link>
 
-          {/* Mobile Profile / Sign-in navigation item */}
+          {/* 4. Mobile Profile / Sign-in navigation item */}
           {(() => {
             const profileHref = username ? `/profile/${username}` : "/login";
             const isProfileActive = username

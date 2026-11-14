@@ -1,6 +1,7 @@
 import Link from "next/link";
 import VillageClient from "@/components/VillageClient";
 import LeftSidebar from "@/components/LeftSidebar";
+import FirstTimeStoreRedirect from "@/components/FirstTimeStoreRedirect";
 import TrendingShortsRail from "@/components/TrendingShortsRail";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
 import { Coins, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
@@ -83,6 +84,8 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-blue-600 selection:text-white overflow-x-hidden transition-colors duration-200">
+      {/* First-time visitor store discovery redirect */}
+      <FirstTimeStoreRedirect />
       <div
         className="
           grid 

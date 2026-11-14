@@ -214,6 +214,25 @@ export default function StorePage() {
                   className="group rounded-3xl p-5 sm:p-6 bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-amber-400/50 hover:shadow-xl transition-all duration-200 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
+                    {/* Visual Product Banner Preview */}
+                    <Link
+                      href={`/store/${prod.id}`}
+                      className="block relative w-full h-44 sm:h-52 rounded-2xl overflow-hidden bg-[var(--bg-canvas)] border border-[var(--border-subtle)] group/img shadow-sm"
+                    >
+                      <img
+                        src={prod.image}
+                        alt={prod.title}
+                        className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                      <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10.5px] font-black uppercase tracking-wider bg-black/80 backdrop-blur-md text-amber-400 border border-amber-400/30">
+                        {prod.badge}
+                      </span>
+                      <span className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg text-xs font-black bg-black/80 backdrop-blur-md text-white border border-white/20">
+                        ${prod.priceUSD}
+                      </span>
+                    </Link>
+
                     {/* Top Badge & Rating Row */}
                     <div className="flex items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30">
@@ -223,7 +242,7 @@ export default function StorePage() {
                         <Star className="w-3.5 h-3.5 fill-current" />
                         <span>{prod.rating}</span>
                         <span className="text-[var(--text-muted)] font-normal text-[11px]">
-                          ({prod.reviewsCount})
+                          ({prod.reviewsCount} reviews)
                         </span>
                       </div>
                     </div>

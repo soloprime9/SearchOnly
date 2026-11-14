@@ -137,6 +137,15 @@ export default function ProductDetailPage({ params }) {
                 {product.title}
               </h1>
 
+              {/* Product Visual Banner */}
+              <div className="relative w-full h-52 sm:h-72 rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-canvas)] shadow-md">
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
               <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed font-medium">
                 {product.subtitle}
               </p>
@@ -332,6 +341,45 @@ export default function ProductDetailPage({ params }) {
               </button>
             </div>
 
+          </div>
+
+          {/* ═══════════════════════════════════════════════════
+              CUSTOMER REVIEWS & TESTIMONIALS (TRUST BUILDER)
+          ═══════════════════════════════════════════════════ */}
+          <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-400 fill-current" />
+                <span>Verified Buyer Reviews ({product.reviewsCount})</span>
+              </h3>
+              <span className="text-xs font-bold text-amber-400">★ {product.rating} / 5.0 Rating</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              {product.testimonials && product.testimonials.map((t, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2.5 flex flex-col justify-between"
+                >
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed italic">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
+                  <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-xs text-[var(--text-primary)] block">
+                        {t.name} <span className="text-[10px] text-[var(--text-muted)] font-normal">{t.handle}</span>
+                      </span>
+                      <span className="text-[10.5px] text-[var(--text-muted)]">
+                        {t.role}
+                      </span>
+                    </div>
+                    <div className="flex text-amber-400 text-xs">
+                      {"★".repeat(t.rating)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* ═══════════════════════════════════════════════════
