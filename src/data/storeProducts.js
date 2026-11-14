@@ -128,6 +128,64 @@ export const STORE_TESTIMONIALS = [
 
 export const STORE_PRODUCTS = [
   {
+    id: "stickmotion-studio",
+    slug: "stickmotion-studio",
+    title: "🎬 StickMotion AI: Turnkey Stickman & Motion Director Studio",
+    subtitle: "150+ High-Retention Story Scripts, 1-Click Zero-Terminal Setup, Character Consistency Prompts & 1,000+ SFX Audio Pack",
+    category: "video",
+    badge: "🔥 VIRAL CREATOR STUDIO",
+    badgeColor: "amber",
+    rating: 5.0,
+    tech: ["Stickman Director", "OpenMotion", "Edge-TTS", "Gemini 2.5", "FFmpeg", "CapCut"],
+    priceUSD: 19,
+    originalPriceUSD: 69,
+    image: "/images/products/stickmotion-studio.png",
+    topmateUrl: "https://topmate.io/fondpeace",
+    sampleDownloadUrl: "#",
+
+    // Core Value Proposition & Problem Solved
+    problemSolved: "Setting up open-source video repos like Stickman Director or OpenMotion requires terminal commands, Git, and expensive APIs. Viewers want to make viral animated videos but lack scripts, prompts, character consistency, and monetization roadmaps.",
+    solutionBenefit: "A turnkey creator operating system. Includes 1-click Windows/Mac execution scripts, 150+ psychology and stoic story prompts, 5 locked character style formulas (Classic B&W, Modern Pop, Caveman, Line Art), free neural voice configs, 1,000+ SFX/music tracks, and a step-by-step faceless monetization blueprint.",
+
+    // Tangible Deliverables
+    deliverables: [
+      "⚡ 1-Click Zero-Terminal Execution Launcher (.bat / .sh) with step-by-step visual setup guide",
+      "📜 150+ High-Retention Viral Story Prompts across 5 niches (Psychology, Philosophy, Wealth, Tech, Humor)",
+      "🎨 5 Locked Character Consistency Style Formulas (Classic B&W, Modern Pop, Caveman Satire, Minimal Line Art, Cyberpunk)",
+      "🎙️ 100% Free Neural Voice Stack Setup (Edge-TTS 100+ natural voices, zero monthly subscriptions)",
+      "🎵 1,000+ Curated Royalty-Free Foley SFX (Whooshes, Pops, Scratches) & Storytelling Lo-Fi Music Pack",
+      "💰 Faceless Channel Monetization Blueprint: How to scale to $1,000 - $5,000/mo via AdSense, Affiliates & Client Retainers",
+      "💎 Lifetime Commercial White-Label License: Create unlimited monetized videos for yourself and clients"
+    ],
+
+    // Real-World ROI (Fayada)
+    roiBenefits: [
+      "⏱️ Create 3 to 5 viral animated storytelling videos in under 30 minutes every day",
+      "💵 Save $500+/month by avoiding expensive animators and $60/month voiceover subscriptions",
+      "📈 Tap into the booming faceless YouTube/TikTok/Reels algorithm with proven psychological retention pacing"
+    ],
+
+    testimonials: [
+      {
+        name: "Devon Miller",
+        handle: "@devon_shorts",
+        role: "Faceless YouTube Creator (120k subs)",
+        text: "The 1-click launcher and the 5 character style prompts made all the difference. My stickman philosophy shorts jumped to 80% average watch time.",
+        rating: 5
+      },
+      {
+        name: "Ananya Sen",
+        handle: "@ananya_creates",
+        role: "Storytelling Animator",
+        text: "Saved weeks of prompt testing. The free Edge-TTS setup guide alone saved me from paying ElevenLabs $50 every month. Total no-brainer for $19.",
+        rating: 5
+      }
+    ],
+
+    fileFormat: "Production Studio Vault (.zip, 140 MB) + Markdown Prompts + Audio Pack",
+    whoIsThisFor: "Faceless Creators, YouTubers, TikTok/Reel Operators, Storytellers & Marketers looking to build high-retention animated channels."
+  },
+  {
     id: "ai-developer-cursor-vault",
     slug: "ai-developer-cursor-vault",
     title: "⚡ The 2026 AI Developer & Cursor Agent Prompt System",
