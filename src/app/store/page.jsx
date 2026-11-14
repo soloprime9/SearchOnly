@@ -100,49 +100,27 @@ export default function StorePage() {
         <main className="w-full min-w-0 max-w-6xl mx-auto py-3 sm:py-6 pb-24 lg:pb-12 space-y-6">
           
           {/* ═══════════════════════════════════════════════════
-              STORE HEADER
+              STORE HEADER (CLEAN TITLE ONLY - ZERO CLUTTER)
           ═══════════════════════════════════════════════════ */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] flex items-center gap-2">
-                  <span>⚡ FondPeace Store</span>
-                </h1>
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                  Digital Tools & AI Prompts
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium">
-                Production AI prompts, developer toolkits & creator engines with instant digital download.
-              </p>
-              <div className="flex flex-wrap items-center gap-2.5 pt-1 text-[11px] text-[var(--text-secondary)]">
-                <span className="flex items-center gap-1 text-emerald-400 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Instant Delivery</span>
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1 text-blue-400 font-medium">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Commercial License</span>
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1 text-amber-400 font-medium">
-                  <Globe className="w-3.5 h-3.5" />
-                  <span>Global Checkout (USD & UPI)</span>
-                </span>
-              </div>
+          <div className="flex items-center justify-between gap-4 py-1">
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] flex items-center gap-2 tracking-tight">
+                <span className="text-amber-400">⚡</span>
+                <span>FondPeace Store</span>
+              </h1>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 hidden sm:inline-flex">
+                Official Digital Store
+              </span>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={handleCopyLink}
-                className="px-3.5 py-2 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1.5 cursor-pointer"
-                title="Share Store Link"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>Share Store</span>
-              </button>
-            </div>
+            <button
+              onClick={handleCopyLink}
+              className="px-3.5 py-1.5 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Share Store Link"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Share Store</span>
+            </button>
           </div>
 
           {/* ═══════════════════════════════════════════════════

@@ -99,22 +99,23 @@ export default function ProductDetailPage({ params }) {
         {/* Product Details Main Container */}
         <main className="w-full min-w-0 max-w-5xl mx-auto py-3 sm:py-6 pb-24 lg:pb-12 space-y-6">
           
-          {/* Breadcrumb Navigation */}
-          <div className="flex items-center justify-between gap-3 text-xs">
+          {/* Top Bar Navigation (Back to Store) */}
+          <div className="flex items-center justify-between gap-3 text-xs py-1">
             <Link
               href="/store"
-              className="inline-flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-amber-400 font-semibold transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-amber-400 font-bold transition shadow-sm cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <ArrowLeft className="w-4 h-4" />
               <span>Back to Store</span>
             </Link>
 
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1.5 cursor-pointer shadow-sm text-xs font-semibold"
               title="Share Product Link"
             >
               <Share2 className="w-3.5 h-3.5" />
+              <span>Share Product</span>
             </button>
           </div>
 
