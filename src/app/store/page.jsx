@@ -8,7 +8,6 @@ import {
   Sparkles,
   ShoppingBag,
   ShieldCheck,
-  Download,
   Check,
   ArrowRight,
   Zap,
@@ -19,34 +18,22 @@ import {
   CreditCard,
   ChevronDown,
   ChevronUp,
-  Copy,
   CheckCircle2,
   Lock,
   Layers,
-  FileCode,
   Flame,
-  X,
   Share2
 } from "lucide-react";
-import { playTap, playChime, playPop } from "@/utils/soundEffects";
-import { triggerConfetti } from "@/utils/confetti";
 import { toast } from "@/utils/toast";
 
-// ==========================================
-// DIGITAL PRODUCTS CATALOG DATA
-// ==========================================
-const PRODUCTS = STORE_PRODUCTS;
-
 export default function StorePage() {
-  const [currency, setCurrency] = useState("INR"); // 'INR' or 'USD'
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [openFaq, setOpenFaq] = useState(null);
 
   // Filtered Products
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => {
+    return STORE_PRODUCTS.filter((p) => {
       const matchCat = activeCategory === "all" || p.category === activeCategory;
       const matchSearch =
         searchQuery.trim() === "" ||
@@ -57,47 +44,34 @@ export default function StorePage() {
     });
   }, [activeCategory, searchQuery]);
 
-  const toggleCurrency = (newCurr) => {
-    playTap();
-    setCurrency(newCurr);
-  };
-
   const handleCheckout = (product) => {
-    playChime();
-    triggerConfetti();
-    // Direct Topmate checkout URL
     const url = product.topmateUrl || "https://topmate.io/fondpeace";
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const handleCopyLink = () => {
-    playPop();
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
-      toast.success("Store link copied to clipboard! 🚀");
+      toast.success("Store link copied to clipboard!");
     }
   };
 
   const faqs = [
     {
-      q: "How does payment work with Indian Banks (UP Gramin Bank, Aryavart Bank, SBI)?",
-      a: "100% seamlessly! When you pay or receive earnings through our Topmate store checkout, all payments support Indian UPI (PhonePe, Google Pay, Paytm, BHIM) and net banking. Payouts are routed directly to your Regional Rural Bank (UP Gramin Bank) or any national bank via standard IMPS/NEFT with zero currency conversion hurdles."
+      q: "How does payment work for International and Indian buyers?",
+      a: "100% automated via Topmate smart checkout! International buyers pay directly in US Dollars ($ USD) via Visa, Mastercard, American Express, Apple Pay, and Google Pay with Stripe security. Indian buyers automatically see the price converted to INR and can pay instantly via UPI (PhonePe, GPay, Paytm) or Net Banking."
     },
     {
-      q: "Can international customers buy in USD ($) from outside India?",
-      a: "Yes! International customers can pay instantly using Visa, Mastercard, American Express, Apple Pay, and Google Pay in US Dollars ($ USD) or Euros (€ EUR). Stripe handles global transactions automatically."
+      q: "How are the digital files delivered after purchase?",
+      a: "Instant and automated! Right after your checkout completes on Topmate, an instant download button appears on your screen, and an automated backup email with your secure lifetime download link is delivered to your inbox within 10 seconds."
     },
     {
-      q: "How are digital files delivered after purchase?",
-      a: "Delivery is instant and automated. As soon as your checkout completes on Topmate, an instant download button appears on your screen, and an automated backup email with your secure download links and license keys is delivered within 10 seconds."
+      q: "Do I get commercial rights to use and monetize these tools?",
+      a: "Yes, 100%! All software kits, prompt vaults, and creator tools include an unlimited commercial white-label license. You can use them for personal projects, client deliverables, or paid SaaS launches without paying any royalties."
     },
     {
-      q: "Do I get commercial rights to use and modify the code and prompts?",
-      a: "Yes, 100%! All software stacks and prompt vaults come with an unlimited commercial license. You can use them for personal projects, client work, or deploy them commercially without paying any royalty."
-    },
-    {
-      q: "Are future updates included in the purchase?",
-      a: "Yes! You get lifetime access to all future updates, new .cursorrules additions, and updated framework configurations as new AI models are released."
+      q: "Will I get future updates as new AI models come out?",
+      a: "Yes! Your purchase grants lifetime access to all future updates, updated .cursorrules, and new prompt frameworks as Claude, Gemini, and OpenAI release new model iterations."
     }
   ];
 
@@ -127,75 +101,46 @@ export default function StorePage() {
           {/* ═══════════════════════════════════════════════════
               HERO HEADER SECTION
           ═══════════════════════════════════════════════════ */}
-          <div className="relative rounded-3xl p-6 sm:p-10 overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-surface)] backdrop-blur-2xl">
-            {/* Subtle Gradient Glow Background */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-
+          <div className="relative rounded-3xl p-6 sm:p-10 overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-3 max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold shadow-xs">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>FondPeace Digital Store & Turnkey AI Vault</span>
+                  <span>FondPeace Official Digital Store & AI Tools</span>
                 </div>
 
                 <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15]">
-                  Production <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 bg-clip-text text-transparent">AI Prompts</span> & Turnkey Dev Stacks
+                  Production <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 bg-clip-text text-transparent">AI Systems</span> & Turnkey Dev Stacks
                 </h1>
 
                 <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-                  Curated .cursorrules, production AI prompt vaults, and turnkey GitHub stacks. Built for engineers, creators, and builders worldwide with instant download delivery.
+                  Real tools that solve painful problems and save weeks of work. Battle-tested .cursorrules prompt engines, 24-hour SaaS kits, and automated viral video frameworks with instant digital download delivery.
                 </p>
 
                 {/* Trust Badges Row */}
                 <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-[var(--text-secondary)] font-medium">
                   <span className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    <span>Instant Automated Delivery</span>
+                    <span>Instant Digital Delivery</span>
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-blue-500" />
-                    <span>Commercial Rights Included</span>
+                    <span>Commercial White-Label License</span>
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1.5">
-                    <CreditCard className="w-4 h-4 text-amber-500" />
-                    <span>UPI & Global Cards Verified</span>
+                    <Globe className="w-4 h-4 text-amber-400" />
+                    <span>Universal Checkout (USD & UPI)</span>
                   </span>
                 </div>
               </div>
 
-              {/* Action Side Controls (Currency Switcher & Share) */}
-              <div className="flex flex-col sm:flex-row md:flex-col items-start sm:items-center md:items-end gap-3 shrink-0">
-                {/* Currency Switcher Pill */}
-                <div className="p-1 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] flex items-center shadow-inner">
-                  <button
-                    onClick={() => toggleCurrency("INR")}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 ${
-                      currency === "INR"
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                    }`}
-                  >
-                    <span>🇮🇳 ₹ INR (UPI)</span>
-                  </button>
-                  <button
-                    onClick={() => toggleCurrency("USD")}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 ${
-                      currency === "USD"
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                    }`}
-                  >
-                    <span>🌐 $ USD (Cards)</span>
-                  </button>
-                </div>
-
-                {/* Share Button */}
+              {/* Action Controls */}
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleCopyLink}
-                  className="px-3.5 py-1.5 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1.5 active:scale-95"
+                  className="px-3.5 py-2 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1.5"
                   title="Share Store Link"
                 >
                   <Share2 className="w-3.5 h-3.5" />
@@ -212,29 +157,26 @@ export default function StorePage() {
             {/* Category Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs font-bold">
               {[
-                { id: "all", label: "All Stacks", count: PRODUCTS.length },
-                { id: "prompts", label: "AI Prompt Vaults", count: 1 },
-                { id: "video", label: "Video Automation", count: 1 },
-                { id: "saas", label: "Turnkey SaaS", count: 3 }
+                { id: "all", label: "All Products", count: STORE_PRODUCTS.length },
+                { id: "prompts", label: "AI Prompts & Rules", count: 2 },
+                { id: "saas", label: "SaaS & Dev Kits", count: 1 },
+                { id: "video", label: "Viral Video Systems", count: 1 }
               ].map((tab) => {
                 const isActive = activeCategory === tab.id;
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => {
-                      playTap();
-                      setActiveCategory(tab.id);
-                    }}
-                    className={`px-3.5 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
+                    onClick={() => setActiveCategory(tab.id)}
+                    className={`px-3.5 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 cursor-pointer ${
                       isActive
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
-                        : "bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle-hover)]"
+                        ? "bg-amber-500 text-black font-black shadow-md shadow-amber-500/20"
+                        : "bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
                     }`}
                   >
                     <span>{tab.label}</span>
                     <span
                       className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                        isActive ? "bg-white/20 text-white" : "bg-[var(--bg-canvas)] text-[var(--text-muted)]"
+                        isActive ? "bg-black/20 text-black" : "bg-[var(--bg-canvas)] text-[var(--text-muted)]"
                       }`}
                     >
                       {tab.count}
@@ -251,8 +193,8 @@ export default function StorePage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search prompts, stacks..."
-                className="w-full pl-9 pr-3 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-blue-500/40 focus:border-blue-500 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition"
+                placeholder="Search tools, prompts..."
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-amber-400/40 focus:border-amber-400 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition"
               />
             </div>
           </div>
@@ -262,25 +204,19 @@ export default function StorePage() {
           ═══════════════════════════════════════════════════ */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filteredProducts.map((prod) => {
-              const currentPrice = currency === "INR" ? `₹${prod.priceINR}` : `$${prod.priceUSD}`;
-              const originalPrice = currency === "INR" ? `₹${prod.originalPriceINR}` : `$${prod.originalPriceUSD}`;
               const discountPercent = Math.round(
-                ((currency === "INR"
-                  ? prod.originalPriceINR - prod.priceINR
-                  : prod.originalPriceUSD - prod.priceUSD) /
-                  (currency === "INR" ? prod.originalPriceINR : prod.originalPriceUSD)) *
-                  100
+                ((prod.originalPriceUSD - prod.priceUSD) / prod.originalPriceUSD) * 100
               );
 
               return (
                 <div
                   key={prod.id}
-                  className="group rounded-3xl p-5 sm:p-6 bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-200 flex flex-col justify-between"
+                  className="group rounded-3xl p-5 sm:p-6 bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-amber-400/50 hover:shadow-xl transition-all duration-200 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
                     {/* Top Badge & Rating Row */}
                     <div className="flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-orange-500/15 text-orange-500 border border-orange-500/30">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30">
                         {prod.badge}
                       </span>
                       <div className="flex items-center gap-1 text-xs font-bold text-amber-400">
@@ -294,8 +230,8 @@ export default function StorePage() {
 
                     {/* Product Title & Subtitle */}
                     <div>
-                      <Link href={`/store/${prod.id}`} onClick={() => playTap()}>
-                        <h3 className="text-lg sm:text-xl font-black text-[var(--text-primary)] group-hover:text-blue-500 transition-colors leading-snug">
+                      <Link href={`/store/${prod.id}`}>
+                        <h3 className="text-lg sm:text-xl font-black text-[var(--text-primary)] group-hover:text-amber-400 transition-colors leading-snug">
                           {prod.title}
                         </h3>
                       </Link>
@@ -304,7 +240,7 @@ export default function StorePage() {
                       </p>
                     </div>
 
-                    {/* Tech Tags */}
+                    {/* Tech / Framework Tags */}
                     <div className="flex flex-wrap gap-1.5">
                       {prod.tech.map((t, idx) => (
                         <span
@@ -316,58 +252,65 @@ export default function StorePage() {
                       ))}
                     </div>
 
-                    {/* Short Description */}
-                    <p className="text-xs text-[var(--text-secondary)] line-clamp-2 leading-relaxed">
-                      {prod.description}
-                    </p>
-
-                    {/* Included Features Bullet Points */}
-                    <div className="p-3 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-1.5 text-xs text-[var(--text-secondary)]">
-                      <div className="font-bold text-[var(--text-primary)] text-[11px] flex items-center justify-between pb-1 border-b border-[var(--border-subtle)]">
-                        <span>📦 What&apos;s Included in Bundle:</span>
-                        <span className="text-emerald-500 font-black">Save {discountPercent}%</span>
+                    {/* The Problem & Solution Box (REAL FAYADA) */}
+                    <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2 text-xs">
+                      <div>
+                        <span className="text-[10.5px] font-bold text-rose-400 uppercase tracking-wider block">
+                          Problem Solved:
+                        </span>
+                        <p className="text-[11.5px] text-[var(--text-secondary)] leading-relaxed mt-0.5">
+                          {prod.problemSolved}
+                        </p>
                       </div>
-                      {prod.includes.slice(0, 3).map((item, i) => (
-                        <div key={i} className="flex items-start gap-1.5 text-[11.5px]">
-                          <Check className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
-                          <span className="line-clamp-1">{item}</span>
+
+                      <div className="pt-2 border-t border-[var(--border-subtle)]">
+                        <span className="text-[10.5px] font-bold text-emerald-400 uppercase tracking-wider block">
+                          What You Get (Key Deliverables):
+                        </span>
+                        <div className="space-y-1 mt-1 text-[11.5px] text-[var(--text-secondary)]">
+                          {prod.deliverables.slice(0, 3).map((d, i) => (
+                            <div key={i} className="flex items-start gap-1.5">
+                              <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                              <span className="line-clamp-1">{d}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Card Bottom / Price & CTA Row */}
+                  {/* Card Bottom / Universal USD Price & Action */}
                   <div className="pt-4 mt-4 border-t border-[var(--border-subtle)] flex items-center justify-between gap-3">
                     <div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">
-                          {currentPrice}
+                        <span className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
+                          ${prod.priceUSD}
                         </span>
                         <span className="text-xs text-[var(--text-muted)] line-through">
-                          {originalPrice}
+                          ${prod.originalPriceUSD}
+                        </span>
+                        <span className="text-[10px] font-black text-emerald-500 ml-1">
+                          SAVE {discountPercent}%
                         </span>
                       </div>
-                      <span className="text-[10px] text-[var(--text-muted)] font-medium">
-                        Instant digital access
+                      <span className="text-[10px] text-[var(--text-muted)] font-medium block">
+                        Instant digital download access
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {/* View Details Preview Button */}
                       <Link
                         href={`/store/${prod.id}`}
-                        onClick={() => playTap()}
-                        className="px-3 py-2 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition active:scale-95 inline-flex items-center"
+                        className="px-3.5 py-2 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
                       >
                         Details
                       </Link>
 
-                      {/* Buy Now / Checkout Button */}
                       <button
                         onClick={() => handleCheckout(prod)}
-                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black shadow-md shadow-blue-500/25 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                        className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
                       >
-                        <span>Get Access</span>
+                        <span>Get Access (${prod.priceUSD})</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -378,27 +321,27 @@ export default function StorePage() {
           </div>
 
           {/* ═══════════════════════════════════════════════════
-              TRUST & BANKING VERIFICATION BANNER
+              UNIVERSAL PAYMENT & BANKING TRUST BANNER
           ═══════════════════════════════════════════════════ */}
           <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-                  100% Indian Banking & Worldwide Payment Verified
+                  Universal Global Checkout & Instant Payouts
                 </h2>
                 <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-0.5">
-                  Payouts settle directly into Indian Regional Rural Banks (UP Gramin Bank) & all national banks with zero international forex hassle.
+                  Powered by Topmate smart geo-routing. International buyers pay in USD via Stripe; Indian buyers can pay via UPI with instant automated currency conversion.
                 </p>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-bold flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Gramin Bank Ready</span>
-                </span>
                 <span className="px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold flex items-center gap-1.5">
                   <Globe className="w-4 h-4" />
                   <span>Stripe Global USD</span>
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-bold flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Indian UPI Auto-Converted</span>
                 </span>
               </div>
             </div>
@@ -406,42 +349,42 @@ export default function StorePage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
               <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-1">
                 <div className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                  <CreditCard className="w-4 h-4 text-emerald-500" />
-                  <span>Indian UPI & Net Banking</span>
+                  <Globe className="w-4 h-4 text-blue-500" />
+                  <span>135+ Countries Supported</span>
                 </div>
                 <p className="text-[var(--text-secondary)] text-[11.5px]">
-                  Supports PhonePe, Google Pay, Paytm, BHIM, and direct IMPS transfers.
+                  Instant checkout via Visa, Mastercard, American Express, Apple Pay, and Google Pay.
                 </p>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-1">
                 <div className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                  <Globe className="w-4 h-4 text-blue-500" />
-                  <span>135+ Countries Supported</span>
+                  <CreditCard className="w-4 h-4 text-emerald-500" />
+                  <span>Direct Bank Payouts</span>
                 </div>
                 <p className="text-[var(--text-secondary)] text-[11.5px]">
-                  International buyers can pay in USD, EUR, or GBP via credit/debit card with Stripe security.
+                  Earnings settle directly into your verified bank account via standard weekly IMPS/NEFT transfers.
                 </p>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-1">
                 <div className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
                   <Lock className="w-4 h-4 text-amber-500" />
-                  <span>Instant Encrypted Delivery</span>
+                  <span>Instant Delivery & Updates</span>
                 </div>
                 <p className="text-[var(--text-secondary)] text-[11.5px]">
-                  Instant download on screen plus a verified email receipt with lifetime re-download links.
+                  Files are delivered on your screen immediately and sent to your email with lifetime access.
                 </p>
               </div>
             </div>
           </div>
 
           {/* ═══════════════════════════════════════════════════
-              FREQUENTLY ASKED QUESTIONS (ACCORDION)
+              FREQUENTLY ASKED QUESTIONS
           ═══════════════════════════════════════════════════ */}
           <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
             <h2 className="text-base sm:text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-blue-500" />
+              <ShieldCheck className="w-5 h-5 text-amber-400" />
               <span>Frequently Asked Questions</span>
             </h2>
 
@@ -454,15 +397,12 @@ export default function StorePage() {
                     className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden transition-all"
                   >
                     <button
-                      onClick={() => {
-                        playTap();
-                        setOpenFaq(isOpen ? null : i);
-                      }}
-                      className="w-full p-4 text-left font-bold text-xs sm:text-sm text-[var(--text-primary)] flex items-center justify-between gap-3 hover:text-blue-500 transition-colors"
+                      onClick={() => setOpenFaq(isOpen ? null : i)}
+                      className="w-full p-4 text-left font-bold text-xs sm:text-sm text-[var(--text-primary)] flex items-center justify-between gap-3 hover:text-amber-400 transition-colors cursor-pointer"
                     >
                       <span>{faq.q}</span>
                       {isOpen ? (
-                        <ChevronUp className="w-4 h-4 text-blue-500 shrink-0" />
+                        <ChevronUp className="w-4 h-4 text-amber-400 shrink-0" />
                       ) : (
                         <ChevronDown className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
                       )}
@@ -480,99 +420,6 @@ export default function StorePage() {
 
         </main>
       </div>
-
-      {/* ═══════════════════════════════════════════════════
-          PRODUCT DETAIL QUICK-VIEW MODAL
-      ═══════════════════════════════════════════════════ */}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-lg rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-2xl p-6 sm:p-8 space-y-5 overflow-hidden animate-scaleIn">
-            
-            {/* Close Button */}
-            <button
-              onClick={() => setSelectedProduct(null)}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition active:scale-95"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            {/* Header info */}
-            <div>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-orange-500/15 text-orange-500 border border-orange-500/30">
-                {selectedProduct.badge}
-              </span>
-              <h2 className="text-xl font-black text-[var(--text-primary)] mt-2">
-                {selectedProduct.title}
-              </h2>
-              <p className="text-xs text-[var(--text-secondary)] mt-1">
-                {selectedProduct.subtitle}
-              </p>
-            </div>
-
-            {/* Full description */}
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              {selectedProduct.description}
-            </p>
-
-            {/* What is included */}
-            <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2">
-              <span className="text-xs font-bold text-[var(--text-primary)] block">
-                Everything Included in this Package:
-              </span>
-              <div className="space-y-1.5">
-                {selectedProduct.includes.map((inc, i) => (
-                  <div key={i} className="flex items-start gap-2 text-xs text-[var(--text-secondary)]">
-                    <Check className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
-                    <span>{inc}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Deliverables details */}
-            <div className="text-[11px] text-[var(--text-muted)] space-y-1 font-mono">
-              <div>📦 Format: {selectedProduct.deliverables}</div>
-              <div>⚖️ License: Commercial Unlimited White-Label Rights</div>
-            </div>
-
-            {/* Modal Bottom CTA */}
-            <div className="flex items-center justify-between gap-3 pt-3 border-t border-[var(--border-subtle)]">
-              <div>
-                <span className="text-2xl font-black text-[var(--text-primary)]">
-                  {currency === "INR" ? `₹${selectedProduct.priceINR}` : `$${selectedProduct.priceUSD}`}
-                </span>
-                <span className="text-xs text-[var(--text-muted)] line-through ml-2">
-                  {currency === "INR" ? `₹${selectedProduct.originalPriceINR}` : `$${selectedProduct.originalPriceUSD}`}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {selectedProduct.sampleDownloadUrl && selectedProduct.sampleDownloadUrl !== "#" && (
-                  <a
-                    href={selectedProduct.sampleDownloadUrl}
-                    download
-                    onClick={() => playPop()}
-                    className="px-3.5 py-2.5 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] transition flex items-center gap-1.5 active:scale-95"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Preview</span>
-                  </a>
-                )}
-
-                <button
-                  onClick={() => handleCheckout(selectedProduct)}
-                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black shadow-md shadow-blue-500/25 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
-                >
-                  <span>Instant Checkout</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

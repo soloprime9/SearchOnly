@@ -108,6 +108,36 @@ export default async function HomePage() {
             FondPeace - Trending Short Video Reels, Discussions & Social Creator Platform
           </h1>
 
+          {/* New Store Launch Banner */}
+          <Link
+            href="/store"
+            className="group flex items-center justify-between p-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-blue-500/10 border border-amber-500/30 hover:border-amber-400 transition-all shadow-md shadow-amber-500/5 cursor-pointer"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10.5px] font-black text-amber-400 uppercase tracking-wider">
+                    NEW LAUNCH
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-bold">
+                    $9 - $29
+                  </span>
+                </div>
+                <p className="text-xs text-[var(--text-primary)] font-bold truncate">
+                  The 2026 AI Developer & Creator Tools Store is Live!
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 text-xs font-extrabold text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-2">
+              <span className="hidden sm:inline">Explore Store</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </Link>
+
           {/* Community Feed Stream with In-Feed Trending Shorts & Creator Discovery */}
           <div id="community-feed-stream" className="w-full">
             <VillageClient initialPosts={posts} />

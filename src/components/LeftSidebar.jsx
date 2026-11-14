@@ -204,11 +204,11 @@ export default function LeftSidebar({ sticky = false }) {
         <nav className="flex flex-col gap-1 mt-3 px-2 flex-1 overflow-hidden">
           {menu.map((item, i) => {
             const active = isActive(item.href);
+            const isStore = item.href === "/store";
             return (
               <Link
                 key={i}
                 href={item.href}
-                onClick={() => playTap()}
                 className={`
                   relative flex items-center gap-3.5
                   h-11 px-2.5 rounded-xl
@@ -216,14 +216,20 @@ export default function LeftSidebar({ sticky = false }) {
                   group
                   ${
                     active
-                      ? "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
+                      ? isStore
+                        ? "bg-amber-500/20 text-amber-400 font-extrabold border border-amber-500/40 shadow-xs"
+                        : "bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
+                      : isStore
+                      ? "text-amber-400/90 hover:text-amber-300 hover:bg-amber-500/10 font-bold"
                       : "text-gray-600 dark:text-zinc-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white"
                   }
                 `}
               >
                 {/* Active Glowing Indicator */}
                 {active && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-blue-500 rounded-r-full" />
+                  <span className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full ${
+                    isStore ? "bg-amber-400 shadow-[0_0_8px_#f59e0b]" : "bg-blue-500"
+                  }`} />
                 )}
 
                 <div className="relative shrink-0">
@@ -231,10 +237,23 @@ export default function LeftSidebar({ sticky = false }) {
                     className={`
                       shrink-0 text-[18px] ml-0.5
                       transition-transform duration-200
-                      ${active ? "text-blue-600 dark:text-blue-400" : "group-hover:scale-110 text-zinc-400 group-hover:text-white"}
+                      ${
+                        isStore
+                          ? "text-amber-400 group-hover:scale-110 drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]"
+                          : active
+                          ? "text-blue-600 dark:text-blue-400"
+                          : "group-hover:scale-110 text-zinc-400 group-hover:text-white"
+                      }
                     `}
                   />
-                  {item.badge > 0 && (
+                  {/* Glowing Beacon on Store Icon */}
+                  {isStore && (
+                    <>
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full ring-2 ring-white dark:ring-[#070a13] animate-ping" />
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full" />
+                    </>
+                  )}
+                  {item.badge > 0 && !isStore && (
                     <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 rounded-full ring-2 ring-white dark:ring-[#070a13] animate-pulse" />
                   )}
                 </div>
@@ -246,8 +265,12 @@ export default function LeftSidebar({ sticky = false }) {
                     ${expanded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-3 pointer-events-none w-0"}
                   `}
                 >
-                  <span>{item.label}</span>
-                  {item.badge > 0 && (
+                  <span className={isStore ? "text-amber-400 font-extrabold" : ""}>{item.label}</span>
+                  {isStore ? (
+                    <span className="ml-1.5 px-1.5 py-0.5 text-[9.5px] rounded-md bg-gradient-to-r from-amber-500 to-orange-500 text-black font-black uppercase tracking-wider shadow-sm animate-pulse">
+                      HOT
+                    </span>
+                  ) : item.badge > 0 && (
                     <span className="ml-1.5 px-1.5 py-0.5 text-[10px] rounded-full bg-blue-600 text-white font-bold">
                       {item.badge}
                     </span>
@@ -373,39 +396,86 @@ export default function LeftSidebar({ sticky = false }) {
           MOBILE BOTTOM NAVIGATION (Glassmorphic)
       ═══════════════════════════════════════════════════ */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[var(--bg-canvas)] backdrop-blur-2xl border-t border-[var(--border-subtle)]">
-        {/* Safe area for notched phones */}
+        {/* Safe area for notched phones - 5 Optimized Tabs */}
         <div className="flex items-center justify-around px-2 pt-2 pb-[max(8px,env(safe-area-inset-bottom))]">
-          {menu.slice(0, 4).map((item, i) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={i}
-                href={item.href}
-                onClick={() => playTap()}
-                className={`
-                  flex flex-col items-center justify-center gap-1
-                  min-w-[52px] py-1 rounded-xl
-                  transition-all duration-150 active:scale-90
-                  ${active ? "text-white font-extrabold" : "text-zinc-400"}
-                `}
-              >
-                <div
-                  className={`
-                    relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200
-                    ${active ? "bg-white text-black scale-110 shadow-md shadow-white/20" : ""}
-                  `}
-                >
-                  <item.icon className={`text-[18px] transition-colors ${active ? "text-black" : "text-zinc-400"}`} />
-                  {active && (
-                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-black rounded-full" />
-                  )}
-                </div>
-                <span className="text-[9.5px] transition-colors">
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
+          {/* 1. Home */}
+          <Link
+            href="/"
+            onClick={() => playTap()}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[50px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
+              pathname === "/" ? "text-white font-extrabold" : "text-zinc-400"
+            }`}
+          >
+            <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200 ${
+              pathname === "/" ? "bg-white text-black scale-110 shadow-md shadow-white/20" : ""
+            }`}>
+              <FaHome className={`text-[18px] transition-colors ${pathname === "/" ? "text-black" : "text-zinc-400"}`} />
+            </div>
+            <span className="text-[9.5px]">Home</span>
+          </Link>
+
+          {/* 2. Shorts */}
+          <Link
+            href="/shorts"
+            onClick={() => playTap()}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[50px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
+              pathname?.startsWith("/short") ? "text-white font-extrabold" : "text-zinc-400"
+            }`}
+          >
+            <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200 ${
+              pathname?.startsWith("/short") ? "bg-white text-black scale-110 shadow-md shadow-white/20" : ""
+            }`}>
+              <FaVideo className={`text-[18px] transition-colors ${pathname?.startsWith("/short") ? "text-black" : "text-zinc-400"}`} />
+            </div>
+            <span className="text-[9.5px]">Shorts</span>
+          </Link>
+
+          {/* 3. Explore */}
+          <Link
+            href="/search"
+            onClick={() => playTap()}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[50px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
+              pathname?.startsWith("/search") ? "text-white font-extrabold" : "text-zinc-400"
+            }`}
+          >
+            <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200 ${
+              pathname?.startsWith("/search") ? "bg-white text-black scale-110 shadow-md shadow-white/20" : ""
+            }`}>
+              <FaSearch className={`text-[17px] transition-colors ${pathname?.startsWith("/search") ? "text-black" : "text-zinc-400"}`} />
+            </div>
+            <span className="text-[9.5px]">Explore</span>
+          </Link>
+
+          {/* 4. STORE - (RIGHT SE 2ND! HIGH-VISIBILITY GLOW) */}
+          <Link
+            href="/store"
+            onClick={() => playTap()}
+            className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[54px] py-1 rounded-xl transition-all duration-150 active:scale-95 group ${
+              pathname?.startsWith("/store") ? "text-amber-400 font-black scale-105" : "text-amber-400/95"
+            }`}
+          >
+            <div
+              className={`
+                relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200
+                bg-gradient-to-tr from-amber-500/25 via-orange-500/20 to-yellow-500/25
+                border border-amber-400/50 shadow-[0_0_12px_rgba(245,158,11,0.4)]
+                ${pathname?.startsWith("/store") ? "bg-amber-400 text-black scale-110 shadow-lg shadow-amber-400/60 border-amber-300" : "group-hover:border-amber-400 group-hover:scale-105"}
+              `}
+            >
+              <FaShoppingBag
+                className={`text-[16px] transition-colors ${
+                  pathname?.startsWith("/store") ? "text-black" : "text-amber-400"
+                }`}
+              />
+              {/* Pulsing Beacon Dot */}
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full ring-2 ring-white dark:ring-[#070a13] animate-ping" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-400 rounded-full shadow-xs" />
+            </div>
+            <span className="text-[9.5px] font-extrabold tracking-tight text-amber-400 flex items-center gap-0.5">
+              <span>Store</span>
+              <span className="text-[7.5px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono font-black">HOT</span>
+            </span>
+          </Link>
 
           {/* Mobile Profile / Sign-in navigation item */}
           {(() => {

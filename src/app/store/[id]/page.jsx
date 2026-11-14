@@ -18,90 +18,60 @@ import {
   Globe,
   Sparkles,
   CheckCircle2,
-  Code2,
-  Layers,
   ChevronDown,
   ChevronUp,
-  FileCode2,
   Zap,
   Flame,
-  Copy
+  Clock,
+  Layers,
+  HelpCircle,
+  FileCheck
 } from "lucide-react";
-import { playTap, playChime, playPop } from "@/utils/soundEffects";
-import { triggerConfetti } from "@/utils/confetti";
 import { toast } from "@/utils/toast";
 
 export default function ProductDetailPage({ params }) {
-  // Unwrap params using React.use() for Next.js 15 App Router compatibility
   const resolvedParams = use(params);
-  const router = useRouter();
   const productId = resolvedParams?.id;
 
-  const [currency, setCurrency] = useState("INR"); // 'INR' or 'USD'
-  const [activeTab, setActiveTab] = useState("overview"); // 'overview', 'preview', 'reviews'
   const [openFaq, setOpenFaq] = useState(null);
-  const [copiedCodeIndex, setCopiedCodeIndex] = useState(null);
 
   // Find product
   const product = STORE_PRODUCTS.find(
     (p) => p.id === productId || p.slug === productId
   ) || STORE_PRODUCTS[0];
 
-  const currentPrice = currency === "INR" ? `₹${product.priceINR}` : `$${product.priceUSD}`;
-  const originalPrice = currency === "INR" ? `₹${product.originalPriceINR}` : `$${product.originalPriceUSD}`;
   const discountPercent = Math.round(
-    ((currency === "INR"
-      ? product.originalPriceINR - product.priceINR
-      : product.originalPriceUSD - product.priceUSD) /
-      (currency === "INR" ? product.originalPriceINR : product.originalPriceUSD)) *
-      100
+    ((product.originalPriceUSD - product.priceUSD) / product.originalPriceUSD) * 100
   );
 
   const handleCheckout = () => {
-    playChime();
-    triggerConfetti();
     const url = product.topmateUrl || "https://topmate.io/fondpeace";
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const handleShare = () => {
-    playPop();
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
-      toast.success("Product link copied to clipboard! 🚀");
-    }
-  };
-
-  const handleCopySample = (code, index) => {
-    playPop();
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(code);
-      setCopiedCodeIndex(index);
-      toast.success("Sample code copied to clipboard!");
-      setTimeout(() => setCopiedCodeIndex(null), 2500);
+      toast.success("Product link copied to clipboard!");
     }
   };
 
   const faqs = [
     {
-      q: "How does payment & payouts work with UP Gramin Bank / Indian Banks?",
-      a: "100% seamlessly! Topmate is built in India for global digital sellers. Domestic buyers pay via Indian UPI (PhonePe, Google Pay, Paytm, BHIM) or Net Banking. Topmate deposits 100% of the sale price into your UP Gramin Bank or any Indian bank account via direct IMPS/NEFT without currency conversion or PayPal blocks."
+      q: "What exact format will I receive the files in?",
+      a: product.fileFormat || "Instant digital download package (.zip, .pdf, and raw markdown template files)."
     },
     {
-      q: "Who pays the Topmate platform fee and taxes?",
-      a: "By choosing 'Pass fee to buyer' in Topmate settings, Topmate handles platform convenience fees directly from the customer at checkout. This guarantees zero deductions from your pocket, ensuring you keep 100% of your earnings."
+      q: "Can I use these prompts and tools for my clients or commercial SaaS?",
+      a: "Yes, 100%! Every purchase includes a lifetime commercial white-label license. You can use it in your company, for client freelance projects, or build and sell a SaaS product without paying any royalties."
     },
     {
-      q: "Can international customers buy in USD ($)?",
-      a: "Yes! International developers pay in USD ($) or EUR (€) via Stripe using Visa, Mastercard, American Express, Apple Pay, or Google Pay."
+      q: "How does payment work for International vs Indian buyers?",
+      a: "Topmate handles this automatically via geo-IP smart checkout. International buyers can checkout in USD ($) using Stripe (Credit Cards, Apple Pay, Google Pay). Indian buyers will automatically see the equivalent in INR and can pay via UPI (PhonePe, GPay, Paytm) or Net Banking."
     },
     {
-      q: "How are files delivered after checkout?",
-      a: "Instant automated delivery! Once payment completes on Topmate, an instant download link appears on your screen and is simultaneously emailed to your inbox with lifetime access."
-    },
-    {
-      q: "Can I use and modify these rules for commercial client work?",
-      a: "Yes! All prompt vaults and software stacks include a 100% commercial white-label license. You can use them for personal projects, enterprise work, or freelance client deliverables without paying any royalties."
+      q: "What if I need help or have questions after downloading?",
+      a: "All purchases come with our direct creator email support. You can reach out directly from your Topmate download receipt for any configuration guidance."
     }
   ];
 
@@ -128,72 +98,38 @@ export default function ProductDetailPage({ params }) {
         {/* Product Details Main Container */}
         <main className="w-full min-w-0 max-w-5xl mx-auto py-3 sm:py-6 pb-24 lg:pb-12 space-y-6">
           
-          {/* Breadcrumb Navigation & Top Actions */}
+          {/* Breadcrumb Navigation */}
           <div className="flex items-center justify-between gap-3 text-xs">
             <Link
               href="/store"
-              onClick={() => playTap()}
-              className="inline-flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-blue-500 font-semibold transition-colors"
+              className="inline-flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-amber-400 font-semibold transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Digital Store</span>
+              <span>Back to Store</span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              {/* Currency Toggle */}
-              <div className="p-0.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center text-xs font-bold shadow-inner">
-                <button
-                  onClick={() => {
-                    playTap();
-                    setCurrency("INR");
-                  }}
-                  className={`px-2.5 py-1 rounded-lg transition-all ${
-                    currency === "INR"
-                      ? "bg-blue-600 text-white shadow-xs"
-                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                  }`}
-                >
-                  🇮🇳 ₹ INR
-                </button>
-                <button
-                  onClick={() => {
-                    playTap();
-                    setCurrency("USD");
-                  }}
-                  className={`px-2.5 py-1 rounded-lg transition-all ${
-                    currency === "USD"
-                      ? "bg-blue-600 text-white shadow-xs"
-                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                  }`}
-                >
-                  🌐 $ USD
-                </button>
-              </div>
-
-              {/* Share Button */}
-              <button
-                onClick={handleShare}
-                className="p-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition active:scale-95"
-                title="Share Product"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            <button
+              onClick={handleShare}
+              className="p-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer"
+              title="Share Product Link"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {/* ═══════════════════════════════════════════════════
-              PRODUCT HERO & PRICING SPLIT
+              HERO & PRICING SPLIT GRID
           ═══════════════════════════════════════════════════ */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* Left 7 Columns: Product Header & Tech Details */}
+            {/* Left 7 Columns: Core Value & Problem Breakdown */}
             <div className="lg:col-span-7 space-y-4">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-orange-500/15 text-orange-500 border border-orange-500/30">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30">
                   {product.badge}
                 </span>
-                <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                  {product.fileSize || "Instant Download"}
+                <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  Instant Download
                 </span>
               </div>
 
@@ -205,7 +141,7 @@ export default function ProductDetailPage({ params }) {
                 {product.subtitle}
               </p>
 
-              {/* Ratings & Social Proof */}
+              {/* Ratings */}
               <div className="flex flex-wrap items-center gap-3 text-xs">
                 <div className="flex items-center gap-1 font-bold text-amber-400">
                   <Star className="w-4 h-4 fill-current" />
@@ -215,9 +151,9 @@ export default function ProductDetailPage({ params }) {
                   </span>
                 </div>
                 <span className="text-[var(--text-muted)]">•</span>
-                <div className="flex items-center gap-1 font-mono text-[var(--text-secondary)]">
+                <div className="flex items-center gap-1 text-[var(--text-secondary)] font-mono">
                   <Flame className="w-3.5 h-3.5 text-orange-500" />
-                  <span>{product.starsGithub} GitHub stars equivalence</span>
+                  <span>{product.starsGithub} community rating</span>
                 </div>
               </div>
 
@@ -233,88 +169,95 @@ export default function ProductDetailPage({ params }) {
                 ))}
               </div>
 
-              {/* Full Description */}
-              <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed pt-2">
-                {product.description}
-              </p>
+              {/* Target Audience Pill */}
+              {product.whoIsThisFor && (
+                <div className="p-3.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
+                  <span className="font-bold text-[var(--text-primary)] block mb-1">
+                    🎯 Who Is This Built For:
+                  </span>
+                  <p>{product.whoIsThisFor}</p>
+                </div>
+              )}
 
-              {/* What You Get Checklist */}
-              <div className="p-4 sm:p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-2.5">
-                <h3 className="font-bold text-xs sm:text-sm text-[var(--text-primary)] flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
-                  <span>📦 Full Commercial Bundle Inclusions:</span>
-                  <span className="text-emerald-500 font-black text-xs">Save {discountPercent}% Today</span>
-                </h3>
-                <div className="space-y-2">
-                  {product.includes.map((item, i) => (
-                    <div key={i} className="flex items-start gap-2 text-xs sm:text-[13px] text-[var(--text-secondary)]">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
+              {/* The Core Problem & Solution (WHY BUY THIS) */}
+              <div className="p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3">
+                <div>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                    <span>The Problem It Solves:</span>
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed mt-1">
+                    {product.problemSolved}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-[var(--border-subtle)]">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                    <span>The Solution & Direct Value:</span>
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed mt-1">
+                    {product.solutionBenefit}
+                  </p>
                 </div>
               </div>
+
             </div>
 
-            {/* Right 5 Columns: Sticky Pricing & Zero-Cut Topmate Box */}
+            {/* Right 5 Columns: Sticky Pricing & Checkout Card */}
             <div className="lg:col-span-5 space-y-4">
-              <div className="sticky top-6 p-6 rounded-3xl bg-[var(--bg-surface)] border border-blue-500/30 shadow-2xl shadow-blue-500/5 space-y-5">
+              <div className="sticky top-6 p-6 rounded-3xl bg-[var(--bg-surface)] border border-amber-400/40 shadow-2xl space-y-5">
                 
                 {/* Price Display */}
                 <div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight">
-                      {currentPrice}
+                      ${product.priceUSD}
                     </span>
                     <span className="text-sm text-[var(--text-muted)] line-through">
-                      {originalPrice}
+                      ${product.originalPriceUSD}
                     </span>
-                    <span className="ml-auto px-2 py-0.5 rounded-md text-xs font-extrabold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                    <span className="ml-auto px-2 py-0.5 rounded-md text-xs font-black bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
                       SAVE {discountPercent}%
                     </span>
                   </div>
                   <p className="text-xs text-[var(--text-muted)] mt-1 font-medium">
-                    One-time payment • Lifetime free updates included
+                    One-time payment • Lifetime access with free future updates
                   </p>
                 </div>
 
                 {/* Instant Checkout Button */}
                 <button
                   onClick={handleCheckout}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-400 text-white font-extrabold text-sm shadow-xl shadow-blue-500/25 transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm shadow-xl shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                 >
                   <Zap className="w-4 h-4 fill-current" />
-                  <span>Get Instant Access Now</span>
-                  <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                  <span>Get Instant Access (${product.priceUSD})</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
                 </button>
 
-                {/* Topmate Direct Payout & Fee Protection Guarantee */}
-                <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2 text-xs">
+                {/* Universal Payment Guarantee */}
+                <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-1.5 text-xs">
                   <div className="font-bold text-[var(--text-primary)] text-[11.5px] flex items-center gap-1.5 text-emerald-500">
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Topmate Zero-Pocket-Cut Guaranteed</span>
+                    <span>Universal Checkout (USD & UPI)</span>
                   </div>
                   <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-                    Customer platform fees and taxes are processed transparently at checkout. 100% of the net sale value transfers directly to your verified <strong>UP Gramin Bank</strong> or Indian bank account weekly via IMPS/NEFT.
+                    International buyers pay via Stripe (Credit Card, Apple Pay). Indian buyers can pay via UPI with instant automatic currency conversion.
                   </p>
-                  <div className="pt-1.5 border-t border-[var(--border-subtle)] flex items-center justify-between text-[10.5px] text-[var(--text-muted)] font-mono">
-                    <span>UPI: PhonePe / GPay / Paytm</span>
-                    <span>Global: Stripe / Cards</span>
-                  </div>
                 </div>
 
                 {/* Trust Inclusions */}
                 <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
                   <div className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-blue-500" />
+                    <Check className="w-3.5 h-3.5 text-amber-400" />
                     <span>Instant on-screen & email download link</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-blue-500" />
-                    <span>Commercial resale & client rights included</span>
+                    <Check className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Commercial white-label license included</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-blue-500" />
-                    <span>Format: {product.deliverables}</span>
+                    <Check className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Format: {product.fileFormat || "Digital Download Package"}</span>
                   </div>
                 </div>
 
@@ -324,159 +267,71 @@ export default function ProductDetailPage({ params }) {
           </div>
 
           {/* ═══════════════════════════════════════════════════
-              SNEAK-PEEK & LOCKED VAULT TEASER
-              (Showing real samples while keeping the vault locked)
+              DELIVERABLES & CONCRETE FAYADA (WHAT YOU GET)
           ═══════════════════════════════════════════════════ */}
           <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-6">
             
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/10 text-blue-500 mb-1">
-                  <Code2 className="w-3.5 h-3.5" />
-                  <span>Vault Preview & Sneak-Peek</span>
-                </div>
-                <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)]">
-                  Inspect What&apos;s Inside (Sample Snippets vs Full Vault)
-                </h2>
-                <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                  See the exact production quality before purchasing. Below are 2 full free preview rules; the remaining 48+ are unlocked immediately after checkout.
-                </p>
-              </div>
-
-              <span className="text-xs font-mono font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 shrink-0">
-                2 Free Samples • 48+ Locked
-              </span>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+                Everything Included in this Package
+              </h2>
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1">
+                You get the complete, unredacted production assets immediately upon ordering.
+              </p>
             </div>
 
-            {/* Free Samples Cards */}
-            <div className="space-y-4">
-              {product.sampleSnippets && product.sampleSnippets.map((sample, idx) => (
+            {/* Deliverables Checklist */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {product.deliverables.map((item, i) => (
                 <div
-                  key={idx}
-                  className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden"
+                  key={i}
+                  className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] flex items-start gap-2.5 text-xs sm:text-sm text-[var(--text-secondary)]"
                 >
-                  <div className="p-3.5 px-4 bg-[var(--bg-surface-elevated)] border-b border-[var(--border-subtle)] flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <FileCode2 className="w-4 h-4 text-blue-500" />
-                      <span className="font-bold text-xs sm:text-sm text-[var(--text-primary)]">
-                        {sample.title}
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-500/15 text-emerald-500">
-                        FREE SAMPLE
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={() => handleCopySample(sample.code, idx)}
-                      className="px-2.5 py-1 rounded-lg bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[11px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1 active:scale-95"
-                    >
-                      {copiedCodeIndex === idx ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-500" />
-                          <span>Copied</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3" />
-                          <span>Copy Sample</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  <pre className="p-4 text-xs font-mono text-[var(--text-secondary)] overflow-x-auto leading-relaxed bg-[var(--bg-canvas)]">
-                    <code>{sample.code}</code>
-                  </pre>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span className="font-medium text-[var(--text-primary)]">{item}</span>
                 </div>
               ))}
             </div>
 
-            {/* ═══════════════════════════════════════════════════
-                LOCKED VAULT TEASER LIST (FROSTED GLASS EFFECT)
-            ═══════════════════════════════════════════════════ */}
-            <div className="relative rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-5 overflow-hidden">
-              <div className="space-y-2 mb-4">
-                <span className="text-xs font-bold text-[var(--text-primary)] block">
-                  Remaining Items in Vault (Included with Instant Access):
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[var(--text-secondary)]">
-                  {product.lockedSnippets && product.lockedSnippets.map((locked, i) => (
-                    <div
-                      key={i}
-                      className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-between gap-2"
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <Lock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                        <span className="truncate font-medium">{locked.title}</span>
-                      </div>
-                      <span className="text-[10px] font-bold text-amber-400 uppercase shrink-0">
-                        Locked
-                      </span>
+            {/* Direct ROI Benefits (Real Fayada) */}
+            {product.roiBenefits && (
+              <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-2">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-amber-400">
+                  ⚡ The Return On Investment (Fayada):
+                </h3>
+                <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
+                  {product.roiBenefits.map((b, idx) => (
+                    <div key={idx} className="flex items-start gap-2 font-medium">
+                      <span>{b}</span>
                     </div>
                   ))}
                 </div>
               </div>
+            )}
 
-              {/* Glassmorphic Locked CTA Overlay at Bottom */}
-              <div className="p-6 rounded-2xl bg-gradient-to-t from-[var(--bg-surface)] via-[var(--bg-surface)]/90 to-transparent border border-blue-500/20 text-center space-y-3 mt-4">
-                <div className="w-10 h-10 rounded-2xl bg-blue-600/15 border border-blue-500/30 text-blue-500 flex items-center justify-center mx-auto shadow-md">
-                  <Lock className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-base sm:text-lg font-black text-[var(--text-primary)]">
-                    Unlock All 50+ Production Rules & Turnkey Stacks
-                  </h4>
-                  <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto mt-1">
-                    Get instant lifetime access to the complete unredacted codebase, raw .cursorrules files, and all future 2026 updates for only {currentPrice}.
-                  </p>
-                </div>
-                <button
-                  onClick={handleCheckout}
-                  className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black shadow-lg shadow-blue-500/25 transition-all inline-flex items-center gap-2 active:scale-95 cursor-pointer"
-                >
-                  <span>Unlock Full Vault for {currentPrice}</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </button>
+            {/* Bottom Checkout Action */}
+            <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="text-2xl font-black text-[var(--text-primary)]">
+                  ${product.priceUSD}
+                </span>
+                <span className="text-xs text-[var(--text-muted)] line-through ml-2">
+                  ${product.originalPriceUSD}
+                </span>
+                <span className="text-xs text-[var(--text-secondary)] block">
+                  Lifetime access • Free future updates
+                </span>
               </div>
 
+              <button
+                onClick={handleCheckout}
+                className="px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs shadow-lg shadow-amber-500/20 transition-all inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <span>Get Instant Access (${product.priceUSD})</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
             </div>
 
-          </div>
-
-          {/* ═══════════════════════════════════════════════════
-              CUSTOMER TESTIMONIALS & REVIEWS
-          ═══════════════════════════════════════════════════ */}
-          <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
-            <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
-              <Star className="w-5 h-5 text-amber-400 fill-current" />
-              <span>Verified Developer Reviews ({product.reviewsCount})</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-              {product.testimonials && product.testimonials.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2.5 flex flex-col justify-between"
-                >
-                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
-                    &ldquo;{t.text}&rdquo;
-                  </p>
-                  <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-xs text-[var(--text-primary)] block">
-                        {t.name}
-                      </span>
-                      <span className="text-[10px] text-[var(--text-muted)]">
-                        {t.role}
-                      </span>
-                    </div>
-                    <div className="flex text-amber-400 text-xs">
-                      {"★".repeat(t.rating)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* ═══════════════════════════════════════════════════
@@ -484,8 +339,8 @@ export default function ProductDetailPage({ params }) {
           ═══════════════════════════════════════════════════ */}
           <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
             <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-blue-500" />
-              <span>Frequently Asked Questions & Banking Policy</span>
+              <ShieldCheck className="w-5 h-5 text-amber-400" />
+              <span>Frequently Asked Questions</span>
             </h3>
 
             <div className="space-y-2">
@@ -497,15 +352,12 @@ export default function ProductDetailPage({ params }) {
                     className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden transition-all"
                   >
                     <button
-                      onClick={() => {
-                        playTap();
-                        setOpenFaq(isOpen ? null : i);
-                      }}
-                      className="w-full p-4 text-left font-bold text-xs sm:text-sm text-[var(--text-primary)] flex items-center justify-between gap-3 hover:text-blue-500 transition-colors"
+                      onClick={() => setOpenFaq(isOpen ? null : i)}
+                      className="w-full p-4 text-left font-bold text-xs sm:text-sm text-[var(--text-primary)] flex items-center justify-between gap-3 hover:text-amber-400 transition-colors cursor-pointer"
                     >
                       <span>{faq.q}</span>
                       {isOpen ? (
-                        <ChevronUp className="w-4 h-4 text-blue-500 shrink-0" />
+                        <ChevronUp className="w-4 h-4 text-amber-400 shrink-0" />
                       ) : (
                         <ChevronDown className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
                       )}
