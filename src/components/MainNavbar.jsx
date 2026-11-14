@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
 import { playTap } from "@/utils/soundEffects";
 import { FaBell, FaBookmark, FaSearch } from "react-icons/fa";
-import { User, Upload, MessageSquare } from "lucide-react";
+import { User, Upload, MessageSquare, ShoppingBag } from "lucide-react";
 import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import NotificationDrawer from "./NotificationDrawer";
@@ -147,6 +147,17 @@ export default function MainNavbar() {
               aria-label="Search"
             >
               <FaSearch className="w-3.5 h-3.5 text-blue-400" />
+            </Link>
+
+            {/* Store Button */}
+            <Link
+              href="/store"
+              onClick={() => playTap()}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-amber-400 hover:text-amber-300 font-bold text-xs border border-white/[0.08] transition active:scale-95 cursor-pointer shrink-0"
+              title="FondPeace Digital Store & AI Vault"
+            >
+              <ShoppingBag size={14} className="stroke-[2.5]" />
+              <span className="hidden sm:inline">Store</span>
             </Link>
 
             {/* Upload Button */}

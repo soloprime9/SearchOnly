@@ -16,6 +16,7 @@ import {
   FaCoins,
   FaCommentDots,
   FaDownload,
+  FaShoppingBag,
 } from "react-icons/fa";
 import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
@@ -143,6 +144,7 @@ export default function LeftSidebar({ sticky = false }) {
     { icon: FaHome,        label: "Home",     href: "/" },
     { icon: FaSearch,      label: "Explore",  href: "/search" },
     { icon: FaVideo,       label: "Shorts",   href: "/shorts" },
+    { icon: FaShoppingBag, label: "Store",    href: "/store" },
     { icon: FaCommentDots, label: "Messages", href: "/messages", badge: unreadChatCount },
     { icon: FaUpload,      label: "Upload",   href: "/upload" },
     { icon: FaCoins,       label: "Monetize", href: "/monetization" },

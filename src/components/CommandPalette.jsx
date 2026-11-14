@@ -15,6 +15,7 @@ import {
   Compass,
   LifeBuoy,
   Sparkles,
+  ShoppingBag,
 } from "lucide-react";
 import { playTap, playChime, isSoundEnabled, toggleSound } from "@/utils/soundEffects";
 
@@ -78,6 +79,7 @@ export default function CommandPalette() {
   const quickNav = [
     { label: "Home Feed", path: "/", icon: Home, badge: "Feed" },
     { label: "Shorts & Video Reels", path: "/shorts", icon: Film, badge: "Watch" },
+    { label: "Digital Store & AI Vault", path: "/store", icon: ShoppingBag, badge: "Store" },
     { label: "Trending Topics", path: "/", icon: Flame, badge: "Viral" },
     { label: "Create Post or Poll", path: "/create", icon: PlusSquare, badge: "Creator" },
     { label: "About Platform", path: "/aboutus", icon: Compass, badge: "Info" },
