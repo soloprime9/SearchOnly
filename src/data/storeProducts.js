@@ -155,18 +155,16 @@ export const STORE_PRODUCTS = [
 
     // Tangible Deliverables
     deliverables: [
-      "🎁 FREE BONUS INCLUDED: FondPeace Carousel Studio Pro (Zero-code multi-slide Instagram & LinkedIn carousel designer with 1-click HD PNG export for Android, iOS, Mac & PC)",
+      "⚡ 1-Click Desktop Launchers: 1_START_STICKMOTION_STUDIO.bat & 2_START_CAROUSEL_STUDIO.bat (Zero setup, double-click to run)",
+      "🎬 Real Client-Side Stickman Video Studio: Live canvas puppet animator, Web Audio voiceover, SFX & 1-click real .webm video file export",
+      "🎠 Full FondPeace 3D Carousel Studio: Complete FastAPI server (server.py), 3D curved decks, Bento grids & 1-click HD PNG slide export",
+      "📦 Complete 00_STICKMAN_CORE_ENGINE: 845 real files — full open-source Python/Node engine, puppet rigs (b6_puppet.py), fonts & animated previews",
+      "📖 Simple 3-Step Human Illustrated Guide: Beginner-friendly handbook with zero jargon (How to make a video in 2 mins, post, and earn $1k-$5k/mo)",
       "🧩 StickMotion AI Chrome & Edge Browser Extension (1-Click script & prompt generator)",
-      "🌐 Standalone Visual Multi-AI Web Studio (Gemini 2.5 Pro/Flash, Claude 3.5 Sonnet, GPT-4o/o1, DeepSeek V3/R1, Groq Llama 3.3, and Local Ollama with smart key filtering)",
-      "📱 Android & iPhone 1-Tap Cloud Studio (Google Colab / Mobile Web UI — Run on phone with Zero Install)",
-      "✂️ CapCut Mobile 1-Tap Template & 500+ Green-Screen Stickman Action Overlay Pack",
-      "📖 11-Part Master Illustrated Setup & Monetization Guide (How to setup each device, upload, hack algorithms, and earn $1k-$5k/mo)",
-      "💻 Windows 1-Click .bat & Mac/Linux .sh Desktop Launchers (Zero-Terminal Setup)",
+      "📱 Android & iPhone 1-Tap Cloud Studio (Run directly on phone browser with Zero Install)",
       "📜 150+ High-Retention Viral Story Prompts across 5 Top-RPM Niches (Psychology, Wealth, Stoicism, Tech, Satire)",
-      "🎨 5 Character Consistency Art Styles (Classic B&W, Modern Pop Red-Beanie, Caveman, Minimal Line Art, Cyberpunk)",
       "🎙️ 100% Free Neural Voice Engine (Edge-TTS 100+ natural voices, saves $60/mo on ElevenLabs)",
-      "🎵 1,000+ Curated Royalty-Free Foley SFX (Whooshes, Pops, Scratches) & Storytelling Lo-Fi Music Pack",
-      "💰 Faceless Channel Monetization Blueprint: How to scale to $1,000 - $5,000/mo via AdSense, Affiliates & $800/mo Client Retainers",
+      "✂️ CapCut Mobile 1-Tap Template & 500+ Green-Screen Stickman Action Overlay Pack",
       "💎 Lifetime Commercial White-Label License: Create unlimited monetized videos for yourself and clients"
     ],
 
