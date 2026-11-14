@@ -130,13 +130,13 @@ export const STORE_PRODUCTS = [
   {
     id: "stickmotion-studio",
     slug: "stickmotion-studio",
-    title: "🎬 StickMotion AI: Turnkey Stickman & Motion Director Studio",
-    subtitle: "150+ High-Retention Story Scripts, 1-Click Zero-Terminal Setup, Character Consistency Prompts & 1,000+ SFX Audio Pack",
+    title: "🎬 StickMotion AI: Complete Turnkey Stickman Studio & Extension",
+    subtitle: "Chrome Extension + Multi-AI Visual Director + 150+ Story Scripts, CapCut Mobile Pack & Master Setup Guide",
     category: "video",
-    badge: "🔥 VIRAL CREATOR STUDIO",
+    badge: "🔥 COMPLETE 2026 SUITE",
     badgeColor: "amber",
     rating: 5.0,
-    tech: ["Stickman Director", "OpenMotion", "Edge-TTS", "Gemini 2.5", "FFmpeg", "CapCut"],
+    tech: ["Chrome Extension", "Web Studio", "Stickman Director", "Multi-AI (Gemini/Claude/GPT-4o)", "Edge-TTS", "CapCut Mobile"],
     priceUSD: 19,
     originalPriceUSD: 69,
     image: "/images/products/stickmotion-studio.png",
@@ -150,13 +150,16 @@ export const STORE_PRODUCTS = [
     ],
 
     // Core Value Proposition & Problem Solved
-    problemSolved: "Setting up open-source video repos like Stickman Director or OpenMotion requires terminal commands, Git, and expensive APIs. Viewers want to make viral animated videos but lack scripts, prompts, character consistency, and monetization roadmaps.",
-    solutionBenefit: "A turnkey creator operating system. Includes 1-click Windows/Mac execution scripts, 150+ psychology and stoic story prompts, 5 locked character style formulas (Classic B&W, Modern Pop, Caveman, Line Art), free neural voice configs, 1,000+ SFX/music tracks, and a step-by-step faceless monetization blueprint.",
+    problemSolved: "Setting up open-source video repos like Stickman Director or OpenMotion requires terminal commands, Git, and expensive APIs. Viewers want to make viral animated videos on phone or PC without coding, complex setups, or monthly tool subscriptions.",
+    solutionBenefit: "A complete multi-platform creative suite. Includes a dedicated Chrome/Edge browser extension, standalone visual web studio with multi-AI model switcher (Gemini, Claude, GPT-4o, DeepSeek, Groq), 1-tap mobile cloud studio, 150+ viral story prompts, CapCut mobile overlays, and an exhaustive 11-part illustrated master setup and monetization guide.",
 
     // Tangible Deliverables
     deliverables: [
+      "🧩 StickMotion AI Chrome & Edge Browser Extension (1-Click script & prompt generator)",
+      "🌐 Standalone Visual Multi-AI Web Studio (Gemini, Claude, GPT-4o, DeepSeek, Groq with smart key filtering)",
       "📱 Android & iPhone 1-Tap Cloud Studio (Google Colab / Mobile Web UI — Run on phone with Zero Install)",
       "✂️ CapCut Mobile 1-Tap Template & 500+ Green-Screen Stickman Action Overlay Pack",
+      "📖 11-Part Master Illustrated Setup & Monetization Guide (How to setup each device, upload, hack algorithms, and earn $1k-$5k/mo)",
       "💻 Windows 1-Click .bat & Mac/Linux .sh Desktop Launchers (Zero-Terminal Setup)",
       "📜 150+ High-Retention Viral Story Prompts across 5 Top-RPM Niches (Psychology, Wealth, Stoicism, Tech, Satire)",
       "🎨 5 Character Consistency Art Styles (Classic B&W, Modern Pop Red-Beanie, Caveman, Minimal Line Art, Cyberpunk)",
