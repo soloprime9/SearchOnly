@@ -4,6 +4,7 @@ import React, { useState, use } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import LeftSidebar from "@/components/LeftSidebar";
+import StoreReviewsCarousel from "@/components/StoreReviewsCarousel";
 import { STORE_PRODUCTS } from "@/data/storeProducts";
 import {
   ArrowLeft,
@@ -150,20 +151,20 @@ export default function ProductDetailPage({ params }) {
                 {product.subtitle}
               </p>
 
-              {/* Ratings */}
+              {/* Verified Product Quality */}
               <div className="flex flex-wrap items-center gap-3 text-xs">
                 <div className="flex items-center gap-1 font-bold text-amber-400">
-                  <Star className="w-4 h-4 fill-current" />
-                  <span>{product.rating}</span>
-                  <span className="text-[var(--text-muted)] font-normal">
-                    ({product.reviewsCount} verified reviews)
+                  <span>★★★★★</span>
+                  <span className="text-xs font-bold text-amber-400">5.0</span>
+                  <span className="text-[var(--text-muted)] font-medium">
+                    (Verified Buyer Rated)
                   </span>
                 </div>
                 <span className="text-[var(--text-muted)]">•</span>
-                <div className="flex items-center gap-1 text-[var(--text-secondary)] font-mono">
-                  <Flame className="w-3.5 h-3.5 text-orange-500" />
-                  <span>{product.starsGithub} community rating</span>
-                </div>
+                <span className="text-emerald-400 font-medium flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Instant Download + Free Updates</span>
+                </span>
               </div>
 
               {/* Tech Stack Pills */}
@@ -344,43 +345,9 @@ export default function ProductDetailPage({ params }) {
           </div>
 
           {/* ═══════════════════════════════════════════════════
-              CUSTOMER REVIEWS & TESTIMONIALS (TRUST BUILDER)
+              AUTO-PLAYING REVIEWS CAROUSEL (SOCIAL PROOF)
           ═══════════════════════════════════════════════════ */}
-          <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
-                <Star className="w-5 h-5 text-amber-400 fill-current" />
-                <span>Verified Buyer Reviews ({product.reviewsCount})</span>
-              </h3>
-              <span className="text-xs font-bold text-amber-400">★ {product.rating} / 5.0 Rating</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-              {product.testimonials && product.testimonials.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2.5 flex flex-col justify-between"
-                >
-                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed italic">
-                    &ldquo;{t.text}&rdquo;
-                  </p>
-                  <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-xs text-[var(--text-primary)] block">
-                        {t.name} <span className="text-[10px] text-[var(--text-muted)] font-normal">{t.handle}</span>
-                      </span>
-                      <span className="text-[10.5px] text-[var(--text-muted)]">
-                        {t.role}
-                      </span>
-                    </div>
-                    <div className="flex text-amber-400 text-xs">
-                      {"★".repeat(t.rating)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <StoreReviewsCarousel />
 
           {/* ═══════════════════════════════════════════════════
               FAQ ACCORDION

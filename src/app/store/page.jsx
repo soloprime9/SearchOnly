@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import LeftSidebar from "@/components/LeftSidebar";
+import StoreReviewsCarousel from "@/components/StoreReviewsCarousel";
 import { STORE_PRODUCTS } from "@/data/storeProducts";
 import {
   Sparkles,
@@ -99,54 +100,48 @@ export default function StorePage() {
         <main className="w-full min-w-0 max-w-6xl mx-auto py-3 sm:py-6 pb-24 lg:pb-12 space-y-6">
           
           {/* ═══════════════════════════════════════════════════
-              HERO HEADER SECTION
+              STORE HEADER
           ═══════════════════════════════════════════════════ */}
-          <div className="relative rounded-3xl p-6 sm:p-10 overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-3 max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>FondPeace Official Digital Store & AI Tools</span>
-                </div>
-
-                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15]">
-                  Production <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 bg-clip-text text-transparent">AI Systems</span> & Turnkey Dev Stacks
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] flex items-center gap-2">
+                  <span>⚡ FondPeace Store</span>
                 </h1>
-
-                <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-                  Real tools that solve painful problems and save weeks of work. Battle-tested .cursorrules prompt engines, 24-hour SaaS kits, and automated viral video frameworks with instant digital download delivery.
-                </p>
-
-                {/* Trust Badges Row */}
-                <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-[var(--text-secondary)] font-medium">
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    <span>Instant Digital Delivery</span>
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-blue-500" />
-                    <span>Commercial White-Label License</span>
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1.5">
-                    <Globe className="w-4 h-4 text-amber-400" />
-                    <span>Universal Checkout (USD & UPI)</span>
-                  </span>
-                </div>
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                  Digital Tools & AI Prompts
+                </span>
               </div>
-
-              {/* Action Controls */}
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={handleCopyLink}
-                  className="px-3.5 py-2 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1.5"
-                  title="Share Store Link"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>Share Store</span>
-                </button>
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium">
+                Production AI prompts, developer toolkits & creator engines with instant digital download.
+              </p>
+              <div className="flex flex-wrap items-center gap-2.5 pt-1 text-[11px] text-[var(--text-secondary)]">
+                <span className="flex items-center gap-1 text-emerald-400 font-medium">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Instant Delivery</span>
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1 text-blue-400 font-medium">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Commercial License</span>
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1 text-amber-400 font-medium">
+                  <Globe className="w-3.5 h-3.5" />
+                  <span>Global Checkout (USD & UPI)</span>
+                </span>
               </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleCopyLink}
+                className="px-3.5 py-2 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1.5 cursor-pointer"
+                title="Share Store Link"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Share Store</span>
+              </button>
             </div>
           </div>
 
@@ -239,11 +234,8 @@ export default function StorePage() {
                         {prod.badge}
                       </span>
                       <div className="flex items-center gap-1 text-xs font-bold text-amber-400">
-                        <Star className="w-3.5 h-3.5 fill-current" />
-                        <span>{prod.rating}</span>
-                        <span className="text-[var(--text-muted)] font-normal text-[11px]">
-                          ({prod.reviewsCount} reviews)
-                        </span>
+                        <span>★★★★★</span>
+                        <span className="text-[11px] text-[var(--text-muted)] font-medium">Verified Product</span>
                       </div>
                     </div>
 
@@ -338,6 +330,11 @@ export default function StorePage() {
               );
             })}
           </div>
+
+          {/* ═══════════════════════════════════════════════════
+              AUTO-PLAYING REVIEWS CAROUSEL (SOCIAL PROOF)
+          ═══════════════════════════════════════════════════ */}
+          <StoreReviewsCarousel />
 
           {/* ═══════════════════════════════════════════════════
               UNIVERSAL PAYMENT & BANKING TRUST BANNER
