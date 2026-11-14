@@ -179,6 +179,31 @@ export default function ProductDetailPage({ params }) {
                 ))}
               </div>
 
+              {/* Visual Style Gallery Previews */}
+              {product.previewImages && product.previewImages.length > 0 && (
+                <div className="p-4 sm:p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Production Styles Included in this Pack:</span>
+                    </span>
+                    <span className="text-[10.5px] text-[var(--text-muted)] font-mono">100% Locked Consistency</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {product.previewImages.map((img, idx) => (
+                      <div key={idx} className="space-y-1">
+                        <div className="relative w-full h-24 sm:h-28 rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-canvas)]">
+                          <img src={img.url} alt={img.label} className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-[10px] font-bold text-[var(--text-secondary)] block text-center truncate">
+                          {img.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Target Audience Pill */}
               {product.whoIsThisFor && (
                 <div className="p-3.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">

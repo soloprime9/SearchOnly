@@ -141,7 +141,13 @@ export const STORE_PRODUCTS = [
     originalPriceUSD: 69,
     image: "/images/products/stickmotion-studio.png",
     topmateUrl: "https://topmate.io/fondpeace",
-    sampleDownloadUrl: "/downloads/StickMotion_AI_Studio_2026.zip",
+    sampleDownloadUrl: "#",
+    previewImages: [
+      { label: "Classic Black & White", url: "/images/products/stickmotion/a1-you-vs-you.jpg" },
+      { label: "Modern Pop (Red Beanie)", url: "/images/products/stickmotion/a2-busy-vs-better.jpg" },
+      { label: "Historical Cartoon", url: "/images/products/stickmotion/a5-samurai-taxes.jpg" },
+      { label: "Storytelling Satire", url: "/images/products/stickmotion/first-job.jpg" }
+    ],
 
     // Core Value Proposition & Problem Solved
     problemSolved: "Setting up open-source video repos like Stickman Director or OpenMotion requires terminal commands, Git, and expensive APIs. Viewers want to make viral animated videos but lack scripts, prompts, character consistency, and monetization roadmaps.",
