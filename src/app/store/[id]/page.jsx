@@ -31,16 +31,47 @@ import {
   Eye,
   Copy,
   Calendar,
-  Monitor,
-  Smartphone,
   X,
   Video,
-  FileText
+  FileText,
+  Lightbulb,
+  Unlock
 } from "lucide-react";
 import { toast } from "@/utils/toast";
 
 // ══════════════════════════════════════════════════════════════════════════════
-// 10 READY-MADE INK EXPLAINER VIRAL STORY PACKS (18M+ Views Hit Series)
+// HIGH-CONTRAST VECTOR ICONS (Matches Image 3 Reference)
+// ══════════════════════════════════════════════════════════════════════════════
+const WindowsIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path fill="#0078D4" d="M0 3.449L9.75 2.1v9.451H0V3.449zm10.749-1.55L24 0v11.551H10.749V1.899zM0 12.55h9.75V22l-9.75-1.35V12.55zm10.749 0H24V24l-13.251-1.899V12.55z"/>
+  </svg>
+);
+
+const AppleIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-.99 1.72-.85 2.74 1.01.08 2.05-.53 2.58-1.24z"/>
+  </svg>
+);
+
+const ChromeIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="5" fill="#ffffff" />
+    <circle cx="12" cy="12" r="4" fill="#4285F4" />
+    <path fill="#EA4335" d="M12 2C6.48 2 2 6.48 2 12c0 .49.04.97.11 1.44L7.5 4.15C8.77 2.82 10.3 2 12 2z"/>
+    <path fill="#FBBC05" d="M2.11 13.44C2.94 18.35 7.06 22 12 22c2.15 0 4.13-.71 5.73-1.92L12.35 11h-4.85l-5.39 2.44z"/>
+    <path fill="#34A853" d="M17.73 20.08C20.31 18.15 22 15.28 22 12c0-3.66-1.98-6.86-4.93-8.6L12.35 11l5.38 9.08z"/>
+  </svg>
+);
+
+const AndroidIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="#3DDC84">
+    <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.3562 13.8533 8 12 8s-3.5902.3562-5.1367.9507L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867 0 14.8872 0 19.2222h24c0-4.335-2.6889-8.0355-6.1185-9.9008"/>
+  </svg>
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 10 READY-MADE INK EXPLAINER VIRAL STORY PACKS (18M+ Views - Deep Multi-Sentence Paragraphs)
 // ══════════════════════════════════════════════════════════════════════════════
 const INK_EXPLAINER_STORIES = [
   {
@@ -50,13 +81,34 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "Stop scrolling right now: 99% of people quit in their 20s right before their biggest breakthrough because comfort feels safe.",
     scenes: [
-      { beat: "Scene 1 (0-3s): Golden Hook", prompt: "A minimalist stickman standing motionless on a bustling Tokyo street bridge as millions of blurred neon silhouettes rush past. High contrast glowing white character against moody cyberpunk ink tones, rain droplets frozen in air." },
-      { beat: "Scene 2 (4-7s): The Trap", prompt: "The stickman sitting inside an invisible digital cage constructed of glowing neon smartphone notification icons. Silhouette looking down in quiet exhaustion, dim ambient blue rim light." },
-      { beat: "Scene 3 (8-12s): The Hourglass", prompt: "Cinematic close-up of a giant crystal hourglass dripping glowing golden sand grains. The stickman desperately trying to catch time as it slips through their ink hands." },
-      { beat: "Scene 4 (13-16s): The Katana Stance", prompt: "The stickman shedding the hoodie to reveal a traditional samurai warrior stance on a dark mountain cliff during an electric thunderstorm. Katana drawn." },
-      { beat: "Scene 5 (17-21s): The Slash", prompt: "Explosive dynamic slash of the blade shattering the digital cage into millions of sparkling glass shards in slow motion. Dynamic ink particle splash." },
-      { beat: "Scene 6 (22-26s): The Ascent", prompt: "The stickman running up a steep mountain peak against ferocious gale winds and flying cherry blossom petals, eyes locked on the horizon." },
-      { beat: "Scene 7 (27-30s): Fuji Sunrise", prompt: "The stickman standing triumphantly atop Mount Fuji at dawn, warm amber morning sun rising over sea of clouds. Golden rim lighting." }
+      {
+        beat: "Scene 1 (0-3s): Golden Hook",
+        prompt: "A minimalist white stickman standing completely motionless on the center edge of a rain-soaked Shibuya pedestrian bridge at midnight. All around him, thousands of fast-blurred cyberpunk commuters streak by as motion-smeared silhouettes with glowing umbrellas. The camera holds a locked 85mm cinematic portrait shot; dramatic neon magenta and cyan reflections glisten across the wet asphalt. A single crystal raindrop hangs suspended in ultra slow motion inches from the character's face, conveying a psychological state of absolute temporal paralysis. Audio cue: Low sub-bass drop transitioning into a solitary ticking clock."
+      },
+      {
+        beat: "Scene 2 (4-7s): The Mental Trap",
+        prompt: "Slow dolly-in camera move towards the stickman slumped on an office stool, trapped inside an invisible digital cage constructed of floating, pulsing neon notification badges—endless red like hearts, blue unread envelopes, and spinning refresh wheels. The character clutches his head in quiet desperation under a harsh, flickering 6000K overhead fluorescent bulb, casting deep ink-wash shadows on the floor. Atmospheric dust motes drift through cold blue volumetric rim lighting. Text on screen: 'Comfort is the quietest killer.'"
+      },
+      {
+        beat: "Scene 3 (8-12s): The Hourglass",
+        prompt: "Extreme macro low-angle Dutch tilt shot of a colossal crystalline hourglass suspended in an endless void. Inside, luminescent golden sand grains cascade downwards like glowing liquid ember particles. The stickman character reaches up with both hands in vain, trying to grab the sand, but it dissolves through his fingers like smoke. High-contrast chiaroscuro lighting, deep vignette shadows, dramatic rim lighting highlighting the fragile silhouette. Audio cue: Glass reverberation and wind gust."
+      },
+      {
+        beat: "Scene 4 (13-16s): The Katana Stance",
+        prompt: "Sudden whip-pan transition to a windswept mountain cliff edge during an electric thunderstorm. The stickman sheds the slouching modern hoodie, revealing traditional black hakama warrior attire and unsheathing a glowing white ink katana with razor-sharp reflection. Electric lightning strikes illuminate the background in violent split-second flashes. The character drops into a grounded, disciplined martial arts stance, eyes narrowed with resolute focus. Audio cue: Crisp steel unsheathing sound (katana shing)."
+      },
+      {
+        beat: "Scene 5 (17-21s): The Breakthrough Slash",
+        prompt: "Dynamic tracking shot following an explosive, full-body forward leap. The stickman executes a blinding horizontal sword slash across the digital notification cage. The invisible prison shatters into millions of glowing geometric glass fragments that explode outward in 120fps super slow motion, scattering across the screen like sparkling stardust. High-energy ink splash calligraphy effects ripple across the impact point. Audio cue: Glass shattering thunderclap."
+      },
+      {
+        beat: "Scene 6 (22-26s): The Mountain Ascent",
+        prompt: "Wide sweeping crane shot tracking the stickman sprinting relentlessly up the razor-thin ridge of a towering jagged mountain peak against ferocious gale-force winds and swirling crimson cherry blossom petals. The dark storm clouds begin to part beneath his feet, revealing an ocean of rolling white mist. Camera follows at a heroic 45-degree low angle, conveying unstoppable momentum and inner resilience."
+      },
+      {
+        beat: "Scene 7 (27-30s): Sunrise Victory",
+        prompt: "Epic stationary wide shot atop the summit of Mount Fuji at dawn. The stickman stands tall and serene, sword safely sheathed, gazing out at the blazing golden-orange sun rising above a sea of clouds. Warm amber rim lighting bathes the entire character outline in radiant light. Soft lens flare drifts across the upper right frame. On-screen text: 'Win the morning. Master your decade.' Audio cue: Triumphant orchestral swell fading into morning birdsong."
+      }
     ]
   },
   {
@@ -66,13 +118,13 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "If a time machine dropped you onto ancient Earth right now, you wouldn't last 12 minutes without modern shelter.",
     scenes: [
-      { beat: "Scene 1: Jurassic Drop", prompt: "Stickman suddenly falling from sky landing on muddy prehistoric jungle floor, massive Tyrannosaurus shadow looming overhead." },
-      { beat: "Scene 2: Ice Age Chill", prompt: "Stickman shivering in torrential blizzard, wrapped in mammoth fur, tracking sabertooth tiger footprints in deep snow." },
-      { beat: "Scene 3: Ancient Egypt", prompt: "Stickman hauling limestone blocks under scorching Sahara sun, massive Great Pyramid silhouette in background." },
-      { beat: "Scene 4: Roman Colosseum", prompt: "Stickman standing in dusty arena holding wooden shield facing roaring audience and armored centurion." },
-      { beat: "Scene 5: Medieval Fortress", prompt: "Stickman guarding castle battlement at midnight during blazing catapult attack with burning arrows." },
-      { beat: "Scene 6: Industrial Smog", prompt: "Stickman walking through 1880s London steam factory alley surrounded by brick chimneys and iron gears." },
-      { beat: "Scene 7: Modern Sanctuary", prompt: "Stickman sitting comfortably in warm modern room holding coffee, looking out window with immense gratitude." }
+      { beat: "Scene 1: Jurassic Drop", prompt: "A minimalist stickman abruptly materializing from a swirling blue vortex, crashing onto a muddy primeval fern floor. In the misty background, a towering 40-foot Tyrannosaurus rex opens its jaws with dripping crimson saliva, casting an immense predatory shadow. Volumetric sun rays pierce the thick prehistoric canopy." },
+      { beat: "Scene 2: Ice Age Shiver", prompt: "Stickman trudging through waist-deep snow during a howling sub-zero blizzard. Clad in rough mammoth pelt with breath freezing instantly into ice particles. Deep sabertooth tiger claw prints encircle the character in a menacing arc. Chilling cyan and slate-gray palette." },
+      { beat: "Scene 3: Ancient Egypt Quarry", prompt: "Scorching Sahara midday heat, blinding golden sunlight. The stickman character heaves on thick hemp ropes dragging a massive 5-ton limestone block across wooden rollers. In the distant horizon, the gleaming Great Pyramid stands sharp against a cloudless lapis-lazuli sky." },
+      { beat: "Scene 4: Roman Colosseum Duel", prompt: "Low-angle dynamic tracking shot inside a dusty amphitheater arena. The stickman holds a battered wooden gladius and scutum shield as 50,000 roaring Roman spectators cheer from shaded stone arches above. An armored centurion advances with spear raised." },
+      { beat: "Scene 5: Medieval Catapult Siege", prompt: "Midnight rain pouring over stone fortress battlements. Flaming pitch boulders launched from distant trebuchets streak across the black night sky, crashing into ramparts with showering sparks. Stickman archer draws longbow with burning arrow aimed at the dark breach." },
+      { beat: "Scene 6: Victorian Industrial Smog", prompt: "Thick yellowish soot and steam billowing from brick factory towers in 1880s London. The stickman navigates a narrow cobblestone alleyway packed with roaring iron gear machinery and glowing copper furnaces. Gritty sepia ink aesthetic." },
+      { beat: "Scene 7: Modern Sanctuary Gratitude", prompt: "Warm, peaceful interior shot of a modern apartment at dusk. The stickman sits curled in an ergonomic armchair sipping steaming coffee, looking out rain-streaked window at the safe city skyline. Golden ambient lamp glow fills the room with profound comfort and relief." }
     ]
   },
   {
@@ -82,13 +134,13 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "10,000 years ago, your 20th birthday meant you were already an elder in your tribe fighting for daily survival.",
     scenes: [
-      { beat: "Scene 1: Birth in Cave", prompt: "Newborn stickman wrapped in wolf pelt by warm glowing campfire inside dark cavern wall painted with buffaloes." },
-      { beat: "Scene 2: The First Hunt", prompt: "Young stickman learning to carve flint spearhead alongside tribal elder under starlit African savanna." },
-      { beat: "Scene 3: Mammoth Chase", prompt: "Stickman sprinting across grassy plain coordinating tribe with stone spears tracking massive woolly mammoth." },
-      { beat: "Scene 4: The Wildfire", prompt: "Tribe fleeing across glowing red hills as lightning strike sparks raging savannah brush fire." },
-      { beat: "Scene 5: Winter Scarcity", prompt: "Stickman sharing roasted meat with family inside cozy snow cave, firelight dancing on cave ceiling." },
-      { beat: "Scene 6: The Council", prompt: "Stickman speaking with tribal elders around sacred council fire under full moon." },
-      { beat: "Scene 7: Legacy Rock Art", prompt: "Stickman pressing ochre-covered hand onto smooth cave wall, leaving eternal handprint for eternity." }
+      { beat: "Scene 1: Cave Birth & Embers", prompt: "Intimate close-up of newborn stickman wrapped in wolf pelt next to a crackling fire pit inside a deep sandstone cavern. The cavern walls are covered in red-ochre handprints and running bison sketches, illuminated by dancing orange flame shadows." },
+      { beat: "Scene 2: Flint Spearhead Lesson", prompt: "Starlit African savanna night. A wizened tribal elder stickman guides the young character's hands to strike flint against obsidian, creating sharp spear tips with flying amber sparks. Ancient baobab tree silhouetted against the glowing Milky Way." },
+      { beat: "Scene 3: The Great Mammoth Hunt", prompt: "Ultra-wide cinematic tracking shot across sweeping grassland. Ten stickman hunters run in synchronized coordination, stone-tipped spears raised, tracking a colossal woolly mammoth through a narrow rocky canyon." },
+      { beat: "Scene 4: Escaping Savanna Wildfire", prompt: "Blazing crimson night horizon as dry brush explodes into a wall of flame following a lightning strike. The entire tribe flees across ridge lines, glowing smoke billowing high into the atmosphere." },
+      { beat: "Scene 5: Winter Cave Hearth", prompt: "Sub-zero blizzard outside cave entrance, but inside, tribal members huddle warmly together sharing roasted root vegetables and storytelling with expressive hand gestures. Cozy amber chiaroscuro lighting." },
+      { beat: "Scene 6: The Council Fire", prompt: "Full moon overhead. The stickman, now scarred and seasoned with bone necklaces, speaks to the tribe around the sacred council fire, passing down ancient hunting territory folklore." },
+      { beat: "Scene 7: Eternal Cave Handprint", prompt: "Solemn, beautiful macro shot of the elder stickman pressing an ochre-stained palm firmly onto the cool limestone wall. Camera pulls back slowly through the cave entrance into the vast starry cosmos, leaving humanity's eternal mark." }
     ]
   },
   {
@@ -98,13 +150,13 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "Why did every modern human on Earth originate from the East African Rift Valley instead of Europe or Asia?",
     scenes: [
-      { beat: "Scene 1: The Great Rift", prompt: "Stickman standing on edge of colossal Great Rift Valley cliff as tectonic plates slowly shift, aerial view." },
-      { beat: "Scene 2: Forest to Savanna", prompt: "Lush jungle trees rapidly transforming into open grassy plains due to shifting climate patterns." },
-      { beat: "Scene 3: Bipedal Leap", prompt: "Stickman ancestor standing upright on two feet for the first time to peer over tall savannah grass." },
-      { beat: "Scene 4: Endurance Hunt", prompt: "Stickman jogging steadily under blazing midday sun, outlasting sprinting gazelle through sweat and stamina." },
-      { beat: "Scene 5: Control of Fire", prompt: "Stickman striking flint stones together until glowing spark ignites dry grass, triumph on character face." },
-      { beat: "Scene 6: The Out-of-Africa Trek", prompt: "Stickman leading migration line of tribes across Sinai desert crossing into unknown horizon." },
-      { beat: "Scene 7: Global Family", prompt: "Stickman hand morphing into diverse modern human hands holding a glowing globe, unity concept." }
+      { beat: "Scene 1: The Great Rift Valley", prompt: "Colossal aerial drone shot overlooking the tectonic split of the East African Rift Valley under dramatic storm clouds. Red earth, sprawling acacia trees, and dramatic volcanic fissures stretching to the horizon." },
+      { beat: "Scene 2: Jungle to Savanna Shift", prompt: "Timelapse visual transition showing lush rainforest trees slowly thinning into open sun-baked grasslands due to shifting planetary weather cycles. Stickman ancestor peering cautiously from tree branch." },
+      { beat: "Scene 3: The First Bipedal Stance", prompt: "Ground-level low angle shot. The stickman ancestor lowers its arms from the ground and stands fully upright on two feet for the first time, rising above tall golden savannah grass to gaze into the vast distance." },
+      { beat: "Scene 4: The Midday Persistence Hunt", prompt: "Blazing midday sun beating down at 45°C. Stickman jogging at steady endurance pace across cracked earth, outlasting a panting gazelle through human sweating and stamina. Heat mirage shimmering in air." },
+      { beat: "Scene 5: Taming the Fire Ember", prompt: "Dramatic close-up of stickman striking two stones together until a glowing spark ignites dried tinder. Eyes widen with wonder as humanity masters its first external source of energy." },
+      { beat: "Scene 6: The Out-of-Africa Migration", prompt: "Long line of migrating stickmen crossing the Sinai desert dunes under twilight, silhouettes carrying woven baskets and flint tools into the unknown horizon." },
+      { beat: "Scene 7: One Global Ancestry", prompt: "Stickman hands of diverse shading reaching toward the center frame, holding a beautifully glowing blue marble Earth. On-screen text: '8 Billion People. One Single Homeland.'" }
     ]
   },
   {
@@ -114,13 +166,13 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "For 300,000 years humans lived as foragers without building anything. Then suddenly, everything exploded.",
     scenes: [
-      { beat: "Scene 1: The Nomad Trail", prompt: "Stickman wandering desolate tundra with simple stick pack, endless repeating landscape." },
-      { beat: "Scene 2: The First Seed", prompt: "Stickman kneeling in fertile mud riverbank carefully planting wild wheat seeds with bamboo stick." },
-      { beat: "Scene 3: River Settlement", prompt: "Cluster of circular mud-brick huts springing up along Nile river with irrigation trenches." },
-      { beat: "Scene 4: The Clay Granary", prompt: "Stickman stacking woven baskets of harvested grain, creating first food surplus in human history." },
-      { beat: "Scene 5: Writing on Clay", prompt: "Stickman pressing reed stylus into wet clay tablet to invent cuneiform writing and commerce." },
-      { beat: "Scene 6: Bronze Metallurgy", prompt: "Stickman pouring molten copper and tin into stone axe mold, bright orange glowing sparks." },
-      { beat: "Scene 7: Towering Cities", prompt: "Stickman looking up from ancient ziggurat to modern skyscrapers touching the stars, timelapse transition." }
+      { beat: "Scene 1: 300,000 Years of Foraging", prompt: "Stickman carrying wooden digging stick across empty endless tundra landscape. Monochromatic gray ink palette conveying hundreds of millennia of static survival without permanent structures." },
+      { beat: "Scene 2: The First Wheat Seed", prompt: "Sunlight breaking through clouds onto fertile silt riverbank. Stickman kneeling gently, pressing wild einkorn wheat seeds into the black soil using a pointed bone dibble." },
+      { beat: "Scene 3: First Mud-Brick Settlement", prompt: "Cluster of circular sun-dried mud huts rising along the Euphrates river. Stickmen digging irrigation ditches and building shared clay ovens, community blooming." },
+      { beat: "Scene 4: The Grain Surplus", prompt: "Inside a dry clay storehouse, stickman stacking woven baskets of golden grain. For the first time in history, humans have food for next winter, unlocking free time for invention." },
+      { beat: "Scene 5: Invention of Writing", prompt: "Macro shot of a reed stylus pressing crisp wedge-shaped cuneiform symbols into a wet clay tablet by oil lamp light. Commercial trade is born." },
+      { beat: "Scene 6: Bronze Foundry Sparks", prompt: "Glowing crucible of molten copper and tin poured into carved sandstone axe molds. Brilliant orange sparks shower across dark foundry floor." },
+      { beat: "Scene 7: From Ziggurat to Space Rocket", prompt: "Timelapse camera tilting straight up from the top of an ancient Mesopotamian ziggurat through centuries of architecture to a modern Saturn V rocket blasting toward the stars." }
     ]
   },
   {
@@ -130,13 +182,13 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "With no electricity, no phones, and 12 hours of total pitch darkness, how did ancient humans survive the night?",
     scenes: [
-      { beat: "Scene 1: Twilight Watch", prompt: "Stickman stoking roaring cave entrance fire as sun dips below jungle horizon, shadows stretching long." },
-      { beat: "Scene 2: The Night Predator", prompt: "Stickman peering into pitch black night as glowing feline eyes reflect firelight 50 yards away." },
-      { beat: "Scene 3: Storytelling Fire", prompt: "Tribal stickmen sitting in warm circle sharing oral history folklore with expressive hand gestures." },
-      { beat: "Scene 4: Star Navigation", prompt: "Stickman lying on back staring up at pristine Milky Way galaxy tracing constellation paths." },
-      { beat: "Scene 5: Tool Crafting", prompt: "Stickman by ember glow carefully binding obsidian arrowhead to wooden shaft with sinew cord." },
-      { beat: "Scene 6: Biphasic Sleep", prompt: "Stickman waking for peaceful midnight contemplation hour before falling back into deep rest." },
-      { beat: "Scene 7: Morning Dawn", prompt: "Stickman stepping out into golden morning dew as bird songs fill the valley, victorious dawn." }
+      { beat: "Scene 1: The Twilight Perimeter", prompt: "Sun slipping below the jagged mountain horizon, throwing deep purple shadows across the valley. Stickman hurried to stoke roaring thorn-bush bonfires guarding cave entrance." },
+      { beat: "Scene 2: Glowing Eyes in the Dark", prompt: "POV from cave looking outward into absolute pitch black. Fifty yards away in the tall grass, two pairs of luminous predator eyes catch the firelight and watch hungrily." },
+      { beat: "Scene 3: Oral Tradition by Flame", prompt: "Twelve stickman tribe members huddled in a tight circle around roaring campfire, elder gesturing dramatically while recounting creation myths and ancestral battles." },
+      { beat: "Scene 4: The Milky Way Observatory", prompt: "Stickman lying back on smooth boulder staring straight up into the unpolluted night sky. Millions of sharp stars and the violet cosmic ribbon of the galaxy mapping the seasons." },
+      { beat: "Scene 5: The Night Craftsman", prompt: "Quiet ember glow illuminating stickman meticulously binding a razor obsidian blade to polished hardwood spear shaft using sinew and tree resin." },
+      { beat: "Scene 6: The Watchman's Shift", prompt: "Solitary sentinel stickman standing guard with burning pine torch while the tribe sleeps peacefully in mammoth fur blankets, smoke drifting into cold night air." },
+      { beat: "Scene 7: Golden Dawn Awakening", prompt: "Blazing golden sunrise breaking over the savannah. Birds burst into song, and stickmen emerge from the cave stretching victoriously, greeting another day conquered." }
     ]
   },
   {
@@ -146,13 +198,13 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "We have no claws, no fangs, and run slower than a dog. So how did humans hunt giant sabertooths to extinction?",
     scenes: [
-      { beat: "Scene 1: The Ambush", prompt: "Sabertooth cat crouching on rock ledge above unsuspecting stickman, tensed muscles ready to pounce." },
-      { beat: "Scene 2: The Signal Whistle", prompt: "Stickman blowing bone whistle, echoing through canyon walls to alert coordinated hunting band." },
-      { beat: "Scene 3: Fire Wall", prompt: "Ten stickmen stepping forward in synchronized line brandishing blazing pine torches to terrify beast." },
-      { beat: "Scene 4: The Atlatl Dart", prompt: "Stickman loading spear thrower atlatl, generating massive kinetic leverage with scientific precision." },
-      { beat: "Scene 5: The Pit Trap", prompt: "Disguised leaf-covered pit trap collapsing beneath charging mammoth, ingenious engineering." },
-      { beat: "Scene 6: Wolf Domesticated", prompt: "Stickman kneeling beside tame wolf sharing bone, forging humanity's first multi-species alliance." },
-      { beat: "Scene 7: Apex of Earth", prompt: "Stickman standing peacefully atop mountain ridge with wolf companion at side, apex protector." }
+      { beat: "Scene 1: Sabertooth Ambush", prompt: "Massive Smilodon with 8-inch curved fangs crouched on high sandstone boulder above solitary stickman forager, tensed shoulder muscles ready to strike." },
+      { beat: "Scene 2: Bone Whistle Signal", prompt: "Stickman instantly draws carved vulture-bone whistle and blows high-frequency alert. Acoustic soundwaves visibly ripple through canyon walls." },
+      { beat: "Scene 3: The Flaming Wall of Torches", prompt: "Eight stickmen burst from brush in disciplined phalanx, thrusting roaring pine-pitch torches forward. Terrified predator recoils from the blazing heat." },
+      { beat: "Scene 4: The Atlatl Physics Advantage", prompt: "Stickman loading a 6-foot dart into an atlatl spear-thrower. Slow motion reveals mechanical lever arm launching dart at 100 mph with lethal armor-piercing kinetic force." },
+      { beat: "Scene 5: The Disguised Pit Trap", prompt: "Charging beast crashing through leaf-covered branch grating into deep defensive trench lined with sharpened stakes. Human strategic planning overcoming raw brute force." },
+      { beat: "Scene 6: First Wolf Alliance", prompt: "Gentle campfire scene. Stickman kneeling beside injured gray wolf, offering roasted bone. The wolf rests its chin on stickman knee, forging humanity's greatest interspecies partnership." },
+      { beat: "Scene 7: Apex of the Planet", prompt: "Epic wide shot. Stickman standing on highest cliff peak with tame wolf at side, watching sunset over primeval valley. Uncontested master of the natural world." }
     ]
   },
   {
@@ -162,13 +214,13 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "It's 3:17 AM. You promised yourself you'd sleep at 11. Why does your thumb keep scrolling like a zombie?",
     scenes: [
-      { beat: "Scene 1: Blue Glow Bed", prompt: "Stickman lying in bed with pitch dark room, face illuminated only by harsh blue phone screen glow." },
-      { beat: "Scene 2: Infinite Scroll Wheel", prompt: "Stickman trapped on a giant spinning treadmill powered by red like buttons and follower counts." },
-      { beat: "Scene 3: The Dopamine Drip", prompt: "Giant neon IV drip feeding sugar-coated dopamine molecules directly into stickman cartoon brain." },
-      { beat: "Scene 4: The Decision", prompt: "Stickman grabbing smartphone and placing it firmly inside another room, closing the door shut." },
-      { beat: "Scene 5: Deep Rest", prompt: "Stickman asleep in calm dark room, serene breathing with soft moonlight filtering through curtains." },
-      { beat: "Scene 6: 6 AM Awakening", prompt: "Stickman leaping out of bed at sunrise with vibrant energy, drinking tall glass of water." },
-      { beat: "Scene 7: Focused Creation", prompt: "Stickman sitting at clean wooden desk typing on laptop with notebook open, 100% flow state." }
+      { beat: "Scene 1: Blue Light Zombie", prompt: "Dark bedroom, stickman lying in bed in foetal position with face bathed in harsh, eerie 8000K smartphone blue light. Hollow ink eyes staring blankly into infinite scroll feed." },
+      { beat: "Scene 2: The Infinite Dopamine Treadmill", prompt: "Surreal visual: stickman running endlessly on a giant hamster wheel powered by glowing red hearts, retweet icons, and view counters that never stop spinning." },
+      { beat: "Scene 3: The Algorithm's Puppet Strings", prompt: "Glowing fiber-optic wires dangling from giant cloud servers overhead, puppeteering the stickman thumb in rapid flicking motions while brain energy drains away." },
+      { beat: "Scene 4: The Power-Off Decision", prompt: "Stickman suddenly stops. Hands shake. With immense willpower, fingers press the side button, screen goes black, and stickman drops phone into a wooden desk drawer across the room." },
+      { beat: "Scene 5: Deep REM Recovery", prompt: "Serene bedroom bathed in soft moonlight. Stickman sleeping soundly with calm slow breathing, brain surrounded by soothing cool indigo waves of restorative rest." },
+      { beat: "Scene 6: 6:00 AM Natural Awakening", prompt: "Morning sun bursting through curtains. Stickman waking energized without alarm, drinking a cold glass of lemon water with focused posture." },
+      { beat: "Scene 7: The Unbroken Creation State", prompt: "Clean sunlit wooden desk with coffee, sketchpad, and laptop. Stickman working in complete undisturbed flow state with zero digital distractions." }
     ]
   },
   {
@@ -178,13 +230,13 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "A 16th-century samurai woke up at 4 AM to practice sword kata in freezing waterfalls. You hit snooze 4 times.",
     scenes: [
-      { beat: "Scene 1: The Frozen Waterfall", prompt: "Samurai stickman in black hakama standing motionless beneath roaring freezing mountain waterfall in winter." },
-      { beat: "Scene 2: The Modern Snooze", prompt: "Modern stickman buried under heavy duvet slapping smartphone alarm buzzer with lazy arm." },
-      { beat: "Scene 3: The Bushido Code", prompt: "Glowing Japanese calligraphic brush kanji characters for Honor, Courage, and Rectitude floating in air." },
-      { beat: "Scene 4: The Duel of Wills", prompt: "Modern stickman facing off against shadow demon representing procrastination and excuses." },
-      { beat: "Scene 5: The First Kata", prompt: "Stickman drawing wooden bokken practice sword and executing crisp, decisive vertical downward cut." },
-      { beat: "Scene 6: Relentless Habit", prompt: "Stickman training daily through summer heat, autumn rain, and winter snow without skipping a single session." },
-      { beat: "Scene 7: The Mastered Self", prompt: "Stickman bowing with serene calmness before tranquil zen gravel garden and cherry blossom tree." }
+      { beat: "Scene 1: The Freezing Waterfall", prompt: "Winter dawn in Kyoto mountains. Samurai stickman standing completely still under roaring icy mountain waterfall, hands pressed in prayer, breath steaming in crisp morning air." },
+      { beat: "Scene 2: Modern Snooze Habit", prompt: "Warm messy modern bedroom at 7:30 AM. Sluggish modern stickman burying face under blanket, lazily slapping smartphone alarm snooze button for the fourth time." },
+      { beat: "Scene 3: The 7 Virtues of Bushido", prompt: "Seven massive Japanese calligraphy kanji characters (Gi, Yu, Jin, Rei, Makoto, Meiyo, Chugi) glowing in golden ink floating in a serene zen garden temple courtyard." },
+      { beat: "Scene 4: Duel with the Sloth Demon", prompt: "Psychological battle arena. Modern stickman confronts a looming dark ink demon representing procrastination and comfortable excuses." },
+      { beat: "Scene 5: The Decisive Bokken Cut", prompt: "Stickman grips wooden practice sword with both hands, stepping forward with thunderous kiai yell, cutting cleanly through the shadow demon with laser focus." },
+      { beat: "Scene 6: Daily Iron Routine", prompt: "Split-screen montage: stickman training in morning mist, reading difficult books by desk lamp, and pushing physical limits through daily unwavering repetition." },
+      { beat: "Scene 7: The Unshakable Mind", prompt: "Samurai stickman sitting in quiet seiza meditation on polished wooden temple veranda, cherry blossoms gently falling. Complete inner mastery." }
     ]
   },
   {
@@ -194,13 +246,13 @@ const INK_EXPLAINER_STORIES = [
     channel: "@Inkexplainer96",
     hook: "If you lived to 100, that is roughly 5,200 weeks. Most people have already spent half of them worrying about nothing.",
     scenes: [
-      { beat: "Scene 1: The 5200 Grid", prompt: "Stickman looking at colossal grid of 5,200 small square marble blocks on museum wall representing weeks of life." },
-      { beat: "Scene 2: Childhood Innocence", prompt: "Young stickman chasing butterflies in vibrant green meadow under warm summer sun." },
-      { beat: "Scene 3: The 20s Hustle", prompt: "Stickman burning midnight oil at desk building dreams with coffee mug and open blueprint." },
-      { beat: "Scene 4: The Family Hearth", prompt: "Stickman holding hands with loved ones around warm kitchen table sharing laughter and food." },
-      { beat: "Scene 5: What Really Mattered", prompt: "Stickman discarding heavy stone suitcase labeled 'What other people think' into deep canyon." },
-      { beat: "Scene 6: Legacy Creation", prompt: "Stickman planting oak tree sapling that will shelter generations they will never meet." },
-      { beat: "Scene 7: The Golden Hour", prompt: "Elderly stickman with walking staff sitting on hill overlooking ocean sunset, total inner peace." }
+      { beat: "Scene 1: The 5,200 Marble Grid", prompt: "Stickman walking through a grand museum hall with a massive wall displaying 5,200 small glass marbles arranged in a grid, each marble representing one week of life." },
+      { beat: "Scene 2: Youth in the Sun", prompt: "First 1,000 marbles glow golden-yellow: young stickman running barefoot through sunlit dandelion field chasing paper airplanes with boundless joyful laughter." },
+      { beat: "Scene 3: The 20s & 30s Hustle", prompt: "Middle marbles pulsing electric blue: stickman burning late-night oil building dreams, navigating career storms, and celebrating hard-fought victories." },
+      { beat: "Scene 4: The Shared Table", prompt: "Warm family kitchen: stickman surrounded by friends and loved ones passing bowls of steaming food, shared stories and heartfelt smiles lighting the room." },
+      { beat: "Scene 5: Letting Go of the Heavy Bag", prompt: "High canyon bridge: stickman takes off heavy stone backpack engraved with 'What Others Think of Me' and drops it into the bottomless abyss, smiling freely." },
+      { beat: "Scene 6: Planting the Oak Tree", prompt: "Stickman on green rolling hill carefully planting a young oak sapling, watering it knowing he will never sit beneath its full shade. Creating generational legacy." },
+      { beat: "Scene 7: Sunset on the Ocean Summit", prompt: "Elderly stickman with wooden staff sitting peacefully on wooden bench overlooking a golden sunset ocean. The final marble glows softly in hand. Total serenity and fulfilled life." }
     ]
   }
 ];
@@ -215,7 +267,7 @@ const ROADMAP_TIMELINE = [
     phase: "Step 1: Viral Topic Discovery",
     desc: "Open the built-in YouTube Viral Radar. Filter by Shorts or Full Videos. Spot a topic with 5M+ views and click '⚡ Remake in Studio' to lock in the psychological hook.",
     icon: "📡",
-    color: "from-blue-500/20 to-blue-500/5",
+    color: "from-blue-500/15 to-blue-500/5",
     border: "border-blue-500/30"
   },
   {
@@ -224,7 +276,7 @@ const ROADMAP_TIMELINE = [
     phase: "Step 2: 5-Stage Storyboard Prompts",
     desc: "Select 1 of 16 Locked Character Style Engines (e.g. Modern Beanie Zeke or Edo Samurai). Generate 7 beat-by-beat scene prompts with frozen visual anatomy.",
     icon: "🎨",
-    color: "from-purple-500/20 to-purple-500/5",
+    color: "from-purple-500/15 to-purple-500/5",
     border: "border-purple-500/30"
   },
   {
@@ -233,7 +285,7 @@ const ROADMAP_TIMELINE = [
     phase: "Step 3: Neural Voiceover & Subtitles",
     desc: "Select natural voice (Christopher for deep English or Madhur for natural Hindi). Generate crystal-clear audio and export word-by-word synced .srt subtitles.",
     icon: "🎙️",
-    color: "from-amber-500/20 to-amber-500/5",
+    color: "from-amber-500/15 to-amber-500/5",
     border: "border-amber-500/30"
   },
   {
@@ -242,7 +294,7 @@ const ROADMAP_TIMELINE = [
     phase: "Step 4: CapCut / Web Video Assembly",
     desc: "Drop the 7 generated scene clips and neural voice track into CapCut (or use Web Video Exporter). Apply Hormozi bold captions and speed ramps.",
     icon: "🎬",
-    color: "from-emerald-500/20 to-emerald-500/5",
+    color: "from-emerald-500/15 to-emerald-500/5",
     border: "border-emerald-500/30"
   },
   {
@@ -251,7 +303,7 @@ const ROADMAP_TIMELINE = [
     phase: "Step 5: Publish & Algorithm Optimization",
     desc: "Export 9:16 vertical video (1080x1920, 60fps). Post to YouTube Shorts, Instagram Reels, and TikTok using high-CTR stickman tags.",
     icon: "🚀",
-    color: "from-rose-500/20 to-rose-500/5",
+    color: "from-rose-500/15 to-rose-500/5",
     border: "border-rose-500/30"
   }
 ];
@@ -283,34 +335,37 @@ const ROADMAP_WEEKS = [
   }
 ];
 
+// ══════════════════════════════════════════════════════════════════════════════
+// LAUNCHERS CONFIGURATION (Matches Image 3 Reference)
+// ══════════════════════════════════════════════════════════════════════════════
 const MULTI_PLATFORM_LAUNCHERS = [
   {
     os: "Windows 10 / 11",
-    file: "Launch_StickMotion_Windows.bat",
+    file: "File: Launch_StickMotion_Windows.bat",
     desc: "Double-click to start local engine and open Chrome/Edge instantly at :8080. Includes Silent VBS launcher for background execution.",
     badge: "1-Click .bat",
-    icon: "🪟"
+    IconComponent: WindowsIcon
   },
   {
     os: "macOS (Apple Silicon & Intel)",
-    file: "Launch_StickMotion_Mac.command",
+    file: "File: Launch_StickMotion_Mac.command",
     desc: "Native double-clickable launcher with automated chmod +x permissions and Safari/Chrome integration.",
     badge: "1-Click .command",
-    icon: "🍎"
+    IconComponent: AppleIcon
   },
   {
     os: "Chrome & Edge Extension",
-    file: "extension/ (Manifest V3)",
+    file: "File: extension/ (Manifest V3)",
     desc: "Side-panel stickman director extension. Generate prompts, copy story packs, and monitor YouTube radar right inside your browser.",
     badge: "Chrome Web Store Ready",
-    icon: "🧩"
+    IconComponent: ChromeIcon
   },
   {
     os: "Android Mobile PWA",
-    file: "manifest.json & sw.js",
+    file: "File: manifest.json & sw.js",
     desc: "Install directly from browser to Android home screen. Offline caching, responsive touch UI, and mobile script generator.",
     badge: "Install to Home Screen",
-    icon: "📱"
+    IconComponent: AndroidIcon
   }
 ];
 
@@ -343,15 +398,6 @@ export default function ProductDetailPage({ params }) {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
       toast.success("Product link copied to clipboard!");
-    }
-  };
-
-  const handleCopyStoryPrompts = (story) => {
-    const fullText = `=== ${story.title} (${story.views}) ===\nHOOK: ${story.hook}\n\nSCENE PROMPTS:\n` +
-      story.scenes.map((s) => `[${s.beat}]\n${s.prompt}`).join("\n\n");
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(fullText);
-      toast.success(`Copied 7 scene prompts for "${story.title}"!`);
     }
   };
 
@@ -412,36 +458,20 @@ export default function ProductDetailPage({ params }) {
           <div className="flex items-center justify-between gap-3 text-xs py-1">
             <Link
               href="/store"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-amber-400 font-bold transition shadow-sm cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-amber-500 font-bold transition shadow-sm cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Store</span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              {product.sampleDownloadUrl && (
-                <a
-                  href={product.sampleDownloadUrl}
-                  download="StickMotion_AI_Master_Creator_Guide.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/30 text-amber-400 font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm text-xs"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Free PDF Guide</span>
-                  <span className="sm:hidden">PDF</span>
-                </a>
-              )}
-
-              <button
-                onClick={handleShare}
-                className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1.5 cursor-pointer shadow-sm text-xs font-semibold"
-                title="Share Product Link"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Share</span>
-              </button>
-            </div>
+            <button
+              onClick={handleShare}
+              className="px-3.5 py-2 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center gap-1.5 cursor-pointer shadow-sm text-xs font-semibold"
+              title="Share Product Link"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Share Product</span>
+            </button>
           </div>
 
           {/* ═══════════════════════════════════════════════════
@@ -450,24 +480,46 @@ export default function ProductDetailPage({ params }) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             {/* Left 7 Columns: Core Value & Visual Experience */}
-            <div className="lg:col-span-7 space-y-5">
+            <div className="lg:col-span-7 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
                   {product.badge}
                 </span>
-                <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  Instant Download (.zip + PDF)
+                <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20">
+                  ⚡ Instant Universal Download
                 </span>
-                {isStickMotion && (
-                  <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    477 MB Complete Kit
-                  </span>
-                )}
+                <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                  🛡️ 100% Commercial Rights
+                </span>
               </div>
 
               <h1 className="text-2xl sm:text-3.5xl font-black text-[var(--text-primary)] tracking-tight leading-tight">
                 {product.title}
               </h1>
+
+              {/* ═══════════════════════════════════════════════════
+                  GLOWING MULTI-DEVICE DOWNLOAD BANNER
+              ═══════════════════════════════════════════════════ */}
+              <div className="relative overflow-hidden p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border-2 border-amber-500/40 dark:border-amber-400/40 shadow-lg space-y-2 text-slate-900 dark:text-slate-100">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 fill-current text-amber-600 dark:text-amber-400" />
+                      <span>Instant Universal Download on Any Device</span>
+                    </span>
+                  </div>
+                  <span className="text-[10.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-600/15 text-emerald-900 dark:text-emerald-300 border border-emerald-500/40">
+                    Zero Install • Runs Completely Offline
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug">
+                  📥 Download once and run on <strong className="text-amber-800 dark:text-amber-300 font-black">Windows 10/11</strong>, <strong className="text-blue-800 dark:text-blue-300 font-black">macOS</strong>, <strong className="text-emerald-800 dark:text-emerald-300 font-black">Android Phones</strong>, or as a <strong className="text-purple-800 dark:text-purple-300 font-black">Chrome/Edge Extension</strong>. Double-click to launch in any browser — zero complex command line or node setup required!
+                </p>
+              </div>
 
               {/* Product Visual Banner */}
               <div className="relative w-full h-56 sm:h-80 rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-canvas)] shadow-md group">
@@ -478,21 +530,21 @@ export default function ProductDetailPage({ params }) {
                 />
               </div>
 
-              <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-medium">
+              <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
                 {product.subtitle}
               </p>
 
               {/* Verified Product Quality Rating */}
               <div className="flex flex-wrap items-center gap-3 text-xs">
-                <div className="flex items-center gap-1 font-bold text-amber-400">
+                <div className="flex items-center gap-1 font-bold text-amber-500">
                   <span>★★★★★</span>
-                  <span className="text-xs font-bold text-amber-400">5.0</span>
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400">5.0</span>
                   <span className="text-[var(--text-muted)] font-medium">
                     (Verified Creator Rated)
                   </span>
                 </div>
                 <span className="text-[var(--text-muted)]">•</span>
-                <span className="text-emerald-400 font-medium flex items-center gap-1">
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Instant Download + Free Lifetime Updates</span>
                 </span>
@@ -517,7 +569,7 @@ export default function ProductDetailPage({ params }) {
                 <div className="p-4 sm:p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3.5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <span className="font-bold text-xs uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                      <span className="font-bold text-xs uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5" />
                         <span>Visual Style Engines & 4K Storyboard Gallery</span>
                       </span>
@@ -577,7 +629,7 @@ export default function ProductDetailPage({ params }) {
                             <Eye className="w-3 h-3" />
                           </span>
                         </div>
-                        <span className="text-[10px] font-bold text-[var(--text-secondary)] group-hover/card:text-amber-400 block text-center truncate px-1 py-0.5">
+                        <span className="text-[10px] font-bold text-[var(--text-secondary)] group-hover/card:text-amber-500 block text-center truncate px-1 py-0.5">
                           {img.label}
                         </span>
                       </div>
@@ -599,7 +651,7 @@ export default function ProductDetailPage({ params }) {
               {/* The Core Problem & Solution (WHY BUY THIS) */}
               <div className="p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3">
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-rose-500 flex items-center gap-1.5">
                     <span>The Problem It Solves:</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed mt-1 font-medium">
@@ -608,7 +660,7 @@ export default function ProductDetailPage({ params }) {
                 </div>
 
                 <div className="pt-3 border-t border-[var(--border-subtle)]">
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                     <span>The Solution & Direct Value:</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed mt-1 font-medium">
@@ -621,7 +673,7 @@ export default function ProductDetailPage({ params }) {
 
             {/* Right 5 Columns: Sticky Pricing & Action Card */}
             <div className="lg:col-span-5 space-y-4">
-              <div className="sticky top-6 p-6 rounded-3xl bg-[var(--bg-surface)] border border-amber-400/40 shadow-2xl space-y-5">
+              <div className="sticky top-6 p-6 rounded-3xl bg-[var(--bg-surface)] border-2 border-amber-400/40 shadow-2xl space-y-5">
                 
                 {/* Price Display */}
                 <div>
@@ -632,7 +684,7 @@ export default function ProductDetailPage({ params }) {
                     <span className="text-sm text-[var(--text-muted)] line-through">
                       ${product.originalPriceUSD}
                     </span>
-                    <span className="ml-auto px-2 py-0.5 rounded-md text-xs font-black bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                    <span className="ml-auto px-2 py-0.5 rounded-md text-xs font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                       SAVE {discountPercent}%
                     </span>
                   </div>
@@ -644,32 +696,18 @@ export default function ProductDetailPage({ params }) {
                 {/* Instant Checkout Button */}
                 <button
                   onClick={handleCheckout}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm shadow-xl shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                  className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm shadow-xl shadow-amber-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                 >
                   <Zap className="w-4 h-4 fill-current" />
                   <span>Get Instant Access (${product.priceUSD})</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </button>
 
-                {/* Free Sample PDF Download Button */}
-                {product.sampleDownloadUrl && (
-                  <a
-                    href={product.sampleDownloadUrl}
-                    download="StickMotion_AI_Master_Creator_Guide.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-2.5 px-4 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-amber-400/40 hover:border-amber-400 text-amber-400 font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-sm text-center"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>📖 Download Free PDF Manual Preview</span>
-                  </a>
-                )}
-
                 {/* Universal Payment Guarantee */}
                 <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-1.5 text-xs">
-                  <div className="font-bold text-[var(--text-primary)] text-[11.5px] flex items-center gap-1.5 text-emerald-500">
+                  <div className="font-bold text-[var(--text-primary)] text-[11.5px] flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Universal Checkout (USD & UPI)</span>
+                    <span>Universal Smart Checkout (USD & UPI)</span>
                   </div>
                   <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
                     International buyers pay via Stripe (Credit Card, Apple Pay). Indian buyers can pay via UPI with instant automatic currency conversion on Topmate.
@@ -677,32 +715,20 @@ export default function ProductDetailPage({ params }) {
                 </div>
 
                 {/* Trust Inclusions */}
-                <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
+                <div className="space-y-2 text-xs text-[var(--text-secondary)]">
                   <div className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Instant on-screen & email download link</span>
+                    <Check className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Instant on-screen & email digital download link</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-amber-400" />
+                    <Check className="w-3.5 h-3.5 text-amber-500" />
                     <span>Commercial white-label license included</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Format: {product.fileFormat || "Digital Download Package"}</span>
+                    <Check className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Complete Production Kit (.zip) + Master Manual</span>
                   </div>
                 </div>
-
-                {/* Quick Spec Highlights */}
-                {isStickMotion && (
-                  <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-[11px] space-y-1">
-                    <span className="font-bold text-amber-400 block">Package Integrity:</span>
-                    <p className="text-[var(--text-muted)]">
-                      • 500,505,918 Bytes (477.32 MB) Verified ZIP<br/>
-                      • Windows .bat, Mac .command, Chrome Ext, PWA<br/>
-                      • 10 Story Packs + 16 Style Engines + Radar
-                    </p>
-                  </div>
-                )}
 
               </div>
             </div>
@@ -710,13 +736,13 @@ export default function ProductDetailPage({ params }) {
           </div>
 
           {/* ═══════════════════════════════════════════════════
-              STICKMOTION ONLY: 30-DAY DAILY UPLOAD ROUTINE & ROADMAP
+              STICKMOTION: 30-DAY DAILY UPLOAD ROUTINE & ROADMAP
           ═══════════════════════════════════════════════════ */}
           {isStickMotion && (
             <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-amber-400/30 space-y-6 shadow-xl">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-subtle)]">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30 inline-block mb-1">
+                  <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 inline-block mb-1">
                     Clockwork Daily System
                   </span>
                   <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
@@ -726,7 +752,7 @@ export default function ProductDetailPage({ params }) {
                     A strictly engineered 45-minute daily production routine. From zero followers to YouTube monetization.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-emerald-400">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-emerald-600 dark:text-emerald-400">
                   <Clock className="w-4 h-4" />
                   <span>45 Minutes / Day Total</span>
                 </div>
@@ -734,7 +760,7 @@ export default function ProductDetailPage({ params }) {
 
               {/* 5-Step Daily Clockwork Routine */}
               <div className="space-y-3">
-                <span className="font-bold text-xs uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <span className="font-bold text-xs uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>The 45-Minute Daily Clockwork Timeline:</span>
                 </span>
@@ -748,7 +774,7 @@ export default function ProductDetailPage({ params }) {
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xl">{step.icon}</span>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-black/40 text-amber-300 font-mono">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-black/10 dark:bg-black/40 text-amber-800 dark:text-amber-300 font-mono">
                             {step.duration}
                           </span>
                         </div>
@@ -769,7 +795,7 @@ export default function ProductDetailPage({ params }) {
 
               {/* 4-Week Milestone Roadmap */}
               <div className="space-y-3 pt-3 border-t border-[var(--border-subtle)]">
-                <span className="font-bold text-xs uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <span className="font-bold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>4-Week Growth Milestones to Monetization:</span>
                 </span>
@@ -780,8 +806,8 @@ export default function ProductDetailPage({ params }) {
                       className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-1.5"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-black text-amber-400">{w.week}</span>
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        <span className="text-xs font-black text-amber-600 dark:text-amber-400">{w.week}</span>
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                           {w.target}
                         </span>
                       </div>
@@ -800,28 +826,28 @@ export default function ProductDetailPage({ params }) {
           )}
 
           {/* ═══════════════════════════════════════════════════
-              STICKMOTION ONLY: 10 READY-MADE VIRAL STORY PACKS
+              STICKMOTION: 10 READY-MADE VIRAL STORY PACKS WITH LOCK
           ═══════════════════════════════════════════════════ */}
           {isStickMotion && (
             <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-subtle)]">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/30 inline-block mb-1">
-                    YouTube Ranked Content (18M+ Views)
+                  <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 inline-block mb-1">
+                    YouTube Ranked Series (18M+ Views)
                   </span>
                   <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
                     10 Ready-Made Viral Story Prompt Packs
                   </h2>
                   <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
-                    Curated directly from @Inkexplainer96 viral master hits. Complete 7-scene beat prompts with 1-click copy.
+                    Curated directly from @Inkexplainer96 viral master hits. Detailed 7-scene narrative formulas with frozen character continuity.
                   </p>
                 </div>
                 <button
-                  onClick={() => handleCopyStoryPrompts(INK_EXPLAINER_STORIES[activeStoryIndex])}
+                  onClick={handleCheckout}
                   className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95"
                 >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Active 7 Prompts</span>
+                  <Unlock className="w-3.5 h-3.5" />
+                  <span>Unlock All 10 Packs ($19)</span>
                 </button>
               </div>
 
@@ -835,13 +861,13 @@ export default function ProductDetailPage({ params }) {
                       onClick={() => setActiveStoryIndex(idx)}
                       className={`p-2.5 rounded-xl text-left border transition cursor-pointer space-y-1 ${
                         isActive
-                          ? "bg-amber-500/15 border-amber-400 text-amber-400 shadow-sm"
-                          : "bg-[var(--bg-canvas)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-white/20"
+                          ? "bg-amber-500/15 border-amber-500 text-amber-700 dark:text-amber-400 shadow-sm"
+                          : "bg-[var(--bg-canvas)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                       }`}
                     >
                       <div className="flex items-center justify-between text-[10px] font-mono">
                         <span className="font-bold">Story #{idx + 1}</span>
-                        <span className="text-emerald-400 font-bold">{story.views}</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">{story.views}</span>
                       </div>
                       <p className="text-[11px] font-bold line-clamp-1 leading-tight">
                         {story.title}
@@ -851,16 +877,16 @@ export default function ProductDetailPage({ params }) {
                 })}
               </div>
 
-              {/* Active Story Details & Scene Prompts */}
+              {/* Active Story Details */}
               {INK_EXPLAINER_STORIES[activeStoryIndex] && (
                 <div className="p-5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle)]">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-amber-400">
+                        <span className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">
                           STORY #{activeStoryIndex + 1}
                         </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-bold">
                           {INK_EXPLAINER_STORIES[activeStoryIndex].views}
                         </span>
                         <span className="text-[10px] font-mono text-[var(--text-muted)]">
@@ -873,56 +899,88 @@ export default function ProductDetailPage({ params }) {
                     </div>
 
                     <button
-                      onClick={() => handleCopyStoryPrompts(INK_EXPLAINER_STORIES[activeStoryIndex])}
-                      className="px-3 py-1.5 rounded-lg bg-[var(--bg-surface)] hover:bg-amber-500/20 border border-[var(--border-subtle)] hover:border-amber-400 text-xs font-bold text-[var(--text-primary)] transition flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+                      onClick={handleCheckout}
+                      className="px-3 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-bold transition flex items-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-sm active:scale-95"
                     >
-                      <Copy className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Copy All Prompts</span>
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Unlock All Prompts</span>
                     </button>
                   </div>
 
                   {/* Hook Box */}
                   <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/25 space-y-1">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-rose-400 block">
-                      🎣 3-Second Golden Hook (Speech & Script):
+                    <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 block font-bold">
+                      🎣 3-Second Golden Hook (Script & Audio):
                     </span>
-                    <p className="text-xs sm:text-sm text-white/90 font-semibold italic">
+                    <p className="text-xs sm:text-sm text-[var(--text-primary)] font-semibold italic">
                       "{INK_EXPLAINER_STORIES[activeStoryIndex].hook}"
                     </p>
                   </div>
 
-                  {/* 7 Beat Scene Prompts */}
-                  <div className="space-y-2">
-                    <span className="text-[11px] font-black uppercase tracking-wider text-amber-400 block">
-                      🎬 7-Scene Dynamic Beat Prompts (Universal Diffusion Formula):
+                  {/* 7 Beat Scene Prompts with Paywall Lock */}
+                  <div className="space-y-3 relative">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
+                      🎬 7-Scene Narrative Prompts (Universal Diffusion Formula):
                     </span>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                      {INK_EXPLAINER_STORIES[activeStoryIndex].scenes.map((sc, i) => (
-                        <div
-                          key={i}
-                          className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1"
-                        >
-                          <div className="flex items-center justify-between text-[10.5px]">
-                            <span className="font-bold text-amber-400">{sc.beat}</span>
-                            <button
-                              onClick={() => {
-                                if (typeof window !== "undefined") {
-                                  navigator.clipboard.writeText(sc.prompt);
-                                  toast.success(`Copied ${sc.beat}!`);
-                                }
-                              }}
-                              className="text-[10px] text-[var(--text-muted)] hover:text-amber-400 transition flex items-center gap-1 cursor-pointer"
-                            >
-                              <Copy className="w-3 h-3" />
-                              <span>Copy</span>
-                            </button>
+
+                    {/* Scene 1: Fully Visible Free Sample */}
+                    <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-amber-500/30 space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>{INK_EXPLAINER_STORIES[activeStoryIndex].scenes[0].beat} (Free Sample)</span>
+                        </span>
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                          Active Sample
+                        </span>
+                      </div>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                        {INK_EXPLAINER_STORIES[activeStoryIndex].scenes[0].prompt}
+                      </p>
+                    </div>
+
+                    {/* Scenes 2 to 7: Blurred Behind Lock Paywall */}
+                    <div className="relative rounded-2xl overflow-hidden border border-[var(--border-subtle)] p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 filter blur-[5px] select-none pointer-events-none opacity-40">
+                        {INK_EXPLAINER_STORIES[activeStoryIndex].scenes.slice(1).map((sc, i) => (
+                          <div
+                            key={i}
+                            className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1"
+                          >
+                            <span className="font-bold text-amber-500 text-[10.5px] block">{sc.beat}</span>
+                            <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                              {sc.prompt}
+                            </p>
                           </div>
-                          <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-                            {sc.prompt}
+                        ))}
+                      </div>
+
+                      {/* Floating Lock Paywall Overlay */}
+                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center bg-black/40 backdrop-blur-[3px] rounded-2xl space-y-3">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-500 text-black flex items-center justify-center shadow-lg shadow-amber-500/30">
+                          <Lock className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h4 className="text-base sm:text-lg font-black text-white">
+                            70 Beat-by-Beat Production Prompts Locked
+                          </h4>
+                          <p className="text-xs text-white/80 max-w-md mt-1 font-medium">
+                            Includes complete scene directions, 85mm camera angles, lighting prompts, and character lock seeds across all 10 viral hit packs.
                           </p>
                         </div>
-                      ))}
+                        <button
+                          onClick={handleCheckout}
+                          className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs transition shadow-xl shadow-amber-500/30 flex items-center gap-2 cursor-pointer active:scale-95"
+                        >
+                          <Zap className="w-4 h-4 fill-current" />
+                          <span>Unlock All 10 Packs ($19) — Included in Complete Kit</span>
+                        </button>
+                        <span className="text-[10px] text-white/70 font-mono">
+                          Instant Digital Download • Lifetime Updates Included
+                        </span>
+                      </div>
                     </div>
+
                   </div>
 
                 </div>
@@ -932,82 +990,116 @@ export default function ProductDetailPage({ params }) {
           )}
 
           {/* ═══════════════════════════════════════════════════
-              STICKMOTION ONLY: MULTI-PLATFORM LAUNCHERS
+              CHOOSE HOW YOU WANT TO LAUNCH (MATCHES IMAGE 3)
           ═══════════════════════════════════════════════════ */}
           {isStickMotion && (
             <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-5">
-              <div>
-                <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/30 inline-block mb-1">
-                  100% Turnkey Deployment
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle)]">
+                <div>
+                  <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20 inline-block mb-1">
+                    GET STARTED ON YOUR DEVICE
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+                    Choose how you want to launch
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
+                    Pick the option that matches your device. Each launcher is designed to run the StickMotion Studio locally with minimal setup.
+                  </p>
+                </div>
+                <span className="text-[11px] font-mono font-bold px-3 py-1.5 rounded-xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-secondary)] self-start sm:self-auto">
+                  [4 LAUNCH OPTIONS]
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
-                  Multi-Platform Launchers & Zero-Setup Apps
-                </h3>
-                <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
-                  Run the studio locally on any device without configuring Node, Python virtualenvs, or complex terminal commands.
-                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {MULTI_PLATFORM_LAUNCHERS.map((launcher, idx) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2 flex flex-col justify-between"
-                  >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-2xl">{launcher.icon}</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                          {launcher.badge}
-                        </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {MULTI_PLATFORM_LAUNCHERS.map((launcher, idx) => {
+                  const Icon = launcher.IconComponent;
+                  return (
+                    <div
+                      key={idx}
+                      className="p-5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] hover:border-amber-500/40 transition-all space-y-3 flex flex-col justify-between shadow-sm"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Icon className="w-7 h-7" />
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40">
+                            {launcher.badge}
+                          </span>
+                        </div>
+                        <h4 className="text-sm sm:text-base font-black text-[var(--text-primary)]">
+                          {launcher.os}
+                        </h4>
+                        <div className="inline-block px-2.5 py-1 rounded-md bg-amber-500/10 dark:bg-amber-500/15 border border-amber-300/80 dark:border-amber-500/40">
+                          <span className="text-[11px] font-mono font-bold text-amber-800 dark:text-amber-300 block">
+                            {launcher.file}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                          {launcher.desc}
+                        </p>
                       </div>
-                      <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)]">
-                        {launcher.os}
-                      </h4>
-                      <span className="text-[10px] font-mono text-amber-400/90 block">
-                        File: {launcher.file}
-                      </span>
-                      <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-                        {launcher.desc}
-                      </p>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+              </div>
+
+              {/* Bottom Callout Banner */}
+              <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-2.5 text-xs text-[var(--text-secondary)]">
+                <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  <strong className="text-[var(--text-primary)]">Quick guide:</strong> Windows and Mac are desktop launchers; Chrome & Edge is a browser extension; Android PWA is the installable mobile app for your phone.
+                </p>
               </div>
             </div>
           )}
 
           {/* ═══════════════════════════════════════════════════
-              DELIVERABLES & CONCRETE FAYADA (WHAT YOU GET)
+              EVERYTHING INCLUDED IN THIS PACKAGE (MATCHES IMAGE 3)
           ═══════════════════════════════════════════════════ */}
           <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-6">
             
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
-                Everything Included in this Package
-              </h2>
-              <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1">
-                You get the complete, unredacted production assets immediately upon ordering.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle)]">
+              <div>
+                <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20 inline-block mb-1">
+                  YOUR COMPLETE CREATOR TOOLKIT
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+                  Everything Included in This Package
+                </h2>
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
+                  You get the complete, unredacted production assets immediately upon ordering.
+                </p>
+              </div>
+              <span className="text-[11px] font-mono font-bold px-3 py-1.5 rounded-xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-secondary)] self-start sm:self-auto">
+                [{product.deliverables.length} FULL PACKAGE]
+              </span>
             </div>
 
-            {/* Deliverables Checklist */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Deliverables Checklist (2 Columns x 6 Rows) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               {product.deliverables.map((item, i) => (
                 <div
                   key={i}
-                  className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] flex items-start gap-2.5 text-xs sm:text-sm text-[var(--text-secondary)]"
+                  className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] flex items-start gap-3 text-xs sm:text-sm text-[var(--text-secondary)] shadow-sm"
                 >
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span className="font-medium text-[var(--text-primary)]">{item}</span>
+                  <span className="font-semibold text-[var(--text-primary)] leading-relaxed">{item}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Bottom Callout Banner */}
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5 text-xs text-[var(--text-secondary)]">
+              <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <p className="leading-relaxed">
+                <strong className="text-[var(--text-primary)]">What this means:</strong> Launch the studio on your preferred device, then use the included production tools, story packs, voice frames, publishing routine, and creator research in one package.
+              </p>
             </div>
 
             {/* Direct ROI Benefits (Real Fayada) */}
             {product.roiBenefits && (
               <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-2">
-                <h3 className="font-bold text-xs uppercase tracking-wider text-amber-400">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-amber-700 dark:text-amber-400">
                   ⚡ The Return On Investment (Fayada):
                 </h3>
                 <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
@@ -1034,28 +1126,13 @@ export default function ProductDetailPage({ params }) {
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                {product.sampleDownloadUrl && (
-                  <a
-                    href={product.sampleDownloadUrl}
-                    download="StickMotion_AI_Master_Creator_Guide.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-3 rounded-2xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-amber-400/40 text-amber-400 font-bold text-xs transition inline-flex items-center justify-center gap-2 cursor-pointer shadow-md"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Free PDF Guide</span>
-                  </a>
-                )}
-
-                <button
-                  onClick={handleCheckout}
-                  className="px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs shadow-lg shadow-amber-500/20 transition-all inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-                >
-                  <span>Get Instant Access (${product.priceUSD})</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              <button
+                onClick={handleCheckout}
+                className="px-7 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs shadow-lg shadow-amber-500/20 transition-all inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <span>Get Instant Access (${product.priceUSD})</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
             </div>
 
           </div>
@@ -1070,7 +1147,7 @@ export default function ProductDetailPage({ params }) {
           ═══════════════════════════════════════════════════ */}
           <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
             <h3 className="text-base sm:text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-amber-400" />
+              <ShieldCheck className="w-5 h-5 text-amber-500" />
               <span>Frequently Asked Questions</span>
             </h3>
 
@@ -1084,11 +1161,11 @@ export default function ProductDetailPage({ params }) {
                   >
                     <button
                       onClick={() => setOpenFaq(isOpen ? null : i)}
-                      className="w-full p-4 text-left font-bold text-xs sm:text-sm text-[var(--text-primary)] flex items-center justify-between gap-3 hover:text-amber-400 transition-colors cursor-pointer"
+                      className="w-full p-4 text-left font-bold text-xs sm:text-sm text-[var(--text-primary)] flex items-center justify-between gap-3 hover:text-amber-500 transition-colors cursor-pointer"
                     >
                       <span>{faq.q}</span>
                       {isOpen ? (
-                        <ChevronUp className="w-4 h-4 text-amber-400 shrink-0" />
+                        <ChevronUp className="w-4 h-4 text-amber-500 shrink-0" />
                       ) : (
                         <ChevronDown className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
                       )}
@@ -1148,7 +1225,7 @@ export default function ProductDetailPage({ params }) {
               <span>Included in StickMotion AI™ Complete Creator Kit</span>
               <button
                 onClick={() => setSelectedPreview(null)}
-                className="px-3 py-1 rounded-lg bg-[var(--bg-canvas)] text-amber-400 font-bold hover:bg-white/10 transition cursor-pointer"
+                className="px-3 py-1 rounded-lg bg-[var(--bg-canvas)] text-amber-500 font-bold hover:bg-white/10 transition cursor-pointer"
               >
                 Close Preview
               </button>

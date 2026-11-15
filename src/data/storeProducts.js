@@ -151,7 +151,6 @@ export const STORE_PRODUCTS = [
     originalPriceUSD: 69,
     image: "/images/products/stickman-animation-studio-pro.jpg",
     topmateUrl: "https://topmate.io/fondpeace",
-    sampleDownloadUrl: "/downloads/StickMotion_AI_Master_Creator_Guide.pdf",
     previewImages: [
       { label: "Classic Black & White 60fps", url: "/images/products/stickmotion/dark-theme-demo.gif", tag: "Style A1" },
       { label: "Modern Pop (Beanie Zeke)", url: "/images/products/stickmotion/style-2a-demo.gif", tag: "Style A2" },
@@ -185,7 +184,7 @@ export const STORE_PRODUCTS = [
       "🎙️ Commercial-Grade Neural Voice Engine: Natural Hindi (Madhur, Swara) and English (Christopher, Guy, Aria) + ElevenLabs support with auto Hormozi .srt export",
       "📅 30-Day Daily Upload Routine & Beginner Roadmap: Clockwork 45-minute daily production routine with interactive checklist widget",
       "🎠 FondPeace 3D Motion Carousel Studio: Interactive 3D cards, aspect ratio switcher (9:16, 16:9, 1:1), and animated style engine previews",
-      "📖 Illustrated Master Customer Handbook (PDF): 13-page step-by-step PDF creator manual ready for immediate offline reference",
+      "📖 Illustrated Master Customer Handbook (PDF): 13-page step-by-step offline manual included inside your download archive",
       "🧩 Chrome & Edge Extension (Manifest V3): Generate stickman prompts and launch the studio directly from your browser side-panel",
       "📱 Android Progressive Web App (PWA): Install directly to home screen on any Android phone with full offline caching",
       "🛡️ 100% Monetizable Commercial Creator License: Transformative original IP, copyright-safe, approved for YouTube Partner Program (YPP)"
@@ -222,7 +221,7 @@ export const STORE_PRODUCTS = [
       }
     ],
 
-    fileFormat: "Complete Production Creator Kit (.zip, 477 MB) + Master PDF Handbook + Chrome Extension + Desktop & Android Apps",
+    fileFormat: "Complete Production Creator Kit (.zip) + Master PDF Handbook + Chrome Extension + Desktop & Android Apps",
     whoIsThisFor: "Faceless Creators, YouTubers, TikTok/Reel Operators, Storytellers & Marketers looking to build high-retention animated channels without showing their face or spending money on monthly software subscriptions."
   },
   {
