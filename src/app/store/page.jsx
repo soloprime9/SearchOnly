@@ -130,10 +130,11 @@ export default function StorePage() {
             {/* Category Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs font-bold">
               {[
-                { id: "all", label: "All Products", count: STORE_PRODUCTS.length },
-                { id: "prompts", label: "AI Prompts & Rules", count: 2 },
-                { id: "saas", label: "SaaS & Dev Kits", count: 1 },
-                { id: "video", label: "Viral Video Systems", count: 1 }
+                { id: "all", label: "All Systems", count: STORE_PRODUCTS.length },
+                { id: "automation", label: "🤖 AI Business OS", count: STORE_PRODUCTS.filter(p => p.category === "automation").length },
+                { id: "video", label: "🎬 Viral Video Systems", count: STORE_PRODUCTS.filter(p => p.category === "video").length },
+                { id: "prompts", label: "⚡ Prompts & Rules", count: STORE_PRODUCTS.filter(p => p.category === "prompts").length },
+                { id: "saas", label: "💼 Career & Portfolios", count: STORE_PRODUCTS.filter(p => p.category === "saas").length }
               ].map((tab) => {
                 const isActive = activeCategory === tab.id;
                 return (

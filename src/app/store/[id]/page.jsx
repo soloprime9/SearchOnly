@@ -7,6 +7,13 @@ import LeftSidebar from "@/components/LeftSidebar";
 import StoreReviewsCarousel from "@/components/StoreReviewsCarousel";
 import { STORE_PRODUCTS } from "@/data/storeProducts";
 import {
+  AUTOPILOT_SLIDES,
+  AUTOPILOT_MODULES,
+  AUTOPILOT_PROMPTS,
+  AUTOPILOT_VIRAL_CAPTION,
+  AUTOPILOT_FLOW_STAGES
+} from "@/data/autopilotData";
+import {
   ArrowLeft,
   Star,
   Check,
@@ -384,6 +391,18 @@ export default function ProductDetailPage({ params }) {
   ) || STORE_PRODUCTS[0];
 
   const isStickMotion = product.id === "stickmotion-studio";
+  const isAutoPilot = product.id === "fondpeace-autopilot-os";
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [captionCopied, setCaptionCopied] = useState(false);
+
+  const handleCopyCaption = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(AUTOPILOT_VIRAL_CAPTION.text);
+      setCaptionCopied(true);
+      toast.success("Viral Instagram Caption copied to clipboard!");
+      setTimeout(() => setCaptionCopied(false), 2500);
+    }
+  };
 
   const discountPercent = Math.round(
     ((product.originalPriceUSD - product.priceUSD) / product.originalPriceUSD) * 100
@@ -501,26 +520,49 @@ export default function ProductDetailPage({ params }) {
               {/* ═══════════════════════════════════════════════════
                   GLOWING MULTI-DEVICE DOWNLOAD BANNER
               ═══════════════════════════════════════════════════ */}
-              <div className="relative overflow-hidden p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border-2 border-amber-500/40 dark:border-amber-400/40 shadow-lg space-y-2 text-slate-900 dark:text-slate-100">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                    </span>
-                    <span className="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5 fill-current text-amber-600 dark:text-amber-400" />
-                      <span>Instant Universal Download on Any Device</span>
+              {isAutoPilot ? (
+                <div className="relative overflow-hidden p-4 rounded-2xl bg-orange-500/10 dark:bg-orange-500/15 border-2 border-orange-500/40 dark:border-orange-400/40 shadow-lg space-y-2 text-slate-900 dark:text-slate-100">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
+                      </span>
+                      <span className="text-xs font-black uppercase tracking-wider text-orange-900 dark:text-orange-300 flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 fill-current text-orange-600 dark:text-orange-400" />
+                        <span>Instant Access • 31-Page Master Playbook + Prompts & Funnels</span>
+                      </span>
+                    </div>
+                    <span className="text-[10.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-600/15 text-emerald-900 dark:text-emerald-300 border border-emerald-500/40">
+                      Claude AI • Zapier • Google Sheets • Meta CRM
                     </span>
                   </div>
-                  <span className="text-[10.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-600/15 text-emerald-900 dark:text-emerald-300 border border-emerald-500/40">
-                    Zero Install • Runs Completely Offline
-                  </span>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug">
+                    🚀 Run your business on autopilot with <strong className="text-orange-800 dark:text-orange-300 font-black">Claude AI</strong>. Includes complete <strong className="text-blue-800 dark:text-blue-300 font-black">20 Production Prompts</strong>, <strong className="text-purple-800 dark:text-purple-300 font-black">40 Reel Ideas</strong>, <strong className="text-emerald-800 dark:text-emerald-300 font-black">Inbound DM Funnels</strong>, and a clockwork <strong className="text-amber-800 dark:text-amber-300 font-black">60-Day Launch Blueprint</strong>!
+                  </p>
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug">
-                  📥 Download once and run on <strong className="text-amber-800 dark:text-amber-300 font-black">Windows 10/11</strong>, <strong className="text-blue-800 dark:text-blue-300 font-black">macOS</strong>, <strong className="text-emerald-800 dark:text-emerald-300 font-black">Android Phones</strong>, or as a <strong className="text-purple-800 dark:text-purple-300 font-black">Chrome/Edge Extension</strong>. Double-click to launch in any browser — zero complex command line or node setup required!
-                </p>
-              </div>
+              ) : (
+                <div className="relative overflow-hidden p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border-2 border-amber-500/40 dark:border-amber-400/40 shadow-lg space-y-2 text-slate-900 dark:text-slate-100">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                      </span>
+                      <span className="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 fill-current text-amber-600 dark:text-amber-400" />
+                        <span>Instant Universal Download on Any Device</span>
+                      </span>
+                    </div>
+                    <span className="text-[10.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-600/15 text-emerald-900 dark:text-emerald-300 border border-emerald-500/40">
+                      Zero Install • Runs Completely Offline
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug">
+                    📥 Download once and run on <strong className="text-amber-800 dark:text-amber-300 font-black">Windows 10/11</strong>, <strong className="text-blue-800 dark:text-blue-300 font-black">macOS</strong>, <strong className="text-emerald-800 dark:text-emerald-300 font-black">Android Phones</strong>, or as a <strong className="text-purple-800 dark:text-purple-300 font-black">Chrome/Edge Extension</strong>. Double-click to launch in any browser — zero complex command line or node setup required!
+                  </p>
+                </div>
+              )}
 
               {/* Product Visual Banner */}
               <div className="relative w-full h-56 sm:h-80 rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-canvas)] shadow-md group">
@@ -564,9 +606,106 @@ export default function ProductDetailPage({ params }) {
               </div>
 
               {/* ═══════════════════════════════════════════════════
+                  AUTOPILOT: INTERACTIVE 8-SLIDE CAROUSEL VIEWER
+              ═══════════════════════════════════════════════════ */}
+              {isAutoPilot && (
+                <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-orange-500/30 space-y-4 shadow-xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="font-bold text-xs uppercase tracking-wider text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Interactive 8-Slide Visual Carousel Preview</span>
+                      </span>
+                      <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
+                        Step-by-step framework: How to run your business on autopilot with Claude
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-orange-600 dark:text-orange-400 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                        Slide {activeSlideIndex + 1} of {AUTOPILOT_SLIDES.length}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Active Slide Display */}
+                  <div className="relative rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-black/40 flex flex-col md:flex-row gap-4 p-3 sm:p-4">
+                    <div className="w-full md:w-1/2 aspect-[4/5] rounded-xl overflow-hidden bg-slate-900 border border-slate-700/50 flex items-center justify-center relative group">
+                      <img
+                        src={AUTOPILOT_SLIDES[activeSlideIndex].image}
+                        alt={AUTOPILOT_SLIDES[activeSlideIndex].title}
+                        className="w-full h-full object-contain"
+                      />
+                      <button
+                        onClick={() => setSelectedPreview({ url: AUTOPILOT_SLIDES[activeSlideIndex].image, label: AUTOPILOT_SLIDES[activeSlideIndex].title, tag: "Carousel Slide" })}
+                        className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-black/75 hover:bg-black text-white text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-1.5 opacity-90 hover:opacity-100 transition cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Fullscreen</span>
+                      </button>
+                    </div>
+
+                    <div className="w-full md:w-1/2 flex flex-col justify-between py-1 space-y-3">
+                      <div className="space-y-2.5">
+                        <span className="inline-block px-2.5 py-1 rounded-md bg-orange-500/15 border border-orange-500/30 text-orange-700 dark:text-orange-400 text-xs font-bold uppercase tracking-wider">
+                          {AUTOPILOT_SLIDES[activeSlideIndex].badge}
+                        </span>
+                        <h3 className="text-lg sm:text-xl font-black text-[var(--text-primary)] leading-snug">
+                          {AUTOPILOT_SLIDES[activeSlideIndex].title}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
+                          {AUTOPILOT_SLIDES[activeSlideIndex].subtitle}
+                        </p>
+                        <div className="space-y-2 pt-2">
+                          {AUTOPILOT_SLIDES[activeSlideIndex].bullets.map((b, bi) => (
+                            <div key={bi} className="flex items-center gap-2 text-xs text-[var(--text-secondary)] font-medium">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                              <span>{b}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-3 border-t border-[var(--border-subtle)]">
+                        <button
+                          onClick={() => setActiveSlideIndex((prev) => (prev > 0 ? prev - 1 : AUTOPILOT_SLIDES.length - 1))}
+                          className="flex-1 py-2.5 px-3 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] transition flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          ← Previous
+                        </button>
+                        <button
+                          onClick={() => setActiveSlideIndex((prev) => (prev < AUTOPILOT_SLIDES.length - 1 ? prev + 1 : 0))}
+                          className="flex-1 py-2.5 px-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-black text-xs font-black transition flex items-center justify-center gap-1 cursor-pointer shadow-md shadow-orange-500/20"
+                        >
+                          Next Slide →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Thumbnail Strip */}
+                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 pt-1">
+                    {AUTOPILOT_SLIDES.map((slide, sIdx) => (
+                      <button
+                        key={sIdx}
+                        onClick={() => setActiveSlideIndex(sIdx)}
+                        className={`relative aspect-[4/5] rounded-lg overflow-hidden border-2 transition cursor-pointer ${
+                          activeSlideIndex === sIdx ? "border-orange-500 scale-105 shadow-md" : "border-[var(--border-subtle)] opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
+                        <span className="absolute bottom-0 inset-x-0 bg-black/80 text-[8.5px] font-bold text-center text-white py-0.5">
+                          Slide {sIdx + 1}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ═══════════════════════════════════════════════════
                   STICKMOTION: VISUAL STYLE ENGINES & 4K GALLERY
               ═══════════════════════════════════════════════════ */}
-              {product.previewImages && product.previewImages.length > 0 && (
+              {!isAutoPilot && product.previewImages && product.previewImages.length > 0 && (
                 <div className="p-4 sm:p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3.5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
@@ -1059,6 +1198,276 @@ export default function ProductDetailPage({ params }) {
                   <strong className="text-[var(--text-primary)]">Quick guide:</strong> Windows and Mac are desktop launchers; Chrome & Edge is a browser extension; Android PWA is the installable mobile app for your phone.
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* ═══════════════════════════════════════════════════
+              AUTOPILOT: 7-STAGE CONNECTED AUTOMATION ARCHITECTURE
+          ═══════════════════════════════════════════════════ */}
+          {isAutoPilot && (
+            <div className="space-y-6">
+              
+              {/* 1. 7-Stage Operating Loop */}
+              <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-orange-500/30 space-y-6 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-subtle)]">
+                  <div>
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-orange-500/15 text-orange-700 dark:text-orange-400 border border-orange-500/30 inline-block mb-1">
+                      Connected System Architecture
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+                      The 7-Stage AI Business OS Operating Loop
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
+                      Claude is the brain. Automation tools are the hands. Google Sheet is the memory. You are the heart.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-[var(--bg-canvas)] border border-orange-500/30 text-orange-600 dark:text-orange-400 self-start sm:self-auto">
+                    7-Step Feedback Loop
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-7 gap-2.5">
+                  {AUTOPILOT_FLOW_STAGES.map((st, i) => (
+                    <div key={i} className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-black uppercase text-orange-600 dark:text-orange-400 tracking-wider">
+                          Stage {i + 1}
+                        </span>
+                        <h4 className="text-xs font-black text-[var(--text-primary)] leading-tight">
+                          {st.step.split(". ")[1]}
+                        </h4>
+                        <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                          {st.action}
+                        </div>
+                        <p className="text-[10px] text-[var(--text-muted)] leading-tight pt-1">
+                          {st.desc}
+                        </p>
+                      </div>
+                      <div className="text-[9.5px] font-mono text-slate-700 dark:text-slate-400 pt-1.5 border-t border-[var(--border-subtle)]">
+                        🛠️ {st.tool}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 2. Complete 16-Part Playbook Curriculum */}
+              <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-subtle)]">
+                  <div>
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20 inline-block mb-1">
+                      31-Page Master Handbook
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+                      Complete 16-Part Playbook Curriculum
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
+                      Everything written in simple, actionable English so you can copy, adapt, and run.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-secondary)] self-start sm:self-auto">
+                    31 Pages • 16 Core Modules
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {AUTOPILOT_MODULES.map((mod) => (
+                    <div key={mod.part} className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] hover:border-orange-500/40 transition space-y-1.5 shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-700 dark:text-orange-400 font-mono">
+                          Part {mod.part}
+                        </span>
+                        <span className="text-[10px] font-mono text-[var(--text-muted)] font-medium">{mod.pages}</span>
+                      </div>
+                      <h4 className="text-xs sm:text-sm font-black text-[var(--text-primary)] leading-snug">
+                        {mod.title}
+                      </h4>
+                      <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">
+                        {mod.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. 20 Claude Production Prompts Library with Lock */}
+              <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-orange-500/30 space-y-6 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-subtle)]">
+                  <div>
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-orange-500/15 text-orange-700 dark:text-orange-400 border border-orange-500/30 inline-block mb-1">
+                      Copy-Paste Prompts
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+                      20 Production Claude Prompts Library
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
+                      Copy these battle-tested prompts directly into your Claude project instructions and chats.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-[var(--bg-canvas)] border border-orange-500/30 text-orange-600 dark:text-orange-400 self-start sm:self-auto">
+                    20 Battle-Tested Prompts
+                  </span>
+                </div>
+
+                {/* Free Samples: Prompts 1 & 2 */}
+                <div className="space-y-3">
+                  <span className="text-xs font-black uppercase text-emerald-600 dark:text-emerald-400 tracking-wider flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Free Unlocked Sample Prompts (Test in Claude Right Now):</span>
+                  </span>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {AUTOPILOT_PROMPTS.slice(0, 2).map((pr) => (
+                      <div key={pr.num} className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-emerald-500/30 space-y-2.5 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-mono">
+                            FREE SAMPLE • {pr.tag}
+                          </span>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(pr.preview);
+                              toast.success(`${pr.name} copied to clipboard!`);
+                            }}
+                            className="text-[11px] font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 cursor-pointer"
+                          >
+                            <Copy className="w-3 h-3" />
+                            <span>Copy Prompt</span>
+                          </button>
+                        </div>
+                        <h4 className="text-sm font-black text-[var(--text-primary)]">{pr.name}</h4>
+                        <pre className="text-xs font-mono bg-black/40 dark:bg-black/60 p-3 rounded-xl border border-[var(--border-subtle)] whitespace-pre-wrap text-slate-800 dark:text-slate-200 leading-relaxed max-h-36 overflow-y-auto">
+                          {pr.preview}
+                        </pre>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Paywalled Prompts 3 to 20 */}
+                <div className="relative rounded-2xl overflow-hidden border border-[var(--border-subtle)] p-4 bg-[var(--bg-canvas)]">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 filter blur-xs select-none opacity-30 pointer-events-none">
+                    {AUTOPILOT_PROMPTS.slice(2, 11).map((pr) => (
+                      <div key={pr.num} className="p-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] space-y-1">
+                        <span className="text-[10px] font-bold text-orange-500">{pr.tag}</span>
+                        <h5 className="text-xs font-bold text-[var(--text-primary)]">{pr.name}</h5>
+                        <p className="text-[10px] text-[var(--text-muted)] line-clamp-2">{pr.preview}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Lock Overlay */}
+                  <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 shadow-lg shadow-orange-500/20">
+                      <Lock className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-black text-white">
+                        🔒 18 Production Claude Prompts Locked
+                      </h3>
+                      <p className="text-xs text-slate-300 max-w-md mt-1 font-medium">
+                        Includes Lead Scoring, 4-Stage Follow-Up Sequence, Reel Scripts Generator, Ad Copy Matrix, Objection Handler, and Friday Report prompts.
+                      </p>
+                    </div>
+                    <a
+                      href={checkoutUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 hover:from-orange-400 hover:to-amber-400 text-black font-black text-xs transition shadow-xl shadow-orange-500/30 flex items-center gap-2 cursor-pointer no-underline"
+                    >
+                      <Zap className="w-4 h-4 fill-current" />
+                      <span>Unlock Complete AI Business OS ($19) — Topmate Instant Delivery</span>
+                    </a>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      Instant PDF Download • Lifetime Commercial License Included
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Ready-to-Post Viral Instagram Caption & Hashtags */}
+              <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-subtle)]">
+                  <div>
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-orange-500/15 text-orange-700 dark:text-orange-400 border border-orange-500/30 inline-block mb-1">
+                      Plug & Play Viral Social Asset
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+                      Official FondPeace Launch Caption & Hashtag Bank
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
+                      Use this exact high-performing caption for your Instagram Reels, Facebook posts, and carousels.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleCopyCaption}
+                    className="px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-black font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95 self-start sm:self-auto"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>{captionCopied ? "✓ Copied to Clipboard!" : "Copy Caption & Hashtags"}</span>
+                  </button>
+                </div>
+
+                <pre className="text-xs font-mono bg-black/40 dark:bg-black/60 p-4 rounded-2xl border border-[var(--border-subtle)] whitespace-pre-wrap text-slate-800 dark:text-slate-200 leading-relaxed max-h-72 overflow-y-auto">
+                  {AUTOPILOT_VIRAL_CAPTION.text}
+                </pre>
+              </div>
+
+              {/* 5. Product Ladder Pricing Tiers */}
+              <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-5">
+                <div className="pb-3 border-b border-[var(--border-subtle)]">
+                  <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 inline-block mb-1">
+                    Value Ladder Architecture
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+                    Start Small, Scale Big (Product Ladder)
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 font-medium">
+                    Designed so beginners can start with simple tools and scale to full automated business operations.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                  <div className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2">
+                    <span className="text-xs font-bold text-slate-500">Tier 1 • Lead Magnet</span>
+                    <h4 className="text-base font-black text-[var(--text-primary)]">Free Checklist</h4>
+                    <div className="text-2xl font-black text-emerald-500">$0 / ₹0</div>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                      1-page quick checklist sent via automated DM when users comment "AUTOMATE".
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2">
+                    <span className="text-xs font-bold text-slate-500">Tier 2 • Starter</span>
+                    <h4 className="text-base font-black text-[var(--text-primary)]">Starter Guide</h4>
+                    <div className="text-2xl font-black text-[var(--text-primary)]">$9 / ₹749</div>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                      Complete 31-page AI Business OS PDF guide with all 16 core chapters.
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-orange-500/10 border-2 border-orange-500 space-y-2 shadow-lg relative">
+                    <span className="absolute -top-2.5 right-3 text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-500 text-black">
+                      Included in this Kit
+                    </span>
+                    <span className="text-xs font-bold text-orange-600 dark:text-orange-400">Tier 3 • Full System</span>
+                    <h4 className="text-base font-black text-[var(--text-primary)]">Pro Pack ($19)</h4>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-orange-500">$19</span>
+                      <span className="text-xs text-slate-400 line-through">$49</span>
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                      31-page guide, 20 prompts, 40 reel ideas, 10 scripts, 15 captions, and Google Sheet template.
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2">
+                    <span className="text-xs font-bold text-slate-500">Tier 4 • Personal Setup</span>
+                    <h4 className="text-base font-black text-[var(--text-primary)]">1:1 Setup Call</h4>
+                    <div className="text-2xl font-black text-[var(--text-primary)]">$79 - $99</div>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                      45-minute personal 1:1 screen-share setup call to configure Claude & CRM for your business.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
 

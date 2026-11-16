@@ -225,6 +225,90 @@ export const STORE_PRODUCTS = [
     whoIsThisFor: "Faceless Creators, YouTubers, TikTok/Reel Operators, Storytellers & Marketers looking to build high-retention animated channels without showing their face or spending money on monthly software subscriptions."
   },
   {
+    id: "fondpeace-autopilot-os",
+    slug: "fondpeace-autopilot-os",
+    title: "⚡ FondPeace AutoPilot: AI Business OS (Run Your Business on Autopilot with Claude)",
+    subtitle: "The Turnkey AI Business Operating System: 31-Page Master Playbook, 20 Claude Production Prompts, 40 Viral Reel Concepts, 15 Social Captions, 7-Step Setup Framework & 60-Day Launch Plan",
+    category: "automation",
+    badge: "🔥 NEW LAUNCH • 31-PAGE MASTER PLAYBOOK",
+    badgeColor: "orange",
+    rating: 5.0,
+    tech: [
+      "Claude AI Projects & Prompts",
+      "31-Page Master Playbook (PDF)",
+      "20 Claude Production Prompts",
+      "40 Viral Reel Concepts",
+      "10 Ready-to-Film Video Scripts",
+      "15 Social Captions & Hashtags",
+      "Google Sheets Lead Tracker",
+      "Meta Business Suite Inbound CRM",
+      "60-Day Launch Roadmap"
+    ],
+    priceUSD: 19,
+    originalPriceUSD: 49,
+    image: "/images/products/ai-business-os.jpg",
+    topmateUrl: "https://topmate.io/fondpeace_crazy/2411087",
+    previewImages: [
+      { label: "Slide 1: Run Business on Autopilot with Claude", url: "/images/products/ai-business-os/slide_1.jpg", tag: "Overview" },
+      { label: "Slide 2: Step 1 - Create Your AI Business OS", url: "/images/products/ai-business-os/slide_2.jpg", tag: "Step 1" },
+      { label: "Slide 3: Step 2 - Build Your Lead Tracker", url: "/images/products/ai-business-os/slide_3.jpg", tag: "Step 2" },
+      { label: "Slide 4: Step 3 - Automate Customer Replies", url: "/images/products/ai-business-os/slide_4.jpg", tag: "Step 3" },
+      { label: "Slide 5: Step 4 - A Week of Content in 10 Min", url: "/images/products/ai-business-os/slide_5.jpg", tag: "Step 4" },
+      { label: "Slide 6: Step 5 - Never Miss a Follow-Up", url: "/images/products/ai-business-os/slide_6.jpg", tag: "Step 5" },
+      { label: "Slide 7: Step 6 - Track & Grow Every Friday", url: "/images/products/ai-business-os/slide_7.jpg", tag: "Step 6" },
+      { label: "Slide 8: Complete Guide & Action Plan", url: "/images/products/ai-business-os/slide_8.jpg", tag: "Action" }
+    ],
+
+    // Core Value Proposition & Problem Solved
+    problemSolved: "Business owners, solo developers, and creators spend hours replying to repetitive DMs, struggling to write daily content, forgetting to follow up with leads, and losing sales because of manual chaos. Without a system, you are trapped working IN the business instead of ON the business.",
+    solutionBenefit: "A complete 31-page AI Operating System that turns Claude into your business brain. Automates lead generation, FAQ customer replies (24/7), weekly content generation (7 scripts in 10 minutes), appointment reminders, 4-stage follow-up sequences, and Friday analytics reporting without hiring expensive staff.",
+
+    // Tangible Deliverables
+    deliverables: [
+      "📖 31-Page Master AI Business Automation Guide (PDF): Complete 16-part playbook covering everything from product ladders to 60-day launch roadmap",
+      "🤖 20 Production-Ready Claude Prompts: Business Brain, Customer Reply, Lead Scoring, 4-Step Follow-Up Sequence, Reel Scripts, Hook Generator, and Objection Handlers",
+      "🎬 40 Viral Reel Concepts Matrix: Tested hooks, visual angles, and comment-to-DM keywords across Educational, Story, Myth-Busting, Proof/Demo, and Offer formats",
+      "🎥 10 Ready-to-Film Video Scripts: 25-40 second high-retention video scripts with hook, 3 bullet points, and high-conversion CTA ready to record",
+      "✍️ 15 High-Converting Social Captions & Hashtag Banks: Pre-written captions with hooks, structured bullet points, and 15 niche-specific hashtags (Big, Medium, Small)",
+      "💬 Inbound Comment-to-DM Sales Funnel & Scripts: 3-step conversation framework to turn casual commenters into paying customers without being salesy or spammy",
+      "📊 Google Sheets Lead Tracker & Scoring Template: Columns, dropdowns, status color coding (New, Contacted, Interested, Paid), and follow-up scoring rules",
+      "⚙️ 8 Turnkey Automation Recipes: Step-by-step connection blueprints for Zapier, Make, n8n, Meta Business Suite, Google Sheets, and WhatsApp Business",
+      "📅 60-Day Step-by-Step Launch Blueprint: Week-by-week implementation plan with a 45-minute daily routine to build steady momentum",
+      "🛡️ Meta Compliance & Anti-Spam Trust Guidelines: Strict rules on 1-message limits, privacy, and customer communication to keep your social accounts 100% safe"
+    ],
+
+    roiBenefits: [
+      "⏱️ Save 15–20 hours every week by automating repetitive DMs, lead tracking, and weekly content batching",
+      "📈 3x Higher Lead Conversion: Never lose a warm lead again with the automated 10-day 4-stage follow-up sequence",
+      "💵 Save $1,000+/month: Replace expensive virtual assistants and complex agency retainers with a simple, mostly-free AI tool stack",
+      "🎯 Predictable Growth: Clockwork Friday review prompts that analyze your numbers and give you 3 clear action steps for the next week"
+    ],
+
+    testimonials: [
+      {
+        name: "Rohit Bansal",
+        handle: "@rohit_automation",
+        role: "SaaS Founder & Creator",
+        text: "The 7-step setup and the Claude Business Brain prompt changed how I run my page. I used to spend 2 hours answering DMs manually every night. Now Claude drafts the replies and our lead follow-up never drops.",
+        rating: 5
+      },
+      {
+        name: "Sarah Jenkins",
+        handle: "@sarahj_agency",
+        role: "Digital Marketing Consultant",
+        text: "The 40 Reel ideas and the comment-to-DM funnel are worth 10x the price. Tested Script #1 and generated 84 inbound DMs in 24 hours. The 31-page guide is pure signal, zero fluff.",
+        rating: 5
+      },
+      {
+        name: "Vikram Malhotra",
+        handle: "@vikram_dev",
+        role: "Freelance Full-Stack Developer",
+        text: "I am a developer and hated marketing. This AI Business OS treats business like code architecture: Claude is the brain, Google Sheet is the memory, Zapier is the hands. Best $19 I have spent this year.",
+        rating: 5
+      }
+    ]
+  },
+  {
     id: "ai-developer-cursor-vault",
     slug: "ai-developer-cursor-vault",
     title: "⚡ The 2026 AI Developer & Cursor Agent Prompt System",
