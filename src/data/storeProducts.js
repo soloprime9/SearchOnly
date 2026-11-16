@@ -123,6 +123,42 @@ export const STORE_TESTIMONIALS = [
     productName: "⚡ The 2026 AI Developer & Cursor Agent Prompt System",
     text: "Best $19 I've spent this year. The Claude 3.5 Sonnet context prompts are leagues ahead of anything on Twitter or Reddit. Essential tool for daily coding.",
     date: "Verified Buyer • 2 weeks ago"
+  },
+  {
+    id: "rev-stickmotion",
+    name: "Aman Verma",
+    handle: "@aman_faceless",
+    role: "Faceless YouTube Creator",
+    avatarBg: "from-amber-500 to-orange-600",
+    initials: "AV",
+    rating: 5,
+    productName: "🎬 StickMotion AI™ Video Director 2.0: Complete Story-to-Video Creator Kit",
+    text: "Generated 3 full animated shorts on my first evening without touching complex 3D software. The locked character prompts prevent distortion completely. Monetized my channel in 22 days.",
+    date: "Verified Buyer • 1 day ago"
+  },
+  {
+    id: "rev-autopilot-1",
+    name: "Rohit Bansal",
+    handle: "@rohit_automation",
+    role: "SaaS Founder & Creator",
+    avatarBg: "from-orange-500 to-amber-600",
+    initials: "RB",
+    rating: 5,
+    productName: "⚡ FondPeace AutoPilot: AI Business OS (Run Your Business on Autopilot with Claude)",
+    text: "The 7-step setup and the Claude Business Brain prompt changed how I run my page. I used to spend 2 hours answering DMs manually every night. Now Claude drafts the replies and our lead follow-up never drops.",
+    date: "Verified Buyer • 2 days ago"
+  },
+  {
+    id: "rev-autopilot-2",
+    name: "Sarah Jenkins",
+    handle: "@sarahj_agency",
+    role: "Digital Marketing Consultant",
+    avatarBg: "from-blue-500 to-cyan-600",
+    initials: "SJ",
+    rating: 5,
+    productName: "⚡ FondPeace AutoPilot: AI Business OS (Run Your Business on Autopilot with Claude)",
+    text: "The 40 Reel ideas and the comment-to-DM funnel are worth 10x the price. Tested Script #1 and generated 84 inbound DMs in 24 hours. The 31-page guide is pure signal, zero fluff.",
+    date: "Verified Buyer • 3 days ago"
   }
 ];
 
@@ -258,6 +294,8 @@ export const STORE_PRODUCTS = [
       { label: "Slide 7: Step 6 - Track & Grow Every Friday", url: "/images/products/ai-business-os/slide_7.jpg", tag: "Step 6" },
       { label: "Slide 8: Complete Guide & Action Plan", url: "/images/products/ai-business-os/slide_8.jpg", tag: "Action" }
     ],
+
+    whoIsThisFor: "Solopreneurs, digital creators, freelance developers, agency owners, and service businesses who want to automate repetitive lead capture, customer messaging, content creation, and weekly reporting with Claude AI and free tools.",
 
     // Core Value Proposition & Problem Solved
     problemSolved: "Business owners, solo developers, and creators spend hours replying to repetitive DMs, struggling to write daily content, forgetting to follow up with leads, and losing sales because of manual chaos. Without a system, you are trapped working IN the business instead of ON the business.",

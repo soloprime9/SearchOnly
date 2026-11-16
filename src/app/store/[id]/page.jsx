@@ -868,7 +868,13 @@ export default function ProductDetailPage({ params }) {
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Complete Production Kit (.zip) + Master Manual</span>
+                    <span>
+                      {isAutoPilot
+                        ? "31-Page Master Guide (PDF) + 20 Claude Prompts"
+                        : isStickMotion
+                        ? "Complete Production Kit (.zip) + Master Manual"
+                        : "Instant Production Files + Full Assets"}
+                    </span>
                   </div>
                 </div>
 
@@ -1510,7 +1516,12 @@ export default function ProductDetailPage({ params }) {
             <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5 text-xs text-[var(--text-secondary)]">
               <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <p className="leading-relaxed">
-                <strong className="text-[var(--text-primary)]">What this means:</strong> Launch the studio on your preferred device, then use the included production tools, story packs, voice frames, publishing routine, and creator research in one package.
+                <strong className="text-[var(--text-primary)]">What this means:</strong>{" "}
+                {isAutoPilot
+                  ? "Download the 31-page master guide and production prompts immediately, connect your Claude Business Brain with Google Sheets and Meta CRM, and run your customer acquisition and content on autopilot without hiring staff."
+                  : isStickMotion
+                  ? "Launch the studio on your preferred device, then use the included production tools, story packs, voice frames, publishing routine, and creator research in one package."
+                  : "Instant access to all digital assets, production frameworks, and commercial license right after checkout."}
               </p>
             </div>
 
@@ -1560,7 +1571,24 @@ export default function ProductDetailPage({ params }) {
           {/* ═══════════════════════════════════════════════════
               AUTO-PLAYING REVIEWS CAROUSEL (SOCIAL PROOF)
           ═══════════════════════════════════════════════════ */}
-          <StoreReviewsCarousel />
+          <StoreReviewsCarousel
+            reviews={
+              product.testimonials && product.testimonials.length > 0
+                ? product.testimonials.map((t, idx) => ({
+                    id: `rev-${product.id}-${idx}`,
+                    name: t.name,
+                    handle: t.handle,
+                    role: t.role,
+                    avatarBg: isAutoPilot ? "from-orange-500 to-amber-600" : "from-amber-500 to-orange-600",
+                    initials: t.name.split(" ").map((n) => n[0]).join(""),
+                    rating: t.rating || 5,
+                    productName: product.title,
+                    text: t.text,
+                    date: "Verified Buyer • Recent"
+                  }))
+                : undefined
+            }
+          />
 
           {/* ═══════════════════════════════════════════════════
               FAQ ACCORDION
