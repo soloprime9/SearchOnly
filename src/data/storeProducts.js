@@ -150,7 +150,7 @@ export const STORE_PRODUCTS = [
     priceUSD: 19,
     originalPriceUSD: 69,
     image: "/images/products/stickman-animation-studio-pro.jpg",
-    topmateUrl: "https://topmate.io/fondpeace",
+    topmateUrl: "https://topmate.io/fondpeace_crazy/2411087",
     previewImages: [
       { label: "Classic Black & White 60fps", url: "/images/products/stickmotion/dark-theme-demo.gif", tag: "Style A1" },
       { label: "Modern Pop (Beanie Zeke)", url: "/images/products/stickmotion/style-2a-demo.gif", tag: "Style A2" },

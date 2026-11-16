@@ -390,7 +390,7 @@ export default function ProductDetailPage({ params }) {
   );
 
   const handleCheckout = () => {
-    const url = product.topmateUrl || "https://topmate.io/fondpeace";
+    const url = product.topmateUrl || "https://topmate.io/fondpeace_crazy/2411087";
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
