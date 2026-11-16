@@ -389,9 +389,10 @@ export default function ProductDetailPage({ params }) {
     ((product.originalPriceUSD - product.priceUSD) / product.originalPriceUSD) * 100
   );
 
+  const checkoutUrl = product.topmateUrl || "https://topmate.io/fondpeace_crazy/2411087";
+
   const handleCheckout = () => {
-    const url = product.topmateUrl || "https://topmate.io/fondpeace_crazy/2411087";
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(checkoutUrl, "_blank");
   };
 
   const handleShare = () => {
@@ -694,14 +695,16 @@ export default function ProductDetailPage({ params }) {
                 </div>
 
                 {/* Instant Checkout Button */}
-                <button
-                  onClick={handleCheckout}
-                  className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm shadow-xl shadow-amber-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                <a
+                  href={checkoutUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm shadow-xl shadow-amber-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 no-underline text-center"
                 >
                   <Zap className="w-4 h-4 fill-current" />
                   <span>Get Instant Access (${product.priceUSD})</span>
                   <ExternalLink className="w-3.5 h-3.5" />
-                </button>
+                </a>
 
                 {/* Universal Payment Guarantee */}
                 <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-1.5 text-xs">
@@ -842,13 +845,15 @@ export default function ProductDetailPage({ params }) {
                     Curated directly from @Inkexplainer96 viral master hits. Detailed 7-scene narrative formulas with frozen character continuity.
                   </p>
                 </div>
-                <button
-                  onClick={handleCheckout}
-                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95"
+                <a
+                  href={checkoutUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95 no-underline"
                 >
                   <Unlock className="w-3.5 h-3.5" />
                   <span>Unlock All 10 Packs ($19)</span>
-                </button>
+                </a>
               </div>
 
               {/* Story Switcher Tabs */}
@@ -898,13 +903,15 @@ export default function ProductDetailPage({ params }) {
                       </h3>
                     </div>
 
-                    <button
-                      onClick={handleCheckout}
-                      className="px-3 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-bold transition flex items-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-sm active:scale-95"
+                    <a
+                      href={checkoutUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-bold transition flex items-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-sm active:scale-95 no-underline"
                     >
                       <Lock className="w-3.5 h-3.5" />
                       <span>Unlock All Prompts</span>
-                    </button>
+                    </a>
                   </div>
 
                   {/* Hook Box */}
@@ -968,13 +975,15 @@ export default function ProductDetailPage({ params }) {
                             Includes complete scene directions, 85mm camera angles, lighting prompts, and character lock seeds across all 10 viral hit packs.
                           </p>
                         </div>
-                        <button
-                          onClick={handleCheckout}
-                          className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs transition shadow-xl shadow-amber-500/30 flex items-center gap-2 cursor-pointer active:scale-95"
+                        <a
+                          href={checkoutUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs transition shadow-xl shadow-amber-500/30 flex items-center gap-2 cursor-pointer active:scale-95 no-underline"
                         >
                           <Zap className="w-4 h-4 fill-current" />
                           <span>Unlock All 10 Packs ($19) — Included in Complete Kit</span>
-                        </button>
+                        </a>
                         <span className="text-[10px] text-white/70 font-mono">
                           Instant Digital Download • Lifetime Updates Included
                         </span>
@@ -1126,13 +1135,15 @@ export default function ProductDetailPage({ params }) {
                 </span>
               </div>
 
-              <button
-                onClick={handleCheckout}
-                className="px-7 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs shadow-lg shadow-amber-500/20 transition-all inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              <a
+                href={checkoutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-7 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs shadow-lg shadow-amber-500/20 transition-all inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95 no-underline"
               >
                 <span>Get Instant Access (${product.priceUSD})</span>
                 <ExternalLink className="w-3.5 h-3.5" />
-              </button>
+              </a>
             </div>
 
           </div>

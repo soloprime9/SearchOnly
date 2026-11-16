@@ -127,7 +127,7 @@ export const STORE_TESTIMONIALS = [
 ];
 
 export const STORE_PRODUCTS = [
-    {
+  {
     id: "stickmotion-studio",
     slug: "stickmotion-studio",
     title: "🎬 StickMotion AI™ Video Director 2.0: Complete Story-to-Video Creator Kit",
@@ -239,11 +239,11 @@ export const STORE_PRODUCTS = [
     image: "/images/products/cursor-agent-vault.png",
     topmateUrl: "https://topmate.io/fondpeace",
     sampleDownloadUrl: "/downloads/AI_Developer_Prompt_Vault_2026.md",
-    
+
     // Core Value Proposition & Problem Solved
     problemSolved: "AI code generation today is plagued with hallucinations, memory leaks, broken imports, and outdated API patterns. Developers spend hours debugging AI-generated spagetti code instead of building.",
     solutionBenefit: "This battle-tested system turns Cursor AI, Windsurf, Claude 3.5 Sonnet, and Gemini into senior staff software engineers. It forces zero-hallucination code, strict typing, clean SOLID architecture, and automated bug prevention on every prompt.",
-    
+
     // Tangible Deliverables
     deliverables: [
       "⚡ 50+ Production .cursorrules files for Next.js 15, React 19, Python, FastAPI, Node.js & Tailwind v4",
@@ -252,7 +252,7 @@ export const STORE_PRODUCTS = [
       "📱 Instant copy-paste Markdown & PDF vaults for offline reference",
       "🔄 Lifetime Free Updates as new 2026 AI models launch"
     ],
-    
+
     // Real-World ROI (Fayada)
     roiBenefits: [
       "⏱️ Saves 20+ hours of debugging and code refactoring every single week",

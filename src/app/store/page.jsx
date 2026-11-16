@@ -295,13 +295,15 @@ export default function StorePage() {
                         Details
                       </Link>
 
-                      <button
-                        onClick={() => handleCheckout(prod)}
-                        className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                      <a
+                        href={prod.topmateUrl || "https://topmate.io/fondpeace_crazy/2411087"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 cursor-pointer no-underline"
                       >
                         <span>Get Access (${prod.priceUSD})</span>
                         <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                      </a>
                     </div>
                   </div>
                 </div>
