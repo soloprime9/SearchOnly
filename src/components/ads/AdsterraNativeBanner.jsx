@@ -1,25 +1,36 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ADS_CONFIG } from "@/data/adsConfig";
 import { Sparkles } from "lucide-react";
 
 export default function AdsterraNativeBanner({ className = "" }) {
+  const containerRef = useRef(null);
+
   useEffect(() => {
     if (!ADS_CONFIG.enabled || !ADS_CONFIG.nativeBanner?.enabled) return;
 
-    const scriptId = "adsterra-native-banner-script";
-    if (!document.getElementById(scriptId)) {
-      try {
-        const script = document.createElement("script");
-        script.id = scriptId;
-        script.setAttribute("data-cfasync", "false");
-        script.async = true;
-        script.src = ADS_CONFIG.nativeBanner.scriptSrc;
-        document.body.appendChild(script);
-      } catch (err) {
-        console.warn("Adsterra Native Banner notice:", err);
-      }
+    const node = containerRef.current;
+    if (!node) return;
+
+    // Reset container contents
+    node.innerHTML = "";
+
+    try {
+      // 1. The container element Adsterra requires
+      const adBox = document.createElement("div");
+      adBox.id = ADS_CONFIG.nativeBanner.containerId;
+      adBox.className = "w-full min-h-[140px]";
+      node.appendChild(adBox);
+
+      // 2. The Adsterra Native Banner script
+      const script = document.createElement("script");
+      script.setAttribute("data-cfasync", "false");
+      script.async = true;
+      script.src = ADS_CONFIG.nativeBanner.scriptSrc;
+      node.appendChild(script);
+    } catch (err) {
+      console.warn("Adsterra Native Banner notice:", err);
     }
   }, []);
 
@@ -39,9 +50,7 @@ export default function AdsterraNativeBanner({ className = "" }) {
       </div>
 
       {/* Adsterra Native Container */}
-      <div className="w-full min-h-[140px] flex justify-center items-center py-1">
-        <div id={ADS_CONFIG.nativeBanner.containerId} className="w-full" />
-      </div>
+      <div ref={containerRef} className="w-full min-h-[140px] flex justify-center items-center py-1" />
     </div>
   );
 }
