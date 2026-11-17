@@ -35,6 +35,7 @@ import StoriesBar from "./StoriesBar";
 import ShareModal from "./ShareModal";
 import FormattedCaption from "./FormattedCaption";
 import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
+import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
 import { UserPlus, Check, Users, Sparkles, Maximize2, Repeat2, Bookmark, BarChart2, Pin, LayoutList, LayoutGrid, Quote, Compass, ArrowUp, ArrowUpRight, ShieldCheck, X, Film, Image as ImageIcon, MessageSquare, MapPin, Smartphone, RotateCw, SlidersHorizontal } from "lucide-react";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
@@ -1529,10 +1530,10 @@ const handleShare = (postData) => {
                 </div>
               )}
 
-              {/* In-Feed Adsterra Banner (At post index 4) */}
+              {/* In-Feed Adsterra Native Banner (At post index 4) */}
               {idx === 4 && (
                 <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-3">
-                  <AdsterraBanner320 />
+                  <AdsterraNativeBanner />
                 </div>
               )}
 

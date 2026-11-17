@@ -9,13 +9,26 @@ export const ADS_CONFIG = {
   // MASTER SWITCH: Set to false to instantly turn off all ads across the entire website
   enabled: true,
 
-  // 1. Social Bar (High CPM interactive push/chat bar across all pages)
+  // 1. Official Adsterra Popunder Script (Automatic multi-device background tab on click)
+  popunder: {
+    enabled: true,
+    scriptSrc: "https://afders.org/1/f6165662a86e444978a2f98e3bc536f2",
+  },
+
+  // 2. Official Adsterra Native Banner (Big, rich native recommendation cards)
+  nativeBanner: {
+    enabled: true,
+    scriptSrc: "https://bicea.org/21/14acfe7baf63468e154e48154f3469a1",
+    containerId: "container-14acfe7baf63468e154e48154f3469a1",
+  },
+
+  // 3. Social Bar (High CPM interactive push/chat bar across all pages)
   socialBar: {
     enabled: true,
     scriptSrc: "https://bicea.org/14/df2ee24701e60907cb980634d056e1d5",
   },
 
-  // 2. Banner 320x50 (Standard Mobile & In-Feed Banner)
+  // 4. Banner 320x50 (Standard Mobile Banner)
   banner320: {
     enabled: true,
     key: "a865643ea53a1a4ce89d28197ae03e3d",
@@ -24,11 +37,10 @@ export const ADS_CONFIG = {
     width: 320,
   },
 
-  // 3. Smartlink (Opens high-paying sponsor offer in new tab on user clicks)
+  // 5. Smartlink (Direct high-payout sponsor URL)
   smartlink: {
     enabled: true,
     url: "https://asiafilm.org/4/2d83e8b61c44a626eff71c6c4117bd9f",
-    // Cooldown in minutes before opening again on interaction (set to 1 for high trigger rate)
     cooldownMinutes: 1,
   },
 };

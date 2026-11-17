@@ -16,6 +16,7 @@ import GoogleOneTapPrompt from "@/components/GoogleOneTapPrompt";
 import { ThemeBackgroundProvider } from "@/context/ThemeBackgroundContext";
 import PassiveTelemetryTracker from "@/components/PassiveTelemetryTracker";
 import AdsterraSocialBar from "@/components/ads/AdsterraSocialBar";
+import AdsterraPopunder from "@/components/ads/AdsterraPopunder";
 import SmartlinkTrigger from "@/components/ads/SmartlinkTrigger";
 
 const inter = Inter({
@@ -226,6 +227,7 @@ export default function RootLayout({ children }) {
 
         {/* Adsterra Monetization Engine (Controlled centrally via src/data/adsConfig.js) */}
         <AdsterraSocialBar />
+        <AdsterraPopunder />
         <SmartlinkTrigger />
         </ThemeBackgroundProvider>
       </body>
