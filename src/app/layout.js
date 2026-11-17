@@ -15,6 +15,8 @@ import NetworkSentinel from "@/components/NetworkSentinel";
 import GoogleOneTapPrompt from "@/components/GoogleOneTapPrompt";
 import { ThemeBackgroundProvider } from "@/context/ThemeBackgroundContext";
 import PassiveTelemetryTracker from "@/components/PassiveTelemetryTracker";
+import AdsterraSocialBar from "@/components/ads/AdsterraSocialBar";
+import SmartlinkTrigger from "@/components/ads/SmartlinkTrigger";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -221,6 +223,10 @@ export default function RootLayout({ children }) {
         </div>
 
         <Analytics />
+
+        {/* Adsterra Monetization Engine (Controlled centrally via src/data/adsConfig.js) */}
+        <AdsterraSocialBar />
+        <SmartlinkTrigger />
         </ThemeBackgroundProvider>
       </body>
     </html>

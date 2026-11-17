@@ -8,6 +8,7 @@
 // ✓ FIXES "VIDEO ISN’T ON WATCH PAGE" ERROR
 
 import SinglePostPage from "@/components/SinglePostPage";
+import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
 import PostTitle from "@/components/PostTitle";
 import RelatedPosts from "@/components/RelatedPosts";
 import LeftSidebar from "@/components/LeftSidebar";
@@ -726,6 +727,9 @@ return (
 
           {/* Full Post Card - Exactly matching Homepage (Village.jsx) */}
           <SinglePostPage initialPost={post} />
+
+          {/* Adsterra 320x50 Banner (Between post and related discussions) */}
+          <AdsterraBanner320 />
 
           {/* Related Community Discussions Feed */}
           <RelatedPosts
