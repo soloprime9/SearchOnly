@@ -725,6 +725,9 @@ return (
             </span>
           </div>
 
+          {/* Adsterra 320x50 Banner (Top Above The Fold - Visible Immediately on Landing) */}
+          <AdsterraBanner320 />
+
           {/* Full Post Card - Exactly matching Homepage (Village.jsx) */}
           <SinglePostPage initialPost={post} />
 

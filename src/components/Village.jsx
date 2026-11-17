@@ -1446,6 +1446,11 @@ const handleShare = (postData) => {
         />
       )}
 
+      {/* Adsterra 320x50 Banner - Top Above The Fold (Zero-Scroll Instant Visibility) */}
+      <div className="max-w-[600px] mx-auto px-2 sm:px-0 mb-3">
+        <AdsterraBanner320 />
+      </div>
+
       {/* Posts List - Stream vs Grid View */}
       {!followingLoading && viewMode === "grid" ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-2 sm:px-0 mb-6">
