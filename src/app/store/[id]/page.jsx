@@ -7,13 +7,6 @@ import LeftSidebar from "@/components/LeftSidebar";
 import StoreReviewsCarousel from "@/components/StoreReviewsCarousel";
 import { STORE_PRODUCTS } from "@/data/storeProducts";
 import {
-  AUTOPILOT_SLIDES,
-  AUTOPILOT_MODULES,
-  AUTOPILOT_PROMPTS,
-  AUTOPILOT_VIRAL_CAPTION,
-  AUTOPILOT_FLOW_STAGES
-} from "@/data/autopilotData";
-import {
   ArrowLeft,
   Star,
   Check,
@@ -51,13 +44,13 @@ import { toast } from "@/utils/toast";
 // ══════════════════════════════════════════════════════════════════════════════
 const WindowsIcon = ({ className = "w-6 h-6" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none">
-    <path fill="#0078D4" d="M0 3.449L9.75 2.1v9.451H0V3.449zm10.749-1.55L24 0v11.551H10.749V1.899zM0 12.55h9.75V22l-9.75-1.35V12.55zm10.749 0H24V24l-13.251-1.899V12.55z"/>
+    <path fill="#0078D4" d="M0 3.449L9.75 2.1v9.451H0V3.449zm10.749-1.55L24 0v11.551H10.749V1.899zM0 12.55h9.75V22l-9.75-1.35V12.55zm10.749 0H24V24l-13.251-1.899V12.55z" />
   </svg>
 );
 
 const AppleIcon = ({ className = "w-6 h-6" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-.99 1.72-.85 2.74 1.01.08 2.05-.53 2.58-1.24z"/>
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-.99 1.72-.85 2.74 1.01.08 2.05-.53 2.58-1.24z" />
   </svg>
 );
 
@@ -65,15 +58,15 @@ const ChromeIcon = ({ className = "w-6 h-6" }) => (
   <svg className={className} viewBox="0 0 24 24">
     <circle cx="12" cy="12" r="5" fill="#ffffff" />
     <circle cx="12" cy="12" r="4" fill="#4285F4" />
-    <path fill="#EA4335" d="M12 2C6.48 2 2 6.48 2 12c0 .49.04.97.11 1.44L7.5 4.15C8.77 2.82 10.3 2 12 2z"/>
-    <path fill="#FBBC05" d="M2.11 13.44C2.94 18.35 7.06 22 12 22c2.15 0 4.13-.71 5.73-1.92L12.35 11h-4.85l-5.39 2.44z"/>
-    <path fill="#34A853" d="M17.73 20.08C20.31 18.15 22 15.28 22 12c0-3.66-1.98-6.86-4.93-8.6L12.35 11l5.38 9.08z"/>
+    <path fill="#EA4335" d="M12 2C6.48 2 2 6.48 2 12c0 .49.04.97.11 1.44L7.5 4.15C8.77 2.82 10.3 2 12 2z" />
+    <path fill="#FBBC05" d="M2.11 13.44C2.94 18.35 7.06 22 12 22c2.15 0 4.13-.71 5.73-1.92L12.35 11h-4.85l-5.39 2.44z" />
+    <path fill="#34A853" d="M17.73 20.08C20.31 18.15 22 15.28 22 12c0-3.66-1.98-6.86-4.93-8.6L12.35 11l5.38 9.08z" />
   </svg>
 );
 
 const AndroidIcon = ({ className = "w-6 h-6" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="#3DDC84">
-    <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.3562 13.8533 8 12 8s-3.5902.3562-5.1367.9507L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867 0 14.8872 0 19.2222h24c0-4.335-2.6889-8.0355-6.1185-9.9008"/>
+    <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.3562 13.8533 8 12 8s-3.5902.3562-5.1367.9507L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867 0 14.8872 0 19.2222h24c0-4.335-2.6889-8.0355-6.1185-9.9008" />
   </svg>
 );
 
@@ -391,27 +384,14 @@ export default function ProductDetailPage({ params }) {
   ) || STORE_PRODUCTS[0];
 
   const isStickMotion = product.id === "stickmotion-studio";
-  const isAutoPilot = product.id === "fondpeace-autopilot-os";
-  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-  const [captionCopied, setCaptionCopied] = useState(false);
-
-  const handleCopyCaption = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(AUTOPILOT_VIRAL_CAPTION.text);
-      setCaptionCopied(true);
-      toast.success("Viral Instagram Caption copied to clipboard!");
-      setTimeout(() => setCaptionCopied(false), 2500);
-    }
-  };
 
   const discountPercent = Math.round(
     ((product.originalPriceUSD - product.priceUSD) / product.originalPriceUSD) * 100
   );
 
-  const checkoutUrl = product.topmateUrl || "https://topmate.io/fondpeace_crazy/2411087";
-
   const handleCheckout = () => {
-    window.open(checkoutUrl, "_blank");
+    const url = product.topmateUrl || "https://topmate.io/fondpeace";
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const handleShare = () => {
@@ -473,7 +453,7 @@ export default function ProductDetailPage({ params }) {
 
         {/* Product Details Main Container */}
         <main className="w-full min-w-0 max-w-5xl mx-auto py-3 sm:py-6 pb-24 lg:pb-12 space-y-6">
-          
+
           {/* Top Bar Navigation (Back to Store) */}
           <div className="flex items-center justify-between gap-3 text-xs py-1">
             <Link
@@ -498,7 +478,7 @@ export default function ProductDetailPage({ params }) {
               HERO & PRICING SPLIT GRID
           ═══════════════════════════════════════════════════ */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
+
             {/* Left 7 Columns: Core Value & Visual Experience */}
             <div className="lg:col-span-7 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -520,49 +500,26 @@ export default function ProductDetailPage({ params }) {
               {/* ═══════════════════════════════════════════════════
                   GLOWING MULTI-DEVICE DOWNLOAD BANNER
               ═══════════════════════════════════════════════════ */}
-              {isAutoPilot ? (
-                <div className="relative overflow-hidden p-4 rounded-2xl bg-orange-500/10 dark:bg-orange-500/15 border-2 border-orange-500/40 dark:border-orange-400/40 shadow-lg space-y-2 text-slate-900 dark:text-slate-100">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
-                      </span>
-                      <span className="text-xs font-black uppercase tracking-wider text-orange-900 dark:text-orange-300 flex items-center gap-1.5">
-                        <Zap className="w-3.5 h-3.5 fill-current text-orange-600 dark:text-orange-400" />
-                        <span>Instant Access • 31-Page Master Playbook + Prompts & Funnels</span>
-                      </span>
-                    </div>
-                    <span className="text-[10.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-600/15 text-emerald-900 dark:text-emerald-300 border border-emerald-500/40">
-                      Claude AI • Zapier • Google Sheets • Meta CRM
+              <div className="relative overflow-hidden p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border-2 border-amber-500/40 dark:border-amber-400/40 shadow-lg space-y-2 text-slate-900 dark:text-slate-100">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 fill-current text-amber-600 dark:text-amber-400" />
+                      <span>Instant Universal Download on Any Device</span>
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug">
-                    🚀 Run your business on autopilot with <strong className="text-orange-800 dark:text-orange-300 font-black">Claude AI</strong>. Includes complete <strong className="text-blue-800 dark:text-blue-300 font-black">20 Production Prompts</strong>, <strong className="text-purple-800 dark:text-purple-300 font-black">40 Reel Ideas</strong>, <strong className="text-emerald-800 dark:text-emerald-300 font-black">Inbound DM Funnels</strong>, and a clockwork <strong className="text-amber-800 dark:text-amber-300 font-black">60-Day Launch Blueprint</strong>!
-                  </p>
+                  <span className="text-[10.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-600/15 text-emerald-900 dark:text-emerald-300 border border-emerald-500/40">
+                    Zero Install • Runs Completely Offline
+                  </span>
                 </div>
-              ) : (
-                <div className="relative overflow-hidden p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border-2 border-amber-500/40 dark:border-amber-400/40 shadow-lg space-y-2 text-slate-900 dark:text-slate-100">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                      </span>
-                      <span className="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
-                        <Zap className="w-3.5 h-3.5 fill-current text-amber-600 dark:text-amber-400" />
-                        <span>Instant Universal Download on Any Device</span>
-                      </span>
-                    </div>
-                    <span className="text-[10.5px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-600/15 text-emerald-900 dark:text-emerald-300 border border-emerald-500/40">
-                      Zero Install • Runs Completely Offline
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug">
-                    📥 Download once and run on <strong className="text-amber-800 dark:text-amber-300 font-black">Windows 10/11</strong>, <strong className="text-blue-800 dark:text-blue-300 font-black">macOS</strong>, <strong className="text-emerald-800 dark:text-emerald-300 font-black">Android Phones</strong>, or as a <strong className="text-purple-800 dark:text-purple-300 font-black">Chrome/Edge Extension</strong>. Double-click to launch in any browser — zero complex command line or node setup required!
-                  </p>
-                </div>
-              )}
+                <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug">
+                  📥 Download once and run on <strong className="text-amber-800 dark:text-amber-300 font-black">Windows 10/11</strong>, <strong className="text-blue-800 dark:text-blue-300 font-black">macOS</strong>, <strong className="text-emerald-800 dark:text-emerald-300 font-black">Android Phones</strong>, or as a <strong className="text-purple-800 dark:text-purple-300 font-black">Chrome/Edge Extension</strong>. Double-click to launch in any browser — zero complex command line or node setup required!
+                </p>
+              </div>
 
               {/* Product Visual Banner */}
               <div className="relative w-full h-56 sm:h-80 rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-canvas)] shadow-md group">
@@ -606,106 +563,9 @@ export default function ProductDetailPage({ params }) {
               </div>
 
               {/* ═══════════════════════════════════════════════════
-                  AUTOPILOT: INTERACTIVE 8-SLIDE CAROUSEL VIEWER
-              ═══════════════════════════════════════════════════ */}
-              {isAutoPilot && (
-                <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-orange-500/30 space-y-4 shadow-xl">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div>
-                      <span className="font-bold text-xs uppercase tracking-wider text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Interactive 8-Slide Visual Carousel Preview</span>
-                      </span>
-                      <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                        Step-by-step framework: How to run your business on autopilot with Claude
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-orange-600 dark:text-orange-400 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                        Slide {activeSlideIndex + 1} of {AUTOPILOT_SLIDES.length}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Active Slide Display */}
-                  <div className="relative rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-black/40 flex flex-col md:flex-row gap-4 p-3 sm:p-4">
-                    <div className="w-full md:w-1/2 aspect-[4/5] rounded-xl overflow-hidden bg-slate-900 border border-slate-700/50 flex items-center justify-center relative group">
-                      <img
-                        src={AUTOPILOT_SLIDES[activeSlideIndex].image}
-                        alt={AUTOPILOT_SLIDES[activeSlideIndex].title}
-                        className="w-full h-full object-contain"
-                      />
-                      <button
-                        onClick={() => setSelectedPreview({ url: AUTOPILOT_SLIDES[activeSlideIndex].image, label: AUTOPILOT_SLIDES[activeSlideIndex].title, tag: "Carousel Slide" })}
-                        className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-black/75 hover:bg-black text-white text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-1.5 opacity-90 hover:opacity-100 transition cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Fullscreen</span>
-                      </button>
-                    </div>
-
-                    <div className="w-full md:w-1/2 flex flex-col justify-between py-1 space-y-3">
-                      <div className="space-y-2.5">
-                        <span className="inline-block px-2.5 py-1 rounded-md bg-orange-500/15 border border-orange-500/30 text-orange-700 dark:text-orange-400 text-xs font-bold uppercase tracking-wider">
-                          {AUTOPILOT_SLIDES[activeSlideIndex].badge}
-                        </span>
-                        <h3 className="text-lg sm:text-xl font-black text-[var(--text-primary)] leading-snug">
-                          {AUTOPILOT_SLIDES[activeSlideIndex].title}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
-                          {AUTOPILOT_SLIDES[activeSlideIndex].subtitle}
-                        </p>
-                        <div className="space-y-2 pt-2">
-                          {AUTOPILOT_SLIDES[activeSlideIndex].bullets.map((b, bi) => (
-                            <div key={bi} className="flex items-center gap-2 text-xs text-[var(--text-secondary)] font-medium">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                              <span>{b}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 pt-3 border-t border-[var(--border-subtle)]">
-                        <button
-                          onClick={() => setActiveSlideIndex((prev) => (prev > 0 ? prev - 1 : AUTOPILOT_SLIDES.length - 1))}
-                          className="flex-1 py-2.5 px-3 rounded-xl bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] transition flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          ← Previous
-                        </button>
-                        <button
-                          onClick={() => setActiveSlideIndex((prev) => (prev < AUTOPILOT_SLIDES.length - 1 ? prev + 1 : 0))}
-                          className="flex-1 py-2.5 px-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-black text-xs font-black transition flex items-center justify-center gap-1 cursor-pointer shadow-md shadow-orange-500/20"
-                        >
-                          Next Slide →
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Thumbnail Strip */}
-                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 pt-1">
-                    {AUTOPILOT_SLIDES.map((slide, sIdx) => (
-                      <button
-                        key={sIdx}
-                        onClick={() => setActiveSlideIndex(sIdx)}
-                        className={`relative aspect-[4/5] rounded-lg overflow-hidden border-2 transition cursor-pointer ${
-                          activeSlideIndex === sIdx ? "border-orange-500 scale-105 shadow-md" : "border-[var(--border-subtle)] opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
-                        <span className="absolute bottom-0 inset-x-0 bg-black/80 text-[8.5px] font-bold text-center text-white py-0.5">
-                          Slide {sIdx + 1}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* ═══════════════════════════════════════════════════
                   STICKMOTION: VISUAL STYLE ENGINES & 4K GALLERY
               ═══════════════════════════════════════════════════ */}
-              {!isAutoPilot && product.previewImages && product.previewImages.length > 0 && (
+              {product.previewImages && product.previewImages.length > 0 && (
                 <div className="p-4 sm:p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3.5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
@@ -722,25 +582,22 @@ export default function ProductDetailPage({ params }) {
                     <div className="flex items-center gap-1 bg-[var(--bg-canvas)] p-1 rounded-xl border border-[var(--border-subtle)] text-[11px] font-bold">
                       <button
                         onClick={() => setActiveGalleryTab("all")}
-                        className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
-                          activeGalleryTab === "all" ? "bg-amber-500 text-black shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                        }`}
+                        className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${activeGalleryTab === "all" ? "bg-amber-500 text-black shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                          }`}
                       >
                         All (16)
                       </button>
                       <button
                         onClick={() => setActiveGalleryTab("gifs")}
-                        className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
-                          activeGalleryTab === "gifs" ? "bg-amber-500 text-black shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                        }`}
+                        className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${activeGalleryTab === "gifs" ? "bg-amber-500 text-black shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                          }`}
                       >
                         🎬 9 GIFs
                       </button>
                       <button
                         onClick={() => setActiveGalleryTab("scenes")}
-                        className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
-                          activeGalleryTab === "scenes" ? "bg-amber-500 text-black shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                        }`}
+                        className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${activeGalleryTab === "scenes" ? "bg-amber-500 text-black shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                          }`}
                       >
                         🌟 7 Scenes
                       </button>
@@ -814,7 +671,7 @@ export default function ProductDetailPage({ params }) {
             {/* Right 5 Columns: Sticky Pricing & Action Card */}
             <div className="lg:col-span-5 space-y-4">
               <div className="sticky top-6 p-6 rounded-3xl bg-[var(--bg-surface)] border-2 border-amber-400/40 shadow-2xl space-y-5">
-                
+
                 {/* Price Display */}
                 <div>
                   <div className="flex items-baseline gap-2">
@@ -834,16 +691,14 @@ export default function ProductDetailPage({ params }) {
                 </div>
 
                 {/* Instant Checkout Button */}
-                <a
-                  href={checkoutUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm shadow-xl shadow-amber-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 no-underline text-center"
+                <button
+                  onClick={handleCheckout}
+                  className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm shadow-xl shadow-amber-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                 >
                   <Zap className="w-4 h-4 fill-current" />
                   <span>Get Instant Access (${product.priceUSD})</span>
                   <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+                </button>
 
                 {/* Universal Payment Guarantee */}
                 <div className="p-3.5 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-1.5 text-xs">
@@ -872,8 +727,8 @@ export default function ProductDetailPage({ params }) {
                       {isAutoPilot
                         ? "31-Page Master Guide (PDF) + 20 Claude Prompts"
                         : isStickMotion
-                        ? "Complete Production Kit (.zip) + Master Manual"
-                        : "Instant Production Files + Full Assets"}
+                          ? "Complete Production Kit (.zip) + Master Manual"
+                          : "Instant Production Files + Full Assets"}
                     </span>
                   </div>
                 </div>
@@ -912,7 +767,7 @@ export default function ProductDetailPage({ params }) {
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>The 45-Minute Daily Clockwork Timeline:</span>
                 </span>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                   {ROADMAP_TIMELINE.map((step, idx) => (
                     <div
@@ -990,15 +845,13 @@ export default function ProductDetailPage({ params }) {
                     Curated directly from @Inkexplainer96 viral master hits. Detailed 7-scene narrative formulas with frozen character continuity.
                   </p>
                 </div>
-                <a
-                  href={checkoutUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95 no-underline"
+                <button
+                  onClick={handleCheckout}
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95"
                 >
                   <Unlock className="w-3.5 h-3.5" />
                   <span>Unlock All 10 Packs ($19)</span>
-                </a>
+                </button>
               </div>
 
               {/* Story Switcher Tabs */}
@@ -1009,11 +862,10 @@ export default function ProductDetailPage({ params }) {
                     <button
                       key={story.id}
                       onClick={() => setActiveStoryIndex(idx)}
-                      className={`p-2.5 rounded-xl text-left border transition cursor-pointer space-y-1 ${
-                        isActive
-                          ? "bg-amber-500/15 border-amber-500 text-amber-700 dark:text-amber-400 shadow-sm"
-                          : "bg-[var(--bg-canvas)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                      }`}
+                      className={`p-2.5 rounded-xl text-left border transition cursor-pointer space-y-1 ${isActive
+                        ? "bg-amber-500/15 border-amber-500 text-amber-700 dark:text-amber-400 shadow-sm"
+                        : "bg-[var(--bg-canvas)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                        }`}
                     >
                       <div className="flex items-center justify-between text-[10px] font-mono">
                         <span className="font-bold">Story #{idx + 1}</span>
@@ -1048,15 +900,13 @@ export default function ProductDetailPage({ params }) {
                       </h3>
                     </div>
 
-                    <a
-                      href={checkoutUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-bold transition flex items-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-sm active:scale-95 no-underline"
+                    <button
+                      onClick={handleCheckout}
+                      className="px-3 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-bold transition flex items-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-sm active:scale-95"
                     >
                       <Lock className="w-3.5 h-3.5" />
                       <span>Unlock All Prompts</span>
-                    </a>
+                    </button>
                   </div>
 
                   {/* Hook Box */}
@@ -1120,15 +970,13 @@ export default function ProductDetailPage({ params }) {
                             Includes complete scene directions, 85mm camera angles, lighting prompts, and character lock seeds across all 10 viral hit packs.
                           </p>
                         </div>
-                        <a
-                          href={checkoutUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs transition shadow-xl shadow-amber-500/30 flex items-center gap-2 cursor-pointer active:scale-95 no-underline"
+                        <button
+                          onClick={handleCheckout}
+                          className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs transition shadow-xl shadow-amber-500/30 flex items-center gap-2 cursor-pointer active:scale-95"
                         >
                           <Zap className="w-4 h-4 fill-current" />
                           <span>Unlock All 10 Packs ($19) — Included in Complete Kit</span>
-                        </a>
+                        </button>
                         <span className="text-[10px] text-white/70 font-mono">
                           Instant Digital Download • Lifetime Updates Included
                         </span>
@@ -1212,7 +1060,7 @@ export default function ProductDetailPage({ params }) {
           ═══════════════════════════════════════════════════ */}
           {isAutoPilot && (
             <div className="space-y-6">
-              
+
               {/* 1. 7-Stage Operating Loop */}
               <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-orange-500/30 space-y-6 shadow-xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-subtle)]">
@@ -1321,7 +1169,7 @@ export default function ProductDetailPage({ params }) {
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Free Unlocked Sample Prompts (Test in Claude Right Now):</span>
                   </span>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {AUTOPILOT_PROMPTS.slice(0, 2).map((pr) => (
                       <div key={pr.num} className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-emerald-500/30 space-y-2.5 shadow-sm">
@@ -1481,7 +1329,7 @@ export default function ProductDetailPage({ params }) {
               EVERYTHING INCLUDED IN THIS PACKAGE (MATCHES IMAGE 3)
           ═══════════════════════════════════════════════════ */}
           <div className="rounded-3xl p-6 sm:p-8 bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-6">
-            
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle)]">
               <div>
                 <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20 inline-block mb-1">
@@ -1520,8 +1368,8 @@ export default function ProductDetailPage({ params }) {
                 {isAutoPilot
                   ? "Download the 31-page master guide and production prompts immediately, connect your Claude Business Brain with Google Sheets and Meta CRM, and run your customer acquisition and content on autopilot without hiring staff."
                   : isStickMotion
-                  ? "Launch the studio on your preferred device, then use the included production tools, story packs, voice frames, publishing routine, and creator research in one package."
-                  : "Instant access to all digital assets, production frameworks, and commercial license right after checkout."}
+                    ? "Launch the studio on your preferred device, then use the included production tools, story packs, voice frames, publishing routine, and creator research in one package."
+                    : "Instant access to all digital assets, production frameworks, and commercial license right after checkout."}
               </p>
             </div>
 
@@ -1555,15 +1403,13 @@ export default function ProductDetailPage({ params }) {
                 </span>
               </div>
 
-              <a
-                href={checkoutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-7 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs shadow-lg shadow-amber-500/20 transition-all inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95 no-underline"
+              <button
+                onClick={handleCheckout}
+                className="px-7 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs shadow-lg shadow-amber-500/20 transition-all inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
                 <span>Get Instant Access (${product.priceUSD})</span>
                 <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              </button>
             </div>
 
           </div>
@@ -1575,17 +1421,17 @@ export default function ProductDetailPage({ params }) {
             reviews={
               product.testimonials && product.testimonials.length > 0
                 ? product.testimonials.map((t, idx) => ({
-                    id: `rev-${product.id}-${idx}`,
-                    name: t.name,
-                    handle: t.handle,
-                    role: t.role,
-                    avatarBg: isAutoPilot ? "from-orange-500 to-amber-600" : "from-amber-500 to-orange-600",
-                    initials: t.name.split(" ").map((n) => n[0]).join(""),
-                    rating: t.rating || 5,
-                    productName: product.title,
-                    text: t.text,
-                    date: "Verified Buyer • Recent"
-                  }))
+                  id: `rev-${product.id}-${idx}`,
+                  name: t.name,
+                  handle: t.handle,
+                  role: t.role,
+                  avatarBg: isAutoPilot ? "from-orange-500 to-amber-600" : "from-amber-500 to-orange-600",
+                  initials: t.name.split(" ").map((n) => n[0]).join(""),
+                  rating: t.rating || 5,
+                  productName: product.title,
+                  text: t.text,
+                  date: "Verified Buyer • Recent"
+                }))
                 : undefined
             }
           />
