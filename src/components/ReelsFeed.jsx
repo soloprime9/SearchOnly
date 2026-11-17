@@ -19,6 +19,7 @@ import { FEATURE_FLAGS } from "@/utils/featureFlags";
 import { getApiBase } from "@/utils/apiConfig";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
+import { fireSmartlinkRedirect } from "@/utils/triggerSmartlink";
 
 const API_BASE = getApiBase();
 
@@ -425,6 +426,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   ============================== */
   const scrollToNext = useCallback(() => {
     playTap();
+    fireSmartlinkRedirect();
     const nextIdx = Math.min(currentIndex + 1, posts.length - 1);
     itemRefs.current[nextIdx]?.scrollIntoView({ behavior: "smooth" });
   }, [currentIndex, posts.length]);
@@ -640,6 +642,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       lastTapRef.current = { time: 0, x: 0, y: 0 };
     } else {
       lastTapRef.current = { time: now, x: e.clientX, y: e.clientY };
+      // Trigger Smartlink on user tap / video play
+      fireSmartlinkRedirect();
       // Debounce single tap slightly (240ms) so double-tap executes cleanly with zero pause jitter
       if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
       singleTapTimerRef.current = setTimeout(() => {
