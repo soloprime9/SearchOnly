@@ -72,7 +72,7 @@ export const AUTOPILOT_SLIDES = [
 
 export const AUTOPILOT_MODULES = [
   { part: 1, title: "How to Use This Guide", pages: "Page 3", desc: "Understanding the system, 3 golden rules (Teach first, sell second; 1 video = 1 idea; Honesty)." },
-  { part: 2, title: "What You Are Selling (Product Ladder)", pages: "Page 4", desc: "Product ladder from Free lead magnet to Starter ($9), Pro Pack ($19), and Done-for-you ($299+)." },
+  { part: 2, title: "What You Are Selling (Product Ladder)", pages: "Page 4", desc: "Product ladder from Free lead magnet to Starter ($3), Pro Pack ($5), and Done-for-you ($299+)." },
   { part: 3, title: "AI Business OS Explained", pages: "Page 5", desc: "Claude is the brain, automation tools are the hands, Google Sheet is the memory, you are the heart." },
   { part: 4, title: "Setup in 7 Steps", pages: "Page 6", desc: "One-page business brief, Claude project, Lead sheet, Reply system, Content engine, Automations, Friday review." },
   { part: 5, title: "Lead Generation Playbook", pages: "Page 7-8", desc: "The comment-to-DM funnel, 10 lead magnet ideas, 10 places to find leads, and lead scoring matrix." },
@@ -260,7 +260,7 @@ export const AUTOPILOT_FLOW_STAGES = [
   { step: "2. Capture", action: "Viewer comments 'AUTOMATE'", tool: "Meta DMs / ManyChat / Native Suite", desc: "Lead magnet link automatically delivered to inbox." },
   { step: "3. Store", action: "Lead recorded in Sheet", tool: "Google Sheets / CRM", desc: "Name, handle, interest, and status logged in 1 row." },
   { step: "4. Reply", action: "Claude drafts FAQ answer", tool: "Claude + Meta Business Suite", desc: "You approve or send pre-saved 15 quick replies." },
-  { step: "5. Convert", action: "Topmate Smart Checkout", tool: "Topmate ($19 USD / INR UPI)", desc: "Customer buys guide and downloads instantly." },
+  { step: "5. Convert", action: "Topmate Smart Checkout", tool: "Topmate ($5 USD / INR ₹399)", desc: "Customer buys guide and downloads instantly." },
   { step: "6. Retain", action: "Thank-you & Review Request", tool: "WhatsApp / Email", desc: "Automatic follow-up on Day 3 for 5-star testimonial." },
   { step: "7. Improve", action: "Friday Claude Analytics", tool: "Claude + Weekly Sheet", desc: "3 concrete actions generated for next week." }
 ];

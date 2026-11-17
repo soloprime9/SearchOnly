@@ -1381,7 +1381,7 @@ export default function ProductDetailPage({ params }) {
                       className="px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 hover:from-orange-400 hover:to-amber-400 text-black font-black text-xs transition shadow-xl shadow-orange-500/30 flex items-center gap-2 cursor-pointer no-underline"
                     >
                       <Zap className="w-4 h-4 fill-current" />
-                      <span>Unlock Complete AI Business OS ($19) — Topmate Instant Delivery</span>
+                      <span>Unlock Complete AI Business OS ($5) — Topmate Instant Delivery</span>
                     </a>
                     <span className="text-[10px] text-slate-400 font-mono">
                       Instant PDF Download • Lifetime Commercial License Included
@@ -1444,7 +1444,7 @@ export default function ProductDetailPage({ params }) {
                   <div className="p-4 rounded-2xl bg-[var(--bg-canvas)] border border-[var(--border-subtle)] space-y-2">
                     <span className="text-xs font-bold text-slate-500">Tier 2 • Starter</span>
                     <h4 className="text-base font-black text-[var(--text-primary)]">Starter Guide</h4>
-                    <div className="text-2xl font-black text-[var(--text-primary)]">$9 / ₹749</div>
+                    <div className="text-2xl font-black text-[var(--text-primary)]">$3 / ₹199</div>
                     <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                       Complete 31-page AI Business OS PDF guide with all 16 core chapters.
                     </p>
@@ -1454,10 +1454,10 @@ export default function ProductDetailPage({ params }) {
                       Included in this Kit
                     </span>
                     <span className="text-xs font-bold text-orange-600 dark:text-orange-400">Tier 3 • Full System</span>
-                    <h4 className="text-base font-black text-[var(--text-primary)]">Pro Pack ($19)</h4>
+                    <h4 className="text-base font-black text-[var(--text-primary)]">Pro Pack ($5)</h4>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-black text-orange-500">$19</span>
-                      <span className="text-xs text-slate-400 line-through">$49</span>
+                      <span className="text-2xl font-black text-orange-500">$5</span>
+                      <span className="text-xs text-slate-400 line-through">$19</span>
                     </div>
                     <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                       31-page guide, 20 prompts, 40 reel ideas, 10 scripts, 15 captions, and Google Sheet template.

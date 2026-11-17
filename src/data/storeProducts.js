@@ -280,8 +280,8 @@ export const STORE_PRODUCTS = [
       "Meta Business Suite Inbound CRM",
       "60-Day Launch Roadmap"
     ],
-    priceUSD: 19,
-    originalPriceUSD: 49,
+    priceUSD: 5,
+    originalPriceUSD: 19,
     image: "/images/products/ai-business-os.jpg",
     topmateUrl: "https://topmate.io/fondpeace_crazy/2411087",
     previewImages: [

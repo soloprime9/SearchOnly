@@ -98,7 +98,7 @@ export default function StorePage() {
 
         {/* Main Store Content Area */}
         <main className="w-full min-w-0 max-w-6xl mx-auto py-3 sm:py-6 pb-24 lg:pb-12 space-y-6">
-          
+
           {/* ═══════════════════════════════════════════════════
               STORE HEADER (CLEAN TITLE ONLY - ZERO CLUTTER)
           ═══════════════════════════════════════════════════ */}
@@ -141,17 +141,15 @@ export default function StorePage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveCategory(tab.id)}
-                    className={`px-3.5 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                      isActive
-                        ? "bg-amber-500 text-black font-black shadow-md shadow-amber-500/20"
-                        : "bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
-                    }`}
+                    className={`px-3.5 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 cursor-pointer ${isActive
+                      ? "bg-amber-500 text-black font-black shadow-md shadow-amber-500/20"
+                      : "bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+                      }`}
                   >
                     <span>{tab.label}</span>
                     <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                        isActive ? "bg-black/20 text-black" : "bg-[var(--bg-canvas)] text-[var(--text-muted)]"
-                      }`}
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? "bg-black/20 text-black" : "bg-[var(--bg-canvas)] text-[var(--text-muted)]"
+                        }`}
                     >
                       {tab.count}
                     </span>
