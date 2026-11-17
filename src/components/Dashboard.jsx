@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { getApiBase } from "@/utils/apiConfig";
 
 export default function Dashboard() {
 
@@ -13,7 +14,7 @@ export default function Dashboard() {
   useEffect(() => {
 
     fetch(
-      "https://backend-k.vercel.app/api/pwa/stats"
+      `${getApiBase()}/api/pwa/stats`
     )
       .then((res) => res.json())
       .then((data) => {

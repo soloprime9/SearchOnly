@@ -1,16 +1,22 @@
 import { NextResponse } from "next/server";
+import { getApiBase } from "@/utils/apiConfig";
 
-const API_BASE = "https://backend-k.vercel.app";
+const API_BASE = getApiBase();
 const SITE_URL = "https://www.fondpeace.com";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const fetchOptions = {
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(45000),
+    };
+
     // Fetch all posts and all video posts in parallel to strictly eliminate redirect loops
     const [allRes, videoRes] = await Promise.all([
-      fetch(`${API_BASE}/post/all-ids`, { next: { revalidate: 3600 } }),
-      fetch(`${API_BASE}/post/video/getall`, { next: { revalidate: 3600 } }),
+      fetch(`${API_BASE}/post/all-ids`, fetchOptions),
+      fetch(`${API_BASE}/post/video/getall`, fetchOptions),
     ]);
 
     const allPosts = allRes.ok ? await allRes.json() : [];

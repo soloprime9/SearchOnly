@@ -1,5 +1,5 @@
 const SITE_URL = "https://www.fondpeace.com";
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://backendk-z915.onrender.com";
+const API_BASE = "https://backendk-z915.onrender.com";
 
 export const revalidate = 3600; // 1 hour cache revalidation
 
@@ -95,9 +95,14 @@ export default async function sitemap() {
   // 2. Fetch Live Dynamic Post URLs & Video URLs from Backend API
   let dynamicRoutes = [];
   try {
+    const fetchOptions = {
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(45000), // 45s tolerance for Render cold starts
+    };
+
     const [allRes, videoRes] = await Promise.all([
-      fetch(`${API_BASE}/post/all-ids`, { next: { revalidate: 3600 } }),
-      fetch(`${API_BASE}/post/video/getall`, { next: { revalidate: 3600 } }),
+      fetch(`${API_BASE}/post/all-ids`, fetchOptions),
+      fetch(`${API_BASE}/post/video/getall`, fetchOptions),
     ]);
 
     const allPosts = allRes.ok ? await allRes.json() : [];

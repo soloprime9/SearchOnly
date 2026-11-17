@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
 
-# Sitemap Location
+# Sitemap Index and Specialized Sitemaps
 Sitemap: https://www.fondpeace.com/sitemap.xml
+Sitemap: https://www.fondpeace.com/video-sitemap.xml
+Sitemap: https://www.fondpeace.com/post-sitemap.xml

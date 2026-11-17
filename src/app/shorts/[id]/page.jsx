@@ -112,7 +112,10 @@ export async function generateMetadata({ params }) {
     const pageUrl = `${SITE_ROOT}/shorts/${id}`;
 
     const rawTitle = (post.title || "").trim();
-    const cleanText = rawTitle.replace(/#[a-zA-Z0-9_]+/g, "").trim();
+    let cleanText = rawTitle.replace(/#[a-zA-Z0-9_]+/g, "").trim();
+    if (!cleanText && rawTitle) {
+      cleanText = (rawTitle.match(/#[a-zA-Z0-9_]+/g) || []).map((t) => t.replace("#", "")).join(" ");
+    }
     const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
 
     const title = cleanText
@@ -275,7 +278,7 @@ export default async function ShortsDetailPage({ params }) {
       };
 
       return (
-        <main className="w-full h-[100dvh] bg-black text-white overflow-hidden select-none">
+        <main className="w-full h-[100dvh] bg-black text-white overflow-hidden select-none relative">
           <script
             key="video-jsonld"
             type="application/ld+json"
@@ -283,6 +286,36 @@ export default async function ShortsDetailPage({ params }) {
               __html: JSON.stringify(videoSchema),
             }}
           />
+          {/* Crawler & Search Engine SSR Semantic Video Elements (Google Video Carousel & Mobile SERP) */}
+          <div className="sr-only" aria-hidden="true">
+            <h1>{post.title || "FondPeace Short Video"}</h1>
+            <p>{buildDescription(post)}</p>
+            {mediaUrl && (
+              <video
+                src={mediaUrl}
+                poster={primaryThumb}
+                preload="metadata"
+                width="720"
+                height="1280"
+              />
+            )}
+          </div>
+          <noscript>
+            <div className="p-4 max-w-md mx-auto text-center">
+              <h1 className="text-xl font-bold">{post.title || "FondPeace Short Video"}</h1>
+              <p className="text-sm text-gray-400 mt-1">Uploaded by @{authorName || "FondPeace"} &bull; FondPeace Shorts</p>
+              {mediaUrl && (
+                <video
+                  src={mediaUrl}
+                  poster={primaryThumb}
+                  controls
+                  preload="metadata"
+                  className="w-full max-h-[70vh] rounded-lg mt-3 mx-auto"
+                />
+              )}
+              <p className="mt-3 text-sm text-gray-300">{buildDescription(post)}</p>
+            </div>
+          </noscript>
           <ReelsFeedWrapper initialPost={post} initialRelated={related} />
         </main>
       );

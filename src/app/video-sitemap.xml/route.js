@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
+import { getApiBase } from "@/utils/apiConfig";
 
-const API_URL = "https://backend-k.vercel.app/post/video/getall";
+const API_BASE = getApiBase();
+const API_URL = `${API_BASE}/post/video/getall`;
 const SITE_URL = "https://www.fondpeace.com";
 
 export async function GET() {
   try {
     const res = await fetch(API_URL, {
       next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(45000),
     });
 
     if (!res.ok) {

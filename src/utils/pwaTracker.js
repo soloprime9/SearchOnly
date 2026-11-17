@@ -1,3 +1,5 @@
+import { getApiBase } from "./apiConfig";
+
 export const trackPWA =
 async (type) => {
 
@@ -17,7 +19,7 @@ async (type) => {
       navigator.platform;
 
     await fetch(
-      "https://backend-k.vercel.app/api/pwa/track",
+      `${getApiBase()}/api/pwa/track`,
       {
         method: "POST",
 

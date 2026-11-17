@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { formatPostTime } from '@/components/DateFormate';
 import Skeleton from '@/components/Skeleton';
 import toast from 'react-hot-toast';
+import { getApiBase } from '@/utils/apiConfig';
   
 function PostsManager() {
   const [posts, setPosts] = useState([]);
@@ -14,7 +15,7 @@ function PostsManager() {
   // ✅ Fetch posts from API
   const fetchPosts = async () => {
     try {
-      const { data } = await axios.get("https://backend-k.vercel.app/post/mango/getall");
+      const { data } = await axios.get(`${getApiBase()}/post/mango/getall`);
       setPosts(data);
     } catch (error) {
       console.error("Failed to fetch posts:", error);
