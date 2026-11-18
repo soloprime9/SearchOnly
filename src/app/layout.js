@@ -15,9 +15,10 @@ import NetworkSentinel from "@/components/NetworkSentinel";
 import GoogleOneTapPrompt from "@/components/GoogleOneTapPrompt";
 import { ThemeBackgroundProvider } from "@/context/ThemeBackgroundContext";
 import PassiveTelemetryTracker from "@/components/PassiveTelemetryTracker";
-import AdsterraSocialBar from "@/components/ads/AdsterraSocialBar";
-import AdsterraPopunder from "@/components/ads/AdsterraPopunder";
-import SmartlinkTrigger from "@/components/ads/SmartlinkTrigger";
+// Adsterra components kept in repo (src/components/ads/*) but paused/unused across the site
+// import AdsterraSocialBar from "@/components/ads/AdsterraSocialBar";
+// import AdsterraPopunder from "@/components/ads/AdsterraPopunder";
+// import SmartlinkTrigger from "@/components/ads/SmartlinkTrigger";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -221,10 +222,10 @@ export default function RootLayout({ children }) {
 
         <Analytics />
 
-        {/* Adsterra Monetization Engine (Controlled centrally via src/data/adsConfig.js) */}
-        <AdsterraSocialBar />
-        <AdsterraPopunder />
-        <SmartlinkTrigger />
+        {/* Adsterra Monetization Engine paused site-wide (components preserved in src/components/ads/) */}
+        {/* <AdsterraSocialBar /> */}
+        {/* <AdsterraPopunder /> */}
+        {/* <SmartlinkTrigger /> */}
         </ThemeBackgroundProvider>
       </body>
     </html>

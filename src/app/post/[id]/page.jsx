@@ -9,8 +9,9 @@
 
 import { cache } from "react";
 import SinglePostPage from "@/components/SinglePostPage";
-import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
-import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
+// Adsterra components paused site-wide (preserved in src/components/ads/)
+// import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
+// import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
 import PostTitle from "@/components/PostTitle";
 import RelatedPosts from "@/components/RelatedPosts";
 import LeftSidebar from "@/components/LeftSidebar";
@@ -733,14 +734,8 @@ return (
             </span>
           </div>
 
-          {/* Adsterra 320x50 Banner (Top Above The Fold - Visible Immediately on Landing) */}
-          <AdsterraBanner320 />
-
           {/* Full Post Card - Exactly matching Homepage (Village.jsx) */}
           <SinglePostPage initialPost={post} />
-
-          {/* Adsterra Native Banner Recommendations (Between post and related discussions) */}
-          <AdsterraNativeBanner />
 
           {/* Related Community Discussions Feed */}
           <RelatedPosts

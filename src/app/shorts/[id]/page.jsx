@@ -1,5 +1,6 @@
 // app/shorts/[id]/page.jsx
 import { cache } from "react";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
 import { getApiBase } from "@/utils/apiConfig";
@@ -232,13 +233,42 @@ export default async function ShortsDetailPage({ params }) {
         );
       }
 
+      const rawTitleText = (post.title || "").trim();
+      const nonHashtagText = rawTitleText.replace(/#[a-zA-Z0-9_]+/g, "").replace(/\s+/g, " ").trim();
+      const extractedHashtags = Array.from(
+        new Set([
+          ...(Array.isArray(post.tags) ? post.tags : []),
+          ...(rawTitleText.match(/#[a-zA-Z0-9_]+/g) || []).map((t) => t.replace("#", "")),
+        ])
+      )
+        .map((t) => String(t).trim())
+        .filter(Boolean)
+        .slice(0, 8);
+
+      const cleanDisplayTitle =
+        nonHashtagText ||
+        (extractedHashtags.length ? extractedHashtags.slice(0, 4).join(" ") : "FondPeace Short Video");
+      const safeAuthor = authorName || "FondPeace";
+      const cleanSchemaDescription = `${cleanDisplayTitle} — short vertical video by @${safeAuthor} on FondPeace Shorts.${
+        extractedHashtags.length ? ` Topics: ${extractedHashtags.join(", ")}.` : ""
+      } Watch, react, and join the community conversation.`;
+
+      const relatedShorts = (Array.isArray(related) ? related : [])
+        .filter((r) => r?._id && String(r._id) !== String(post._id || id) && isPlayableShortPost(r))
+        .slice(0, 8);
+
+      const topComments = (Array.isArray(post.comments) ? post.comments : [])
+        .filter((c) => c && (c.CommentText || c.text))
+        .slice(0, 5);
+
       const videoSchema = {
         "@context": "https://schema.org",
         "@type": "VideoObject",
         "@id": `${pageUrl}#video`,
-        name: post.title || "FondPeace Short Video",
-        headline: post.title || "FondPeace Short Video",
-        description: buildDescription(post),
+        name: cleanDisplayTitle,
+        headline: cleanDisplayTitle,
+        description: cleanSchemaDescription,
+        keywords: extractKeywords(post),
         thumbnailUrl: thumbnailList,
         thumbnail: {
           "@type": "ImageObject",
@@ -258,8 +288,8 @@ export default async function ShortsDetailPage({ params }) {
         isAccessibleForFree: true,
         author: {
           "@type": "Person",
-          name: authorName || "FondPeace",
-          url: `${SITE_ROOT}/profile/${authorName || "FondPeace"}`,
+          name: safeAuthor,
+          url: `${SITE_ROOT}/profile/${safeAuthor}`,
         },
         publisher: {
           "@type": "Organization",
@@ -281,15 +311,16 @@ export default async function ShortsDetailPage({ params }) {
         },
       };
 
-      // Visible, prominent, above-the-fold SSR Watch Player Shell (zero sr-only / zero 1x1 hidden video)
-      // Googlebot Wave 1 & users immediately see the main video player + H1 before client ReelsFeed hydrates
+      // Visible, prominent, above-the-fold SSR Watch Player Shell + Rich Internal Link Graph
+      // Eliminates "Thin content" & "Crawled - currently not indexed" by providing real SSR links,
+      // creator attribution, topic links, comments, and related /shorts/[id] links before hydration.
       const ssrWatchShell = (
-        <div className="w-full h-[100dvh] bg-black text-white flex items-center justify-center relative">
-          <div className="w-full md:max-w-[440px] h-[100dvh] md:h-[calc(100dvh-20px)] md:my-auto md:rounded-3xl overflow-hidden relative bg-black flex items-center justify-center md:border md:border-white/10">
+        <div className="w-full min-h-[100dvh] bg-black text-white flex flex-col lg:flex-row items-center justify-center gap-6 px-0 lg:px-6 relative">
+          <div className="w-full md:max-w-[440px] h-[100dvh] md:h-[calc(100dvh-20px)] md:my-auto md:rounded-3xl overflow-hidden relative bg-black flex items-center justify-center md:border md:border-white/10 shrink-0">
             {ytId ? (
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${ytId}?rel=0&playsinline=1`}
-                title={post.title || "FondPeace Short Video"}
+                title={cleanDisplayTitle}
                 className="w-full h-full border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -306,15 +337,83 @@ export default async function ShortsDetailPage({ params }) {
                 className="w-full h-full object-contain mx-auto"
               />
             ) : null}
-            <div className="absolute inset-x-0 bottom-0 p-4 pb-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none">
-              <p className="text-sm font-bold text-white mb-1">
-                @{authorName || "FondPeace"}
-              </p>
+            <div className="absolute inset-x-0 bottom-0 p-4 pb-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+              <Link
+                href={`/profile/${safeAuthor}`}
+                className="text-sm font-bold text-white mb-1 inline-block hover:underline"
+              >
+                @{safeAuthor}
+              </Link>
               <h1 className="text-xs sm:text-sm font-normal line-clamp-3 leading-snug text-zinc-100">
-                {post.title || "FondPeace Short Video"}
+                {post.title || cleanDisplayTitle}
               </h1>
             </div>
           </div>
+
+          {/* Semantic Video Details & Internal Discovery Links for Crawlers & Viewers */}
+          <aside className="flex flex-col gap-4 max-w-sm w-full text-zinc-200 p-5 rounded-2xl bg-zinc-950/90 border border-white/10 lg:max-h-[calc(100dvh-40px)] overflow-y-auto">
+            <div>
+              <p className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
+                {post.category || "FondPeace Shorts"}
+              </p>
+              <p className="text-sm text-zinc-300 mt-1 leading-relaxed">
+                {cleanSchemaDescription}
+              </p>
+              <p className="text-xs text-zinc-400 mt-2">
+                {viewsCount(post)} views &bull; {likesCount(post)} likes &bull; {commentsCount(post)} comments
+              </p>
+            </div>
+
+            {extractedHashtags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {extractedHashtags.map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/topic/${encodeURIComponent(tag.toLowerCase())}`}
+                    className="text-xs px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-zinc-200"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {topComments.length > 0 && (
+              <div className="space-y-2 border-t border-white/10 pt-3">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                  Community Comments
+                </h2>
+                {topComments.map((c, idx) => (
+                  <p key={c._id || idx} className="text-xs text-zinc-300 leading-snug">
+                    <span className="font-semibold text-white">
+                      @{c.userId?.username || "Member"}:
+                    </span>{" "}
+                    {c.CommentText || c.text}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {relatedShorts.length > 0 && (
+              <nav aria-label="Related Short Videos" className="space-y-2 border-t border-white/10 pt-3">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                  More Trending Shorts
+                </h2>
+                <ul className="space-y-1.5">
+                  {relatedShorts.map((rel) => (
+                    <li key={rel._id}>
+                      <Link
+                        href={`/shorts/${rel._id}`}
+                        className="text-xs text-blue-400 hover:underline line-clamp-1"
+                      >
+                        {rel.title || "Watch Trending Short"}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
+          </aside>
         </div>
       );
 
