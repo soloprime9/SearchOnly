@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, use } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import LeftSidebar from "@/components/LeftSidebar";
@@ -369,9 +369,9 @@ const MULTI_PLATFORM_LAUNCHERS = [
   }
 ];
 
-export default function ProductDetailPage({ params }) {
-  const resolvedParams = use(params);
-  const productId = resolvedParams?.id;
+export default function ProductDetailPage() {
+  const params = useParams();
+  const productId = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params.id[0] : "";
 
   const [openFaq, setOpenFaq] = useState(null);
   const [selectedPreview, setSelectedPreview] = useState(null);

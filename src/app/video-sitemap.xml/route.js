@@ -6,6 +6,20 @@ const API_BASE = getApiBase();
 const API_URL = `${API_BASE}/post/video/getall`;
 const SITE_URL = "https://www.fondpeace.com";
 
+function escapeXml(str = "") {
+  return String(str)
+    .trim()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function safeCdata(str = "") {
+  return String(str).replace(/]]>/g, "]]]]><![CDATA[>").trim();
+}
+
 export async function GET() {
   try {
     const res = await fetch(API_URL, {
@@ -24,58 +38,39 @@ export async function GET() {
     }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 ${posts
   .map((post) => {
     const videoMedia = post?.media || post?.mediaUrl;
     if (!post?._id || !videoMedia) return "";
 
     // ✅ SAFE DURATION (no error ever)
-    const durationNum = Number(post.duration);
+    const durationNum = Math.round(Number(post.duration));
     const isValidDuration =
       Number.isFinite(durationNum) &&
       durationNum >= 1 &&
       durationNum <= 28800;
 
-    return `
-  <url>
-    <loc>${SITE_URL}/shorts/${post._id}</loc>
+    const thumbUrl = escapeXml(resolvePostThumbnail(post));
+    const contentUrl = escapeXml(videoMedia);
+    const pubDate = new Date(post.createdAt || Date.now()).toISOString();
+    const title = safeCdata(post.title || "FondPeace Short Video");
+    const desc = safeCdata(post.description || post.title || "FondPeace video short");
 
+    return `  <url>
+    <loc>${SITE_URL}/shorts/${escapeXml(post._id)}</loc>
     <video:video>
-      <video:thumbnail_loc>
-        ${resolvePostThumbnail(post)}
-      </video:thumbnail_loc>
-
-      <video:title><![CDATA[${
-        post.title || "FondPeace Short Video"
-      }]]></video:title>
-
-      <video:description><![CDATA[${
-        post.description || post.title || "FondPeace video short"
-      }]]></video:description>
-
-      <video:content_loc>
-        ${videoMedia}
-      </video:content_loc>
-
-      ${
-        isValidDuration
-          ? `<video:duration>${durationNum}</video:duration>`
-          : ""
-      }
-
-      <video:publication_date>
-        ${new Date(post.createdAt || Date.now()).toISOString()}
-      </video:publication_date>
-
+      <video:thumbnail_loc>${thumbUrl}</video:thumbnail_loc>
+      <video:title><![CDATA[${title}]]></video:title>
+      <video:description><![CDATA[${desc}]]></video:description>
+      <video:content_loc>${contentUrl}</video:content_loc>
+      ${isValidDuration ? `<video:duration>${durationNum}</video:duration>` : ""}
+      <video:publication_date>${pubDate}</video:publication_date>
     </video:video>
   </url>`;
   })
-  .join("")}
-
+  .filter(Boolean)
+  .join("\n")}
 </urlset>`;
 
     return new NextResponse(xml, {

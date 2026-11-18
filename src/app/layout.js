@@ -49,10 +49,6 @@ export const metadata = {
     },
   },
 
-  alternates: {
-    canonical: "https://www.fondpeace.com",
-  },
-
   openGraph: {
     title: "FondPeace - Community, Ideas & Trending Videos",
     description:

@@ -10,10 +10,13 @@ const router = useRouter();
 const relatedRefs = useRef({});
 
 
+import { getApiBase } from '@/utils/apiConfig';
+const API_BASE = getApiBase();
+
 export default async function PostPage({ params }) {
   const { id } = params;
   try {
-    const response = await axios.get(`https://backend-k.vercel.app/content/post/${id}`);
+    const response = await axios.get(`${API_BASE}/content/post/${id}`);
     const post = response.data.post;
     const relatedPosts = response.data.relatedPosts; // 👈 add this line
 

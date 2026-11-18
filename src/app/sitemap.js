@@ -1,16 +1,33 @@
+import { STORE_PRODUCTS } from "@/data/storeProducts";
+
 const SITE_URL = "https://www.fondpeace.com";
 const API_BASE = "https://backendk-z915.onrender.com";
 
 export const revalidate = 3600; // 1 hour cache revalidation
 
 export default async function sitemap() {
-  // 1. Static Core Platform Pages
+  // 1. Static Core Platform Pages & Real Live Store Product Pages
+  const storeProductRoutes = (Array.isArray(STORE_PRODUCTS) ? STORE_PRODUCTS : [])
+    .filter((p) => p?.slug || p?.id)
+    .map((p) => ({
+      url: `${SITE_URL}/store/${p.slug || p.id}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    }));
+
   const staticRoutes = [
     {
       url: `${SITE_URL}/`,
       lastModified: new Date(),
       changeFrequency: "always",
       priority: 1.0,
+    },
+    {
+      url: `${SITE_URL}/shorts`,
+      lastModified: new Date(),
+      changeFrequency: "hourly",
+      priority: 0.95,
     },
     {
       url: `${SITE_URL}/search`,
@@ -24,30 +41,7 @@ export default async function sitemap() {
       changeFrequency: "daily",
       priority: 0.9,
     },
-    {
-      url: `${SITE_URL}/store/ai-developer-cursor-vault`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${SITE_URL}/store/saas-launch-kit-24h`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${SITE_URL}/store/viral-video-faceless-engine`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${SITE_URL}/store/solopreneur-ai-prompts`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
+    ...storeProductRoutes,
     {
       url: `${SITE_URL}/monetization`,
       lastModified: new Date(),

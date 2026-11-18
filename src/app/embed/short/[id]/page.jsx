@@ -19,7 +19,7 @@ export async function generateMetadata({ params }) {
   const id = resolvedParams?.id;
   if (!id) return {};
 
-  const watchUrl = `${SITE_ROOT}/short/${id}`;
+  const watchUrl = `${SITE_ROOT}/shorts/${id}`;
 
   return {
     title: "Video Embed | FondPeace",
@@ -53,7 +53,7 @@ export default async function EmbedPage({ params }) {
   if (!mediaUrl) return notFound();
 
   const embedUrl = `${SITE_ROOT}/embed/short/${id}`;
-  const watchUrl = `${SITE_ROOT}/short/${id}`;
+  const watchUrl = `${SITE_ROOT}/shorts/${id}`;
 
   return (
     <main className="w-full h-screen bg-black flex items-center justify-center">

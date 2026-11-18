@@ -19,7 +19,7 @@ const MobileTopNavBar = () => {
 
   const HandleVideoId = () => {
     const single = ListId[Math.floor(Math.random() * ListId.length)];
-    router.push(`/short/${single}`);
+    router.push(`/shorts/${single}`);
   };
 
   return (

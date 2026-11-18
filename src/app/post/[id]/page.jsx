@@ -7,6 +7,7 @@
 // ✓ AUTO DETECT MEDIA TYPE
 // ✓ FIXES "VIDEO ISN’T ON WATCH PAGE" ERROR
 
+import { cache } from "react";
 import SinglePostPage from "@/components/SinglePostPage";
 import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
 import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
@@ -157,6 +158,19 @@ function extractKeywords(post) {
   return post.title.split(" ").slice(0, 10).join(", ");
 }
 
+const getPostDetailData = cache(async (id) => {
+  try {
+    const res = await fetch(`${API_BASE}/post/image/${id}`, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+});
+
 /* ------------------------- generateMetadata ------------------------- */
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -165,8 +179,7 @@ export async function generateMetadata({ params }) {
   const pageUrl = `${SITE_ROOT}/post/${id}`;
 
   try {
-    const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
-    const data = await res.json();
+    const data = await getPostDetailData(id);
     const post = data?.post;
 
     if (!post) return { title: "Post Not Found | FondPeace" };
@@ -249,13 +262,7 @@ export default async function Page({ params }) {
   const id = resolvedParams?.id;
   if (!id) return notFound();
 
-  const res = await fetch(`${API_BASE}/post/image/${id}`, { cache: "no-store" });
-
-  if (!res.ok) {
-    return notFound();
-  }
-
-  const data = await res.json();
+  const data = await getPostDetailData(id);
   const post = data?.post;
 
   if (!post) {

@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 
-// 1. Official Search Engine & Social Preview Bots (Always allowed for SEO & indexing)
+// 1. Official Search Engine, Quality Auditors & Social Preview Bots (Always allowed FIRST for SEO & indexing)
 const ALLOWED_SEARCH_BOTS = [
   "googlebot",
   "google-inspectiontool",
+  "googleother",
+  "storebot-google",
+  "chrome-lighthouse",
+  "pagespeed",
   "mediapartners-google",
   "adsbot-google",
   "feedfetcher-google",
@@ -92,20 +96,20 @@ export function middleware(request) {
     });
   }
 
-  // --- 2. ANTI-SCRAPER PROTECTION: Block automated scraping tools worldwide ---
+  // --- 2. SEARCH ENGINE CRAWLER WHITELIST (MUST run BEFORE scraper filter!) ---
+  // Always allow Googlebot, Google-InspectionTool, Lighthouse, Bingbot, and Social Bots from any region
+  const isSearchBot = ALLOWED_SEARCH_BOTS.some((bot) => userAgent.includes(bot));
+  if (isSearchBot) {
+    return NextResponse.next();
+  }
+
+  // --- 3. ANTI-SCRAPER PROTECTION: Block automated scraping tools worldwide ---
   const isBadScraper = BLOCKED_SCRAPERS.some((tool) => userAgent.includes(tool));
   if (isBadScraper) {
     return new NextResponse("Access Denied: Automated Scraping Forbidden", {
       status: 403,
       headers: { "Content-Type": "text/plain" },
     });
-  }
-
-  // --- 3. SEARCH ENGINE CRAWLER WHITELIST (SEO Priority) ---
-  // If Googlebot / Bingbot / Social Bots visit from Singapore or anywhere, ALWAYS ALLOW!
-  const isSearchBot = ALLOWED_SEARCH_BOTS.some((bot) => userAgent.includes(bot));
-  if (isSearchBot) {
-    return NextResponse.next();
   }
 
   // --- 4. GEO-BLOCKING: Block general visitors/scrapers from China (CN) & Singapore (SG) ---

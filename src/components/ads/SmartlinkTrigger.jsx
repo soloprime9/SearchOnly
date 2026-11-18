@@ -1,62 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ADS_CONFIG } from "@/data/adsConfig";
 import { fireSmartlinkRedirect } from "@/utils/triggerSmartlink";
 
 export default function SmartlinkTrigger() {
-  const [overlayActive, setOverlayActive] = useState(true);
-
   useEffect(() => {
     if (!ADS_CONFIG.enabled || !ADS_CONFIG.smartlink.enabled) {
-      setOverlayActive(false);
       return;
     }
 
     const handleInteraction = (e) => {
-      // Don't intercept if clicking internal forms/inputs
+      // Only fire on genuine user-initiated clicks, never intercept inputs/forms/video controls
+      if (!e.isTrusted) return;
       const tag = e.target?.tagName?.toLowerCase();
-      if (tag === "input" || tag === "textarea") return;
+      if (tag === "input" || tag === "textarea" || tag === "select" || tag === "video") return;
 
-      setOverlayActive(false);
       fireSmartlinkRedirect();
     };
 
-    // Attach to window and document in capture phase
-    window.addEventListener("click", handleInteraction, { capture: true });
-    window.addEventListener("touchstart", handleInteraction, { capture: true, passive: true });
-    window.addEventListener("pointerup", handleInteraction, { capture: true });
+    window.addEventListener("click", handleInteraction, { passive: true });
 
     return () => {
-      window.removeEventListener("click", handleInteraction, { capture: true });
-      window.removeEventListener("touchstart", handleInteraction, { capture: true });
-      window.removeEventListener("pointerup", handleInteraction, { capture: true });
+      window.removeEventListener("click", handleInteraction);
     };
   }, []);
 
-  if (!overlayActive || !ADS_CONFIG.enabled || !ADS_CONFIG.smartlink.enabled) {
-    return null;
-  }
-
-  // Fullscreen invisible touch layer for initial landing gesture
-  return (
-    <div
-      id="fondpeace-touch-overlay"
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 99998,
-        background: "transparent",
-        cursor: "pointer",
-      }}
-      onClick={() => {
-        setOverlayActive(false);
-        fireSmartlinkRedirect(true);
-      }}
-      onTouchStart={() => {
-        setOverlayActive(false);
-        fireSmartlinkRedirect(true);
-      }}
-    />
-  );
+  // Zero fullscreen overlay so videos & content are never occluded for users or Google Video Indexing
+  return null;
 }

@@ -835,7 +835,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
         </aside>
 
         {/* Snap-Mandatory Vertical Scroll Viewport */}
-        <main
+        <div
           ref={containerRef}
           className="w-full h-full overflow-y-auto snap-y snap-mandatory scroll-smooth relative no-scrollbar"
           style={{ scrollbarWidth: "none" }}
@@ -921,6 +921,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     <video
                       ref={(el) => (videoRefs.current[index] = el)}
                       src={resolvePlayableVideoSource(item)}
+                      poster={resolvedThumbnail || undefined}
                       data-index={index}
                       data-id={item._id}
                       loop
@@ -1014,9 +1015,15 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     )}
                   </div>
 
-                  <p className="text-xs sm:text-sm line-clamp-3 leading-snug drop-shadow-md text-zinc-100 whitespace-pre-wrap">
-                    <FormattedCaption text={item.title} />
-                  </p>
+                  {isCurrent ? (
+                    <h1 className="text-xs sm:text-sm font-normal line-clamp-3 leading-snug drop-shadow-md text-zinc-100 whitespace-pre-wrap">
+                      <FormattedCaption text={item.title} />
+                    </h1>
+                  ) : (
+                    <p className="text-xs sm:text-sm line-clamp-3 leading-snug drop-shadow-md text-zinc-100 whitespace-pre-wrap">
+                      <FormattedCaption text={item.title} />
+                    </p>
+                  )}
 
                   {/* Clickable Animated Audio Track Pill */}
                   <button
@@ -1074,7 +1081,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
               </section>
             );
           })}
-        </main>
+        </div>
       </div>
 
       {/* ── Sound Details Bottom Sheet Modal ── */}
