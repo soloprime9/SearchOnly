@@ -13,6 +13,8 @@ import PostTitle from "@/components/PostTitle";
 import RelatedPosts from "@/components/RelatedPosts";
 import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
+import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
+import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
 import { Coins, ArrowRight, ShieldCheck } from "lucide-react";
 
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
@@ -751,6 +753,10 @@ return (
 
           {/* Full Post Card - Exactly matching Homepage (Village.jsx) */}
           <SinglePostPage initialPost={post} />
+
+          {/* Adsterra Post Page Ads (1-switch controlled in src/data/adsConfig.js) */}
+          <AdsterraBanner320 />
+          <AdsterraNativeBanner />
 
           {/* Related Community Discussions Feed */}
           <RelatedPosts

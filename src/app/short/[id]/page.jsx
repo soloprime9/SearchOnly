@@ -8,6 +8,8 @@ import SinglePostPage from "@/components/SinglePostPage";
 import RelatedPosts from "@/components/RelatedPosts";
 import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
+import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
+import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
@@ -388,6 +390,10 @@ export default async function SingleShortWatchPage({ params }) {
 
           {/* Dedicated Single Video Watch Card (Full SSR Video + Caption + Comments + Actions) */}
           <SinglePostPage initialPost={post} />
+
+          {/* Adsterra Watch Page Ads (1-switch controlled in src/data/adsConfig.js) */}
+          <AdsterraBanner320 />
+          <AdsterraNativeBanner />
 
           {/* Related Videos & Community Feed */}
           <RelatedPosts

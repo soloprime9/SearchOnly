@@ -34,6 +34,8 @@ import PersonalizeFeedModal from "./PersonalizeFeedModal";
 import StoriesBar from "./StoriesBar";
 import ShareModal from "./ShareModal";
 import FormattedCaption from "./FormattedCaption";
+import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
+import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
 import { UserPlus, Check, Users, Sparkles, Maximize2, Repeat2, Bookmark, BarChart2, Pin, LayoutList, LayoutGrid, Quote, Compass, ArrowUp, ArrowUpRight, ShieldCheck, X, Film, Image as ImageIcon, MessageSquare, MapPin, Smartphone, RotateCw, SlidersHorizontal } from "lucide-react";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
@@ -1445,6 +1447,8 @@ const handleShare = (postData) => {
         />
       )}
 
+      {/* Top In-Feed Adsterra 320x50 Banner (1-switch controlled in src/data/adsConfig.js) */}
+      <AdsterraBanner320 className="max-w-[600px] mx-auto my-3" />
 
       {/* Posts List - Stream vs Grid View */}
       {!followingLoading && viewMode === "grid" ? (
@@ -1527,6 +1531,12 @@ const handleShare = (postData) => {
                 </div>
               )}
 
+              {/* High-CPM In-Feed Adsterra Native Banner */}
+              {(idx === 2 || idx === 7) && (
+                <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-4">
+                  <AdsterraNativeBanner />
+                </div>
+              )}
 
               {/* In-Feed Creator Discovery Carousel (After 6th post for optimal spacing) */}
               {idx === 6 && activeTab === "foryou" && (
