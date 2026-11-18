@@ -9,6 +9,39 @@ import { shouldIndexProfile } from "@/utils/indexGate";
 const SITE_ROOT = "https://www.fondpeace.com";
 const API_BASE = getApiBase();
 
+export const revalidate = 600;
+
+function slimProfilePosts(rawPosts, limit = 24) {
+  if (!Array.isArray(rawPosts)) return [];
+  return rawPosts.slice(0, limit).map((p) => ({
+    _id: p._id,
+    title: p.title,
+    media: p.media,
+    mediaUrl: p.mediaUrl,
+    thumbnail: p.thumbnail,
+    mediaType: p.mediaType,
+    mtype: p.mtype,
+    category: p.category,
+    tags: Array.isArray(p.tags) ? p.tags.slice(0, 8) : [],
+    views: p.views || 0,
+    likes: Array.isArray(p.likes) ? p.likes.slice(0, 1) : [],
+    likesCount: Array.isArray(p.likes) ? p.likes.length : Number(p.likes || 0),
+    comments: Array.isArray(p.comments) ? p.comments.slice(0, 2) : [],
+    commentCount: Array.isArray(p.comments) ? p.comments.length : Number(p.commentCount || 0),
+    linkPreview: p.linkPreview,
+    createdAt: p.createdAt,
+    userId: p.userId
+      ? {
+          _id: p.userId._id,
+          username: p.userId.username,
+          name: p.userId.name,
+          profilePicture: p.userId.profilePicture,
+          isVerified: p.userId.isVerified,
+        }
+      : undefined,
+  }));
+}
+
 /**
  * Deduplicated multi-tier profile resolver (shared between generateMetadata & Page)
  */
@@ -20,15 +53,21 @@ const resolveUserProfile = cache(async (username) => {
   try {
     const res = await fetch(
       `${API_BASE}/user/profile-public/${encodeURIComponent(cleanName)}`,
-      { next: { revalidate: 300 }, signal: AbortSignal.timeout(15000) }
+      { next: { revalidate: 600 }, signal: AbortSignal.timeout(30000) }
     );
     if (res.ok) {
       const data = await res.json();
       if (data?.Profile?.user) {
-        if (Array.isArray(data.Profile.posts)) {
-          data.Profile.posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        }
-        return data.Profile;
+        const rawPosts = Array.isArray(data.Profile.posts) ? data.Profile.posts : [];
+        rawPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // Keep SSR payload well under Googlebot's 2MB HTML limit (prevents 3.8MB bloated profiles!)
+        return {
+          ...data.Profile,
+          totalPostsCount: rawPosts.length,
+          posts: slimProfilePosts(rawPosts, 24),
+          likedPosts: [],
+          discussionPosts: [],
+        };
       }
     }
   } catch (_) {}
@@ -36,8 +75,8 @@ const resolveUserProfile = cache(async (username) => {
   // Tier 2: Mango Directory + Posts fallback
   try {
     const [usersRes, postsRes] = await Promise.all([
-      fetch(`${API_BASE}/user/mango/getall`, { next: { revalidate: 300 }, signal: AbortSignal.timeout(15000) }),
-      fetch(`${API_BASE}/post/mango/getall`, { next: { revalidate: 300 }, signal: AbortSignal.timeout(15000) }).catch(() => ({ ok: false }))
+      fetch(`${API_BASE}/user/mango/getall`, { next: { revalidate: 600 }, signal: AbortSignal.timeout(30000) }),
+      fetch(`${API_BASE}/post/mango/getall`, { next: { revalidate: 600 }, signal: AbortSignal.timeout(30000) }).catch(() => ({ ok: false }))
     ]);
 
     if (usersRes.ok) {
@@ -71,7 +110,10 @@ const resolveUserProfile = cache(async (username) => {
 
         return {
           user: targetUser,
-          posts: userPosts,
+          totalPostsCount: userPosts.length,
+          posts: slimProfilePosts(userPosts, 24),
+          likedPosts: [],
+          discussionPosts: [],
         };
       }
     }
@@ -102,7 +144,7 @@ export async function generateMetadata({ params }) {
     const indexable = shouldIndexProfile(profileData);
 
     return {
-      title: `${displayName} (@${user.username}) on FondPeace`,
+      title: `${displayName} (@${user.username})`,
       description:
         user.bio || `View ${displayName}'s profile on FondPeace. Watch videos, posts, and updates.`,
       robots: {
@@ -139,7 +181,7 @@ export async function generateMetadata({ params }) {
       },
     };
   } catch {
-    return { title: "Profile | FondPeace" };
+    return { title: "Creator Profile" };
   }
 }
 
@@ -162,16 +204,16 @@ export default async function Page({ params }) {
               "@graph": [
                 {
                   "@type": "ProfilePage",
-                  "@id": `${SITE_ROOT}/profile/${encodeURIComponent(username)}`,
-                  url: `${SITE_ROOT}/profile/${encodeURIComponent(username)}`,
+                  "@id": `${SITE_ROOT}/profile/${encodeURIComponent(user.username)}`,
+                  url: `${SITE_ROOT}/profile/${encodeURIComponent(user.username)}`,
                   mainEntity: {
                     "@type": "Person",
-                    "@id": `${SITE_ROOT}/profile/${encodeURIComponent(username)}#person`,
+                    "@id": `${SITE_ROOT}/profile/${encodeURIComponent(user.username)}#person`,
                   },
                 },
                 {
                   "@type": "Person",
-                  "@id": `${SITE_ROOT}/profile/${encodeURIComponent(username)}#person`,
+                  "@id": `${SITE_ROOT}/profile/${encodeURIComponent(user.username)}#person`,
                   name: user.name || user.username,
                   alternateName: `@${user.username}`,
                   description: user.bio || `Explore posts and videos shared by ${user.username} on FondPeace.`,

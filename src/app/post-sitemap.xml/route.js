@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getApiBase } from "@/utils/apiConfig";
-import { shouldIndexPost } from "@/utils/indexGate";
+import { shouldIndexPost, dedupePostsByTitle } from "@/utils/indexGate";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
 
 const API_BASE = getApiBase();
@@ -35,15 +35,17 @@ export async function GET() {
         .map((v) => String(v._id))
     );
 
-    // Filter to ONLY clean, indexable non-video posts (excludes native videos, YouTube video posts, adult/MMS spam, and thin URL-only posts)
-    const cleanNonVideoPosts = allPosts.filter((p) => {
-      if (!p?._id || videoIdSet.has(String(p._id))) return false;
-      if (isPlayableShortPost(p)) return false;
-      if (typeof p.title === "string") {
-        return shouldIndexPost(p);
-      }
-      return true;
-    });
+    // Filter to ONLY clean, deduplicated, indexable non-video posts
+    const cleanNonVideoPosts = dedupePostsByTitle(
+      allPosts.filter((p) => {
+        if (!p?._id || videoIdSet.has(String(p._id))) return false;
+        if (isPlayableShortPost(p)) return false;
+        if (typeof p.title === "string") {
+          return shouldIndexPost(p);
+        }
+        return true;
+      })
+    );
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

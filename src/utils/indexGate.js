@@ -6,7 +6,7 @@
 import { extractPostYouTubeId, VIDEO_EXT_REGEX } from "@/utils/postMediaUtils";
 
 export const ADULT_SPAM_BLOCKLIST =
-  /(xhamster|desihub|missav|blacked\.com|hotwebhd|xnxx|xvideos|pornhub|onlyfans|brazzers|redtube|youporn|sex\s*video|mms\s*sex|viral\s*mms|viral\s*link|telegram\s*link|full\s*video\s*download|bf\s*video|chudai|randi|bhabhi\s*muh|panty\s*viral|sex\s*racket|having\s*sex|nude\s*video|\bporn\b|\bxxx\b|\b18\+\b|सेक्स\s*रैकेट|सेक्स\s*वीडियो)/i;
+  /(xhamster|desihub|missav|blacked\.com|hotwebhd|xnxx|xvideos|pornhub|onlyfans|brazzers|redtube|youporn|sex\s*video|mms\s*sex|viral\s*mms|viral\s*link|telegram\s*link|full\s*video\s*download|bf\s*video|chudai|chudwa|chudwaya|\bchut\b|\blund\b|\bgaand\b|chatwa|faad\s*di|randi|bhabhi\s*muh|panty\s*viral|sex\s*racket|having\s*sex|nude\s*video|sofik\s*sonali|palli\s*gram|hot\s*hd\s*porn|19\s*minute|gold\s*medalist\s*scandal|\bporn\b|\bxxx\b|\b18\+\b|सेक्स\s*रैकेट|सेक्स\s*वीडियो|अश्लील\s*वीडियो)/i;
 
 /**
  * Clean word-boundary title truncation (never cuts mid-word like "18th November 2").
@@ -142,6 +142,30 @@ export function dedupeVideosByMedia(posts = []) {
     if (rawMedia) {
       if (seenMedia.has(rawMedia)) continue;
       seenMedia.add(rawMedia);
+    }
+    unique.push(post);
+  }
+  return unique;
+}
+
+/**
+ * Deduplicates non-video posts with identical normalized titles so duplicate uploads
+ * never bloat post-sitemap.xml or sitemap.xml.
+ */
+export function dedupePostsByTitle(posts = []) {
+  if (!Array.isArray(posts)) return [];
+  const seenTitles = new Set();
+  const unique = [];
+  for (const post of posts) {
+    if (!post?._id) continue;
+    const normTitle = String(post.title || "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 120);
+    if (normTitle) {
+      if (seenTitles.has(normTitle)) continue;
+      seenTitles.add(normTitle);
     }
     unique.push(post);
   }

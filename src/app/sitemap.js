@@ -1,5 +1,5 @@
 import { STORE_PRODUCTS } from "@/data/storeProducts";
-import { shouldIndexPost, dedupeVideosByMedia } from "@/utils/indexGate";
+import { shouldIndexPost, dedupeVideosByMedia, dedupePostsByTitle } from "@/utils/indexGate";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
 
 const SITE_URL = "https://www.fondpeace.com";
@@ -115,20 +115,20 @@ export default async function sitemap() {
       priority: 0.85,
     }));
 
-    // Map clean, index-gate-passing non-videos strictly to post page: /post/[id]
-    const postRoutes = (Array.isArray(allPosts) ? allPosts : [])
-      .filter((p) => {
+    // Map clean, deduplicated, index-gate-passing non-videos strictly to post page: /post/[id]
+    const postRoutes = dedupePostsByTitle(
+      (Array.isArray(allPosts) ? allPosts : []).filter((p) => {
         if (!p?._id || videoIdSet.has(String(p._id))) return false;
         if (isPlayableShortPost(p)) return false;
         if (typeof p.title === "string") return shouldIndexPost(p);
         return true;
       })
-      .map((p) => ({
-        url: `${SITE_URL}/post/${p._id}`,
-        lastModified: new Date(p.createdAt || Date.now()),
-        changeFrequency: "weekly",
-        priority: 0.8,
-      }));
+    ).map((p) => ({
+      url: `${SITE_URL}/post/${p._id}`,
+      lastModified: new Date(p.createdAt || Date.now()),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
 
     dynamicRoutes = [...videoRoutes, ...postRoutes];
   } catch (err) {

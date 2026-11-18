@@ -4,8 +4,10 @@ import { getApiBase } from "@/utils/apiConfig";
 import { shouldIndexPost, dedupeVideosByMedia } from "@/utils/indexGate";
 
 const API_BASE = getApiBase();
-const API_URL = `${API_BASE}/post/video/getall`;
+const API_URL = `${API_BASE}/post/video/getall?v=2`;
 const SITE_URL = "https://www.fondpeace.com";
+
+export const dynamic = "force-dynamic";
 
 function escapeXml(str = "") {
   return String(str)
@@ -24,7 +26,7 @@ function safeCdata(str = "") {
 export async function GET() {
   try {
     const res = await fetch(API_URL, {
-      next: { revalidate: 3600 },
+      cache: "no-store",
       signal: AbortSignal.timeout(45000),
     });
 

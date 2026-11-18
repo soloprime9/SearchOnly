@@ -161,16 +161,19 @@ function extractKeywords(post) {
   return post.title.split(" ").slice(0, 10).join(", ");
 }
 
+export const revalidate = 3600; // Edge-cache post pages for 1 hour (fast & cold-start proof)
+
 const getPostDetailData = cache(async (id) => {
   try {
     const res = await fetch(`${API_BASE}/post/image/${id}`, {
-      next: { revalidate: 300 },
-      signal: AbortSignal.timeout(15000),
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(35000),
     });
-    if (!res.ok) return null;
-    return await res.json();
+    if (res.status === 404) return { notFound: true, data: null };
+    if (!res.ok) return { transientError: true, status: res.status, data: null };
+    return { notFound: false, transientError: false, data: await res.json() };
   } catch {
-    return null;
+    return { transientError: true, data: null };
   }
 });
 
@@ -182,10 +185,13 @@ export async function generateMetadata({ params }) {
   const pageUrl = `${SITE_ROOT}/post/${id}`;
 
   try {
-    const data = await getPostDetailData(id);
-    const post = data?.post;
+    const result = await getPostDetailData(id);
+    const post = result?.data?.post;
 
-    if (!post) return { title: "Post Not Found", robots: { index: false, follow: true } };
+    if (result?.notFound || (!result?.transientError && !post)) {
+      return { title: "Post Not Found", robots: { index: false, follow: true } };
+    }
+    if (!post) return { title: "Community Post" };
 
     const resolvedThumb = resolvePostThumbnail(post);
     const isVideo = isPlayableShortPost(post);
@@ -262,7 +268,12 @@ export default async function Page({ params }) {
   const id = resolvedParams?.id;
   if (!id) return notFound();
 
-  const data = await getPostDetailData(id);
+  const result = await getPostDetailData(id);
+  if (result?.transientError) {
+    // Never send a false HTTP 404 to Googlebot when Render backend is waking from cold start!
+    throw new Error("Temporary upstream backend cold-start timeout; retry shortly.");
+  }
+  const data = result?.data;
   const post = data?.post;
 
   if (!post) {

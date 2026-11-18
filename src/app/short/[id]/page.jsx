@@ -18,19 +18,20 @@ const API_SINGLE = `${API_BASE}/post/single/`;
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/Fondpeace.jpg`;
 
-export const revalidate = 300; // Edge-cache single video watch pages for 5 minutes
+export const revalidate = 3600; // Edge-cache single video watch pages for 1 hour (fast & cold-start proof)
 
 const getShortWatchData = cache(async (id) => {
   try {
     const res = await fetch(`${API_SINGLE}${id}`, {
-      next: { revalidate: 300 },
-      signal: AbortSignal.timeout(15000),
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(35000),
     });
-    if (!res.ok) return null;
-    return await res.json();
+    if (res.status === 404) return { notFound: true, data: null };
+    if (!res.ok) return { transientError: true, status: res.status, data: null };
+    return { notFound: false, transientError: false, data: await res.json() };
   } catch (err) {
     console.error("Failed to fetch single video watch page:", err);
-    return null;
+    return { transientError: true, data: null };
   }
 });
 
@@ -126,9 +127,12 @@ export async function generateMetadata({ params }) {
   if (!id) return { title: "Watch Video" };
 
   try {
-    const data = await getShortWatchData(id);
-    const post = data?.post;
-    if (!post) return { title: "Video Not Found", robots: { index: false, follow: true } };
+    const result = await getShortWatchData(id);
+    const post = result?.data?.post;
+    if (result?.notFound || (!result?.transientError && !post)) {
+      return { title: "Video Not Found", robots: { index: false, follow: true } };
+    }
+    if (!post) return { title: "Watch Video" };
 
     const isVideo = isPlayableShortPost(post);
     if (!isVideo) {
@@ -219,7 +223,12 @@ export default async function SingleShortWatchPage({ params }) {
   const id = resolvedParams?.id;
   if (!id) return notFound();
 
-  const data = await getShortWatchData(id);
+  const result = await getShortWatchData(id);
+  if (result?.transientError) {
+    // Never send a false HTTP 404 to Googlebot when Render backend is waking from cold start!
+    throw new Error("Temporary upstream backend cold-start timeout; retry shortly.");
+  }
+  const data = result?.data;
   const post = data?.post || null;
   const related = (Array.isArray(data?.related) ? data.related : []).filter(
     (r) => !isBlockedAdultOrSpam(r)
