@@ -132,15 +132,16 @@ export async function generateMetadata({ params }) {
     if (!cleanText && rawTitle) {
       cleanText = (rawTitle.match(/#[a-zA-Z0-9_]+/g) || []).map((t) => t.replace("#", "")).join(" ");
     }
-    const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
-
-    const title = cleanText
-      ? `${truncateWords(cleanText, 50)} by ${author} — Reels`
-      : `${truncateWords(rawTitle || "Watch Short", 50)} — Reels`;
+    const author = post.userId?.username ? `@${post.userId.username}` : "";
+    const displayShortTitle = (cleanText || rawTitle || "Watch Short").trim();
+    const shortText = displayShortTitle.length <= 80 ? displayShortTitle : truncateWords(displayShortTitle, 80);
+    const title = author && (shortText.length + author.length + 12 <= 100)
+      ? `${shortText} by ${author} — Reels`
+      : `${shortText} — Reels`;
 
     const description = cleanText
-      ? `Watch "${cleanText}" by ${author} in the FondPeace Reels feed.`
-      : `Watch trending short video by ${author} in the FondPeace Reels feed.`;
+      ? `Watch "${cleanText}" by ${author || 'creators'} in the FondPeace Reels feed.`
+      : `Watch trending short video by ${author || 'creators'} in the FondPeace Reels feed.`;
 
     return {
       title,

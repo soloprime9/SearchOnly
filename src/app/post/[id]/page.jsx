@@ -197,7 +197,7 @@ export async function generateMetadata({ params }) {
 
     if (isVideo) {
       return {
-        title: `${truncateWords(post.title || "Video", 55)}`,
+        title: `${truncateWords(post.title || "Video", 85)}`,
         description: post.title || "Watch on FondPeace",
         alternates: { canonical: `${SITE_ROOT}/short/${id}` },
         robots: { index: false, follow: true },
@@ -210,17 +210,19 @@ export async function generateMetadata({ params }) {
       post.description || "",
       "Community Post"
     );
-    const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
-
-    const titleTag = headline
-      ? `${truncateWords(headline, 60)} by ${author}`
-      : `${truncateWords(rawTitle || "Community Post", 60)}`;
+    const author = post.userId?.username ? `@${post.userId.username}` : "";
+    const displayHeadline = (headline || rawTitle || "Community Post").trim();
+    const titleText = displayHeadline.length <= 85 ? displayHeadline : truncateWords(displayHeadline, 85);
+    const titleTag = author && (titleText.length + author.length + 4 <= 100)
+      ? `${titleText} by ${author}`
+      : titleText;
 
     const description = metaDescription
       ? `${metaDescription}${author ? ` — ${author}` : ""}`
-      : `Explore community posts and social conversations by ${author} on FondPeace.`;
+      : `Explore community posts and social conversations by ${author || 'creators'} on FondPeace.`;
 
     const indexable = shouldIndexPost(post);
+    const ogTitle = displayHeadline.length <= 110 ? displayHeadline : truncateWords(displayHeadline, 110);
 
     return {
       title: titleTag,
@@ -240,7 +242,7 @@ export async function generateMetadata({ params }) {
       },
 
       openGraph: {
-        title: titleTag,
+        title: ogTitle,
         description: description,
         url: pageUrl,
         type: "article",
@@ -322,7 +324,7 @@ const related = (data?.related ?? []).filter((r) => !isBlockedAdultOrSpam(r));
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
           { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${encodedAuthor}` },
-          { "@type": "ListItem", "position": 3, "name": truncateWords(postHeadline, 60), "item": pageUrl }
+          { "@type": "ListItem", "position": 3, "name": truncateWords(postHeadline, 95), "item": pageUrl }
         ]
       },
 

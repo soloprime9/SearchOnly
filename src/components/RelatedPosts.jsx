@@ -18,6 +18,7 @@ import { ShieldCheck, Sparkles } from "lucide-react";
 import LinkPreviewCard from "@/components/LinkPreviewCard";
 import { getApiBase } from "@/utils/apiConfig";
 import { isPlayableShortPost, getPostShareText } from "@/utils/postMediaUtils";
+import { truncateWords } from "@/utils/indexGate";
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 const PostSkeleton = () => (
@@ -287,7 +288,7 @@ export default function RelatedPosts({
       const hasDirectNativeMedia = post.media && !isYouTube;
       const title = post.title || "";
       const displayTitle =
-        expanded ? title : title.slice(0, 100) + (title.length > 100 ? "…" : "");
+        expanded || title.length <= 160 ? title : truncateWords(title, 160);
       const liked = hasLiked(post);
 
       const rawAuthorPic = post.userId?.profilePicture || post.userId?.profilePic || post.userId?.avatar;
@@ -508,7 +509,7 @@ export default function RelatedPosts({
                   {post.userId?.username}
                 </Link>
                 <span className="whitespace-pre-wrap">{displayTitle}</span>
-                {title.length > 100 && (
+                {title.length > 160 && (
                   <button
                     onClick={() =>
                       setExpandedPosts((p) => ({

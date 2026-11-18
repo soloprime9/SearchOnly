@@ -2,14 +2,15 @@
 
 import Linkify from "linkify-react";
 import { useState } from "react";
+import { truncateWords } from "@/utils/indexGate";
 
 export default function PostTitle({ title }) {
 
   const [expanded, setExpanded] = useState(false);
 
-  const titleText = expanded
-    ? title
-    : title.slice(0, 100) + (title.length > 100 ? "..." : "");
+  const titleText = expanded || (title || "").length <= 160
+    ? (title || "")
+    : truncateWords(title, 160);
 
   const options = {
     target: "_blank",
@@ -24,7 +25,7 @@ export default function PostTitle({ title }) {
         {titleText}
       </Linkify>
 
-      {title.length > 100 && (
+      {(title || "").length > 160 && (
         <button
           onClick={() => setExpanded(!expanded)}
           className="text-blue-500 hover:text-blue-600 ml-1.5 font-semibold text-xs sm:text-sm cursor-pointer"

@@ -10,8 +10,9 @@ export const ADULT_SPAM_BLOCKLIST =
 
 /**
  * Clean word-boundary title truncation (never cuts mid-word like "18th November 2").
+ * Default expanded to 95 chars so natural video & social titles stay intact.
  */
-export function truncateWords(s = "", max = 55) {
+export function truncateWords(s = "", max = 95) {
   const str = String(s || "").replace(/\s+/g, " ").trim();
   if (str.length <= max) return str;
   const cut = str.slice(0, max);
@@ -21,9 +22,9 @@ export function truncateWords(s = "", max = 55) {
 
 /**
  * Splits a single social caption at render time into:
- * - headline: first line or first sentence (word-boundary capped around ~65 chars) for H1 & <title>
- * - body: remaining text rendered as a clean <p> paragraph below H1 (empty for short captions)
- * - metaDescription: first ~155 chars of body, or full clean caption if body is empty
+ * - headline: first line or first sentence (word-boundary capped up to ~120 chars) for H1 & <title>
+ * - body: remaining text rendered as a clean <p> paragraph below H1 (empty for short single-line captions)
+ * - metaDescription: first ~160 chars of body, or full clean caption if body is empty
  * Strips inline #hashtags (which render separately as /topic/ links) and raw URLs.
  */
 export function splitCaption(rawCaption = "", explicitDescription = "", fallbackTitle = "") {
@@ -41,17 +42,17 @@ export function splitCaption(rawCaption = "", explicitDescription = "", fallback
   if (!cleanedCaption) {
     const fallbackHeadline = cleanedExplicit
       ? splitCaption(cleanedExplicit, "", fallbackTitle).headline
-      : truncateWords(fallbackTitle || "FondPeace Post", 65);
+      : truncateWords(fallbackTitle || "FondPeace Post", 95);
     const fallbackBody = cleanedExplicit && cleanedExplicit !== fallbackHeadline ? cleanedExplicit : "";
     return {
       headline: fallbackHeadline,
       body: fallbackBody,
-      metaDescription: truncateWords(fallbackBody || fallbackHeadline, 155),
+      metaDescription: truncateWords(fallbackBody || fallbackHeadline, 160),
       fullClean: cleanedExplicit || fallbackHeadline,
     };
   }
 
-  const MAX_HEADLINE = 65;
+  const MAX_HEADLINE = 120;
   let headline = "";
   let remainder = "";
 
@@ -74,7 +75,8 @@ export function splitCaption(rawCaption = "", explicitDescription = "", fallback
     }
   } else {
     const single = lines[0] || cleanedCaption;
-    if (single.length <= MAX_HEADLINE) {
+    // If entire caption is a single sentence / thought up to 140 chars, keep it 100% whole
+    if (single.length <= 140) {
       headline = single;
       remainder = "";
     } else {
@@ -87,23 +89,23 @@ export function splitCaption(rawCaption = "", explicitDescription = "", fallback
   const bodyParts = [remainder, cleanedExplicit].filter(Boolean);
   const body = bodyParts.join("\n\n").trim();
   const fullClean = [cleanedCaption, cleanedExplicit].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
-  const metaDescription = truncateWords(body || fullClean, 155);
+  const metaDescription = truncateWords(body || fullClean, 160);
 
   return { headline, body, metaDescription, fullClean };
 }
 
-function splitSingleLineAtBoundary(text, maxLen = 65) {
+function splitSingleLineAtBoundary(text, maxLen = 120) {
   const s = String(text || "").replace(/\s+/g, " ").trim();
   if (s.length <= maxLen) return { head: s, tail: "" };
 
-  // Prefer natural sentence / clause boundary (. ! ? । :) between char 18 and maxLen + 5
-  const windowStr = s.slice(0, maxLen + 5);
+  // Prefer natural sentence / clause boundary (. ! ? । :) between char 25 and maxLen + 15
+  const windowStr = s.slice(0, maxLen + 15);
   const sentenceRegex = /[.!?।:]\s+/g;
   let match;
   let bestEnd = -1;
   while ((match = sentenceRegex.exec(windowStr)) !== null) {
     const endPos = match.index + 1; // include punctuation
-    if (endPos >= 18 && endPos <= maxLen + 5) {
+    if (endPos >= 25 && endPos <= maxLen + 15) {
       bestEnd = endPos;
       break;
     }

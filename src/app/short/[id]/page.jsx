@@ -156,7 +156,10 @@ export async function generateMetadata({ params }) {
     );
     const authorHandle = post.userId?.username ? `@${post.userId.username}` : "FondPeace";
 
-    const title = `${truncateWords(headline, 60)} by ${authorHandle}`;
+    const displayHeadline = headline.length <= 85 ? headline : truncateWords(headline, 85);
+    const title = authorHandle && authorHandle !== "FondPeace" && (displayHeadline.length + authorHandle.length + 4 <= 100)
+      ? `${displayHeadline} by ${authorHandle}`
+      : displayHeadline;
     const description = metaDescription
       ? `${metaDescription}${authorHandle !== "FondPeace" ? ` — ${authorHandle}` : ""}`
       : `Video by ${authorHandle} on FondPeace.`;
@@ -167,6 +170,7 @@ export async function generateMetadata({ params }) {
     const isDirectMp4 = Boolean(mediaUrl && !ytId);
     const ogVideoUrl = ytId ? `https://www.youtube.com/embed/${ytId}` : mediaUrl;
     const ogVideoType = ytId ? "text/html" : "video/mp4";
+    const ogTitle = headline.length <= 110 ? headline : truncateWords(headline, 110);
 
     return {
       title,
@@ -185,7 +189,7 @@ export async function generateMetadata({ params }) {
         },
       },
       openGraph: {
-        title,
+        title: ogTitle,
         description,
         url: pageUrl,
         siteName: "FondPeace",
@@ -210,7 +214,7 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: "player",
-        title,
+        title: ogTitle,
         description,
         images: [thumb],
         site: "@FondPeaceTech",
@@ -286,7 +290,7 @@ export default async function SingleShortWatchPage({ params }) {
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "FondPeace", item: SITE_ROOT },
           { "@type": "ListItem", position: 2, name: authorName, item: `${SITE_ROOT}/profile/${encodedAuthor}` },
-          { "@type": "ListItem", position: 3, name: truncateWords(splitHeadline, 60), item: pageUrl },
+          { "@type": "ListItem", position: 3, name: truncateWords(splitHeadline, 95), item: pageUrl },
         ],
       },
       {

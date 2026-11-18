@@ -41,6 +41,7 @@ import { triggerHeartBurst } from "@/utils/confetti";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { getApiBase, API_BASE } from "@/utils/apiConfig";
 import { isPlayableShortPost, getPostPath, getPostShareText } from "@/utils/postMediaUtils";
+import { truncateWords } from "@/utils/indexGate";
 
 // Reading time helper
 function getReadingTime(text) {
@@ -814,7 +815,7 @@ const handleShare = (postData) => {
     };
 
     const cleanCaption = post.linkPreview ? getCleanCaptionText(title, post.linkPreview) : title;
-    const titleText = isExpanded ? cleanCaption : cleanCaption.slice(0, 100) + (cleanCaption.length > 100 ? "..." : "");
+    const titleText = isExpanded || cleanCaption.length <= 180 ? cleanCaption : truncateWords(cleanCaption, 180);
 
     // Aggregate all unique hashtags from both post.tags and post.title
     const captionHashtags = (post.title || "").match(/#[\w\u0590-\u05ff]+/g) || [];
@@ -1207,7 +1208,7 @@ const handleShare = (postData) => {
                 setSelectedHashtag(tag);
               })}
             </span>
-            {cleanCaption.length > 100 && (
+            {cleanCaption.length > 180 && (
               <button 
                 onClick={() => setExpandedPosts(p => ({...p, [post._id]: !isExpanded}))} 
                 className="text-blue-400 font-medium ml-1.5 hover:underline"
