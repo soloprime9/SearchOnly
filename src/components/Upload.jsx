@@ -22,13 +22,16 @@ import {
   Globe,
   ExternalLink,
   ShieldCheck,
-  MapPin
+  MapPin,
+  Copy,
+  Check
 } from "lucide-react";
 import { playTap, playPop, playChime } from "@/utils/soundEffects";
 import { triggerConfetti } from "@/utils/confetti";
 import { toast } from "@/utils/toast";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import { isBlockedAdultOrSpam } from "@/utils/indexGate";
+import { isPlayableShortPost } from "@/utils/postMediaUtils";
 
 // ─── Extract thumbnail + metadata from video in browser (Optimized for Free R2 Storage) ────
 function extractVideoMeta(videoFile) {
@@ -212,6 +215,63 @@ export default function UploadPost() {
 
   // Daily Video Limit state (Max 2 videos / 24 hours & 25MB max size)
   const [videoDailyStatus, setVideoDailyStatus] = useState(null);
+
+  // Session-only recently uploaded posts tray (purely in-memory, 0 DB writes, auto-expires after 5 min or on refresh)
+  const [recentPublished, setRecentPublished] = useState([]);
+  const [copiedRecentKey, setCopiedRecentKey] = useState(null);
+
+  useEffect(() => {
+    if (recentPublished.length === 0) return;
+    const timer = setInterval(() => {
+      const now = Date.now();
+      setRecentPublished((prev) => prev.filter((item) => item.expiresAt > now));
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [recentPublished.length]);
+
+  const recordSessionUpload = (createdPost, fallbackThumb = "") => {
+    const id = createdPost?._id || createdPost?.id;
+    if (!id) return;
+    const isVid = isPlayableShortPost(createdPost);
+    const route = isVid ? "shorts" : "post";
+    const origin =
+      typeof window !== "undefined" && window.location.origin
+        ? window.location.origin
+        : "https://www.fondpeace.com";
+    const shareUrl = `${origin}/${route}/${id}`;
+    const thumb =
+      createdPost.thumbnail ||
+      createdPost.linkPreview?.image ||
+      (!isVid && createdPost.media ? createdPost.media : "") ||
+      fallbackThumb ||
+      "";
+    setRecentPublished((prev) => [
+      {
+        _id: id,
+        title: (createdPost.title || "Untitled Post").trim(),
+        thumbnail: thumb,
+        category: createdPost.category || category,
+        isVideo: isVid,
+        url: shareUrl,
+        expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes in memory
+      },
+      ...prev.filter((p) => p._id !== id),
+    ]);
+  };
+
+  const handleCopyRecent = async (item, mode = "both") => {
+    const text = mode === "url" ? item.url : `${item.title}\n${item.url}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      const key = `${item._id}_${mode}`;
+      setCopiedRecentKey(key);
+      playTap();
+      toast.success(mode === "url" ? "URL copied!" : "Title + URL copied!");
+      setTimeout(() => setCopiedRecentKey(null), 2000);
+    } catch {
+      toast.error("Could not copy to clipboard");
+    }
+  };
 
   useEffect(() => {
     const API = getApiBase();
@@ -567,7 +627,12 @@ export default function UploadPost() {
           payload.location = location.trim();
         }
 
-        await axios.post(`${API}/post/create`, payload, { headers });
+        const createRes = await axios.post(`${API}/post/create`, payload, { headers });
+        const created = createRes.data?.post || createRes.data;
+        recordSessionUpload(
+          created?._id ? created : { ...payload, _id: created?._id },
+          linkPreviewData?.image || ""
+        );
       }
 
       // ─── CASE 2: Video Upload via Presigned R2 Pipeline ───
@@ -621,7 +686,7 @@ export default function UploadPost() {
 
         setStage("saving");
         const extractedTags = (title.match(/#\w+/g) || []).map((t) => t.replace("#", ""));
-        await axios.post(
+        const confirmVidRes = await axios.post(
           `${API}/demo/confirm`,
           {
             title: title.trim() || `${category} Video`,
@@ -639,6 +704,11 @@ export default function UploadPost() {
             linkPreview: linkPreviewData || undefined,
           },
           { headers }
+        );
+        const createdVid = confirmVidRes.data?.post || confirmVidRes.data;
+        recordSessionUpload(
+          createdVid,
+          thumbnailFile ? urls.thumbUpload.publicUrl : ""
         );
       }
 
@@ -665,7 +735,7 @@ export default function UploadPost() {
 
         setStage("saving");
         const extractedTags = (title.match(/#\w+/g) || []).map((t) => t.replace("#", ""));
-        await axios.post(
+        const confirmImgRes = await axios.post(
           `${API}/demo/confirm`,
           {
             title: title.trim() || `${category} Photo`,
@@ -680,6 +750,8 @@ export default function UploadPost() {
           },
           { headers }
         );
+        const createdImg = confirmImgRes.data?.post || confirmImgRes.data;
+        recordSessionUpload(createdImg, urlData.publicUrl);
       }
 
       setStage("done");
@@ -1311,6 +1383,8 @@ export default function UploadPost() {
                     ? "Publish Video Reel 🎬"
                     : isImage
                     ? "Publish Photo 📸"
+                    : activeMode === "link"
+                    ? "Publish Link Card 🔗"
                     : activeMode === "poll"
                     ? "Publish Community Poll 📊"
                     : "Publish Discussion 💬"}
@@ -1321,6 +1395,113 @@ export default function UploadPost() {
           </button>
         </form>
       </div>
+
+      {/* Session-Only Just Published Quick-Copy Tray (0 DB writes, auto-clears in 5 min or on refresh) */}
+      {recentPublished.length > 0 && (
+        <div className="mt-6 p-5 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-emerald-500/30 shadow-xl space-y-3.5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <h2 className="text-sm sm:text-base font-extrabold text-white">
+                Just Published ({recentPublished.length})
+              </h2>
+              <span className="text-[10.5px] font-semibold text-zinc-400 bg-white/5 px-2 py-0.5 rounded-full">
+                Auto-clears in 5 min
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setRecentPublished([])}
+              className="text-xs font-semibold text-zinc-400 hover:text-white cursor-pointer"
+            >
+              Clear
+            </button>
+          </div>
+
+          <div className="space-y-2.5">
+            {recentPublished.map((item) => (
+              <div
+                key={item._id}
+                className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/40 transition-colors"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  {item.thumbnail ? (
+                    <img
+                      src={item.thumbnail}
+                      alt={item.title}
+                      className="w-14 h-14 rounded-xl object-cover shrink-0 border border-white/10 bg-black"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0 text-blue-400">
+                      {item.isVideo ? <Film className="w-6 h-6" /> : <LinkIcon className="w-5 h-5" />}
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+                        {item.isVideo ? "/shorts/" : "/post/"}
+                      </span>
+                      <span className="text-[10px] text-zinc-400 font-semibold truncate">
+                        {item.category}
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm font-bold text-white line-clamp-1">
+                      {item.title}
+                    </p>
+                    <p className="text-[11px] text-blue-400 truncate font-mono">
+                      {item.url}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleCopyRecent(item, "both")}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      copiedRecentKey === `${item._id}_both`
+                        ? "bg-emerald-500 text-white"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
+                  >
+                    {copiedRecentKey === `${item._id}_both` ? (
+                      <Check className="w-3.5 h-3.5" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                    <span>
+                      {copiedRecentKey === `${item._id}_both` ? "Copied!" : "Copy Title + URL"}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCopyRecent(item, "url")}
+                    className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/15 text-zinc-200 transition cursor-pointer"
+                    title="Copy URL only"
+                  >
+                    {copiedRecentKey === `${item._id}_url` ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <LinkIcon className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-xl bg-white/10 hover:bg-white/15 text-zinc-200 transition"
+                    title="Open post"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

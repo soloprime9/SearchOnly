@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { io } from "socket.io-client";
 import jwt from "jsonwebtoken";
 import { getApiBase } from "@/utils/apiConfig";
+import { isPlayableShortPost } from "@/utils/postMediaUtils";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import {
   Activity,
@@ -167,9 +168,23 @@ export default function AdminClient({ initialPosts }) {
 
   /* ================= HELPERS ================= */
   const handleShare = async (post) => {
-    const text = `${window.location.origin}/post/${post._id}`;
-    await navigator.clipboard.writeText(text);
-    alert("URL Copied!");
+    if (!post?._id) return;
+    const isVid = isPlayableShortPost(post);
+    const route = isVid ? "shorts" : "post";
+    const origin =
+      typeof window !== "undefined" && window.location.origin
+        ? window.location.origin
+        : "https://www.fondpeace.com";
+    const url = `${origin}/${route}/${post._id}`;
+    const cleanTitle = (post.title || "").trim();
+    const text = cleanTitle ? `${cleanTitle}\n${url}` : url;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIp(`post_${post._id}`);
+      setTimeout(() => setCopiedIp(null), 2000);
+    } catch {
+      alert("Copy failed");
+    }
   };
 
   const openDetails = async (post) => {
@@ -317,8 +332,19 @@ export default function AdminClient({ initialPosts }) {
                   <div className="flex items-center justify-between border-t pt-4">
                     <div className="text-xs font-bold text-slate-400">Total Views: <span className="text-slate-900">{post.views}</span></div>
                     <div className="flex gap-2">
-                      <button onClick={() => handleShare(post)} className="p-2 bg-slate-50 rounded-full text-slate-600 hover:bg-green-50 hover:text-green-600"><Share2 size={16} /></button>
-                      <button onClick={() => openDetails(post)} className="p-2 bg-slate-50 rounded-full text-slate-600 hover:bg-blue-50 hover:text-blue-600"><BarChart3 size={16} /></button>
+                      <button
+                        onClick={() => handleShare(post)}
+                        title="Copy Title + URL (/shorts/ for videos)"
+                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
+                          copiedIp === `post_${post._id}`
+                            ? "bg-emerald-500 text-white"
+                            : "bg-slate-100 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
+                        }`}
+                      >
+                        {copiedIp === `post_${post._id}` ? <Check size={14} /> : <Copy size={14} />}
+                        <span>{copiedIp === `post_${post._id}` ? "Copied!" : "Copy"}</span>
+                      </button>
+                      <button onClick={() => openDetails(post)} title="Post Analytics" className="p-2 bg-slate-50 rounded-full text-slate-600 hover:bg-blue-50 hover:text-blue-600 cursor-pointer"><BarChart3 size={16} /></button>
                     </div>
                   </div>
                 </div>
