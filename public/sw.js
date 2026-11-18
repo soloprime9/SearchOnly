@@ -1,7 +1,6 @@
 // public/sw.js - FondPeace Modern PWA Service Worker
-const CACHE_NAME = 'fondpeace-shell-v1';
+const CACHE_NAME = 'fondpeace-shell-v2';
 const CORE_STATIC_ASSETS = [
-  '/',
   '/site.webmanifest',
   '/favicon.ico',
   '/android-chrome-192x192.png',
@@ -31,10 +30,11 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Strictly bypass non-GET requests, API calls, WebSockets, Range media queries
+  // Strictly bypass non-GET requests, API calls, WebSockets, Next.js chunks, and Range media queries
   if (
     req.method !== 'GET' ||
     url.origin !== self.location.origin ||
+    url.pathname.startsWith('/_next/') ||
     url.pathname.startsWith('/api') ||
     url.pathname.startsWith('/socket.io') ||
     url.pathname.includes('/post/mango') ||
@@ -44,8 +44,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stale-While-Revalidate for static assets (scripts, styles, icons, fonts)
-  if (url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|webp|woff2|ico)$/)) {
+  // Stale-While-Revalidate ONLY for static images/icons/fonts (never stale JS bundles)
+  if (url.pathname.match(/\.(png|jpg|jpeg|svg|webp|woff2|ico)$/)) {
     event.respondWith(
       caches.match(req).then((cached) => {
         const fetchPromise = fetch(req).then((networkRes) => {
@@ -60,15 +60,6 @@ self.addEventListener('fetch', (event) => {
       })
     );
     return;
-  }
-
-  // Network-first for HTML pages with offline fallback
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req).catch(() => {
-        return caches.match('/').then((fallback) => fallback || Response.error());
-      })
-    );
   }
 });
 

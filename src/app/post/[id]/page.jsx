@@ -9,9 +9,6 @@
 
 import { cache } from "react";
 import SinglePostPage from "@/components/SinglePostPage";
-// Adsterra components paused site-wide (preserved in src/components/ads/)
-// import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
-// import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
 import PostTitle from "@/components/PostTitle";
 import RelatedPosts from "@/components/RelatedPosts";
 import LeftSidebar from "@/components/LeftSidebar";

@@ -34,9 +34,6 @@ import PersonalizeFeedModal from "./PersonalizeFeedModal";
 import StoriesBar from "./StoriesBar";
 import ShareModal from "./ShareModal";
 import FormattedCaption from "./FormattedCaption";
-// Adsterra components paused site-wide (preserved in src/components/ads/)
-// import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
-// import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
 import { UserPlus, Check, Users, Sparkles, Maximize2, Repeat2, Bookmark, BarChart2, Pin, LayoutList, LayoutGrid, Quote, Compass, ArrowUp, ArrowUpRight, ShieldCheck, X, Film, Image as ImageIcon, MessageSquare, MapPin, Smartphone, RotateCw, SlidersHorizontal } from "lucide-react";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
@@ -1448,7 +1445,6 @@ const handleShare = (postData) => {
         />
       )}
 
-      {/* Adsterra 320x50 Banner paused site-wide */}
 
       {/* Posts List - Stream vs Grid View */}
       {!followingLoading && viewMode === "grid" ? (
@@ -1531,7 +1527,6 @@ const handleShare = (postData) => {
                 </div>
               )}
 
-              {/* In-Feed Adsterra Native Banner paused site-wide */}
 
               {/* In-Feed Creator Discovery Carousel (After 6th post for optimal spacing) */}
               {idx === 6 && activeTab === "foryou" && (

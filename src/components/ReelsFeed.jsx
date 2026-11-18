@@ -19,8 +19,6 @@ import { FEATURE_FLAGS } from "@/utils/featureFlags";
 import { getApiBase } from "@/utils/apiConfig";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
-// Adsterra Smartlink paused site-wide (preserved in src/utils/triggerSmartlink.js)
-// import { fireSmartlinkRedirect } from "@/utils/triggerSmartlink";
 
 const API_BASE = getApiBase();
 
