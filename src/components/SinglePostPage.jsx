@@ -548,7 +548,7 @@ export default function SinglePostInteractions({ initialPost }) {
           ) : (
             <img
               src={post.media}
-              alt={post.title || "media"}
+              alt={splitHeadline || "media"}
               className="w-full max-h-[560px] object-contain block mx-auto"
             />
           )}
@@ -561,7 +561,7 @@ export default function SinglePostInteractions({ initialPost }) {
               url: post.linkPreview?.url || (typeof post.media === "string" ? post.media : "") || "",
               image: post.linkPreview?.image || post.thumbnail || "",
               media: post.media || "",
-              title: post.title || post.linkPreview?.title || ""
+              title: splitHeadline || post.linkPreview?.title || ""
             }} 
             postId={post._id} 
             inFeed={false} 

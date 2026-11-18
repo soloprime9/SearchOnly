@@ -161,6 +161,11 @@ export async function generateMetadata({ params }) {
 
     const indexable = shouldIndexPost(post);
 
+    const ytId = extractPostYouTubeId(post);
+    const isDirectMp4 = Boolean(mediaUrl && !ytId);
+    const ogVideoUrl = ytId ? `https://www.youtube.com/embed/${ytId}` : mediaUrl;
+    const ogVideoType = ytId ? "text/html" : "video/mp4";
+
     return {
       title,
       description,
@@ -187,16 +192,16 @@ export async function generateMetadata({ params }) {
           {
             url: thumb,
             secureUrl: thumb,
-            alt: cleanTitle,
+            alt: headline,
           },
         ],
-        videos: mediaUrl
+        videos: ogVideoUrl
           ? [
               {
-                url: mediaUrl,
+                url: ogVideoUrl,
                 thumbnailUrl: thumb,
-                type: "video/mp4",
-                secureUrl: mediaUrl,
+                type: ogVideoType,
+                secureUrl: ogVideoUrl,
               },
             ]
           : undefined,
@@ -208,9 +213,8 @@ export async function generateMetadata({ params }) {
         images: [thumb],
         site: "@FondPeaceTech",
         player: {
-          url: `${SITE_ROOT}/embed/short/${post._id || id}`,
-          stream: mediaUrl,
-          type: "video/mp4",
+          url: ytId ? `https://www.youtube.com/embed/${ytId}` : `${SITE_ROOT}/embed/short/${post._id || id}`,
+          ...(isDirectMp4 ? { stream: mediaUrl, type: "video/mp4" } : {}),
           image: thumb,
         },
       },
@@ -295,7 +299,7 @@ export default async function SingleShortWatchPage({ params }) {
           "@type": "ImageObject",
           url: primaryThumb,
         },
-        contentUrl: mediaUrl,
+        ...(mediaUrl && !ytId ? { contentUrl: mediaUrl } : {}),
         embedUrl: ytId
           ? `https://www.youtube-nocookie.com/embed/${ytId}`
           : `${SITE_ROOT}/embed/short/${post._id || id}`,
