@@ -665,16 +665,30 @@ export default function SinglePostInteractions({ initialPost }) {
           </div>
         </div>
 
-        {/* 5. Caption & Formatted Text */}
-        {(post.media || post.linkPreview || post.poll) && cleanCaption && (
-          <div className="text-sm text-[var(--text-primary)] leading-relaxed mb-3">
-            <span className="font-bold mr-2 text-[var(--text-primary)] hover:underline cursor-pointer">
-              {post.userId?.username}
-            </span>
-            <h1 className="inline whitespace-pre-wrap text-[var(--text-primary)] font-normal">
-              {renderFormattedCaption(cleanCaption)}
-            </h1>
+        {/* 5. Caption / Headline & Optional Description */}
+        {(post.media || post.linkPreview || post.poll) && (cleanCaption || post.description) && (
+          <div className="mb-3 space-y-2">
+            {cleanCaption && (
+              <div className="text-sm text-[var(--text-primary)] leading-relaxed">
+                <span className="font-bold mr-2 text-[var(--text-primary)] hover:underline cursor-pointer">
+                  {post.userId?.username}
+                </span>
+                <h1 className="inline whitespace-pre-wrap text-[var(--text-primary)] font-semibold">
+                  {renderFormattedCaption(cleanCaption)}
+                </h1>
+              </div>
+            )}
+            {post.description && post.description.trim() && (
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
+                {renderFormattedCaption(post.description.trim())}
+              </p>
+            )}
           </div>
+        )}
+        {!(post.media || post.linkPreview || post.poll) && post.description && post.description.trim() && (
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap mb-3">
+            {renderFormattedCaption(post.description.trim())}
+          </p>
         )}
 
         {/* 6. Clickable Topic Tags */}

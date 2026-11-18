@@ -37,6 +37,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
   const [expanded, setExpanded] = useState(false);
   const [mode, setMode] = useState("text"); // 'text' | 'poll' | 'link'
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Entertainment");
   const [submitting, setSubmitting] = useState(false);
 
@@ -95,6 +96,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
 
   const handleReset = () => {
     setTitle("");
+    setDescription("");
     setPollQuestion("");
     setPollOptions(["", ""]);
     setPollDurationHours(24);
@@ -137,7 +139,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
     }
 
     // Community Safety & Anti-Spam Blocklist
-    const moderationText = `${title} ${pollQuestion} ${pollOptions.join(" ")} ${linkUrl} ${linkPreviewData?.title || ""}`;
+    const moderationText = `${title} ${description} ${pollQuestion} ${pollOptions.join(" ")} ${linkUrl} ${linkPreviewData?.title || ""}`;
     if (isBlockedAdultOrSpam(moderationText)) {
       toast.error("Explicit adult, MMS, or spam link content is not allowed under FondPeace Community Guidelines.");
       return;
@@ -151,6 +153,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
 
       let postPayload = {
         title: mode === "text" ? title.trim() : (title.trim() || pollQuestion.trim() || linkUrl.trim()),
+        description: description.trim(),
         category,
       };
 
@@ -458,7 +461,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
               </div>
             )}
 
-            {/* Main Text / Caption Area */}
+            {/* Main Title / Headline Area */}
             <div className="relative">
               <textarea
                 rows={mode === "text" ? 3 : 2}
@@ -466,7 +469,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                   mode === "poll"
                     ? "Add some context for this poll (optional)..."
                     : mode === "link"
-                    ? "Add a line about this link (optional)..."
+                    ? "Short headline for this video or link..."
                     : "What's happening? Share stories, thoughts, hot takes..."
                 }
                 value={title}
@@ -478,6 +481,29 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                 {title.length}/500
               </span>
             </div>
+
+            {/* Optional Description / Context Box (keeps H1 clean & boosts Google Search indexing) */}
+            {(mode === "link" || mode === "text") && (
+              <div className="relative">
+                <textarea
+                  rows={2}
+                  placeholder={
+                    mode === "link"
+                      ? "Write 2-3 lines about this video or link in your own words (optional — helps it appear in Google Search)..."
+                      : "Add extra details or context (optional)..."
+                  }
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  maxLength={2000}
+                  className="w-full bg-[var(--bg-subtle)]/60 border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-blue-500/50 resize-none leading-relaxed"
+                />
+                {description.trim().length > 0 && (
+                  <span className="absolute bottom-1.5 right-2 text-[10px] text-[var(--text-muted)]">
+                    {description.trim().split(/\s+/).filter(Boolean).length} words
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Quick Hashtag Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">

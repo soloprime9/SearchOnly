@@ -115,6 +115,20 @@ export default async function sitemap() {
       priority: 0.85,
     }));
 
+    // Map clean, deduplicated, index-gate-passing YouTube embed posts strictly to canonical /short/[id]
+    const youtubeShortRoutes = dedupePostsByTitle(
+      (Array.isArray(allPosts) ? allPosts : []).filter((p) => {
+        if (!p?._id || videoIdSet.has(String(p._id))) return false;
+        if (!isPlayableShortPost(p)) return false;
+        return shouldIndexPost(p);
+      })
+    ).map((p) => ({
+      url: `${SITE_URL}/short/${p._id}`,
+      lastModified: new Date(p.createdAt || Date.now()),
+      changeFrequency: "weekly",
+      priority: 0.82,
+    }));
+
     // Map clean, deduplicated, index-gate-passing non-videos strictly to post page: /post/[id]
     const postRoutes = dedupePostsByTitle(
       (Array.isArray(allPosts) ? allPosts : []).filter((p) => {
@@ -130,7 +144,7 @@ export default async function sitemap() {
       priority: 0.8,
     }));
 
-    dynamicRoutes = [...videoRoutes, ...postRoutes];
+    dynamicRoutes = [...videoRoutes, ...youtubeShortRoutes, ...postRoutes];
   } catch (err) {
     console.error("Sitemap dynamic post fetch fallback:", err.message);
   }

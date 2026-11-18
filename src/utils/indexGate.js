@@ -64,7 +64,9 @@ export function shouldIndexPost(post) {
   if (isBlockedAdultOrSpam(post)) return false;
 
   const rawTitle = (post.title || "").trim();
-  const cleanWords = countCleanWords(rawTitle);
+  const rawDescription = (post.description || "").trim();
+  const titleWords = countCleanWords(rawTitle);
+  const descWords = countCleanWords(rawDescription);
   const comments = Array.isArray(post.comments)
     ? post.comments.length
     : Number(post.commentCount || 0);
@@ -78,26 +80,27 @@ export function shouldIndexPost(post) {
     return true;
   }
 
-  // Pure URL-only post with zero commentary and < 2 comments -> noindex
+  // Pure URL-only post with zero description, zero commentary, and < 2 comments -> noindex
   const isRawUrlOnly = /^https?:\/\/\S+$/i.test(rawTitle);
-  if (isRawUrlOnly && comments < 2) return false;
+  if (isRawUrlOnly && descWords < 10 && comments < 2) return false;
 
   // Third-party YouTube embed reposts (without native uploaded video):
-  // Require real original commentary/summary (15+ clean words) or 2+ comments so
-  // copied YouTube promo titles don't trigger Google scraped/republished content demotion.
+  // Description-first rule (30+ original words in dedicated description field),
+  // with safe fallback to the existing caption rule (15+ clean words in title) or 2+ comments
+  // so previously indexed caption-only posts do not suddenly drop to noindex.
   const isYouTubeRepost = Boolean(extractPostYouTubeId(post));
   if (isYouTubeRepost) {
-    return cleanWords >= 15 || comments >= 2;
+    return descWords >= 30 || titleWords >= 15 || comments >= 2;
   }
 
-  // External link share with zero/minimal original text -> require 6+ clean words or 2+ comments
+  // External link share -> require original description (15+ words), caption (6+ words), or 2+ comments
   const isExternalLinkPost =
     post.mediaType === "link" || post.mtype === "link" || Boolean(post.linkPreview?.url && !post.media);
   if (isExternalLinkPost) {
-    return cleanWords >= 6 || comments >= 2;
+    return descWords >= 15 || titleWords >= 6 || comments >= 2;
   }
 
-  return cleanWords >= 5 || comments >= 2;
+  return descWords >= 10 || titleWords >= 5 || comments >= 2;
 }
 
 /**

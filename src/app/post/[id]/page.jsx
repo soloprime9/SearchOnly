@@ -213,8 +213,11 @@ export async function generateMetadata({ params }) {
       ? `${truncateWords(cleanText, 55)} by ${author}`
       : `${truncateWords(rawTitle || "Community Post", 55)}`;
 
-    const description = cleanText
-      ? `Read: "${cleanText}" by ${author} on FondPeace. Join real conversations, explore topics, and share your perspectives.`
+    const rawDesc = (post.description || "").replace(/\s+/g, " ").trim();
+    const description = rawDesc
+      ? `${truncateWords(rawDesc, 155)}${author ? ` — ${author}` : ""}`
+      : cleanText
+      ? `${truncateWords(cleanText, 145)} by ${author} on FondPeace.`
       : `Explore community posts and social conversations by ${author} on FondPeace.`;
 
     const indexable = shouldIndexPost(post);
@@ -312,8 +315,8 @@ const related = (data?.related ?? []).filter((r) => !isBlockedAdultOrSpam(r));
         "@id": `${pageUrl}#breadcrumb`,
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
-          { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${authorName}` },
-          { "@type": "ListItem", "position": 3, "name": (post.title || "Post").slice(0, 60), "item": pageUrl }
+          { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${encodeURIComponent(authorName.trim())}` },
+          { "@type": "ListItem", "position": 3, "name": truncateWords(post.title || "Post", 60), "item": pageUrl }
         ]
       },
 
@@ -322,10 +325,10 @@ const related = (data?.related ?? []).filter((r) => !isBlockedAdultOrSpam(r));
         "@type": primarySchemaType,
         "@id": `${pageUrl}#main`,
         "url": pageUrl,
-        "headline": post.title?.slice(0, 110) || "FondPeace Post",
-        "description": post.title?.slice(0, 200) || "Community discussion on FondPeace",
-        "articleBody": post.title || "",
-        "name": post.title?.slice(0, 110) || "FondPeace Post",
+        "headline": truncateWords(post.title || "FondPeace Post", 110),
+        "description": truncateWords((post.description || post.title || "Community discussion on FondPeace").replace(/\s+/g, " ").trim(), 200),
+        "articleBody": post.description ? `${post.title || ""}\n\n${post.description}`.trim() : (post.title || ""),
+        "name": truncateWords(post.title || "FondPeace Post", 110),
         "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
         "datePublished": new Date(post.createdAt || Date.now()).toISOString(),
         "dateModified": new Date(post.updatedAt || post.createdAt || Date.now()).toISOString(),
