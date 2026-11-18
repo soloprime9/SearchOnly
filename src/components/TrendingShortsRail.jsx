@@ -47,7 +47,7 @@ export default function TrendingShortsRail() {
             tag: v.category || "Video",
             image: v.thumbnail || "/Fondpeace.jpg",
             media: v.media,
-            href: `/shorts/${v._id}`,
+            href: `/short/${v._id}`,
           }));
           setShorts(mapped);
           if (mapped[0]?.id) {

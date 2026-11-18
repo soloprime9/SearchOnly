@@ -28,11 +28,11 @@ export default function ShareModal({
   const fallbackOrigin =
     typeof window !== "undefined" ? window.location.origin : "https://www.fondpeace.com";
 
-  // Build canonical share URL: if short -> /shorts/{id}, else -> /post/{id}
+  // Build canonical share URL: if video -> /short/{id}, else -> /post/{id}
   const shareUrl =
     customUrl ||
     (isVideoOrShort
-      ? `${fallbackOrigin}/shorts/${postId}`
+      ? `${fallbackOrigin}/short/${postId}`
       : `${fallbackOrigin}/post/${postId}`);
 
   const titleText = customTitle || post.title || "Check out this post on FondPeace";

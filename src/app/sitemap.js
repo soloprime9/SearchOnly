@@ -108,11 +108,11 @@ export default async function sitemap() {
         .map((v) => String(v._id))
     );
 
-    // Map videos strictly to canonical watch player page: /shorts/[id]
+    // Map videos strictly to dedicated canonical single video watch page: /short/[id]
     const videoRoutes = (Array.isArray(videoPosts) ? videoPosts : [])
       .filter((v) => v?._id)
       .map((v) => ({
-        url: `${SITE_URL}/shorts/${v._id}`,
+        url: `${SITE_URL}/short/${v._id}`,
         lastModified: new Date(v.updatedAt || v.createdAt || Date.now()),
         changeFrequency: "weekly",
         priority: 0.85,

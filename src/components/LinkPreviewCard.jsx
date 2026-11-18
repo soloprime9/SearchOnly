@@ -200,7 +200,7 @@ export default function LinkPreviewCard({
       e.stopPropagation();
     }
     if (inFeed && postId) {
-      router.push(isYouTubeVideo ? `/shorts/${postId}` : `/post/${postId}`);
+      router.push(isYouTubeVideo ? `/short/${postId}` : `/post/${postId}`);
     } else {
       const nextPlay = !isPlayingState;
       setIsPlayingState(nextPlay);
@@ -321,7 +321,7 @@ export default function LinkPreviewCard({
 
         {/* Post Details (Navigates to /shorts/[id] if video/YouTube, else /post/[id]) */}
         <Link
-          href={postId ? (isYouTubeVideo ? `/shorts/${postId}` : `/post/${postId}`) : "#"}
+          href={postId ? (isYouTubeVideo ? `/short/${postId}` : `/post/${postId}`) : "#"}
           className="block p-3.5 sm:p-4 no-underline text-inherit cursor-pointer hover:bg-[var(--bg-surface-hover)] transition-colors"
         >
           {preview.title && (

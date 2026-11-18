@@ -61,10 +61,10 @@ export function isPlayableShortPost(post) {
 }
 
 /**
- * Returns canonical route path for a post: 'shorts' if playable short, else 'post'.
+ * Returns canonical route path for a post: 'short' if playable video, else 'post'.
  */
 export function getPostPath(post) {
-  return isPlayableShortPost(post) ? "shorts" : "post";
+  return isPlayableShortPost(post) ? "short" : "post";
 }
 
 /**

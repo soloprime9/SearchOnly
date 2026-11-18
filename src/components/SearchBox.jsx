@@ -269,7 +269,7 @@ export default function SearchFull({ onSelect }) {
       {/* 📌 Search Results List */}
       <div className="mt-4 flex flex-col gap-3">
         {fullResults.map((p) => (
-          <Link key={p._id} href={`/shorts/${p._id}`}>
+          <Link key={p._id} href={(p.mediaType?.startsWith("video") || /\.(mp4|mov|webm|mkv)$/i.test(p.media || "")) ? `/short/${p._id}` : `/post/${p._id}`}>
             <div className="flex gap-3.5 bg-white dark:bg-gray-900 p-3.5 rounded-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group">
               <img
                 src={p.thumbnail || p.media || "/Fondpeace.jpg"}

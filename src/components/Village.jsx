@@ -885,7 +885,7 @@ const handleShare = (postData) => {
               </Link>
               <div className="flex items-center gap-1 text-[11px] text-zinc-400 mt-0.5 font-medium">
                 <Link 
-                  href={isVideo ? `/shorts/${post._id}` : `/post/${post._id}`}
+                  href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
                   onClick={() => saveFeedCache({ posts, page, activeTab, categoryFilter, mediaTypeFilter, scrollY: window.scrollY, hasMore })}
                   className="hover:underline hover:text-zinc-200 transition-colors"
                   title="Open post"
@@ -982,7 +982,7 @@ const handleShare = (postData) => {
     {post.media && !post.media.includes("youtube.com") && !post.media.includes("youtu.be") ? (
       <div className="relative w-full bg-black flex items-center justify-center overflow-hidden max-h-[520px] rounded-xl my-1 group/media">
         <Link 
-          href={isVideo ? `/shorts/${post._id}` : `/post/${post._id}`} 
+          href={isVideo ? `/short/${post._id}` : `/post/${post._id}`} 
           onClick={() => saveFeedCache({ posts, page, activeTab, categoryFilter, mediaTypeFilter, scrollY: window.scrollY, hasMore })}
           className="w-full h-auto flex items-center justify-center bg-black cursor-pointer"
         >
@@ -1460,7 +1460,7 @@ const handleShare = (postData) => {
                 playPop();
                 const isGridVideo = post.mediaType?.startsWith("video") || /\.(mp4|mov|webm|mkv)$/i.test(post.media || "");
                 if (isGridVideo) {
-                  router.push(`/shorts/${post._id}`);
+                  router.push(`/short/${post._id}`);
                 } else if (post.media) {
                   setLightboxImage({ url: post.media, alt: post.title });
                 } else {
@@ -1698,7 +1698,7 @@ const handleShare = (postData) => {
             el.scrollIntoView({ behavior: "smooth", block: "center" });
           } else {
             const isSelVideo = selectedP.mediaType?.startsWith("video") || /\.(mp4|mov|webm|mkv)$/i.test(selectedP.media || "");
-            router.push(isSelVideo ? `/shorts/${selectedP._id}` : `/post/${selectedP._id}`);
+            router.push(isSelVideo ? `/short/${selectedP._id}` : `/post/${selectedP._id}`);
           }
         }}
       />

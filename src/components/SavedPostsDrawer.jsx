@@ -119,7 +119,7 @@ export default function SavedPostsDrawer({ isOpen, onClose }) {
             ) : (
               bookmarks.map((post) => {
                 const isVideo = isPlayableShortPost(post);
-                const path = isVideo ? `/shorts/${post._id}` : `/post/${post._id}`;
+                const path = isVideo ? `/short/${post._id}` : `/post/${post._id}`;
 
                 return (
                   <Link

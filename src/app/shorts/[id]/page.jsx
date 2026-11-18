@@ -124,7 +124,7 @@ export async function generateMetadata({ params }) {
 
     const mediaUrl = toAbsolute(post.media || post.mediaUrl, "video");
     const thumb = resolvePostThumbnail(post);
-    const pageUrl = `${SITE_ROOT}/shorts/${id}`;
+    const canonicalWatchUrl = `${SITE_ROOT}/short/${post._id || id}`;
 
     const rawTitle = (post.title || "").trim();
     let cleanText = rawTitle.replace(/#[a-zA-Z0-9_]+/g, "").trim();
@@ -134,34 +134,29 @@ export async function generateMetadata({ params }) {
     const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
 
     const title = cleanText
-      ? `${cleanText.slice(0, 50)} by ${author} | FondPeace Shorts`
-      : `${rawTitle.slice(0, 50) || "Watch Short"} | FondPeace Shorts`;
+      ? `${cleanText.slice(0, 50)} by ${author} | FondPeace Reels`
+      : `${rawTitle.slice(0, 50) || "Watch Short"} | FondPeace Reels`;
 
     const description = cleanText
-      ? `Watch "${cleanText}" by ${author} on FondPeace Shorts. Discover viral short reels, react, and comment.`
-      : `Watch trending short video by ${author} on FondPeace Shorts.`;
+      ? `Watch "${cleanText}" by ${author} in the FondPeace Reels feed.`
+      : `Watch trending short video by ${author} in the FondPeace Reels feed.`;
 
     return {
       title,
       description,
       keywords: extractKeywords(post),
-      alternates: { canonical: pageUrl },
+      // Canonical points strictly to the dedicated single video watch page (/short/[id])
+      // so Google never treats the swipeable Reels feed as duplicate content
+      alternates: { canonical: canonicalWatchUrl },
       robots: {
-        index: true,
+        index: false,
         follow: true,
-        googleBot: {
-          index: true,
-          follow: true,
-          "max-video-preview": -1,
-          "max-image-preview": "large",
-          "max-snippet": -1,
-        },
       },
       openGraph: {
         title,
         description,
-        url: pageUrl,
-        siteName: "FondPeace Shorts",
+        url: canonicalWatchUrl,
+        siteName: "FondPeace",
         type: "video.other",
         images: [
           {

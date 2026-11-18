@@ -510,6 +510,7 @@ export default function SinglePostInteractions({ initialPost }) {
               <video
                 ref={singleVideoRef}
                 src={post.media}
+                poster={post.thumbnail || undefined}
                 controls
                 autoPlay
                 playsInline
@@ -670,9 +671,9 @@ export default function SinglePostInteractions({ initialPost }) {
             <span className="font-bold mr-2 text-[var(--text-primary)] hover:underline cursor-pointer">
               {post.userId?.username}
             </span>
-            <span className="whitespace-pre-wrap text-[var(--text-primary)]">
+            <h1 className="inline whitespace-pre-wrap text-[var(--text-primary)] font-normal">
               {renderFormattedCaption(cleanCaption)}
-            </span>
+            </h1>
           </div>
         )}
 

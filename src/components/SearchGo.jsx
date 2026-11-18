@@ -333,7 +333,7 @@ function SearchGoContent() {
                       {trending.slice(0, 6).map((post) => {
                         const thumb = post.thumbnail || post.media || post.linkPreview?.image || "/Fondpeace.jpg";
                         const isVideo = isPlayableShortPost(post);
-                        const postLink = isVideo ? `/shorts/${post._id}` : `/post/${post._id}`;
+                        const postLink = isVideo ? `/short/${post._id}` : `/post/${post._id}`;
 
                         return (
                           <Link
@@ -430,7 +430,7 @@ function SearchGoContent() {
                   : resultsPosts
                 ).map((post) => {
                   const isVideo = isPlayableShortPost(post);
-                  const postLink = isVideo ? `/shorts/${post._id}` : `/post/${post._id}`;
+                  const postLink = isVideo ? `/short/${post._id}` : `/post/${post._id}`;
                   const thumb = post.thumbnail || post.media || post.linkPreview?.image || "/Fondpeace.jpg";
 
                   return (
@@ -532,7 +532,7 @@ function SearchGoContent() {
               {trending.map((post) => {
                 const thumb = post.thumbnail || post.media || post.linkPreview?.image || "/Fondpeace.jpg";
                 const isVideo = isPlayableShortPost(post);
-                const postLink = isVideo ? `/shorts/${post._id}` : `/post/${post._id}`;
+                const postLink = isVideo ? `/short/${post._id}` : `/post/${post._id}`;
 
                 return (
                   <Link

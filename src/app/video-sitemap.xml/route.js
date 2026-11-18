@@ -58,7 +58,7 @@ ${posts
     const desc = safeCdata(post.description || post.title || "FondPeace video short");
 
     return `  <url>
-    <loc>${SITE_URL}/shorts/${escapeXml(post._id)}</loc>
+    <loc>${SITE_URL}/short/${escapeXml(post._id)}</loc>
     <video:video>
       <video:thumbnail_loc>${thumbUrl}</video:thumbnail_loc>
       <video:title><![CDATA[${title}]]></video:title>

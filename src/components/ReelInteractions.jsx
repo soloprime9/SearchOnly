@@ -372,7 +372,7 @@ export default function ReelInteractions({ post, updatePost }) {
 
   const handleCopyLink = async () => {
     playPop();
-    const url = `${window.location.origin}/shorts/${data._id}`;
+    const url = `${window.location.origin}/short/${data._id}`;
     const shareText = data.title ? `${data.title}\n${url}` : url;
     await navigator.clipboard.writeText(shareText);
     setCopiedLink(true);
@@ -380,7 +380,7 @@ export default function ReelInteractions({ post, updatePost }) {
     setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://www.fondpeace.com"}/shorts/${data._id}`;
+  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://www.fondpeace.com"}/short/${data._id}`;
 
   return (
     <>
