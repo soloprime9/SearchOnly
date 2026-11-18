@@ -11,14 +11,14 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const fetchOptions = {
-      next: { revalidate: 3600 },
+      cache: "no-store",
       signal: AbortSignal.timeout(45000),
     };
 
-    // Fetch all posts and all video posts in parallel to strictly eliminate redirect loops
+    // Fetch all posts and all video posts in parallel to strictly eliminate redirect loops & spam
     const [allRes, videoRes] = await Promise.all([
-      fetch(`${API_BASE}/post/all-ids`, fetchOptions),
-      fetch(`${API_BASE}/post/video/getall`, fetchOptions),
+      fetch(`${API_BASE}/post/all-ids?v=2`, fetchOptions),
+      fetch(`${API_BASE}/post/video/getall?v=2`, fetchOptions),
     ]);
 
     const allPosts = allRes.ok ? await allRes.json() : [];
