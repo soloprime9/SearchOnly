@@ -91,8 +91,8 @@ export default async function sitemap() {
     };
 
     const [allRes, videoRes] = await Promise.all([
-      fetch(`${API_BASE}/post/all-ids?v=2`, fetchOptions),
-      fetch(`${API_BASE}/post/video/getall?v=2`, fetchOptions),
+      fetch(`${API_BASE}/post/all-ids?v=3`, fetchOptions),
+      fetch(`${API_BASE}/post/video/getall?slim=1`, fetchOptions),
     ]);
 
     const allPosts = allRes.ok ? await allRes.json() : [];

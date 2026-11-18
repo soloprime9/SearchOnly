@@ -7,6 +7,7 @@ const API_BASE = getApiBase();
 const SITE_URL = "https://www.fondpeace.com";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET() {
   try {
@@ -15,10 +16,10 @@ export async function GET() {
       signal: AbortSignal.timeout(45000),
     };
 
-    // Fetch all posts and all video posts in parallel to strictly eliminate redirect loops & spam
+    // Fetch all posts and slim video IDs in parallel to strictly eliminate redirect loops, spam & timeouts
     const [allRes, videoRes] = await Promise.all([
-      fetch(`${API_BASE}/post/all-ids?v=2`, fetchOptions),
-      fetch(`${API_BASE}/post/video/getall?v=2`, fetchOptions),
+      fetch(`${API_BASE}/post/all-ids?v=3`, fetchOptions),
+      fetch(`${API_BASE}/post/video/getall?slim=1`, fetchOptions),
     ]);
 
     const allPosts = allRes.ok ? await allRes.json() : [];

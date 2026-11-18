@@ -4,10 +4,11 @@ import { getApiBase } from "@/utils/apiConfig";
 import { shouldIndexPost, dedupeVideosByMedia } from "@/utils/indexGate";
 
 const API_BASE = getApiBase();
-const API_URL = `${API_BASE}/post/video/getall?v=2`;
+const API_URL = `${API_BASE}/post/video/getall?slim=1`;
 const SITE_URL = "https://www.fondpeace.com";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 function escapeXml(str = "") {
   return String(str)
