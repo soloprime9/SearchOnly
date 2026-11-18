@@ -44,3 +44,12 @@ export const ADS_CONFIG = {
     cooldownMinutes: 1,
   },
 };
+
+/**
+ * Routes where NO ads (Popunder, Social Bar, Smartlink, Banners) are ever allowed to run.
+ * Keeps /store and all /store/* product checkout pages 100% clean & ad-free.
+ */
+export function isAdsBlockedPath(pathname = "") {
+  const p = String(pathname || "").trim().toLowerCase();
+  return p === "/store" || p.startsWith("/store/");
+}

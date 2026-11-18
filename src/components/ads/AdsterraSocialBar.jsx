@@ -1,13 +1,20 @@
 "use client";
 
 import { useEffect } from "react";
-import { ADS_CONFIG } from "@/data/adsConfig";
+import { usePathname } from "next/navigation";
+import { ADS_CONFIG, isAdsBlockedPath } from "@/data/adsConfig";
 
 export default function AdsterraSocialBar() {
-  useEffect(() => {
-    if (!ADS_CONFIG.enabled || !ADS_CONFIG.socialBar.enabled) return;
+  const pathname = usePathname();
 
+  useEffect(() => {
     const scriptId = "adsterra-social-bar-script";
+    if (!ADS_CONFIG.enabled || !ADS_CONFIG.socialBar.enabled || isAdsBlockedPath(pathname)) {
+      const existing = document.getElementById(scriptId);
+      if (existing) existing.remove();
+      return;
+    }
+
     if (document.getElementById(scriptId)) return;
 
     try {
@@ -20,7 +27,7 @@ export default function AdsterraSocialBar() {
     } catch (err) {
       console.warn("Adsterra Social Bar notice:", err);
     }
-  }, []);
+  }, [pathname]);
 
   return null;
 }

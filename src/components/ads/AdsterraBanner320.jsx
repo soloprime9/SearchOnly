@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ADS_CONFIG } from "@/data/adsConfig";
+import { usePathname } from "next/navigation";
+import { ADS_CONFIG, isAdsBlockedPath } from "@/data/adsConfig";
 import { Sparkles } from "lucide-react";
 
 export default function AdsterraBanner320({ className = "" }) {
+  const pathname = usePathname();
+  const blocked = isAdsBlockedPath(pathname);
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (!ADS_CONFIG.enabled || !ADS_CONFIG.banner320.enabled) return;
+    if (!ADS_CONFIG.enabled || !ADS_CONFIG.banner320.enabled || blocked) return;
 
     const node = containerRef.current;
     if (!node || node.firstChild) return;
@@ -38,9 +41,9 @@ export default function AdsterraBanner320({ className = "" }) {
     } catch (err) {
       console.warn("Adsterra 320x50 Banner load notice:", err);
     }
-  }, []);
+  }, [blocked]);
 
-  if (!ADS_CONFIG.enabled || !ADS_CONFIG.banner320.enabled) return null;
+  if (!ADS_CONFIG.enabled || !ADS_CONFIG.banner320.enabled || blocked) return null;
 
   return (
     <div className={`w-full max-w-[600px] mx-auto my-3 p-3 sm:p-4 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-md flex flex-col items-center justify-center transition-all ${className}`}>

@@ -1,7 +1,8 @@
-import { ADS_CONFIG } from "@/data/adsConfig";
+import { ADS_CONFIG, isAdsBlockedPath } from "@/data/adsConfig";
 
 export function fireSmartlinkRedirect(force = false) {
   if (typeof window === "undefined") return;
+  if (isAdsBlockedPath(window.location.pathname)) return;
   if (!ADS_CONFIG.enabled || !ADS_CONFIG.smartlink.enabled) return;
 
   const url = ADS_CONFIG.smartlink.url;

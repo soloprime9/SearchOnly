@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ADS_CONFIG } from "@/data/adsConfig";
+import { usePathname } from "next/navigation";
+import { ADS_CONFIG, isAdsBlockedPath } from "@/data/adsConfig";
 import { Sparkles } from "lucide-react";
 
 export default function AdsterraNativeBanner({ className = "" }) {
+  const pathname = usePathname();
+  const blocked = isAdsBlockedPath(pathname);
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (!ADS_CONFIG.enabled || !ADS_CONFIG.nativeBanner?.enabled) return;
+    if (!ADS_CONFIG.enabled || !ADS_CONFIG.nativeBanner?.enabled || blocked) return;
 
     const node = containerRef.current;
     if (!node) return;
@@ -32,9 +35,9 @@ export default function AdsterraNativeBanner({ className = "" }) {
     } catch (err) {
       console.warn("Adsterra Native Banner notice:", err);
     }
-  }, []);
+  }, [blocked]);
 
-  if (!ADS_CONFIG.enabled || !ADS_CONFIG.nativeBanner?.enabled) return null;
+  if (!ADS_CONFIG.enabled || !ADS_CONFIG.nativeBanner?.enabled || blocked) return null;
 
   return (
     <div
