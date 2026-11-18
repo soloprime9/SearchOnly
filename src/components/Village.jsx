@@ -849,7 +849,7 @@ const handleShare = (postData) => {
           onToggleFollow={handleToggleFollow}
         >
           <div className="flex items-center gap-2.5 cursor-pointer">
-            <Link href={`/profile/${post.userId?.username}`} className="relative group">
+            <Link href={`/profile/${encodeURIComponent((post.userId?.username || "creator").trim())}`} className="relative group">
               {/* Story-style gradient ring */}
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
                 <div className="bg-[var(--bg-surface)] p-[1.5px] rounded-full w-full h-full flex items-center justify-center overflow-hidden">
@@ -880,7 +880,7 @@ const handleShare = (postData) => {
               </div>
             </Link>
             <div className="flex flex-col">
-              <Link href={`/profile/${post.userId?.username}`} className="text-sm font-bold text-[var(--text-primary)] leading-none hover:underline">
+              <Link href={`/profile/${encodeURIComponent((post.userId?.username || "creator").trim())}`} className="text-sm font-bold text-[var(--text-primary)] leading-none hover:underline">
                 {post.userId?.username || "Creator"}
               </Link>
               <div className="flex items-center gap-1 text-[11px] text-zinc-400 mt-0.5 font-medium">

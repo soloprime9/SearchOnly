@@ -252,7 +252,7 @@ export default function AiOmnibar() {
                 {suggestions.users.map((u, idx) => (
                   <Link
                     key={idx}
-                    href={`/profile/${u.username}`}
+                    href={`/profile/${encodeURIComponent((u.username || "").trim())}`}
                     onClick={() => {
                       playTap();
                       setShowDropdown(false);

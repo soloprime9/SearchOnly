@@ -220,7 +220,7 @@ export default function SuggestedCreatorsWidget({
                   isLeaving ? "opacity-0 scale-90 translate-y-2 pointer-events-none" : "opacity-100 scale-100"
                 }`}
               >
-                <Link href={`/profile/${creator.username?.trim()}`} className="relative mb-2">
+                <Link href={`/profile/${encodeURIComponent((creator.username || "").trim())}`} className="relative mb-2">
                   <div className="w-12 h-12 rounded-full overflow-hidden shadow-xs ring-2 ring-[var(--bg-surface)]">
                     {hasCustomPhoto ? (
                       <img
@@ -240,7 +240,7 @@ export default function SuggestedCreatorsWidget({
                 </Link>
 
                 <Link
-                  href={`/profile/${creator.username?.trim()}`}
+                  href={`/profile/${encodeURIComponent((creator.username || "").trim())}`}
                   className="font-bold text-xs text-[var(--text-primary)] truncate max-w-[120px] hover:underline"
                 >
                   {creator.name || creator.username}
@@ -320,7 +320,7 @@ export default function SuggestedCreatorsWidget({
               }`}
             >
               <div className="flex items-center gap-2.5 truncate min-w-0">
-                <Link href={`/profile/${creator.username?.trim()}`} className="shrink-0">
+                <Link href={`/profile/${encodeURIComponent((creator.username || "").trim())}`} className="shrink-0">
                   <div className="w-9 h-9 rounded-full overflow-hidden shadow-xs ring-1 ring-[var(--border-subtle)]">
                     {hasCustomPhoto ? (
                       <img
@@ -341,7 +341,7 @@ export default function SuggestedCreatorsWidget({
 
                 <div className="truncate min-w-0">
                   <Link
-                    href={`/profile/${creator.username?.trim()}`}
+                    href={`/profile/${encodeURIComponent((creator.username || "").trim())}`}
                     className="font-bold text-xs text-[var(--text-primary)] hover:underline flex items-center gap-1 truncate"
                   >
                     <span className="truncate">{creator.name || creator.username}</span>

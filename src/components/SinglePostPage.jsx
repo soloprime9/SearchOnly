@@ -446,7 +446,7 @@ export default function SinglePostInteractions({ initialPost }) {
       {/* 2. HEADER - Clean, Story Ring, Verified Badge, Actions */}
       <div className="flex items-center justify-between p-3.5 h-[58px]">
         <div className="flex items-center gap-2.5">
-          <Link href={`/profile/${post.userId?.username}`} className="relative group">
+          <Link href={`/profile/${encodeURIComponent((post.userId?.username || "creator").trim())}`} className="relative group">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
               <div className="bg-[var(--bg-surface)] p-[1.5px] rounded-full w-full h-full flex items-center justify-center overflow-hidden">
                 {hasAuthorPic ? (
@@ -469,7 +469,7 @@ export default function SinglePostInteractions({ initialPost }) {
           </Link>
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
-              <Link href={`/profile/${post.userId?.username}`} className="text-sm font-bold text-[var(--text-primary)] leading-none hover:underline">
+              <Link href={`/profile/${encodeURIComponent((post.userId?.username || "creator").trim())}`} className="text-sm font-bold text-[var(--text-primary)] leading-none hover:underline">
                 {post.userId?.username || "Creator"}
               </Link>
               {post.userId?.isVerified && (
@@ -681,13 +681,13 @@ export default function SinglePostInteractions({ initialPost }) {
         {allPostTags.length > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap pt-2 pb-3">
             {allPostTags.map((t, idx) => (
-              <a
+              <Link
                 key={idx}
-                href={`/search?q=${encodeURIComponent(t.replace(/^#+/, ""))}`}
+                href={`/topic/${encodeURIComponent(t.replace(/^#+/, "").toLowerCase())}`}
                 className="text-xs text-blue-500 hover:text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 rounded-full font-medium transition-colors"
               >
                 {t}
-              </a>
+              </Link>
             ))}
           </div>
         )}

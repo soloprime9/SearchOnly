@@ -23,7 +23,8 @@ import Link from "next/link";
 import { redirect, notFound, permanentRedirect } from "next/navigation";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
-import { shouldIndexPost, isBlockedAdultOrSpam } from "@/utils/indexGate";
+import { isPlayableShortPost } from "@/utils/postMediaUtils";
+import { shouldIndexPost, isBlockedAdultOrSpam, truncateWords } from "@/utils/indexGate";
 const API_BASE = getApiBase();
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_AVATAR = "https://www.fondpeace.com/Fondpeace.jpg";
@@ -187,14 +188,11 @@ export async function generateMetadata({ params }) {
     if (!post) return { title: "Post Not Found | FondPeace" };
 
     const resolvedThumb = resolvePostThumbnail(post);
-    const mediaUrl = toAbsolute(post.media || post.mediaUrl);
-    const isVideo =
-      post.mediaType?.startsWith("video") ||
-      /\.(mp4|mov|webm|mkv)$/i.test(mediaUrl || "");
+    const isVideo = isPlayableShortPost(post);
 
     if (isVideo) {
       return {
-        title: `${post.title || "Video"}`,
+        title: `${truncateWords(post.title || "Video", 55)}`,
         description: post.title || "Watch on FondPeace",
         alternates: { canonical: `${SITE_ROOT}/short/${id}` },
         robots: { index: false, follow: true },
@@ -206,8 +204,8 @@ export async function generateMetadata({ params }) {
     const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
 
     const titleTag = cleanText
-      ? `${cleanText.slice(0, 55)} by ${author}`
-      : `${rawTitle.slice(0, 55) || "Community Post"}`;
+      ? `${truncateWords(cleanText, 55)} by ${author}`
+      : `${truncateWords(rawTitle || "Community Post", 55)}`;
 
     const description = cleanText
       ? `Read: "${cleanText}" by ${author} on FondPeace. Join real conversations, explore topics, and share your perspectives.`
@@ -273,11 +271,9 @@ export default async function Page({ params }) {
     return notFound();
   }
 
-  const isVideo =
-    post.mediaType?.startsWith("video") ||
-    /\.(mp4|mov|webm|mkv)$/i.test(post.media || post.mediaUrl || "");
+  const isVideo = isPlayableShortPost(post);
 
-  // If this post is a video, redirect 308 permanently to the dedicated single video watch page (/short/[id])
+  // If this post is a video (native or YouTube), redirect 308 permanently to canonical /short/[id]
   if (isVideo) {
     permanentRedirect(`/short/${id}`);
   }

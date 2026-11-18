@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getApiBase } from "@/utils/apiConfig";
 import { shouldIndexPost } from "@/utils/indexGate";
+import { isPlayableShortPost } from "@/utils/postMediaUtils";
 
 const API_BASE = getApiBase();
 const SITE_URL = "https://www.fondpeace.com";
@@ -34,10 +35,10 @@ export async function GET() {
         .map((v) => String(v._id))
     );
 
-    // Filter to ONLY clean, indexable non-video posts (excludes videos, adult/MMS spam, and thin URL-only posts)
+    // Filter to ONLY clean, indexable non-video posts (excludes native videos, YouTube video posts, adult/MMS spam, and thin URL-only posts)
     const cleanNonVideoPosts = allPosts.filter((p) => {
       if (!p?._id || videoIdSet.has(String(p._id))) return false;
-      // When backend returns title metadata, strictly enforce indexGate
+      if (isPlayableShortPost(p)) return false;
       if (typeof p.title === "string") {
         return shouldIndexPost(p);
       }
@@ -51,7 +52,7 @@ ${cleanNonVideoPosts
     return `  <url>
     <loc>${SITE_URL}/post/${post._id}</loc>
     <lastmod>${new Date(
-      post.updatedAt || post.createdAt || Date.now()
+      post.createdAt || Date.now()
     ).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

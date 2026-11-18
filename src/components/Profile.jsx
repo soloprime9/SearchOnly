@@ -369,7 +369,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
   // Share profile
   const handleShare = async () => {
     playTap();
-    const url = typeof window !== 'undefined' ? window.location.href : `https://fondpeace.com/profile/${profile?.user?.username}`;
+    const url = typeof window !== 'undefined' ? window.location.href : `https://www.fondpeace.com/profile/${encodeURIComponent((profile?.user?.username || "").trim())}`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({

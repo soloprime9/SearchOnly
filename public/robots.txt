@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin
 
 # Sitemap Index and Specialized Sitemaps
 Sitemap: https://www.fondpeace.com/sitemap.xml

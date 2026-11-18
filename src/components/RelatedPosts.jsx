@@ -304,7 +304,7 @@ export default function RelatedPosts({
           <div className="flex items-center justify-between px-3.5 sm:px-4 h-[54px] border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2.5 min-w-0">
               <Link
-                href={`/profile/${post.userId?.username}`}
+                href={`/profile/${encodeURIComponent((post.userId?.username || "creator").trim())}`}
                 className="relative group shrink-0"
               >
                 <div className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600">
@@ -331,7 +331,7 @@ export default function RelatedPosts({
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5">
                   <Link
-                    href={`/profile/${post.userId?.username}`}
+                    href={`/profile/${encodeURIComponent((post.userId?.username || "creator").trim())}`}
                     className="text-[13px] font-bold text-[var(--text-primary)] hover:underline truncate leading-tight"
                   >
                     {post.userId?.username || "Creator"}
@@ -502,7 +502,7 @@ export default function RelatedPosts({
             {title && (
               <div className="text-[13.5px] text-[var(--text-primary)] leading-relaxed">
                 <Link
-                  href={`/profile/${post.userId?.username}`}
+                  href={`/profile/${encodeURIComponent((post.userId?.username || "creator").trim())}`}
                   className="font-bold text-[var(--text-primary)] mr-1.5 hover:underline"
                 >
                   {post.userId?.username}

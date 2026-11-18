@@ -11,7 +11,7 @@ import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
-import { shouldIndexPost, isBlockedAdultOrSpam } from "@/utils/indexGate";
+import { shouldIndexPost, isBlockedAdultOrSpam, truncateWords } from "@/utils/indexGate";
 
 const API_BASE = getApiBase().replace(/\/+$/, "");
 const API_SINGLE = `${API_BASE}/post/single/`;
@@ -43,7 +43,8 @@ function toAbsolute(url, type = "image") {
 
 function secToISO(sec) {
   const s = Number(sec);
-  if (!Number.isFinite(s) || s <= 0) return "PT0M30S";
+  // Only output duration when a real positive duration exists (never fabricate PT0M30S)
+  if (!Number.isFinite(s) || s <= 0) return undefined;
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   const secLeft = Math.floor(s % 60);
@@ -141,13 +142,14 @@ export async function generateMetadata({ params }) {
     const mediaUrl = toAbsolute(post.media || post.mediaUrl, "video");
     const thumb = resolvePostThumbnail(post);
     const pageUrl = `${SITE_ROOT}/short/${post._id || id}`;
-    const { cleanTitle, tags } = buildCleanTitleAndTags(post);
+    const { raw, cleanTitle, tags } = buildCleanTitleAndTags(post);
     const authorHandle = post.userId?.username ? `@${post.userId.username}` : "FondPeace";
 
-    const title = `${cleanTitle.slice(0, 55)} by ${authorHandle}`;
-    const description = `Watch "${cleanTitle}" by ${authorHandle} on FondPeace.${
-      tags.length ? ` Topics: ${tags.join(", ")}.` : ""
-    } Watch, comment, and explore related videos.`;
+    const title = `${truncateWords(cleanTitle, 55)} by ${authorHandle}`;
+    const realCaption = (post.description || cleanTitle || raw || "").replace(/\s+/g, " ").trim();
+    const description = realCaption
+      ? `${truncateWords(realCaption, 150)}${authorHandle !== "FondPeace" ? ` — ${authorHandle}` : ""}`
+      : `Video by ${authorHandle} on FondPeace.`;
 
     const indexable = shouldIndexPost(post);
 
@@ -177,8 +179,6 @@ export async function generateMetadata({ params }) {
           {
             url: thumb,
             secureUrl: thumb,
-            width: 1200,
-            height: 630,
             alt: cleanTitle,
           },
         ],
@@ -249,9 +249,9 @@ export default async function SingleShortWatchPage({ params }) {
     );
   }
 
-  const schemaDescription = `${cleanTitle} by @${authorName} on FondPeace.${
-    tags.length ? ` Topics: ${tags.join(", ")}.` : ""
-  } Watch, react, and join the community conversation.`;
+  const encodedAuthor = encodeURIComponent(authorName.trim());
+  const realDescription = (post.description || cleanTitle || "").replace(/\s+/g, " ").trim();
+  const realDurationISO = secToISO(post.duration);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -261,8 +261,8 @@ export default async function SingleShortWatchPage({ params }) {
         "@id": `${pageUrl}#breadcrumb`,
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "FondPeace", item: SITE_ROOT },
-          { "@type": "ListItem", position: 2, name: authorName, item: `${SITE_ROOT}/profile/${authorName}` },
-          { "@type": "ListItem", position: 3, name: cleanTitle.slice(0, 60), item: pageUrl },
+          { "@type": "ListItem", position: 2, name: authorName, item: `${SITE_ROOT}/profile/${encodedAuthor}` },
+          { "@type": "ListItem", position: 3, name: truncateWords(cleanTitle, 60), item: pageUrl },
         ],
       },
       {
@@ -270,14 +270,12 @@ export default async function SingleShortWatchPage({ params }) {
         "@id": `${pageUrl}#video`,
         name: cleanTitle,
         headline: cleanTitle,
-        description: schemaDescription,
+        description: realDescription || `${cleanTitle} by @${authorName}`,
         keywords: extractKeywords(post),
         thumbnailUrl: thumbnailList,
         thumbnail: {
           "@type": "ImageObject",
           url: primaryThumb,
-          width: 1200,
-          height: 630,
         },
         contentUrl: mediaUrl,
         embedUrl: ytId
@@ -285,14 +283,14 @@ export default async function SingleShortWatchPage({ params }) {
           : `${SITE_ROOT}/embed/short/${post._id || id}`,
         url: pageUrl,
         uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
-        duration: secToISO(Number(post.duration || 30)),
+        ...(realDurationISO ? { duration: realDurationISO } : {}),
         inLanguage: "en",
         isFamilyFriendly: !isBlockedAdultOrSpam(post),
         isAccessibleForFree: true,
         author: {
           "@type": "Person",
           name: authorName,
-          url: `${SITE_ROOT}/profile/${authorName}`,
+          url: `${SITE_ROOT}/profile/${encodedAuthor}`,
         },
         publisher: {
           "@type": "Organization",

@@ -6,6 +6,7 @@ import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
+import { truncateWords } from "@/utils/indexGate";
 
 // Safe server-side YouTube ID extractor (zero client-component proxy dependency)
 function getYouTubeVideoId(url) {
@@ -134,8 +135,8 @@ export async function generateMetadata({ params }) {
     const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
 
     const title = cleanText
-      ? `${cleanText.slice(0, 50)} by ${author} | FondPeace Reels`
-      : `${rawTitle.slice(0, 50) || "Watch Short"} | FondPeace Reels`;
+      ? `${truncateWords(cleanText, 50)} by ${author} | FondPeace Reels`
+      : `${truncateWords(rawTitle || "Watch Short", 50)} | FondPeace Reels`;
 
     const description = cleanText
       ? `Watch "${cleanText}" by ${author} in the FondPeace Reels feed.`
@@ -334,7 +335,7 @@ export default async function ShortsDetailPage({ params }) {
             ) : null}
             <div className="absolute inset-x-0 bottom-0 p-4 pb-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
               <Link
-                href={`/profile/${safeAuthor}`}
+                href={`/profile/${encodeURIComponent(safeAuthor.trim())}`}
                 className="text-sm font-bold text-white mb-1 inline-block hover:underline"
               >
                 @{safeAuthor}
@@ -398,7 +399,7 @@ export default async function ShortsDetailPage({ params }) {
                   {relatedShorts.map((rel) => (
                     <li key={rel._id}>
                       <Link
-                        href={`/shorts/${rel._id}`}
+                        href={`/short/${rel._id}`}
                         className="text-xs text-blue-400 hover:underline line-clamp-1"
                       >
                         {rel.title || "Watch Trending Short"}

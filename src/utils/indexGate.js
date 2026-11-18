@@ -3,8 +3,21 @@
 // Keeps normal UGC visible for users while ensuring Google only indexes clean,
 // policy-compliant pages and never receives adult/MMS spam in sitemaps or Search.
 
+import { extractPostYouTubeId, VIDEO_EXT_REGEX } from "@/utils/postMediaUtils";
+
 export const ADULT_SPAM_BLOCKLIST =
   /(xhamster|desihub|missav|blacked\.com|hotwebhd|xnxx|xvideos|pornhub|onlyfans|brazzers|redtube|youporn|sex\s*video|mms\s*sex|viral\s*mms|viral\s*link|telegram\s*link|full\s*video\s*download|bf\s*video|chudai|randi|bhabhi\s*muh|panty\s*viral|sex\s*racket|having\s*sex|nude\s*video|\bporn\b|\bxxx\b|\b18\+\b|सेक्स\s*रैकेट|सेक्स\s*वीडियो)/i;
+
+/**
+ * Clean word-boundary title truncation (never cuts mid-word like "18th November 2").
+ */
+export function truncateWords(s = "", max = 55) {
+  const str = String(s || "").replace(/\s+/g, " ").trim();
+  if (str.length <= max) return str;
+  const cut = str.slice(0, max);
+  const idx = cut.lastIndexOf(" ");
+  return (idx > Math.floor(max * 0.4) ? cut.slice(0, idx) : cut).trim() + "…";
+}
 
 /**
  * Returns true if a post object or raw string contains blocked adult, MMS, or link-spam terms.
@@ -59,6 +72,17 @@ export function shouldIndexPost(post) {
   // Pure URL-only post with zero commentary and < 2 comments -> noindex
   const isRawUrlOnly = /^https?:\/\/\S+$/i.test(rawTitle);
   if (isRawUrlOnly && comments < 2) return false;
+
+  // Third-party YouTube embed reposts (without native uploaded video):
+  // Require real original commentary/summary (15+ clean words) or 2+ comments so
+  // copied YouTube promo titles don't trigger Google scraped/republished content demotion.
+  const hasNativeUploadedVideo =
+    typeof post.media === "string" &&
+    VIDEO_EXT_REGEX.test(post.media.trim());
+  const isYouTubeRepost = !hasNativeUploadedVideo && Boolean(extractPostYouTubeId(post));
+  if (isYouTubeRepost) {
+    return cleanWords >= 15 || comments >= 2;
+  }
 
   // External link share with zero/minimal original text -> require 6+ clean words or 2+ comments
   const isExternalLinkPost =

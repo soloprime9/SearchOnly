@@ -1,5 +1,6 @@
 import { STORE_PRODUCTS } from "@/data/storeProducts";
 import { shouldIndexPost } from "@/utils/indexGate";
+import { isPlayableShortPost } from "@/utils/postMediaUtils";
 
 const SITE_URL = "https://www.fondpeace.com";
 const API_BASE = "https://backendk-z915.onrender.com";
@@ -104,11 +105,12 @@ export default async function sitemap() {
     );
 
     // Map clean, index-gate-passing videos strictly to canonical single video watch page: /short/[id]
+    // Use createdAt for lastmod so views/likes don't falsely bump lastmod timestamps
     const videoRoutes = (Array.isArray(videoPosts) ? videoPosts : [])
       .filter((v) => shouldIndexPost(v))
       .map((v) => ({
         url: `${SITE_URL}/short/${v._id}`,
-        lastModified: new Date(v.updatedAt || v.createdAt || Date.now()),
+        lastModified: new Date(v.createdAt || Date.now()),
         changeFrequency: "weekly",
         priority: 0.85,
       }));
@@ -117,12 +119,13 @@ export default async function sitemap() {
     const postRoutes = (Array.isArray(allPosts) ? allPosts : [])
       .filter((p) => {
         if (!p?._id || videoIdSet.has(String(p._id))) return false;
+        if (isPlayableShortPost(p)) return false;
         if (typeof p.title === "string") return shouldIndexPost(p);
         return true;
       })
       .map((p) => ({
         url: `${SITE_URL}/post/${p._id}`,
-        lastModified: new Date(p.updatedAt || p.createdAt || Date.now()),
+        lastModified: new Date(p.createdAt || Date.now()),
         changeFrequency: "weekly",
         priority: 0.8,
       }));

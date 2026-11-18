@@ -234,22 +234,24 @@ export default function LinkPreviewCard({
           ref={containerRef}
           className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden"
         >
-          {/* Sandboxed YouTube Player Frame (No controls, looping, autoplaying) */}
-          <iframe
-            ref={iframeRef}
-            src={embedUrl}
-            title={preview.title || "Video"}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            className="w-full h-full border-0 absolute inset-0 pointer-events-none"
-            onLoad={() => {
-              setIsLoaded(true);
-              try {
-                iframeRef.current?.contentWindow?.postMessage(
-                  JSON.stringify({ event: "listening" }),
-                  "*"
-                );
-              } catch (_) {}
-              if (!inFeed || isInView) {
+          {/* Only mount live YouTube iframe on the main watch page (!inFeed).
+              Inside RelatedPosts / feeds (inFeed=true), render crisp thumbnail only so the page stays fast
+              and Google sees strictly ONE main video on each /short/[id] watch page. */}
+          {!inFeed && (
+            <iframe
+              ref={iframeRef}
+              src={embedUrl}
+              title={preview.title || "Video"}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              className="w-full h-full border-0 absolute inset-0 pointer-events-none"
+              onLoad={() => {
+                setIsLoaded(true);
+                try {
+                  iframeRef.current?.contentWindow?.postMessage(
+                    JSON.stringify({ event: "listening" }),
+                    "*"
+                  );
+                } catch (_) {}
                 sendCommand("playVideo");
                 sendCommand(isMuted ? "mute" : "unMute");
                 setTimeout(() => {
@@ -259,14 +261,14 @@ export default function LinkPreviewCard({
                 setTimeout(() => {
                   sendCommand("playVideo");
                 }, 600);
-              }
-            }}
-          />
+              }}
+            />
+          )}
 
-          {/* Smooth Poster Transition: Eliminates 2-3s black screen entirely */}
+          {/* Smooth Poster Transition / Lightweight Thumbnail Card in Feeds */}
           <div
             className={`absolute inset-0 z-10 bg-black flex items-center justify-center transition-opacity duration-500 ease-out pointer-events-none ${
-              isPlaybackActive ? "opacity-0 pointer-events-none" : "opacity-100"
+              !inFeed && isPlaybackActive ? "opacity-0 pointer-events-none" : "opacity-100"
             }`}
           >
             {resolvedThumbnail && (
