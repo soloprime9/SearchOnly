@@ -24,7 +24,7 @@ import { redirect, notFound, permanentRedirect } from "next/navigation";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
-import { shouldIndexPost, isBlockedAdultOrSpam, truncateWords } from "@/utils/indexGate";
+import { shouldIndexPost, isBlockedAdultOrSpam, truncateWords, splitCaption } from "@/utils/indexGate";
 const API_BASE = getApiBase();
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_AVATAR = "https://www.fondpeace.com/Fondpeace.jpg";
@@ -206,18 +206,19 @@ export async function generateMetadata({ params }) {
     }
 
     const rawTitle = (post.title || "").trim();
-    const cleanText = rawTitle.replace(/#[a-zA-Z0-9_]+/g, "").trim();
+    const { headline, metaDescription } = splitCaption(
+      rawTitle,
+      post.description || "",
+      "Community Post"
+    );
     const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
 
-    const titleTag = cleanText
-      ? `${truncateWords(cleanText, 55)} by ${author}`
-      : `${truncateWords(rawTitle || "Community Post", 55)}`;
+    const titleTag = headline
+      ? `${truncateWords(headline, 60)} by ${author}`
+      : `${truncateWords(rawTitle || "Community Post", 60)}`;
 
-    const rawDesc = (post.description || "").replace(/\s+/g, " ").trim();
-    const description = rawDesc
-      ? `${truncateWords(rawDesc, 155)}${author ? ` — ${author}` : ""}`
-      : cleanText
-      ? `${truncateWords(cleanText, 145)} by ${author} on FondPeace.`
+    const description = metaDescription
+      ? `${metaDescription}${author ? ` — ${author}` : ""}`
       : `Explore community posts and social conversations by ${author} on FondPeace.`;
 
     const indexable = shouldIndexPost(post);
@@ -249,7 +250,7 @@ export async function generateMetadata({ params }) {
           {
             url: resolvedThumb,
             secureUrl: resolvedThumb,
-            alt: cleanText || titleTag,
+            alt: headline || titleTag,
           },
         ],
       },
@@ -303,6 +304,12 @@ const related = (data?.related ?? []).filter((r) => !isBlockedAdultOrSpam(r));
   const isImage = /^image\//i.test(post.mediaType || "") || /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)$/i.test(mediaUrl || "");
 
   const postTitle = typeof post?.title === "string" ? post.title : "";
+  const { headline: postHeadline, metaDescription: postMetaDesc, fullClean: postFullClean } = splitCaption(
+    postTitle,
+    post.description || "",
+    "FondPeace Post"
+  );
+  const encodedAuthor = encodeURIComponent(authorName.trim());
   const isArticle = post.postType === "article" || (postTitle && postTitle.split(/\s+/).length > 250);
   const primarySchemaType = isArticle ? "BlogPosting" : "DiscussionForumPosting";
 
@@ -315,8 +322,8 @@ const related = (data?.related ?? []).filter((r) => !isBlockedAdultOrSpam(r));
         "@id": `${pageUrl}#breadcrumb`,
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
-          { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${encodeURIComponent(authorName.trim())}` },
-          { "@type": "ListItem", "position": 3, "name": truncateWords(post.title || "Post", 60), "item": pageUrl }
+          { "@type": "ListItem", "position": 2, "name": authorName, "item": `${SITE_ROOT}/profile/${encodedAuthor}` },
+          { "@type": "ListItem", "position": 3, "name": truncateWords(postHeadline, 60), "item": pageUrl }
         ]
       },
 
@@ -325,18 +332,18 @@ const related = (data?.related ?? []).filter((r) => !isBlockedAdultOrSpam(r));
         "@type": primarySchemaType,
         "@id": `${pageUrl}#main`,
         "url": pageUrl,
-        "headline": truncateWords(post.title || "FondPeace Post", 110),
-        "description": truncateWords((post.description || post.title || "Community discussion on FondPeace").replace(/\s+/g, " ").trim(), 200),
-        "articleBody": post.description ? `${post.title || ""}\n\n${post.description}`.trim() : (post.title || ""),
-        "name": truncateWords(post.title || "FondPeace Post", 110),
+        "headline": truncateWords(postHeadline, 110),
+        "description": postMetaDesc || "Community discussion on FondPeace",
+        "articleBody": postFullClean || postTitle || "",
+        "name": truncateWords(postHeadline, 110),
         "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
         "datePublished": new Date(post.createdAt || Date.now()).toISOString(),
         "dateModified": new Date(post.updatedAt || post.createdAt || Date.now()).toISOString(),
         "author": {
           "@type": "Person",
-          "@id": `${SITE_ROOT}/profile/${authorName}#person`,
+          "@id": `${SITE_ROOT}/profile/${encodedAuthor}#person`,
           "name": authorName,
-          "url": `${SITE_ROOT}/profile/${authorName}`,
+          "url": `${SITE_ROOT}/profile/${encodedAuthor}`,
           "image": toAbsolute(post.userId?.profilePic) || DEFAULT_AVATAR
         },
         "publisher": {

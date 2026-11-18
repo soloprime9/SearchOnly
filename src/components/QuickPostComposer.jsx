@@ -37,7 +37,6 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
   const [expanded, setExpanded] = useState(false);
   const [mode, setMode] = useState("text"); // 'text' | 'poll' | 'link'
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Entertainment");
   const [submitting, setSubmitting] = useState(false);
 
@@ -96,7 +95,6 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
 
   const handleReset = () => {
     setTitle("");
-    setDescription("");
     setPollQuestion("");
     setPollOptions(["", ""]);
     setPollDurationHours(24);
@@ -139,7 +137,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
     }
 
     // Community Safety & Anti-Spam Blocklist
-    const moderationText = `${title} ${description} ${pollQuestion} ${pollOptions.join(" ")} ${linkUrl} ${linkPreviewData?.title || ""}`;
+    const moderationText = `${title} ${pollQuestion} ${pollOptions.join(" ")} ${linkUrl} ${linkPreviewData?.title || ""}`;
     if (isBlockedAdultOrSpam(moderationText)) {
       toast.error("Explicit adult, MMS, or spam link content is not allowed under FondPeace Community Guidelines.");
       return;
@@ -153,7 +151,6 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
 
       let postPayload = {
         title: mode === "text" ? title.trim() : (title.trim() || pollQuestion.trim() || linkUrl.trim()),
-        description: description.trim(),
         category,
       };
 
@@ -461,49 +458,26 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
               </div>
             )}
 
-            {/* Main Title / Headline Area */}
+            {/* Single Clean Caption Box (Instagram / X Style — auto-splits headline & body on render) */}
             <div className="relative">
               <textarea
-                rows={mode === "text" ? 3 : 2}
+                rows={mode === "text" ? 3 : 3}
                 placeholder={
                   mode === "poll"
                     ? "Add some context for this poll (optional)..."
                     : mode === "link"
-                    ? "Short headline for this video or link..."
+                    ? "Write a short headline + your thoughts about this video or link (optional)..."
                     : "What's happening? Share stories, thoughts, hot takes..."
                 }
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                maxLength={500}
+                maxLength={1000}
                 className="w-full bg-transparent text-xs sm:text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none resize-none leading-relaxed selection:bg-blue-600 selection:text-white"
               />
               <span className="absolute bottom-1 right-1 text-[10px] text-[var(--text-muted)]">
-                {title.length}/500
+                {title.length}/1000
               </span>
             </div>
-
-            {/* Optional Description / Context Box (keeps H1 clean & boosts Google Search indexing) */}
-            {(mode === "link" || mode === "text") && (
-              <div className="relative">
-                <textarea
-                  rows={2}
-                  placeholder={
-                    mode === "link"
-                      ? "Write 2-3 lines about this video or link in your own words (optional — helps it appear in Google Search)..."
-                      : "Add extra details or context (optional)..."
-                  }
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  maxLength={2000}
-                  className="w-full bg-[var(--bg-subtle)]/60 border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-blue-500/50 resize-none leading-relaxed"
-                />
-                {description.trim().length > 0 && (
-                  <span className="absolute bottom-1.5 right-2 text-[10px] text-[var(--text-muted)]">
-                    {description.trim().split(/\s+/).filter(Boolean).length} words
-                  </span>
-                )}
-              </div>
-            )}
 
             {/* Quick Hashtag Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">

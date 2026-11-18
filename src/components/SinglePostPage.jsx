@@ -10,6 +10,7 @@ import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { toast } from "@/utils/toast";
 import { getPostShareUrl } from "@/utils/postMediaUtils";
+import { splitCaption } from "@/utils/indexGate";
 import PollCard from "./PollCard";
 import LinkPreviewCard from "./LinkPreviewCard";
 import PostActionsMenu from "./PostActionsMenu";
@@ -410,6 +411,11 @@ export default function SinglePostInteractions({ initialPost }) {
 
   const title = post.title || "";
   const cleanCaption = post.linkPreview ? getCleanCaptionText(title, post.linkPreview) : title;
+  const { headline: splitHeadline, body: splitBody } = splitCaption(
+    cleanCaption || title,
+    post.description || "",
+    post.linkPreview?.title || "FondPeace Post"
+  );
   const rawAuthorPic = post.userId?.profilePicture || post.userId?.profilePic || post.userId?.avatar;
   const hasAuthorPic = rawAuthorPic && rawAuthorPic !== "/Fondpeace.jpg" && rawAuthorPic.trim() !== "";
   const authorInitial = (post.userId?.username?.[0] || post.userId?.name?.[0] || "U").toUpperCase();
@@ -583,8 +589,15 @@ export default function SinglePostInteractions({ initialPost }) {
               {post.category || "Community Discussion"}
             </span>
           </div>
-          <div className="text-base sm:text-lg font-medium leading-relaxed text-slate-100 whitespace-pre-wrap">
-            {renderFormattedCaption(post.title)}
+          <div className="space-y-2.5">
+            <h1 className="text-lg sm:text-xl font-bold leading-snug text-white">
+              {splitHeadline}
+            </h1>
+            {splitBody && (
+              <p className="text-sm sm:text-base font-normal leading-relaxed text-slate-200 whitespace-pre-wrap">
+                {renderFormattedCaption(splitBody)}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -665,30 +678,25 @@ export default function SinglePostInteractions({ initialPost }) {
           </div>
         </div>
 
-        {/* 5. Caption / Headline & Optional Description */}
-        {(post.media || post.linkPreview || post.poll) && (cleanCaption || post.description) && (
+        {/* 5. Render-Time Split Caption (Short H1 Headline + Clean Body Paragraph below) */}
+        {(post.media || post.linkPreview || post.poll) && (splitHeadline || splitBody) && (
           <div className="mb-3 space-y-2">
-            {cleanCaption && (
-              <div className="text-sm text-[var(--text-primary)] leading-relaxed">
+            {splitHeadline && (
+              <div className="text-sm sm:text-base text-[var(--text-primary)] leading-snug">
                 <span className="font-bold mr-2 text-[var(--text-primary)] hover:underline cursor-pointer">
                   {post.userId?.username}
                 </span>
                 <h1 className="inline whitespace-pre-wrap text-[var(--text-primary)] font-semibold">
-                  {renderFormattedCaption(cleanCaption)}
+                  {splitHeadline}
                 </h1>
               </div>
             )}
-            {post.description && post.description.trim() && (
+            {splitBody && (
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
-                {renderFormattedCaption(post.description.trim())}
+                {renderFormattedCaption(splitBody)}
               </p>
             )}
           </div>
-        )}
-        {!(post.media || post.linkPreview || post.poll) && post.description && post.description.trim() && (
-          <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap mb-3">
-            {renderFormattedCaption(post.description.trim())}
-          </p>
         )}
 
         {/* 6. Clickable Topic Tags */}

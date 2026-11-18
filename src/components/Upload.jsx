@@ -183,7 +183,6 @@ export default function UploadPost() {
   const [activeMode, setActiveMode] = useState("all"); // "all" | "discussion" | "article" | "poll"
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [articleHeadline, setArticleHeadline] = useState("");
   const [category, setCategory] = useState("Entertainment");
   const [preview, setPreview] = useState(null);
@@ -457,7 +456,7 @@ export default function UploadPost() {
     }
 
     // Community Safety & Anti-Spam Blocklist
-    const moderationCheckText = `${articleHeadline} ${title} ${description} ${pollQuestion} ${pollOptions.join(" ")}`;
+    const moderationCheckText = `${articleHeadline} ${title} ${pollQuestion} ${pollOptions.join(" ")}`;
     if (isBlockedAdultOrSpam(moderationCheckText)) {
       playPop();
       const msg = "Explicit adult, MMS, or spam link content is not allowed under FondPeace Community Guidelines.";
@@ -485,7 +484,6 @@ export default function UploadPost() {
 
         let payload = {
           title: title.trim() || (isPoll ? pollQuestion.trim() : "Community Discussion"),
-          description: description.trim(),
           category,
           tags: extractedTags,
           mediaType: "text",
@@ -571,7 +569,6 @@ export default function UploadPost() {
           `${API}/demo/confirm`,
           {
             title: title.trim() || `${category} Video`,
-            description: description.trim(),
             category,
             tags: extractedTags.join(","),
             videoKey: urls.videoUpload.key,
@@ -616,7 +613,6 @@ export default function UploadPost() {
           `${API}/demo/confirm`,
           {
             title: title.trim() || `${category} Photo`,
-            description: description.trim(),
             category,
             tags: extractedTags.join(","),
             imageKey: urlData.key,
@@ -652,7 +648,6 @@ export default function UploadPost() {
       // Reset form
       setFile(null);
       setTitle("");
-      setDescription("");
       setPreview(null);
       setPollQuestion("");
       setPollOptions(["", ""]);
@@ -1003,37 +998,12 @@ export default function UploadPost() {
                   ? "Share your insight, debate, or question with the community... Add #hashtags for visibility!"
                   : activeMode === "poll"
                   ? "Add any extra details or background context about this poll..."
-                  : "Short, clear title for your video or photo (avoid stuffing hashtags here)..."
+                  : "Write a caption for your video or photo (first line becomes headline, extra lines show below)..."
               }
-              rows={activeMode === "article" ? 8 : activeMode === "discussion" ? 4 : 2}
+              rows={activeMode === "article" ? 8 : activeMode === "discussion" ? 5 : 3}
               disabled={isBusy}
               className="w-full p-4 rounded-2xl bg-white/[0.04] border border-white/10 text-white placeholder-zinc-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none text-sm sm:text-base leading-relaxed"
             />
-
-            {/* Optional Description / Context Box (keeps H1 short & gives Google rich context) */}
-            {activeMode !== "article" && (
-              <div className="mt-3">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                    Description / Context (Optional — helps Google Search)
-                  </label>
-                  {description.trim().length > 0 && (
-                    <span className="text-[11px] text-emerald-400 font-semibold">
-                      {description.trim().split(/\s+/).filter(Boolean).length} words
-                    </span>
-                  )}
-                </div>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Write 2-3 lines describing what happens in this video, photo, or link (optional)..."
-                  rows={3}
-                  maxLength={2000}
-                  disabled={isBusy}
-                  className="w-full p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 resize-none text-sm leading-relaxed"
-                />
-              </div>
-            )}
             {detectedTags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 <span className="text-[11px] font-semibold text-gray-400 flex items-center gap-1">

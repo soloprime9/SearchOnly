@@ -11,7 +11,7 @@ import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
-import { shouldIndexPost, isBlockedAdultOrSpam, truncateWords } from "@/utils/indexGate";
+import { shouldIndexPost, isBlockedAdultOrSpam, truncateWords, splitCaption } from "@/utils/indexGate";
 
 const API_BASE = getApiBase().replace(/\/+$/, "");
 const API_SINGLE = `${API_BASE}/post/single/`;
@@ -147,12 +147,16 @@ export async function generateMetadata({ params }) {
     const thumb = resolvePostThumbnail(post);
     const pageUrl = `${SITE_ROOT}/short/${post._id || id}`;
     const { raw, cleanTitle, tags } = buildCleanTitleAndTags(post);
+    const { headline, body, metaDescription } = splitCaption(
+      post.title || raw,
+      post.description || "",
+      cleanTitle
+    );
     const authorHandle = post.userId?.username ? `@${post.userId.username}` : "FondPeace";
 
-    const title = `${truncateWords(cleanTitle, 55)} by ${authorHandle}`;
-    const realCaption = (post.description || cleanTitle || raw || "").replace(/\s+/g, " ").trim();
-    const description = realCaption
-      ? `${truncateWords(realCaption, 150)}${authorHandle !== "FondPeace" ? ` — ${authorHandle}` : ""}`
+    const title = `${truncateWords(headline, 60)} by ${authorHandle}`;
+    const description = metaDescription
+      ? `${metaDescription}${authorHandle !== "FondPeace" ? ` — ${authorHandle}` : ""}`
       : `Video by ${authorHandle} on FondPeace.`;
 
     const indexable = shouldIndexPost(post);
@@ -249,6 +253,11 @@ export default async function SingleShortWatchPage({ params }) {
   const ytId = extractPostYouTubeId(post);
   const primaryThumb = resolvePostThumbnail(post);
   const { cleanTitle, tags } = buildCleanTitleAndTags(post);
+  const { headline: splitHeadline, body: splitBody, fullClean } = splitCaption(
+    post.title || "",
+    post.description || "",
+    cleanTitle
+  );
 
   const thumbnailList = [primaryThumb];
   if (ytId) {
@@ -259,7 +268,7 @@ export default async function SingleShortWatchPage({ params }) {
   }
 
   const encodedAuthor = encodeURIComponent(authorName.trim());
-  const realDescription = (post.description || cleanTitle || "").replace(/\s+/g, " ").trim();
+  const realDescription = (splitBody || fullClean || cleanTitle || "").replace(/\s+/g, " ").trim();
   const realDurationISO = secToISO(post.duration);
 
   const jsonLd = {
@@ -271,15 +280,15 @@ export default async function SingleShortWatchPage({ params }) {
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "FondPeace", item: SITE_ROOT },
           { "@type": "ListItem", position: 2, name: authorName, item: `${SITE_ROOT}/profile/${encodedAuthor}` },
-          { "@type": "ListItem", position: 3, name: truncateWords(cleanTitle, 60), item: pageUrl },
+          { "@type": "ListItem", position: 3, name: truncateWords(splitHeadline, 60), item: pageUrl },
         ],
       },
       {
         "@type": "VideoObject",
         "@id": `${pageUrl}#video`,
-        name: cleanTitle,
-        headline: cleanTitle,
-        description: realDescription || `${cleanTitle} by @${authorName}`,
+        name: splitHeadline,
+        headline: splitHeadline,
+        description: realDescription || `${splitHeadline} by @${authorName}`,
         keywords: extractKeywords(post),
         thumbnailUrl: thumbnailList,
         thumbnail: {
