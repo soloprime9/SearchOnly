@@ -69,6 +69,15 @@ export function shouldIndexPost(post) {
     ? post.comments.length
     : Number(post.commentCount || 0);
 
+  // Native uploaded videos on our CDN (.mp4, .webm, .mov, .m3u8):
+  // Always index clean native creator uploads even when captions are short/hashtag-based.
+  const mediaCandidate = (post.media || post.mediaUrl || "").trim();
+  const hasNativeUploadedVideo =
+    typeof mediaCandidate === "string" && VIDEO_EXT_REGEX.test(mediaCandidate);
+  if (hasNativeUploadedVideo) {
+    return true;
+  }
+
   // Pure URL-only post with zero commentary and < 2 comments -> noindex
   const isRawUrlOnly = /^https?:\/\/\S+$/i.test(rawTitle);
   if (isRawUrlOnly && comments < 2) return false;
@@ -76,10 +85,7 @@ export function shouldIndexPost(post) {
   // Third-party YouTube embed reposts (without native uploaded video):
   // Require real original commentary/summary (15+ clean words) or 2+ comments so
   // copied YouTube promo titles don't trigger Google scraped/republished content demotion.
-  const hasNativeUploadedVideo =
-    typeof post.media === "string" &&
-    VIDEO_EXT_REGEX.test(post.media.trim());
-  const isYouTubeRepost = !hasNativeUploadedVideo && Boolean(extractPostYouTubeId(post));
+  const isYouTubeRepost = Boolean(extractPostYouTubeId(post));
   if (isYouTubeRepost) {
     return cleanWords >= 15 || comments >= 2;
   }
@@ -120,4 +126,24 @@ export function shouldIndexTopic(topicName, posts = []) {
   if (!Array.isArray(posts)) return false;
   const cleanPostsCount = posts.filter((p) => !isBlockedAdultOrSpam(p)).length;
   return cleanPostsCount >= 2;
+}
+
+/**
+ * Deduplicates video posts sharing the exact same underlying media file URL
+ * (prevents Google seeing 24 identical copies of the same .mp4 in video-sitemap.xml).
+ */
+export function dedupeVideosByMedia(posts = []) {
+  if (!Array.isArray(posts)) return [];
+  const seenMedia = new Set();
+  const unique = [];
+  for (const post of posts) {
+    if (!post?._id) continue;
+    const rawMedia = String(post.media || post.mediaUrl || "").trim().toLowerCase();
+    if (rawMedia) {
+      if (seenMedia.has(rawMedia)) continue;
+      seenMedia.add(rawMedia);
+    }
+    unique.push(post);
+  }
+  return unique;
 }

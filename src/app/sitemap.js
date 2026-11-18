@@ -1,5 +1,5 @@
 import { STORE_PRODUCTS } from "@/data/storeProducts";
-import { shouldIndexPost } from "@/utils/indexGate";
+import { shouldIndexPost, dedupeVideosByMedia } from "@/utils/indexGate";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
 
 const SITE_URL = "https://www.fondpeace.com";
@@ -104,16 +104,16 @@ export default async function sitemap() {
         .map((v) => String(v._id))
     );
 
-    // Map clean, index-gate-passing videos strictly to canonical single video watch page: /short/[id]
+    // Map clean, deduplicated, index-gate-passing videos strictly to canonical single video watch page: /short/[id]
     // Use createdAt for lastmod so views/likes don't falsely bump lastmod timestamps
-    const videoRoutes = (Array.isArray(videoPosts) ? videoPosts : [])
-      .filter((v) => shouldIndexPost(v))
-      .map((v) => ({
-        url: `${SITE_URL}/short/${v._id}`,
-        lastModified: new Date(v.createdAt || Date.now()),
-        changeFrequency: "weekly",
-        priority: 0.85,
-      }));
+    const videoRoutes = dedupeVideosByMedia(
+      (Array.isArray(videoPosts) ? videoPosts : []).filter((v) => shouldIndexPost(v))
+    ).map((v) => ({
+      url: `${SITE_URL}/short/${v._id}`,
+      lastModified: new Date(v.createdAt || Date.now()),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    }));
 
     // Map clean, index-gate-passing non-videos strictly to post page: /post/[id]
     const postRoutes = (Array.isArray(allPosts) ? allPosts : [])

@@ -5,7 +5,7 @@ import LeftSidebar from "@/components/LeftSidebar";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Search Discussions, Creators & Videos | FondPeace",
+  title: "Search Discussions, Creators & Videos",
   description:
     "Search trending social discussions, creators, and short videos on FondPeace — the open social community.",
   alternates: {

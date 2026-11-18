@@ -5,7 +5,7 @@ import { getApiBase } from "@/utils/apiConfig";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Shorts & Reels | FondPeace - Trending Vertical Videos",
+  title: "Shorts & Reels — Trending Vertical Videos",
   description:
     "Watch trending shorts and reels on FondPeace. High-octane vertical videos, fresh creators, and viral moments.",
   alternates: {

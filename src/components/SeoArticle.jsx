@@ -64,14 +64,14 @@ export default function SeoArticle({
     author: {
       "@type": "Organization",
       name: authorName,
-      url: `https://fondpeace.com/profile/${authorName}`,
+      url: `https://www.fondpeace.com/profile/${encodeURIComponent((authorName || "").trim())}`,
     },
     publisher: {
       "@type": "Organization",
       name: siteName,
       logo: {
         "@type": "ImageObject",
-        url: "https://fondpeace.com/logo.png",
+        url: "https://www.fondpeace.com/Fondpeace.jpg",
       },
     },
     mainEntityOfPage: {

@@ -9,7 +9,7 @@ export const metadata = {
     canonical: "https://www.fondpeace.com/privacypolicy",
   },
   openGraph: {
-    title: "Privacy Policy | FondPeace",
+    title: "Privacy Policy",
     description:
       "Understand how FondPeace collects, protects, and handles your data and privacy.",
     url: "https://www.fondpeace.com/privacypolicy",

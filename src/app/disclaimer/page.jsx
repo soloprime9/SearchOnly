@@ -9,7 +9,7 @@ export const metadata = {
     canonical: "https://www.fondpeace.com/disclaimer",
   },
   openGraph: {
-    title: "Disclaimer | FondPeace",
+    title: "Disclaimer",
     description:
       "Read the FondPeace disclaimer regarding information accuracy and community content.",
     url: "https://www.fondpeace.com/disclaimer",

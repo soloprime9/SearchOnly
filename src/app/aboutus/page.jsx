@@ -9,7 +9,7 @@ export const metadata = {
     canonical: "https://www.fondpeace.com/aboutus",
   },
   openGraph: {
-    title: "About Us | FondPeace",
+    title: "About Us",
     description:
       "Learn about FondPeace - an independent, community-driven social and discussion platform built for authentic conversations.",
     url: "https://www.fondpeace.com/aboutus",

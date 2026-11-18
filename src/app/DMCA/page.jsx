@@ -9,7 +9,7 @@ export const metadata = {
     canonical: "https://www.fondpeace.com/DMCA",
   },
   openGraph: {
-    title: "DMCA Policy | FondPeace",
+    title: "DMCA Policy",
     description:
       "Digital Millennium Copyright Act (DMCA) Policy for FondPeace.",
     url: "https://www.fondpeace.com/DMCA",

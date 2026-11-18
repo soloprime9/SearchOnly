@@ -123,12 +123,12 @@ function buildCleanTitleAndTags(post) {
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const id = resolvedParams?.id;
-  if (!id) return { title: "Watch Video | FondPeace" };
+  if (!id) return { title: "Watch Video" };
 
   try {
     const data = await getShortWatchData(id);
     const post = data?.post;
-    if (!post) return { title: "Video Not Found | FondPeace" };
+    if (!post) return { title: "Video Not Found", robots: { index: false, follow: true } };
 
     const isVideo = isPlayableShortPost(post);
     if (!isVideo) {

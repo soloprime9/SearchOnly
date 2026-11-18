@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Edit Profile | FondPeace",
+  title: "Edit Profile",
   robots: {
     index: false,
     follow: false,

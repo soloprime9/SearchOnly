@@ -36,7 +36,7 @@ export async function generateMetadata({ params }) {
   const indexable = shouldIndexTopic(topicRaw, posts);
 
   return {
-    title: `${topic} – Discussions & Videos | FondPeace`,
+    title: `${topic} – Discussions & Videos`,
     description: `Browse the latest community discussions, posts, and videos related to #${topic} on FondPeace.`,
     alternates: { canonical: url },
     robots: {

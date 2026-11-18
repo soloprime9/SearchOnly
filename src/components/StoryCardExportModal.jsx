@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import { X, Download, Share2, Sparkles, Check } from "lucide-react";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { toast } from "@/utils/toast";
+import { getPostShareUrl } from "@/utils/postMediaUtils";
 
 export default function StoryCardExportModal({ isOpen, post, onClose }) {
   const cardRef = useRef(null);
@@ -12,7 +13,7 @@ export default function StoryCardExportModal({ isOpen, post, onClose }) {
 
   if (!isOpen || !post) return null;
 
-  const postUrl = typeof window !== "undefined" ? `${window.location.origin}/post/${post._id}` : `https://fondpeace.com/post/${post._id}`;
+  const postUrl = getPostShareUrl(post);
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(postUrl)}&color=000000&bgcolor=ffffff`;
 
   const handleDownloadCard = async () => {

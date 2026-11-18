@@ -178,14 +178,14 @@ const getPostDetailData = cache(async (id) => {
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const id = resolvedParams?.id;
-  if (!id) return { title: "Post | FondPeace" };
+  if (!id) return { title: "Community Post" };
   const pageUrl = `${SITE_ROOT}/post/${id}`;
 
   try {
     const data = await getPostDetailData(id);
     const post = data?.post;
 
-    if (!post) return { title: "Post Not Found | FondPeace" };
+    if (!post) return { title: "Post Not Found", robots: { index: false, follow: true } };
 
     const resolvedThumb = resolvePostThumbnail(post);
     const isVideo = isPlayableShortPost(post);
@@ -240,8 +240,6 @@ export async function generateMetadata({ params }) {
           {
             url: resolvedThumb,
             secureUrl: resolvedThumb,
-            width: 1200,
-            height: 630,
             alt: cleanText || titleTag,
           },
         ],

@@ -9,7 +9,7 @@ export const metadata = {
     canonical: "https://www.fondpeace.com/termcondition",
   },
   openGraph: {
-    title: "Terms and Conditions | FondPeace",
+    title: "Terms and Conditions",
     description:
       "Review the terms and conditions for using the FondPeace platform and services.",
     url: "https://www.fondpeace.com/termcondition",

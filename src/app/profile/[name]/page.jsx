@@ -1,4 +1,5 @@
 // app/profile/[name]/page.jsx
+import { cache } from "react";
 import Profile from "@/components/Profile";
 import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
@@ -9,11 +10,9 @@ const SITE_ROOT = "https://www.fondpeace.com";
 const API_BASE = getApiBase();
 
 /**
- * Resilient multi-tier profile resolver:
- * Tier 1: Try public endpoint /user/profile-public/:username
- * Tier 2: Resilient mango directory lookup if Tier 1 404s (handles MongoDB case-sensitivity issues like 'Tonyreduce')
+ * Deduplicated multi-tier profile resolver (shared between generateMetadata & Page)
  */
-async function resolveUserProfile(username) {
+const resolveUserProfile = cache(async (username) => {
   if (!username) return null;
   const cleanName = decodeURIComponent(username).trim();
 
@@ -21,7 +20,7 @@ async function resolveUserProfile(username) {
   try {
     const res = await fetch(
       `${API_BASE}/user/profile-public/${encodeURIComponent(cleanName)}`,
-      { cache: "no-store" }
+      { next: { revalidate: 300 }, signal: AbortSignal.timeout(15000) }
     );
     if (res.ok) {
       const data = await res.json();
@@ -37,8 +36,8 @@ async function resolveUserProfile(username) {
   // Tier 2: Mango Directory + Posts fallback
   try {
     const [usersRes, postsRes] = await Promise.all([
-      fetch(`${API_BASE}/user/mango/getall`, { cache: "no-store" }),
-      fetch(`${API_BASE}/post/mango/getall`, { cache: "no-store" }).catch(() => ({ ok: false }))
+      fetch(`${API_BASE}/user/mango/getall`, { next: { revalidate: 300 }, signal: AbortSignal.timeout(15000) }),
+      fetch(`${API_BASE}/post/mango/getall`, { next: { revalidate: 300 }, signal: AbortSignal.timeout(15000) }).catch(() => ({ ok: false }))
     ]);
 
     if (usersRes.ok) {
@@ -79,13 +78,13 @@ async function resolveUserProfile(username) {
   } catch (_) {}
 
   return null;
-}
+});
 
 // ---------- METADATA (SEO HEAD) ----------
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const username = resolvedParams?.name;
-  if (!username) return { title: "Profile | FondPeace" };
+  if (!username) return { title: "Creator Profile" };
 
   try {
     const profileData = await resolveUserProfile(username);
@@ -93,8 +92,9 @@ export async function generateMetadata({ params }) {
 
     if (!user) {
       return {
-        title: `@${username} | FondPeace`,
+        title: `@${decodeURIComponent(username)}`,
         description: `Explore creator profile on FondPeace.`,
+        robots: { index: false, follow: true },
       };
     }
 

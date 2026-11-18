@@ -116,12 +116,12 @@ function buildDescription(post) {
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const id = resolvedParams?.id;
-  if (!id) return { title: "Shorts & Reels | FondPeace" };
+  if (!id) return { title: "Shorts & Reels" };
 
   try {
     const data = await getShortPostData(id);
     const post = data?.post;
-    if (!post) return { title: "Video Not Found | FondPeace Shorts" };
+    if (!post) return { title: "Video Not Found" };
 
     const mediaUrl = toAbsolute(post.media || post.mediaUrl, "video");
     const thumb = resolvePostThumbnail(post);
@@ -135,8 +135,8 @@ export async function generateMetadata({ params }) {
     const author = post.userId?.username ? `@${post.userId.username}` : "Creator";
 
     const title = cleanText
-      ? `${truncateWords(cleanText, 50)} by ${author} | FondPeace Reels`
-      : `${truncateWords(rawTitle || "Watch Short", 50)} | FondPeace Reels`;
+      ? `${truncateWords(cleanText, 50)} by ${author} — Reels`
+      : `${truncateWords(rawTitle || "Watch Short", 50)} — Reels`;
 
     const description = cleanText
       ? `Watch "${cleanText}" by ${author} in the FondPeace Reels feed.`
@@ -163,8 +163,6 @@ export async function generateMetadata({ params }) {
           {
             url: thumb,
             secureUrl: thumb,
-            width: 1200,
-            height: 630,
             alt: cleanText || title,
           },
         ],
@@ -257,55 +255,8 @@ export default async function ShortsDetailPage({ params }) {
         .filter((c) => c && (c.CommentText || c.text))
         .slice(0, 5);
 
-      const videoSchema = {
-        "@context": "https://schema.org",
-        "@type": "VideoObject",
-        "@id": `${pageUrl}#video`,
-        name: cleanDisplayTitle,
-        headline: cleanDisplayTitle,
-        description: cleanSchemaDescription,
-        keywords: extractKeywords(post),
-        thumbnailUrl: thumbnailList,
-        thumbnail: {
-          "@type": "ImageObject",
-          url: primaryThumb,
-          width: 1200,
-          height: 630,
-        },
-        contentUrl: mediaUrl || undefined,
-        embedUrl: ytId
-          ? `https://www.youtube-nocookie.com/embed/${ytId}`
-          : `${SITE_ROOT}/embed/short/${post._id || id}`,
-        url: pageUrl,
-        uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
-        duration: secToISO(Number(post.duration || 30)),
-        inLanguage: "en",
-        isFamilyFriendly: true,
-        isAccessibleForFree: true,
-        author: {
-          "@type": "Person",
-          name: safeAuthor,
-          url: `${SITE_ROOT}/profile/${safeAuthor}`,
-        },
-        publisher: {
-          "@type": "Organization",
-          name: "FondPeace",
-          url: SITE_ROOT,
-          logo: {
-            "@type": "ImageObject",
-            url: `${SITE_ROOT}/Fondpeace.jpg`,
-          },
-        },
-        interactionStatistic: buildInteractionSchema(post) || [],
-        potentialAction: {
-          "@type": "WatchAction",
-          target: pageUrl,
-        },
-        mainEntityOfPage: {
-          "@type": "WebPage",
-          "@id": pageUrl,
-        },
-      };
+      // Note: No VideoObject JSON-LD here — /shorts/[id] is a noindex vertical swipe feed.
+      // The authoritative VideoObject lives exclusively on the canonical /short/[id] watch page.
 
       // Visible, prominent, above-the-fold SSR Watch Player Shell + Rich Internal Link Graph
       // Eliminates "Thin content" & "Crawled - currently not indexed" by providing real SSR links,
@@ -415,13 +366,6 @@ export default async function ShortsDetailPage({ params }) {
 
       return (
         <main className="w-full h-[100dvh] bg-black text-white overflow-hidden select-none relative">
-          <script
-            key="video-jsonld"
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(videoSchema),
-            }}
-          />
           <ReelsFeedWrapper
             initialPost={post}
             initialRelated={related}
