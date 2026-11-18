@@ -180,10 +180,11 @@ const STAGE_LABELS = {
 };
 
 export default function UploadPost() {
-  const [activeMode, setActiveMode] = useState("all"); // "all" | "discussion" | "article" | "poll"
+  const [activeMode, setActiveMode] = useState("all"); // "all" | "link" | "discussion" | "article" | "poll"
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [articleHeadline, setArticleHeadline] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
   const [category, setCategory] = useState("Entertainment");
   const [preview, setPreview] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -259,8 +260,9 @@ export default function UploadPost() {
     );
   };
 
-  // Auto-detect URL in caption/thought and fetch live OpenGraph preview
+  // Auto-detect URL in caption/thought and fetch live OpenGraph preview (skipped in dedicated Link Card mode)
   useEffect(() => {
+    if (activeMode === "link") return;
     const urlMatch = (title || "").match(/https?:\/\/[^\s]+/i);
     if (!urlMatch) {
       if (linkPreviewData && !dismissedLinkUrl) {
@@ -279,7 +281,7 @@ export default function UploadPost() {
       setFetchingLinkPreview(true);
       try {
         const API = getApiBase();
-        const res = await axios.get(`${API}/post/preview-link?url=${encodeURIComponent(detectedUrl)}`);
+        const res = await axios.get(`${API}/post/preview/link?url=${encodeURIComponent(detectedUrl)}`);
         if (res.data?.success && res.data?.preview) {
           setLinkPreviewData(res.data.preview);
         }
@@ -293,7 +295,7 @@ export default function UploadPost() {
     return () => {
       if (previewDebounceRef.current) clearTimeout(previewDebounceRef.current);
     };
-  }, [title, dismissedLinkUrl, linkPreviewData]);
+  }, [activeMode, title, dismissedLinkUrl, linkPreviewData]);
 
   function processFile(selectedFile) {
     if (!selectedFile) return;
@@ -432,6 +434,29 @@ export default function UploadPost() {
     setPollOptions(updated);
   };
 
+  // Direct Link Card URL preview fetcher (matching Homepage QuickPostComposer)
+  const handleFetchDirectLinkPreview = async (rawUrl) => {
+    const clean = String(rawUrl || "").trim();
+    if (!clean || !/^https?:\/\//i.test(clean)) {
+      if (!clean) setLinkPreviewData(null);
+      return;
+    }
+    setFetchingLinkPreview(true);
+    try {
+      const API = getApiBase();
+      const res = await axios.get(`${API}/post/preview/link?url=${encodeURIComponent(clean)}`);
+      if (res.data?.success && res.data?.preview) {
+        const preview = res.data.preview;
+        setLinkPreviewData(preview);
+        setTitle((prev) => (!prev.trim() && preview.title ? preview.title : prev));
+      }
+    } catch {
+      // ignore preview failure; user can still publish the link
+    } finally {
+      setFetchingLinkPreview(false);
+    }
+  };
+
   async function handleSubmit(e) {
     e.preventDefault();
     setErrorMsg("");
@@ -439,12 +464,19 @@ export default function UploadPost() {
     const hasFile = !!file;
     const hasText = !!title.trim();
     const isPoll = activeMode === "poll";
+    const isLink = activeMode === "link";
     const hasPoll = isPoll && !!pollQuestion.trim();
+    const hasLink = isLink && !!linkUrl.trim();
 
-    // Universal validation: Platform accepts Text, Media, or Poll!
-    if (!hasFile && !hasText && !hasPoll) {
+    // Universal validation: Platform accepts Text, Media, Link, or Poll!
+    if (!hasFile && !hasText && !hasPoll && !hasLink) {
       playPop();
-      return setErrorMsg("Please write a thought/discussion, select a photo/video, or add a poll question.");
+      return setErrorMsg("Please write a caption, paste a link, select a photo/video, or add a poll question.");
+    }
+
+    if (isLink && !linkUrl.trim()) {
+      playPop();
+      return setErrorMsg("Please paste a valid YouTube or website link.");
     }
 
     if (isPoll) {
@@ -456,7 +488,7 @@ export default function UploadPost() {
     }
 
     // Community Safety & Anti-Spam Blocklist
-    const moderationCheckText = `${articleHeadline} ${title} ${pollQuestion} ${pollOptions.join(" ")}`;
+    const moderationCheckText = `${articleHeadline} ${title} ${linkUrl} ${linkPreviewData?.title || ""} ${pollQuestion} ${pollOptions.join(" ")}`;
     if (isBlockedAdultOrSpam(moderationCheckText)) {
       playPop();
       const msg = "Explicit adult, MMS, or spam link content is not allowed under FondPeace Community Guidelines.";
@@ -477,19 +509,43 @@ export default function UploadPost() {
     playTap();
 
     try {
-      // ─── CASE 1: Pure Text / Discussion or Community Poll (No file upload needed) ───
+      // ─── CASE 1: Link Card, Pure Text / Discussion, Article, or Poll (No file upload needed) ───
       if (!hasFile) {
         setStage("saving");
         const extractedTags = (title.match(/#\w+/g) || []).map((t) => t.replace("#", ""));
 
         let payload = {
-          title: title.trim() || (isPoll ? pollQuestion.trim() : "Community Discussion"),
+          title: title.trim() || (isPoll ? pollQuestion.trim() : isLink ? (linkPreviewData?.title || linkUrl.trim()) : "Community Discussion"),
           category,
           tags: extractedTags,
-          mediaType: "text",
+          mediaType: isLink ? "link" : "text",
         };
 
-        if (isPoll) {
+        if (isLink) {
+          const cleanLinkUrl = linkUrl.trim();
+          const resolvedLinkTitle = title.trim() || linkPreviewData?.title || cleanLinkUrl;
+          payload.title = resolvedLinkTitle;
+          payload.mediaType = "link";
+          payload.mtype = "link";
+          if (linkPreviewData) {
+            payload.linkPreview = linkPreviewData;
+            if (linkPreviewData.image) {
+              payload.thumbnail = linkPreviewData.image;
+            }
+          } else {
+            payload.linkPreview = {
+              url: cleanLinkUrl,
+              title: resolvedLinkTitle,
+              domain: (() => {
+                try {
+                  return new URL(cleanLinkUrl).hostname.replace(/^www\./, "");
+                } catch {
+                  return "external";
+                }
+              })(),
+            };
+          }
+        } else if (isPoll) {
           payload.title = pollQuestion.trim() + (title.trim() ? `\n\n${title.trim()}` : "");
           payload.poll = {
             question: pollQuestion.trim(),
@@ -503,7 +559,7 @@ export default function UploadPost() {
           payload.postType = "article";
         }
 
-        if (linkPreviewData) {
+        if (!isLink && linkPreviewData) {
           payload.linkPreview = linkPreviewData;
         }
 
@@ -648,6 +704,7 @@ export default function UploadPost() {
       // Reset form
       setFile(null);
       setTitle("");
+      setLinkUrl("");
       setPreview(null);
       setPollQuestion("");
       setPollOptions(["", ""]);
@@ -676,6 +733,7 @@ export default function UploadPost() {
   const hasContentToPublish =
     !!file ||
     !!title.trim() ||
+    (activeMode === "link" && !!linkUrl.trim()) ||
     (activeMode === "poll" && !!pollQuestion.trim()) ||
     (activeMode === "article" && (!!articleHeadline.trim() || !!title.trim()));
 
@@ -702,9 +760,10 @@ export default function UploadPost() {
         </div>
 
         {/* Post Type Selector Tabs */}
-        <div className="flex items-center justify-center gap-1.5 p-1.5 bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-2xl mb-6 relative z-10">
+        <div className="flex flex-wrap items-center justify-center gap-1.5 p-1.5 bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-2xl mb-6 relative z-10">
           {[
             { id: "all", label: "🌟 Media", desc: "Photo, Video or Text" },
+            { id: "link", label: "🔗 Link Card", desc: "YouTube or Web Link" },
             { id: "discussion", label: "💭 Discussion", desc: "Thoughts & questions" },
             { id: "article", label: "📝 Article / Blog", desc: "Dev.to & Substack style" },
             { id: "poll", label: "📊 Voting Poll", desc: "Interactive community poll" },
@@ -717,9 +776,11 @@ export default function UploadPost() {
                 setActiveMode(tab.id);
                 setErrorMsg("");
               }}
-              className={`flex-1 py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`flex-1 min-w-[110px] py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeMode === tab.id
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? tab.id === "link"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "bg-blue-600 text-white shadow-sm"
                   : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
               }`}
             >
@@ -731,6 +792,45 @@ export default function UploadPost() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           
+          {/* LINK CARD SECTION: Dedicated URL Paste & Live Preview (matching Homepage) */}
+          {activeMode === "link" && (
+            <div className="p-4 sm:p-5 rounded-3xl bg-emerald-950/20 border border-emerald-500/30 space-y-2.5">
+              <label className="block text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                YouTube or Website URL *
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="url"
+                  value={linkUrl}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setLinkUrl(val);
+                    if (previewDebounceRef.current) clearTimeout(previewDebounceRef.current);
+                    previewDebounceRef.current = setTimeout(() => {
+                      handleFetchDirectLinkPreview(val);
+                    }, 450);
+                  }}
+                  onPaste={(e) => {
+                    const pasted = e.clipboardData?.getData("text") || "";
+                    if (pasted && /^https?:\/\//i.test(pasted.trim())) {
+                      setLinkUrl(pasted.trim());
+                      handleFetchDirectLinkPreview(pasted.trim());
+                    }
+                  }}
+                  placeholder="https://youtu.be/... or https://example.com/article"
+                  disabled={isBusy}
+                  className="flex-1 p-3.5 rounded-2xl bg-white/[0.05] border border-emerald-500/40 text-white placeholder-zinc-400 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/25"
+                />
+                {fetchingLinkPreview && (
+                  <div className="w-5 h-5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin shrink-0" />
+                )}
+              </div>
+              <p className="text-[11px] text-zinc-400">
+                Paste any YouTube video or web link — thumbnail & preview card load automatically.
+              </p>
+            </div>
+          )}
+
           {/* MEDIA SECTION: Visible when in 'all' mode */}
           {activeMode === "all" && (
             <div>
@@ -975,6 +1075,8 @@ export default function UploadPost() {
               <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider">
                 {activeMode === "article"
                   ? "Article Body / Story Content *"
+                  : activeMode === "link"
+                  ? "Caption / Headline & Thoughts (Optional)"
                   : activeMode === "discussion" 
                   ? "Discussion Thought & Details *" 
                   : activeMode === "poll"
@@ -994,6 +1096,8 @@ export default function UploadPost() {
               placeholder={
                 activeMode === "article"
                   ? "Write your detailed article, technical guide, or thought here... Supports multi-paragraph stories with headings and links."
+                  : activeMode === "link"
+                  ? "Write a short headline + 2-3 lines about this YouTube video or link (first line becomes headline)..."
                   : activeMode === "discussion"
                   ? "Share your insight, debate, or question with the community... Add #hashtags for visibility!"
                   : activeMode === "poll"
