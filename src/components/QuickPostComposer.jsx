@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
+import { isBlockedAdultOrSpam } from "@/utils/indexGate";
 import { toast } from "@/utils/toast";
 import { playPop, playChime } from "@/utils/soundEffects";
 import {
@@ -132,6 +133,13 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
 
     if (mode === "link" && !linkUrl.trim()) {
       toast.error("Please provide a valid URL");
+      return;
+    }
+
+    // Community Safety & Anti-Spam Blocklist
+    const moderationText = `${title} ${pollQuestion} ${pollOptions.join(" ")} ${linkUrl} ${linkPreviewData?.title || ""}`;
+    if (isBlockedAdultOrSpam(moderationText)) {
+      toast.error("Explicit adult, MMS, or spam link content is not allowed under FondPeace Community Guidelines.");
       return;
     }
 
@@ -458,7 +466,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                   mode === "poll"
                     ? "Add some context for this poll (optional)..."
                     : mode === "link"
-                    ? "What are your thoughts on this link?..."
+                    ? "Add a line about this link (optional)..."
                     : "What's happening? Share stories, thoughts, hot takes..."
                 }
                 value={title}

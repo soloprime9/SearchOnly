@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { getApiBase } from "@/utils/apiConfig";
+import { shouldIndexPost } from "@/utils/indexGate";
 
 const API_BASE = getApiBase();
 const API_URL = `${API_BASE}/post/video/getall`;
@@ -37,9 +38,12 @@ export async function GET() {
       return new NextResponse("No posts found", { status: 200 });
     }
 
+    // Index Gate: Exclude adult/MMS spam and ultra-thin hashtag-only videos from Google sitemap
+    const indexableVideos = posts.filter((post) => shouldIndexPost(post));
+
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-${posts
+${indexableVideos
   .map((post) => {
     const videoMedia = post?.media || post?.mediaUrl;
     if (!post?._id || !videoMedia) return "";

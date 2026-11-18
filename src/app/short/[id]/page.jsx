@@ -11,6 +11,7 @@ import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
+import { shouldIndexPost, isBlockedAdultOrSpam } from "@/utils/indexGate";
 
 const API_BASE = getApiBase().replace(/\/+$/, "");
 const API_SINGLE = `${API_BASE}/post/single/`;
@@ -148,16 +149,18 @@ export async function generateMetadata({ params }) {
       tags.length ? ` Topics: ${tags.join(", ")}.` : ""
     } Watch, comment, and explore related videos.`;
 
+    const indexable = shouldIndexPost(post);
+
     return {
       title,
       description,
       keywords: extractKeywords(post),
       alternates: { canonical: pageUrl },
       robots: {
-        index: true,
+        index: indexable,
         follow: true,
         googleBot: {
-          index: true,
+          index: indexable,
           follow: true,
           "max-video-preview": -1,
           "max-image-preview": "large",
@@ -218,7 +221,9 @@ export default async function SingleShortWatchPage({ params }) {
 
   const data = await getShortWatchData(id);
   const post = data?.post || null;
-  const related = Array.isArray(data?.related) ? data.related : [];
+  const related = (Array.isArray(data?.related) ? data.related : []).filter(
+    (r) => !isBlockedAdultOrSpam(r)
+  );
 
   if (!post) {
     return notFound();
@@ -282,7 +287,7 @@ export default async function SingleShortWatchPage({ params }) {
         uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
         duration: secToISO(Number(post.duration || 30)),
         inLanguage: "en",
-        isFamilyFriendly: true,
+        isFamilyFriendly: !isBlockedAdultOrSpam(post),
         isAccessibleForFree: true,
         author: {
           "@type": "Person",

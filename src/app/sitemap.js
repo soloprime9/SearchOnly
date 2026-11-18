@@ -1,4 +1,5 @@
 import { STORE_PRODUCTS } from "@/data/storeProducts";
+import { shouldIndexPost } from "@/utils/indexGate";
 
 const SITE_URL = "https://www.fondpeace.com";
 const API_BASE = "https://backendk-z915.onrender.com";
@@ -27,12 +28,6 @@ export default async function sitemap() {
       url: `${SITE_URL}/shorts`,
       lastModified: new Date(),
       changeFrequency: "hourly",
-      priority: 0.95,
-    },
-    {
-      url: `${SITE_URL}/search`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
       priority: 0.9,
     },
     {
@@ -108,9 +103,9 @@ export default async function sitemap() {
         .map((v) => String(v._id))
     );
 
-    // Map videos strictly to dedicated canonical single video watch page: /short/[id]
+    // Map clean, index-gate-passing videos strictly to canonical single video watch page: /short/[id]
     const videoRoutes = (Array.isArray(videoPosts) ? videoPosts : [])
-      .filter((v) => v?._id)
+      .filter((v) => shouldIndexPost(v))
       .map((v) => ({
         url: `${SITE_URL}/short/${v._id}`,
         lastModified: new Date(v.updatedAt || v.createdAt || Date.now()),
@@ -118,9 +113,13 @@ export default async function sitemap() {
         priority: 0.85,
       }));
 
-    // Map non-videos strictly to post page: /post/[id]
+    // Map clean, index-gate-passing non-videos strictly to post page: /post/[id]
     const postRoutes = (Array.isArray(allPosts) ? allPosts : [])
-      .filter((p) => p?._id && !videoIdSet.has(String(p._id)))
+      .filter((p) => {
+        if (!p?._id || videoIdSet.has(String(p._id))) return false;
+        if (typeof p.title === "string") return shouldIndexPost(p);
+        return true;
+      })
       .map((p) => ({
         url: `${SITE_URL}/post/${p._id}`,
         lastModified: new Date(p.updatedAt || p.createdAt || Date.now()),

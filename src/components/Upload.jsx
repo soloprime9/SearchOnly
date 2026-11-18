@@ -28,6 +28,7 @@ import { playTap, playPop, playChime } from "@/utils/soundEffects";
 import { triggerConfetti } from "@/utils/confetti";
 import { toast } from "@/utils/toast";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
+import { isBlockedAdultOrSpam } from "@/utils/indexGate";
 
 // ─── Extract thumbnail + metadata from video in browser (Optimized for Free R2 Storage) ────
 function extractVideoMeta(videoFile) {
@@ -452,6 +453,16 @@ export default function UploadPost() {
         playPop();
         return setErrorMsg("Poll must have at least 2 non-empty options.");
       }
+    }
+
+    // Community Safety & Anti-Spam Blocklist
+    const moderationCheckText = `${articleHeadline} ${title} ${pollQuestion} ${pollOptions.join(" ")}`;
+    if (isBlockedAdultOrSpam(moderationCheckText)) {
+      playPop();
+      const msg = "Explicit adult, MMS, or spam link content is not allowed under FondPeace Community Guidelines.";
+      setErrorMsg(msg);
+      toast.error(msg);
+      return;
     }
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;

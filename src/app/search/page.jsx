@@ -12,7 +12,7 @@ export const metadata = {
     canonical: "https://www.fondpeace.com/search",
   },
   robots: {
-    index: true,
+    index: false,
     follow: true,
   },
   openGraph: {

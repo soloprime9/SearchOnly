@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getApiBase } from "@/utils/apiConfig";
+import { shouldIndexPost } from "@/utils/indexGate";
 
 const API_BASE = getApiBase();
 const SITE_URL = "https://www.fondpeace.com";
@@ -33,11 +34,15 @@ export async function GET() {
         .map((v) => String(v._id))
     );
 
-    // Filter to ONLY non-video posts (Discussions, Articles, Photos, Polls)
-    // Every single URL here will return direct HTTP 200 OK with 0 redirects!
-    const cleanNonVideoPosts = allPosts.filter(
-      (p) => p?._id && !videoIdSet.has(String(p._id))
-    );
+    // Filter to ONLY clean, indexable non-video posts (excludes videos, adult/MMS spam, and thin URL-only posts)
+    const cleanNonVideoPosts = allPosts.filter((p) => {
+      if (!p?._id || videoIdSet.has(String(p._id))) return false;
+      // When backend returns title metadata, strictly enforce indexGate
+      if (typeof p.title === "string") {
+        return shouldIndexPost(p);
+      }
+      return true;
+    });
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
