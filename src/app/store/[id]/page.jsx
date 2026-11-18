@@ -7,6 +7,12 @@ import LeftSidebar from "@/components/LeftSidebar";
 import StoreReviewsCarousel from "@/components/StoreReviewsCarousel";
 import { STORE_PRODUCTS } from "@/data/storeProducts";
 import {
+  AUTOPILOT_FLOW_STAGES,
+  AUTOPILOT_MODULES,
+  AUTOPILOT_PROMPTS,
+  AUTOPILOT_VIRAL_CAPTION,
+} from "@/data/autopilotData";
+import {
   ArrowLeft,
   Star,
   Check,
@@ -377,6 +383,7 @@ export default function ProductDetailPage() {
   const [selectedPreview, setSelectedPreview] = useState(null);
   const [activeGalleryTab, setActiveGalleryTab] = useState("all");
   const [activeStoryIndex, setActiveStoryIndex] = useState(0);
+  const [captionCopied, setCaptionCopied] = useState(false);
 
   // Find product
   const product = STORE_PRODUCTS.find(
@@ -384,14 +391,24 @@ export default function ProductDetailPage() {
   ) || STORE_PRODUCTS[0];
 
   const isStickMotion = product.id === "stickmotion-studio";
+  const isAutoPilot = product.id === "fondpeace-autopilot-os";
+  const checkoutUrl = product.topmateUrl || "https://topmate.io/fondpeace";
 
   const discountPercent = Math.round(
     ((product.originalPriceUSD - product.priceUSD) / product.originalPriceUSD) * 100
   );
 
   const handleCheckout = () => {
-    const url = product.topmateUrl || "https://topmate.io/fondpeace";
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(checkoutUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleCopyCaption = () => {
+    if (typeof window !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(AUTOPILOT_VIRAL_CAPTION.text);
+      setCaptionCopied(true);
+      toast.success("Launch caption & hashtags copied to clipboard!");
+      setTimeout(() => setCaptionCopied(false), 2500);
+    }
   };
 
   const handleShare = () => {
