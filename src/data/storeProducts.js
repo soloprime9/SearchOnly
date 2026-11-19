@@ -183,8 +183,8 @@ export const STORE_PRODUCTS = [
       "Windows & Mac Apps",
       "Android PWA"
     ],
-    priceUSD: 19,
-    originalPriceUSD: 69,
+    priceUSD: 5,
+    originalPriceUSD: 49,
     image: "/images/products/stickman-animation-studio-pro.jpg",
     topmateUrl: "https://topmate.io/fondpeace_crazy/2411087",
     previewImages: [
@@ -245,7 +245,7 @@ export const STORE_PRODUCTS = [
         name: "Ananya Sen",
         handle: "@ananya_creates",
         role: "Storytelling Animator",
-        text: "Saved weeks of prompt testing. The free local neural TTS setup alone saved me from paying ElevenLabs $50 every month. Total no-brainer for $19.",
+        text: "Saved weeks of prompt testing. The free local neural TTS setup alone saved me from paying ElevenLabs $50 every month. Total no-brainer for $5.",
         rating: 5
       },
       {

@@ -876,7 +876,7 @@ export default function ProductDetailPage() {
                   className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95"
                 >
                   <Unlock className="w-3.5 h-3.5" />
-                  <span>Unlock All 10 Packs ($19)</span>
+                  <span>Unlock All 10 Packs (${product.priceUSD})</span>
                 </button>
               </div>
 
@@ -1001,7 +1001,7 @@ export default function ProductDetailPage() {
                           className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs transition shadow-xl shadow-amber-500/30 flex items-center gap-2 cursor-pointer active:scale-95"
                         >
                           <Zap className="w-4 h-4 fill-current" />
-                          <span>Unlock All 10 Packs ($19) — Included in Complete Kit</span>
+                          <span>Unlock All 10 Packs (${product.priceUSD}) — Included in Complete Kit</span>
                         </button>
                         <span className="text-[10px] text-white/70 font-mono">
                           Instant Digital Download • Lifetime Updates Included
