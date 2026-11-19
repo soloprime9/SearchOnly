@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import LeftSidebar from "@/components/LeftSidebar";
@@ -378,6 +378,15 @@ const MULTI_PLATFORM_LAUNCHERS = [
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params.id[0] : "";
+
+  // ⚡ Strict Ad-Free Protection for Store Product Pages: Purge any residual third-party ad elements
+  useEffect(() => {
+    try {
+      document.querySelectorAll('script[src*="afders"], script[src*="bicea"], script[src*="asiafilm"], script[src*="arwf"], script[id*="adsterra"]').forEach(s => s.remove());
+      document.querySelectorAll('[id*="adsterra"], [class*="adsterra"], [id*="container-14acfe"], iframe[src*="bicea"], iframe[src*="afders"], iframe[src*="asiafilm"]').forEach(el => el.remove());
+      document.querySelectorAll('aside[aria-label="Sponsored Floating Partner"]').forEach(el => el.remove());
+    } catch (_) {}
+  }, []);
 
   const [openFaq, setOpenFaq] = useState(null);
   const [selectedPreview, setSelectedPreview] = useState(null);

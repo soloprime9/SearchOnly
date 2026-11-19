@@ -15,8 +15,6 @@ import NetworkSentinel from "@/components/NetworkSentinel";
 import GoogleOneTapPrompt from "@/components/GoogleOneTapPrompt";
 import { ThemeBackgroundProvider } from "@/context/ThemeBackgroundContext";
 import PassiveTelemetryTracker from "@/components/PassiveTelemetryTracker";
-// Centralized Adsterra Monetization Engine (toggle all off with 1 switch in src/data/adsConfig.js)
-import AdsterraAdEngine from "@/components/ads/AdsterraAdEngine";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -219,9 +217,6 @@ export default function RootLayout({ children }) {
         </div>
 
         <Analytics />
-
-        {/* Centralized Adsterra Global Ad Engine (1-switch controlled in src/data/adsConfig.js) */}
-        <AdsterraAdEngine />
 
         </ThemeBackgroundProvider>
       </body>

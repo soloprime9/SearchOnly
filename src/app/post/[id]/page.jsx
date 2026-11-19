@@ -16,6 +16,7 @@ import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
 import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
 import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
 import SponsoredCard from "@/components/ads/SponsoredCard";
+import AdsterraAdEngine from "@/components/ads/AdsterraAdEngine";
 import { Coins, ArrowRight, ShieldCheck } from "lucide-react";
 
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
@@ -761,6 +762,7 @@ return (
           <AdsterraBanner320 />
           <AdsterraNativeBanner />
           <SponsoredCard className="my-2" />
+          <AdsterraAdEngine />
 
           {/* Related Community Discussions Feed */}
           <RelatedPosts

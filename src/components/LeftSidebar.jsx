@@ -213,13 +213,18 @@ export default function LeftSidebar({ sticky = false }) {
           {menu.map((item, i) => {
             const active = isActive(item.href);
             const isStore = item.href === "/store";
+            const isProtectedAdFree = item.href === "/upload" || item.href === "/store" || item.href.startsWith("/admin");
             return (
               <Link
                 key={i}
                 href={item.href}
-                onClick={() => {
+                onClick={(e) => {
                   playTap();
-                  stopAllMediaPlayback({ resetSources: true });
+                  stopAllMediaPlayback();
+                  if (isProtectedAdFree) {
+                    e.preventDefault();
+                    window.location.href = item.href;
+                  }
                 }}
                 className={`
                   relative flex items-center gap-3.5
@@ -415,7 +420,7 @@ export default function LeftSidebar({ sticky = false }) {
             href="/"
             onClick={() => {
               playTap();
-              stopAllMediaPlayback({ resetSources: true });
+              stopAllMediaPlayback();
             }}
             className={`flex flex-col items-center justify-center gap-1 min-w-[56px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
               pathname === "/" ? "text-white font-extrabold" : "text-zinc-400"
@@ -434,7 +439,7 @@ export default function LeftSidebar({ sticky = false }) {
             href="/shorts"
             onClick={() => {
               playTap();
-              stopAllMediaPlayback({ resetSources: true });
+              stopAllMediaPlayback();
             }}
             className={`flex flex-col items-center justify-center gap-1 min-w-[56px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
               pathname?.startsWith("/short") ? "text-white font-extrabold" : "text-zinc-400"
@@ -451,9 +456,11 @@ export default function LeftSidebar({ sticky = false }) {
           {/* 3. FONDPEACE STORE (PROMINENT GLOWING BEACON) */}
           <Link
             href="/store"
-            onClick={() => {
+            onClick={(e) => {
               playTap();
-              stopAllMediaPlayback({ resetSources: true });
+              stopAllMediaPlayback();
+              e.preventDefault();
+              window.location.href = "/store";
             }}
             className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[76px] py-1 rounded-xl transition-all duration-150 active:scale-95 group ${
               pathname?.startsWith("/store") ? "text-amber-400 font-black scale-105" : "text-amber-400/95"
@@ -495,7 +502,7 @@ export default function LeftSidebar({ sticky = false }) {
                 href={profileHref}
                 onClick={() => {
                   playTap();
-                  stopAllMediaPlayback({ resetSources: true });
+                  stopAllMediaPlayback();
                 }}
                 className={`
                   flex flex-col items-center justify-center gap-1

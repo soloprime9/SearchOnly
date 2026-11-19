@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import LeftSidebar from "@/components/LeftSidebar";
 import StoreReviewsCarousel from "@/components/StoreReviewsCarousel";
@@ -31,6 +31,15 @@ export default function StorePage() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [openFaq, setOpenFaq] = useState(null);
+
+  // ⚡ Strict Ad-Free Protection for FondPeace Store: Purge any residual third-party ad elements
+  useEffect(() => {
+    try {
+      document.querySelectorAll('script[src*="afders"], script[src*="bicea"], script[src*="asiafilm"], script[src*="arwf"], script[id*="adsterra"]').forEach(s => s.remove());
+      document.querySelectorAll('[id*="adsterra"], [class*="adsterra"], [id*="container-14acfe"], iframe[src*="bicea"], iframe[src*="afders"], iframe[src*="asiafilm"]').forEach(el => el.remove());
+      document.querySelectorAll('aside[aria-label="Sponsored Floating Partner"]').forEach(el => el.remove());
+    } catch (_) {}
+  }, []);
 
   // Filtered Products
   const filteredProducts = useMemo(() => {

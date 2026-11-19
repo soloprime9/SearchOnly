@@ -21,6 +21,7 @@ import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { fireSmartlinkRedirect } from "@/utils/triggerSmartlink";
 import { stopAllMediaPlayback } from "@/utils/mediaCleanup";
+import AdsterraAdEngine from "@/components/ads/AdsterraAdEngine";
 
 const API_BASE = getApiBase();
 
@@ -1207,6 +1208,9 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       ))}
       {/* ── Non-Intrusive Guest Retention Micro-Prompt ── */}
       <GuestSoftPushPrompt triggerCount={currentIndex} />
+
+      {/* ── Adsterra Shorts Monetization Engine ── */}
+      <AdsterraAdEngine />
     </div>
   );
 }
