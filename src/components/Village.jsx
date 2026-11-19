@@ -36,6 +36,7 @@ import ShareModal from "./ShareModal";
 import FormattedCaption from "./FormattedCaption";
 import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
 import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
+import SponsoredCard from "@/components/ads/SponsoredCard";
 import { UserPlus, Check, Users, Sparkles, Maximize2, Repeat2, Bookmark, BarChart2, Pin, LayoutList, LayoutGrid, Quote, Compass, ArrowUp, ArrowUpRight, ShieldCheck, X, Film, Image as ImageIcon, MessageSquare, MapPin, Smartphone, RotateCw, SlidersHorizontal } from "lucide-react";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
@@ -1541,6 +1542,13 @@ const handleShare = (postData) => {
               {(idx === 6 || idx === 15) && (
                 <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-4">
                   <AdsterraBanner320 />
+                </div>
+              )}
+
+              {/* Direct Sponsor Partner Card (High-Yield Smartlink Conversion) */}
+              {(idx === 4 || idx === 13) && (
+                <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-3">
+                  <SponsoredCard />
                 </div>
               )}
 
