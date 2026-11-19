@@ -19,9 +19,7 @@ import { FEATURE_FLAGS } from "@/utils/featureFlags";
 import { getApiBase } from "@/utils/apiConfig";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
-import { fireSmartlinkRedirect } from "@/utils/triggerSmartlink";
 import { stopAllMediaPlayback } from "@/utils/mediaCleanup";
-import AdsterraAdEngine from "@/components/ads/AdsterraAdEngine";
 
 const API_BASE = getApiBase();
 
@@ -466,14 +464,12 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   ============================== */
   const scrollToNext = useCallback(() => {
     playTap();
-    fireSmartlinkRedirect();
     const nextIdx = Math.min(currentIndex + 1, posts.length - 1);
     itemRefs.current[nextIdx]?.scrollIntoView({ behavior: "smooth" });
   }, [currentIndex, posts.length]);
 
   const scrollToPrev = useCallback(() => {
     playTap();
-    fireSmartlinkRedirect();
     const prevIdx = Math.max(currentIndex - 1, 0);
     itemRefs.current[prevIdx]?.scrollIntoView({ behavior: "smooth" });
   }, [currentIndex]);
@@ -1208,9 +1204,6 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       ))}
       {/* ── Non-Intrusive Guest Retention Micro-Prompt ── */}
       <GuestSoftPushPrompt triggerCount={currentIndex} />
-
-      {/* ── Adsterra Shorts Monetization Engine ── */}
-      <AdsterraAdEngine />
     </div>
   );
 }

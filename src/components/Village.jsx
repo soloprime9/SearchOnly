@@ -37,7 +37,6 @@ import FormattedCaption from "./FormattedCaption";
 import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
 import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
 import SponsoredCard from "@/components/ads/SponsoredCard";
-import AdsterraAdEngine from "@/components/ads/AdsterraAdEngine";
 import { UserPlus, Check, Users, Sparkles, Maximize2, Repeat2, Bookmark, BarChart2, Pin, LayoutList, LayoutGrid, Quote, Compass, ArrowUp, ArrowUpRight, ShieldCheck, X, Film, Image as ImageIcon, MessageSquare, MapPin, Smartphone, RotateCw, SlidersHorizontal } from "lucide-react";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
@@ -1754,7 +1753,6 @@ const handleShare = (postData) => {
         onClose={() => setActiveSharePost(null)}
         post={activeSharePost}
       />
-      <AdsterraAdEngine />
     </div>
   );
 }
