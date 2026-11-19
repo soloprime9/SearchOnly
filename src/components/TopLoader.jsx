@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { stopAllMediaPlayback } from "@/utils/mediaCleanup";
 
 export default function TopLoader() {
   const pathname = usePathname();
@@ -9,6 +10,9 @@ export default function TopLoader() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    // ⚡ Kill all background video/audio playback instantly across page navigations
+    stopAllMediaPlayback({ resetSources: true });
+
     // Trigger quick progress on pathname change
     setLoading(true);
     setProgress(30);

@@ -16,6 +16,8 @@ import {
   FaRegBookmark,
   FaWhatsapp,
   FaTwitter,
+  FaVolumeMute,
+  FaVolumeUp,
 } from "react-icons/fa";
 import { Plus, Repeat2, Check, Bookmark, Share2, Copy } from "lucide-react";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
@@ -40,12 +42,18 @@ function formatCount(num) {
 
 const QUICK_EMOJIS = ["❤️", "🔥", "😂", "👏", "💯", "✨", "🙌", "😍"];
 
-export default function ReelInteractions({ post, updatePost }) {
-  const [data, setData] = useState({
+export default function ReelInteractions({
+  post,
+  updatePost,
+  variant = "mobile",
+  isMuted = false,
+  toggleMute = null,
+}) {
+  const [data, setData] = useState(() => ({
     ...post,
     likes: safeArray(post?.likes),
     comments: safeArray(post?.comments),
-  });
+  }));
 
   const [userId, setUserId] = useState(null);
   const [showComments, setShowComments] = useState(false);
@@ -63,6 +71,7 @@ export default function ReelInteractions({ post, updatePost }) {
 
   // Sync with parent updates
   useEffect(() => {
+    if (!post) return;
     setData({
       ...post,
       likes: safeArray(post?.likes),
@@ -384,124 +393,246 @@ export default function ReelInteractions({ post, updatePost }) {
 
   return (
     <>
-      {/* ── Vertical Floating Actions Column (Professional Bottom-Right Docked) ── */}
-      <div className="absolute right-2.5 sm:right-3.5 bottom-6 sm:bottom-7 flex flex-col items-center gap-2 sm:gap-2.5 text-white z-30 select-none">
-        {/* Like Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleLike(e);
-          }}
-          className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
-          title="Like"
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
-            {hasLiked(data.likes) ? (
-              <FaHeart className="text-red-500 text-xl sm:text-2xl drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] scale-110" />
-            ) : (
-              <FaRegHeart className="text-lg sm:text-xl text-white drop-shadow-md group-hover:text-red-400 transition-colors" />
-            )}
-          </div>
-          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
-            {formatCount(safeArray(data.likes).length)}
-          </p>
-        </button>
+      {variant === "desktop" ? (
+        /* ── Instagram-Style Desktop External Action Column ── */
+        <div className="hidden lg:flex flex-col items-center gap-4 text-white z-30 select-none pb-2">
+          {/* Like */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLike(e);
+            }}
+            className="flex flex-col items-center group cursor-pointer active:scale-90 transition-transform"
+            title="Like (L)"
+          >
+            <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/15 shadow-xl group-hover:scale-105">
+              {hasLiked(data.likes) ? (
+                <FaHeart className="text-red-500 text-2xl drop-shadow-[0_0_10px_rgba(239,68,68,0.8)] scale-110" />
+              ) : (
+                <FaRegHeart className="text-xl text-white group-hover:text-red-400 transition-colors" />
+              )}
+            </div>
+            <span className="text-[11px] font-bold mt-1 text-zinc-300 drop-shadow-md">
+              {formatCount(safeArray(data.likes).length)}
+            </span>
+          </button>
 
-        {/* Comment Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            playTap();
-            setShowComments(true);
-          }}
-          className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
-          title="Comments"
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
-            <FaCommentDots className="text-lg sm:text-xl text-white drop-shadow-md group-hover:text-blue-400 transition-colors" />
-          </div>
-          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
-            {formatCount(safeArray(data.comments).length)}
-          </p>
-        </button>
+          {/* Comment */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              playTap();
+              setShowComments(true);
+            }}
+            className="flex flex-col items-center group cursor-pointer active:scale-90 transition-transform"
+            title="Comments"
+          >
+            <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/15 shadow-xl group-hover:scale-105">
+              <FaCommentDots className="text-xl text-white group-hover:text-blue-400 transition-colors" />
+            </div>
+            <span className="text-[11px] font-bold mt-1 text-zinc-300 drop-shadow-md">
+              {formatCount(safeArray(data.comments).length)}
+            </span>
+          </button>
 
-        {/* Bookmark / Save Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleBookmark();
-          }}
-          className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
-          title={isBookmarked ? "Saved" : "Save Bookmark"}
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
-            {isBookmarked ? (
-              <FaBookmark className="text-amber-400 text-base sm:text-lg drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
-            ) : (
-              <FaRegBookmark className="text-base sm:text-lg text-white drop-shadow-md group-hover:text-amber-300 transition-colors" />
-            )}
-          </div>
-          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
-            {isBookmarked ? "Saved" : "Save"}
-          </p>
-        </button>
+          {/* Share */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleShare();
+            }}
+            className="flex flex-col items-center group cursor-pointer active:scale-90 transition-transform"
+            title="Share"
+          >
+            <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/15 shadow-xl group-hover:scale-105">
+              <Share2 className="w-5 h-5 text-white group-hover:text-cyan-400 transition-colors" />
+            </div>
+            <span className="text-[11px] font-bold mt-1 text-zinc-300 drop-shadow-md">
+              Share
+            </span>
+          </button>
 
-        {/* Repost Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleRepost();
-          }}
-          className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
-          title="Repost"
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
-            <Repeat2 size={18} className={hasReposted ? "text-emerald-400" : "text-white"} />
-          </div>
-          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
-            {formatCount(repostCount)}
-          </p>
-        </button>
+          {/* Save / Bookmark */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleBookmark();
+            }}
+            className="flex flex-col items-center group cursor-pointer active:scale-90 transition-transform"
+            title={isBookmarked ? "Saved" : "Save Bookmark"}
+          >
+            <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/15 shadow-xl group-hover:scale-105">
+              {isBookmarked ? (
+                <FaBookmark className="text-amber-400 text-lg drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+              ) : (
+                <FaRegBookmark className="text-lg text-white group-hover:text-amber-300 transition-colors" />
+              )}
+            </div>
+            <span className="text-[11px] font-bold mt-1 text-zinc-300 drop-shadow-md">
+              {isBookmarked ? "Saved" : "Save"}
+            </span>
+          </button>
 
-        {/* Share Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleShare();
-          }}
-          className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
-          title="Share"
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
-            <FaShareAlt className="text-base sm:text-lg text-white drop-shadow-md group-hover:text-cyan-400 transition-colors" />
-          </div>
-          <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">Share</p>
-        </button>
+          {/* Repost */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRepost();
+            }}
+            className="flex flex-col items-center group cursor-pointer active:scale-90 transition-transform"
+            title="Repost"
+          >
+            <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/15 shadow-xl group-hover:scale-105">
+              <Repeat2 size={20} className={hasReposted ? "text-emerald-400" : "text-white"} />
+            </div>
+            <span className="text-[11px] font-bold mt-1 text-zinc-300 drop-shadow-md">
+              {formatCount(repostCount)}
+            </span>
+          </button>
 
-        {/* Rotating Vinyl Record Animation */}
-        <div className="relative mt-0.5 flex flex-col items-center">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-900 via-black to-zinc-800 border border-zinc-700/80 p-0.5 flex items-center justify-center animate-[spin_4s_linear_infinite] shadow-xl">
-            <div className="w-2.5 h-2.5 rounded-full bg-rose-500 flex items-center justify-center text-[6px] text-white font-bold">
-              ♪
+          {/* Mute / Unmute Sound Toggle */}
+          {toggleMute && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleMute();
+              }}
+              className="flex flex-col items-center group cursor-pointer active:scale-90 transition-transform"
+              title={isMuted ? "Unmute Sound (M)" : "Mute Sound (M)"}
+            >
+              <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all border border-white/15 shadow-xl group-hover:scale-105">
+                {isMuted ? (
+                  <FaVolumeMute className="text-lg text-rose-400" />
+                ) : (
+                  <FaVolumeUp className="text-lg text-white" />
+                )}
+              </div>
+              <span className="text-[11px] font-bold mt-1 text-zinc-300 drop-shadow-md">
+                {isMuted ? "Muted" : "Sound"}
+              </span>
+            </button>
+          )}
+        </div>
+      ) : (
+        /* ── Mobile Overlay Column (Only visible on screens < lg) ── */
+        <div className="lg:hidden absolute right-2.5 sm:right-3.5 bottom-6 sm:bottom-7 flex flex-col items-center gap-2 sm:gap-2.5 text-white z-30 select-none">
+          {/* Like Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLike(e);
+            }}
+            className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
+            title="Like"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
+              {hasLiked(data.likes) ? (
+                <FaHeart className="text-red-500 text-xl sm:text-2xl drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] scale-110" />
+              ) : (
+                <FaRegHeart className="text-lg sm:text-xl text-white drop-shadow-md group-hover:text-red-400 transition-colors" />
+              )}
+            </div>
+            <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
+              {formatCount(safeArray(data.likes).length)}
+            </p>
+          </button>
+
+          {/* Comment Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              playTap();
+              setShowComments(true);
+            }}
+            className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
+            title="Comments"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
+              <FaCommentDots className="text-lg sm:text-xl text-white drop-shadow-md group-hover:text-blue-400 transition-colors" />
+            </div>
+            <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
+              {formatCount(safeArray(data.comments).length)}
+            </p>
+          </button>
+
+          {/* Bookmark / Save Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleBookmark();
+            }}
+            className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
+            title={isBookmarked ? "Saved" : "Save Bookmark"}
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
+              {isBookmarked ? (
+                <FaBookmark className="text-amber-400 text-base sm:text-lg drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
+              ) : (
+                <FaRegBookmark className="text-base sm:text-lg text-white drop-shadow-md group-hover:text-amber-300 transition-colors" />
+              )}
+            </div>
+            <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
+              {isBookmarked ? "Saved" : "Save"}
+            </p>
+          </button>
+
+          {/* Repost Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRepost();
+            }}
+            className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
+            title="Repost"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
+              <Repeat2 size={18} className={hasReposted ? "text-emerald-400" : "text-white"} />
+            </div>
+            <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">
+              {formatCount(repostCount)}
+            </p>
+          </button>
+
+          {/* Share Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleShare();
+            }}
+            className="flex flex-col items-center group active:scale-125 transition-transform cursor-pointer"
+            title="Share"
+          >
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors border border-white/10 shadow-lg group-hover:scale-105 active:scale-95">
+              <FaShareAlt className="text-base sm:text-lg text-white drop-shadow-md group-hover:text-cyan-400 transition-colors" />
+            </div>
+            <p className="text-[10px] sm:text-[11px] font-bold mt-0.5 text-white drop-shadow-md">Share</p>
+          </button>
+
+          {/* Rotating Vinyl Record Animation */}
+          <div className="relative mt-0.5 flex flex-col items-center">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-900 via-black to-zinc-800 border border-zinc-700/80 p-0.5 flex items-center justify-center animate-[spin_4s_linear_infinite] shadow-xl">
+              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 flex items-center justify-center text-[6px] text-white font-bold">
+                ♪
+              </div>
+            </div>
+            <div className="flex items-center gap-0.5 mt-1">
+              <span className="w-0.5 h-1.5 bg-white/80 rounded-full animate-pulse" />
+              <span className="w-0.5 h-2.5 bg-cyan-400 rounded-full animate-pulse delay-75" />
+              <span className="w-0.5 h-1 bg-rose-400 rounded-full animate-pulse delay-150" />
+              <span className="w-0.5 h-2 bg-indigo-400 rounded-full animate-pulse delay-100" />
             </div>
           </div>
-          <div className="flex items-center gap-0.5 mt-1">
-            <span className="w-0.5 h-1.5 bg-white/80 rounded-full animate-pulse" />
-            <span className="w-0.5 h-2.5 bg-cyan-400 rounded-full animate-pulse delay-75" />
-            <span className="w-0.5 h-1 bg-rose-400 rounded-full animate-pulse delay-150" />
-            <span className="w-0.5 h-2 bg-indigo-400 rounded-full animate-pulse delay-100" />
-          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Comments Slide-Up Bottom Drawer ── */}
       {showComments && (
         <div
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[1000] flex items-end justify-center animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[1000] flex items-end sm:items-center justify-center animate-in fade-in duration-200"
           onClick={() => setShowComments(false)}
         >
           <div
-            className="bg-[#0f121d] text-white w-full max-w-[480px] h-[75vh] max-h-[85vh] rounded-t-3xl p-4 sm:p-5 pb-24 sm:pb-6 flex flex-col relative border-t border-x border-white/15 shadow-2xl animate-in slide-in-from-bottom duration-300 z-[1001]"
+            className="bg-[#0f121d] text-white w-full max-w-[480px] h-[75vh] max-h-[85vh] rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 pb-24 sm:pb-6 flex flex-col relative border-t sm:border border-white/15 shadow-2xl animate-in slide-in-from-bottom duration-300 z-[1001]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header with drag indicator */}

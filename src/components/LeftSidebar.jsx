@@ -24,6 +24,7 @@ import NotificationDrawer from "./NotificationDrawer";
 import SavedPostsDrawer from "./SavedPostsDrawer";
 import ThemeBackgroundToggle from "./ThemeBackgroundToggle";
 import { playTap } from "@/utils/soundEffects";
+import { stopAllMediaPlayback } from "@/utils/mediaCleanup";
 
 export default function LeftSidebar({ sticky = false }) {
   const [username, setUsername] = useState(null);
@@ -34,6 +35,11 @@ export default function LeftSidebar({ sticky = false }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const pathname = usePathname();
+
+  // ⚡ Stop all media playback whenever pathname changes
+  useEffect(() => {
+    stopAllMediaPlayback({ resetSources: true });
+  }, [pathname]);
 
   useEffect(() => {
     try {
@@ -184,7 +190,14 @@ export default function LeftSidebar({ sticky = false }) {
         >
         {/* Logo */}
         <div className="flex items-center h-16 px-4 border-b border-black/[0.06] dark:border-white/[0.08] shrink-0">
-          <Link href="/" onClick={() => playTap()} className="flex items-center">
+          <Link
+            href="/"
+            onClick={() => {
+              playTap();
+              stopAllMediaPlayback({ resetSources: true });
+            }}
+            className="flex items-center"
+          >
             <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-md shadow-blue-500/25">
               <span className="text-white font-black text-[15px] leading-none">F</span>
             </div>
@@ -209,6 +222,10 @@ export default function LeftSidebar({ sticky = false }) {
               <Link
                 key={i}
                 href={item.href}
+                onClick={() => {
+                  playTap();
+                  stopAllMediaPlayback({ resetSources: true });
+                }}
                 className={`
                   relative flex items-center gap-3.5
                   h-11 px-2.5 rounded-xl
@@ -401,6 +418,10 @@ export default function LeftSidebar({ sticky = false }) {
           {/* 1. Home */}
           <Link
             href="/"
+            onClick={() => {
+              playTap();
+              stopAllMediaPlayback({ resetSources: true });
+            }}
             className={`flex flex-col items-center justify-center gap-1 min-w-[56px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
               pathname === "/" ? "text-white font-extrabold" : "text-zinc-400"
             }`}
@@ -416,6 +437,10 @@ export default function LeftSidebar({ sticky = false }) {
           {/* 2. Shorts */}
           <Link
             href="/shorts"
+            onClick={() => {
+              playTap();
+              stopAllMediaPlayback({ resetSources: true });
+            }}
             className={`flex flex-col items-center justify-center gap-1 min-w-[56px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
               pathname?.startsWith("/short") ? "text-white font-extrabold" : "text-zinc-400"
             }`}
@@ -431,6 +456,10 @@ export default function LeftSidebar({ sticky = false }) {
           {/* 3. FONDPEACE STORE (PROMINENT GLOWING BEACON) */}
           <Link
             href="/store"
+            onClick={() => {
+              playTap();
+              stopAllMediaPlayback({ resetSources: true });
+            }}
             className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[76px] py-1 rounded-xl transition-all duration-150 active:scale-95 group ${
               pathname?.startsWith("/store") ? "text-amber-400 font-black scale-105" : "text-amber-400/95"
             }`}
@@ -469,7 +498,10 @@ export default function LeftSidebar({ sticky = false }) {
             return (
               <Link
                 href={profileHref}
-                onClick={() => playTap()}
+                onClick={() => {
+                  playTap();
+                  stopAllMediaPlayback({ resetSources: true });
+                }}
                 className={`
                   flex flex-col items-center justify-center gap-1
                   min-w-[52px] py-1 rounded-xl

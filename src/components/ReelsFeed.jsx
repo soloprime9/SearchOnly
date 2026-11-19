@@ -20,6 +20,7 @@ import { getApiBase } from "@/utils/apiConfig";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { fireSmartlinkRedirect } from "@/utils/triggerSmartlink";
+import { stopAllMediaPlayback } from "@/utils/mediaCleanup";
 
 const API_BASE = getApiBase();
 
@@ -278,6 +279,46 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
       }
     }
   }, [currentIndex, posts, isMuted]);
+
+  /* ==============================
+     ⚡ ZERO-GHOST-AUDIO ISOLATION ENGINE
+     Ensures ONLY currentIndex can play audio/video; all others are paused & reset!
+  ============================== */
+  useEffect(() => {
+    if (Array.isArray(videoRefs.current)) {
+      videoRefs.current.forEach((v, idx) => {
+        if (v && idx !== currentIndex) {
+          try {
+            v.pause();
+            v.muted = true;
+            v.currentTime = 0;
+          } catch (_) {}
+        }
+      });
+    }
+  }, [currentIndex]);
+
+  /* ==============================
+     ⚡ HARD UNMOUNT CLEANUP
+     Kills all media instantly when leaving /shorts (e.g. to /upload, store, home)
+  ============================== */
+  useEffect(() => {
+    return () => {
+      stopAllMediaPlayback({ resetSources: true });
+      if (Array.isArray(videoRefs.current)) {
+        videoRefs.current.forEach((v) => {
+          try {
+            if (v) {
+              v.pause();
+              v.muted = true;
+              v.removeAttribute("src");
+              v.load();
+            }
+          } catch (_) {}
+        });
+      }
+    };
+  }, []);
 
   /* ==============================
      NEXT VIDEO PRE-BUFFERING ENGINE (ZERO LATENCY SWIPING)
@@ -809,36 +850,16 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
         </div>
       )}
 
-      {/* ── Main Vertical Video Theater Frame ── */}
-      <div className="w-full md:max-w-[440px] h-[100dvh] md:h-[calc(100dvh-20px)] md:my-auto md:rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.8)] md:border md:border-white/10 flex items-center justify-center">
-        {/* Desktop Previous / Next Floating Arrows */}
-        <aside className="hidden lg:flex flex-col items-center gap-3 absolute -right-16 top-1/2 -translate-y-1/2 z-40 pointer-events-auto">
-          <button
-            type="button"
-            onClick={scrollToPrev}
-            disabled={currentIndex === 0}
-            className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed border border-white/15 shadow-xl cursor-pointer active:scale-90"
-            title="Previous Short (Up Arrow)"
+      {/* ── Instagram-Style Centered Theater Wrapper (Video + Action Rail + Chevrons) ── */}
+      <div className="relative flex items-center justify-center gap-3 sm:gap-4 lg:gap-6 w-full h-[100dvh] md:h-auto my-auto">
+        {/* 1. Main Vertical 9:16 Video Frame */}
+        <div className="w-full md:max-w-[420px] h-[100dvh] md:h-[calc(100dvh-32px)] md:max-h-[820px] aspect-[9/16] md:rounded-3xl overflow-hidden relative shadow-[0_8px_40px_rgba(0,0,0,0.85)] md:border md:border-white/10 flex items-center justify-center bg-black shrink-0">
+          {/* Snap-Mandatory Vertical Scroll Viewport */}
+          <div
+            ref={containerRef}
+            className="w-full h-full overflow-y-auto snap-y snap-mandatory scroll-smooth relative no-scrollbar"
+            style={{ scrollbarWidth: "none" }}
           >
-            <ChevronUp size={24} />
-          </button>
-          <button
-            type="button"
-            onClick={scrollToNext}
-            disabled={currentIndex >= posts.length - 1}
-            className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed border border-white/15 shadow-xl cursor-pointer active:scale-90"
-            title="Next Short (Down Arrow)"
-          >
-            <ChevronDown size={24} />
-          </button>
-        </aside>
-
-        {/* Snap-Mandatory Vertical Scroll Viewport */}
-        <div
-          ref={containerRef}
-          className="w-full h-full overflow-y-auto snap-y snap-mandatory scroll-smooth relative no-scrollbar"
-          style={{ scrollbarWidth: "none" }}
-        >
           {posts.map((item, index) => {
             const rawAuthorPic =
               item.userId?.profilePicture || item.userId?.profilePic || item.userId?.avatar;
@@ -902,8 +923,19 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                     }
                   }}
                 >
-                  {/* Clean Dark Theater Backdrop (Zero Image Download or GPU Blur Overhead) */}
+                  {/* Clean Dark Theater Backdrop + Ambient Glow for 16:9 Landscape Videos */}
                   <div className="absolute inset-0 bg-black pointer-events-none select-none z-0" />
+                  {resolvedThumbnail && (
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
+                      <img
+                        src={resolvedThumbnail}
+                        alt=""
+                        aria-hidden="true"
+                        className="w-full h-full object-cover blur-3xl opacity-30 scale-125"
+                      />
+                      <div className="absolute inset-0 bg-black/60" />
+                    </div>
+                  )}
 
                   {/* Video Player: YouTube Shorts Embed or Virtualized Native HTML5 Video */}
                   {FEATURE_FLAGS.ENABLE_YOUTUBE_SHORTS && ytId ? (
@@ -914,6 +946,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                       isNearby={isNearby}
                       isMuted={isMuted}
                       title={item.title}
+                      thumbnail={resolvedThumbnail}
                     />
                   ) : isNearby ? (
                     /* Native Video Element: object-contain with direct video stream decoding and zero poster delay */
@@ -961,7 +994,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                 <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/95 via-black/50 to-transparent pointer-events-none z-10" />
 
                 {/* ── Bottom Overlay Info (Creator, Verified Badge, Caption, Sound Wave) ── */}
-                <div className="absolute left-4 bottom-7 text-white max-w-[74%] z-20 pointer-events-auto">
+                <div className="absolute left-4 bottom-7 text-white max-w-[85%] lg:max-w-[90%] z-20 pointer-events-auto">
                   <div className="flex items-center gap-2 mb-2">
                     <Link
                       href={`/profile/${authorUsername}`}
@@ -1049,6 +1082,7 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                       prev.map((p) => (p._id === updatedPost._id ? updatedPost : p))
                     );
                   }}
+                  variant="mobile"
                 />
 
                 {/* ── Interactive Bottom Progress Scrubber ── */}
@@ -1082,6 +1116,47 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
           })}
         </div>
       </div>
+
+      {/* ── Instagram-Style Desktop External Action Column ── */}
+      {currentActivePost && (
+        <div className="hidden lg:flex flex-col items-center justify-end gap-5 py-2 self-end z-40 select-none pb-6 shrink-0">
+          <ReelInteractions
+            post={currentActivePost}
+            updatePost={(updatedPost) => {
+              setPosts((prev) =>
+                prev.map((p) => (p._id === updatedPost._id ? updatedPost : p))
+              );
+            }}
+            variant="desktop"
+            isMuted={isMuted}
+            toggleMute={toggleMute}
+          />
+        </div>
+      )}
+
+      {/* ── Instagram-Style Desktop Up / Down Chevrons Column ── */}
+      <aside className="hidden lg:flex flex-col items-center gap-3 self-center z-40 pointer-events-auto shrink-0 ml-1">
+        <button
+          type="button"
+          onClick={scrollToPrev}
+          disabled={currentIndex === 0}
+          className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 backdrop-blur-md text-white flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed border border-white/15 shadow-xl cursor-pointer"
+          title="Previous Short (Up Arrow)"
+        >
+          <ChevronUp size={24} />
+        </button>
+        <button
+          type="button"
+          onClick={scrollToNext}
+          disabled={currentIndex >= posts.length - 1}
+          className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 backdrop-blur-md text-white flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed border border-white/15 shadow-xl cursor-pointer"
+          title="Next Short (Down Arrow)"
+        >
+          <ChevronDown size={24} />
+        </button>
+      </aside>
+
+    </div>
 
       {/* ── Sound Details Bottom Sheet Modal ── */}
       {activeSoundModal && (

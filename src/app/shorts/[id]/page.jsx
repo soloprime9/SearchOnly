@@ -265,27 +265,17 @@ export default async function ShortsDetailPage({ params }) {
       // creator attribution, topic links, comments, and related /shorts/[id] links before hydration.
       const ssrWatchShell = (
         <div className="w-full min-h-[100dvh] bg-black text-white flex flex-col lg:flex-row items-center justify-center gap-6 px-0 lg:px-6 relative">
-          <div className="w-full md:max-w-[440px] h-[100dvh] md:h-[calc(100dvh-20px)] md:my-auto md:rounded-3xl overflow-hidden relative bg-black flex items-center justify-center md:border md:border-white/10 shrink-0">
-            {ytId ? (
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${ytId}?rel=0&playsinline=1`}
-                title={cleanDisplayTitle}
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : mediaUrl ? (
-              <video
-                src={mediaUrl}
-                poster={primaryThumb}
-                controls
-                playsInline
-                preload="metadata"
-                width="720"
-                height="1280"
-                className="w-full h-full object-contain mx-auto"
-              />
-            ) : null}
+          <div className="w-full md:max-w-[420px] h-[100dvh] md:h-[calc(100dvh-32px)] md:max-h-[820px] aspect-[9/16] md:my-auto md:rounded-3xl overflow-hidden relative bg-black flex items-center justify-center md:border md:border-white/10 shrink-0">
+            <img
+              src={primaryThumb}
+              alt={cleanDisplayTitle}
+              className="w-full h-full object-contain mx-auto"
+            />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-16 h-16 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center border border-white/20 shadow-2xl">
+                <span className="text-xl ml-1 text-white">▶</span>
+              </div>
+            </div>
             <div className="absolute inset-x-0 bottom-0 p-4 pb-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
               <Link
                 href={`/profile/${encodeURIComponent(safeAuthor.trim())}`}

@@ -11,8 +11,8 @@ export function getYouTubeVideoId(url) {
 }
 
 /**
- * 🎬 YouTubeShortEmbed - Pure Video Player (Zero YouTube Controls, Zero Overlays)
- * Removes YouTube's native back/next/pause controls and crops out title/creator bar.
+ * 🎬 YouTubeShortEmbed - Pure Video Player (Zero Ghost Audio, Zero YouTube Controls, Zero Overlays)
+ * Guarantees 0 background audio leakage: strictly unmounts iframe and stops audio instantly when not active or on unmount!
  */
 export default function YouTubeShortEmbed({
   youtubeId,
@@ -21,6 +21,7 @@ export default function YouTubeShortEmbed({
   isNearby = true,
   isMuted = false,
   title = "Short Video",
+  thumbnail = "",
 }) {
   const iframeRef = useRef(null);
 
@@ -36,28 +37,47 @@ export default function YouTubeShortEmbed({
     } catch (_) {}
   };
 
-  // Sync Play / Pause immediately when active state changes
+  // Sync Play / Pause immediately when active state changes, and hard-kill sound on deactivate/unmount
   useEffect(() => {
     if (!youtubeId) return;
+
     if (isActive) {
       sendCommand("playVideo");
       if (isMuted) sendCommand("mute");
       else sendCommand("unMute");
     } else {
       sendCommand("pauseVideo");
+      sendCommand("stopVideo");
+      sendCommand("mute");
     }
+
+    return () => {
+      // ⚡ HARD STOP ON UNMOUNT (Navigating away to /upload or any route)
+      try {
+        sendCommand("stopVideo");
+        sendCommand("pauseVideo");
+        sendCommand("mute");
+        if (iframeRef.current) {
+          iframeRef.current.src = "about:blank";
+        }
+      } catch (_) {}
+    };
   }, [isActive, isMuted, youtubeId]);
 
   if (!youtubeId) {
     return <div className="relative w-full h-full bg-black" />;
   }
 
+  const resolvedThumb =
+    thumbnail ||
+    `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+
   const currentOrigin =
     typeof window !== "undefined" && window.location.origin
       ? window.location.origin
       : "https://www.fondpeace.com";
 
-  // Clean embed URL: NO playlist (removes Next/Back buttons), controls=0 (removes player bar), modestbranding=1
+  // Clean embed URL: NO playlist, controls=0, modestbranding=1
   const embedUrl = `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=${
     isActive ? 1 : 0
   }&mute=${
@@ -69,11 +89,12 @@ export default function YouTubeShortEmbed({
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden select-none">
       {/* 
-        Direct YouTube IFrame with:
-        1. pointer-events-none: Prevents YouTube from showing its internal pause button or capturing clicks
-        2. -top-[52px] h-[calc(100%+104px)] scale-[1.08]: Crops out YouTube's top header bar (creator avatar & title) and bottom watermark
+        ⚡ ZERO-GHOST-AUDIO ARCHITECTURE:
+        ONLY mount YouTube iframe when `isActive` is strictly TRUE.
+        When `isActive` is false (scrolled away or upcoming), render high-res poster thumbnail.
+        This physically terminates the YouTube audio process in the browser with 0% chance of ghost sound!
       */}
-      {(isActive || shouldPreload || isNearby) ? (
+      {isActive ? (
         <iframe
           ref={iframeRef}
           src={embedUrl}
@@ -87,11 +108,21 @@ export default function YouTubeShortEmbed({
               else sendCommand("unMute");
             }
           }}
-          className="absolute inset-0 w-full h-[calc(100%+104px)] -top-[52px] border-0 pointer-events-none select-none scale-[1.08] sm:scale-105"
+          className="absolute inset-0 w-full h-full border-0 pointer-events-none select-none object-contain"
         />
       ) : (
-        <div className="relative z-10 w-full h-full bg-black flex items-center justify-center">
-          <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-rose-500 animate-spin" />
+        <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden">
+          {resolvedThumb && (
+            <img
+              src={resolvedThumb}
+              alt={title}
+              loading="lazy"
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                e.currentTarget.src = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+              }}
+            />
+          )}
         </div>
       )}
     </div>
