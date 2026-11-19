@@ -36,11 +36,6 @@ export default function LeftSidebar({ sticky = false }) {
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const pathname = usePathname();
 
-  // ⚡ Stop all media playback whenever pathname changes
-  useEffect(() => {
-    stopAllMediaPlayback({ resetSources: true });
-  }, [pathname]);
-
   useEffect(() => {
     try {
       const token = localStorage.getItem("token");

@@ -299,20 +299,18 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
   }, [currentIndex]);
 
   /* ==============================
-     ⚡ HARD UNMOUNT CLEANUP
-     Kills all media instantly when leaving /shorts (e.g. to /upload, store, home)
+     ⚡ CLEAN UNMOUNT CLEANUP
+     Pauses all media safely when leaving /shorts (e.g. to /upload, store, home)
   ============================== */
   useEffect(() => {
     return () => {
-      stopAllMediaPlayback({ resetSources: true });
+      stopAllMediaPlayback();
       if (Array.isArray(videoRefs.current)) {
         videoRefs.current.forEach((v) => {
           try {
             if (v) {
               v.pause();
               v.muted = true;
-              v.removeAttribute("src");
-              v.load();
             }
           } catch (_) {}
         });
@@ -1082,7 +1080,6 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
                       prev.map((p) => (p._id === updatedPost._id ? updatedPost : p))
                     );
                   }}
-                  variant="mobile"
                 />
 
                 {/* ── Interactive Bottom Progress Scrubber ── */}
@@ -1117,25 +1114,8 @@ export default function ReelsFeed({ initialPost, initialRelated = [] }) {
         </div>
       </div>
 
-      {/* ── Instagram-Style Desktop External Action Column ── */}
-      {currentActivePost && (
-        <div className="hidden lg:flex flex-col items-center justify-end gap-5 py-2 self-end z-40 select-none pb-6 shrink-0">
-          <ReelInteractions
-            post={currentActivePost}
-            updatePost={(updatedPost) => {
-              setPosts((prev) =>
-                prev.map((p) => (p._id === updatedPost._id ? updatedPost : p))
-              );
-            }}
-            variant="desktop"
-            isMuted={isMuted}
-            toggleMute={toggleMute}
-          />
-        </div>
-      )}
-
-      {/* ── Instagram-Style Desktop Up / Down Chevrons Column ── */}
-      <aside className="hidden lg:flex flex-col items-center gap-3 self-center z-40 pointer-events-auto shrink-0 ml-1">
+      {/* ── Desktop Up / Down Chevrons (Placed OUTSIDE overflow-hidden) ── */}
+      <aside className="hidden lg:flex flex-col items-center gap-3 self-center z-40 pointer-events-auto shrink-0 ml-3">
         <button
           type="button"
           onClick={scrollToPrev}

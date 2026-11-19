@@ -52,14 +52,9 @@ export default function YouTubeShortEmbed({
     }
 
     return () => {
-      // ⚡ HARD STOP ON UNMOUNT (Navigating away to /upload or any route)
       try {
-        sendCommand("stopVideo");
         sendCommand("pauseVideo");
-        sendCommand("mute");
-        if (iframeRef.current) {
-          iframeRef.current.src = "about:blank";
-        }
+        sendCommand("stopVideo");
       } catch (_) {}
     };
   }, [isActive, isMuted, youtubeId]);
@@ -108,7 +103,7 @@ export default function YouTubeShortEmbed({
               else sendCommand("unMute");
             }
           }}
-          className="absolute inset-0 w-full h-full border-0 pointer-events-none select-none object-contain"
+          className="absolute inset-0 w-full h-[calc(100%+104px)] -top-[52px] border-0 pointer-events-none select-none scale-[1.08] sm:scale-105"
         />
       ) : (
         <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden">

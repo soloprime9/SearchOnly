@@ -1,39 +1,29 @@
 // src/utils/mediaCleanup.js
-// ⚡ Global Media Terminator: Kills all ghost audio/video immediately on navigation or unmount
+// ⚡ Global Media Terminator: Safely pauses all playing video/audio without breaking DOM sources
 
-export function stopAllMediaPlayback(options = {}) {
+export function stopAllMediaPlayback() {
   if (typeof window === "undefined" || typeof document === "undefined") return;
 
-  const { resetSources = false } = options;
-
   try {
-    // 1. Pause and reset all HTML5 <video> elements
+    // 1. Pause all HTML5 <video> elements
     document.querySelectorAll("video").forEach((video) => {
       try {
-        video.pause();
-        video.muted = true;
-        video.currentTime = 0;
-        if (resetSources) {
-          video.removeAttribute("src");
-          video.load();
+        if (!video.paused) {
+          video.pause();
         }
       } catch (_) {}
     });
 
-    // 2. Pause and reset all <audio> elements
+    // 2. Pause all <audio> elements
     document.querySelectorAll("audio").forEach((audio) => {
       try {
-        audio.pause();
-        audio.muted = true;
-        audio.currentTime = 0;
-        if (resetSources) {
-          audio.removeAttribute("src");
-          audio.load();
+        if (!audio.paused) {
+          audio.pause();
         }
       } catch (_) {}
     });
 
-    // 3. Stop any YouTube iframe audio via postMessage and clean source
+    // 3. Pause any YouTube iframes via postMessage
     document.querySelectorAll("iframe").forEach((iframe) => {
       try {
         const src = iframe.src || "";
@@ -42,17 +32,6 @@ export function stopAllMediaPlayback(options = {}) {
             JSON.stringify({ event: "command", func: "pauseVideo", args: [] }),
             "*"
           );
-          iframe.contentWindow?.postMessage(
-            JSON.stringify({ event: "command", func: "stopVideo", args: [] }),
-            "*"
-          );
-          iframe.contentWindow?.postMessage(
-            JSON.stringify({ event: "command", func: "mute", args: [] }),
-            "*"
-          );
-          if (resetSources) {
-            iframe.src = "about:blank";
-          }
         }
       } catch (_) {}
     });
