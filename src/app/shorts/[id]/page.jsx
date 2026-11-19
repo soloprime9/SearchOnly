@@ -7,6 +7,7 @@ import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
 import { truncateWords } from "@/utils/indexGate";
+import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
 
 // Safe server-side YouTube ID extractor (zero client-component proxy dependency)
 function getYouTubeVideoId(url) {
@@ -361,6 +362,9 @@ export default async function ShortsDetailPage({ params }) {
                 </ul>
               </nav>
             )}
+
+            {/* Adsterra Sponsored Banner */}
+            <AdsterraBanner320 className="mt-2" />
           </aside>
         </div>
       );

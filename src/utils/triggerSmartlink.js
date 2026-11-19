@@ -23,13 +23,9 @@ export function fireSmartlinkRedirect(force = false) {
   }
 
   try {
-    // Try opening in new window/tab
-    const win = window.open(url, "_blank");
-    // If popup was blocked by mobile browser (win is null or undefined), redirect directly!
-    if (!win || win.closed || typeof win.closed === "undefined") {
-      window.location.href = url;
-    }
+    // Open sponsor smartlink in background new tab so user never loses their FondPeace page
+    window.open(url, "_blank");
   } catch (err) {
-    window.location.href = url;
+    /* noop */
   }
 }

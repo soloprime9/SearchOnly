@@ -15,7 +15,9 @@ export default function AdsterraPopunder() {
       return;
     }
 
-    if (document.getElementById(scriptId)) return;
+    // Clean up existing script instance so click listeners bind freshly to new page elements
+    const existing = document.getElementById(scriptId);
+    if (existing) existing.remove();
 
     try {
       const script = document.createElement("script");

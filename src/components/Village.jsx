@@ -1532,10 +1532,15 @@ const handleShare = (postData) => {
                 </div>
               )}
 
-              {/* High-CPM In-Feed Adsterra Native Banner */}
-              {(idx === 2 || idx === 7) && (
+              {/* High-CPM In-Feed Adsterra Ads (Alternating Native Recommendations and 320x50 Banners) */}
+              {(idx === 2 || idx === 11 || idx === 20) && (
                 <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-4">
                   <AdsterraNativeBanner />
+                </div>
+              )}
+              {(idx === 6 || idx === 15) && (
+                <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-4">
+                  <AdsterraBanner320 />
                 </div>
               )}
 

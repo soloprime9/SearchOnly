@@ -19,6 +19,7 @@ import PassiveTelemetryTracker from "@/components/PassiveTelemetryTracker";
 import AdsterraSocialBar from "@/components/ads/AdsterraSocialBar";
 import AdsterraPopunder from "@/components/ads/AdsterraPopunder";
 import SmartlinkTrigger from "@/components/ads/SmartlinkTrigger";
+import StickyBottomBanner from "@/components/ads/StickyBottomBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -226,6 +227,7 @@ export default function RootLayout({ children }) {
         <AdsterraSocialBar />
         <AdsterraPopunder />
         <SmartlinkTrigger />
+        <StickyBottomBanner />
 
         </ThemeBackgroundProvider>
       </body>

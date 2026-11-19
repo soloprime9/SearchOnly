@@ -37,7 +37,12 @@ export const ADS_CONFIG = {
     width: 320,
   },
 
-  // 5. Smartlink (Direct high-payout sponsor URL on interaction)
+  // 5. Sticky Bottom Floating Banner (Continuous viewability on mobile & desktop)
+  stickyBottom: {
+    enabled: true,
+  },
+
+  // 6. Smartlink (Direct high-payout sponsor URL on interaction)
   smartlink: {
     enabled: true,
     url: "https://asiafilm.org/4/2d83e8b61c44a626eff71c6c4117bd9f",

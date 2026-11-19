@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { ADS_CONFIG, isAdsBlockedPath } from "@/data/adsConfig";
 import { Sparkles } from "lucide-react";
@@ -8,36 +7,26 @@ import { Sparkles } from "lucide-react";
 export default function AdsterraNativeBanner({ className = "" }) {
   const pathname = usePathname();
   const blocked = isAdsBlockedPath(pathname);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    if (!ADS_CONFIG.enabled || !ADS_CONFIG.nativeBanner?.enabled || blocked) return;
-
-    const node = containerRef.current;
-    if (!node) return;
-
-    // Reset container contents
-    node.innerHTML = "";
-
-    try {
-      // 1. The container element Adsterra requires
-      const adBox = document.createElement("div");
-      adBox.id = ADS_CONFIG.nativeBanner.containerId;
-      adBox.className = "w-full min-h-[140px]";
-      node.appendChild(adBox);
-
-      // 2. The Adsterra Native Banner script
-      const script = document.createElement("script");
-      script.setAttribute("data-cfasync", "false");
-      script.async = true;
-      script.src = ADS_CONFIG.nativeBanner.scriptSrc;
-      node.appendChild(script);
-    } catch (err) {
-      console.warn("Adsterra Native Banner notice:", err);
-    }
-  }, [blocked]);
 
   if (!ADS_CONFIG.enabled || !ADS_CONFIG.nativeBanner?.enabled || blocked) return null;
+
+  const iframeContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { background: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 140px; }
+        </style>
+      </head>
+      <body>
+        <div id="${ADS_CONFIG.nativeBanner.containerId}"></div>
+        <script async="async" data-cfasync="false" src="${ADS_CONFIG.nativeBanner.scriptSrc}"></script>
+      </body>
+    </html>
+  `;
 
   return (
     <div
@@ -52,8 +41,18 @@ export default function AdsterraNativeBanner({ className = "" }) {
         <span className="text-[10px] text-zinc-400 font-medium">Ad</span>
       </div>
 
-      {/* Adsterra Native Container */}
-      <div ref={containerRef} className="w-full min-h-[140px] flex justify-center items-center py-1" />
+      {/* Adsterra Native Container in Isolated Iframe */}
+      <div className="w-full min-h-[140px] flex justify-center items-center py-1 overflow-hidden">
+        <iframe
+          key={`native-banner-${pathname}`}
+          title="Adsterra Native Recommendation Banner"
+          srcDoc={iframeContent}
+          width="100%"
+          height="160"
+          style={{ border: "none", overflow: "hidden", display: "block", minHeight: "140px" }}
+          scrolling="no"
+        />
+      </div>
     </div>
   );
 }

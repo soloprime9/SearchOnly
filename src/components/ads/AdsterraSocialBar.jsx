@@ -15,7 +15,8 @@ export default function AdsterraSocialBar() {
       return;
     }
 
-    if (document.getElementById(scriptId)) return;
+    const existing = document.getElementById(scriptId);
+    if (existing) existing.remove();
 
     try {
       const script = document.createElement("script");

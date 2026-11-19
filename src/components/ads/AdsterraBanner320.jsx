@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { ADS_CONFIG, isAdsBlockedPath } from "@/data/adsConfig";
 import { Sparkles } from "lucide-react";
@@ -8,42 +7,34 @@ import { Sparkles } from "lucide-react";
 export default function AdsterraBanner320({ className = "" }) {
   const pathname = usePathname();
   const blocked = isAdsBlockedPath(pathname);
-  const containerRef = useRef(null);
 
-  useEffect(() => {
-    if (!ADS_CONFIG.enabled || !ADS_CONFIG.banner320.enabled || blocked) return;
+  if (!ADS_CONFIG.enabled || !ADS_CONFIG.banner320?.enabled || blocked) return null;
 
-    const node = containerRef.current;
-    if (!node || node.firstChild) return;
-
-    try {
-      // Configuration script
-      const confScript = document.createElement("script");
-      confScript.type = "text/javascript";
-      confScript.innerHTML = `
-        atOptions = {
-          'key' : '${ADS_CONFIG.banner320.key}',
-          'format' : 'iframe',
-          'height' : ${ADS_CONFIG.banner320.height},
-          'width' : ${ADS_CONFIG.banner320.width},
-          'params' : {}
-        };
-      `;
-
-      // Invocation script
-      const invokeScript = document.createElement("script");
-      invokeScript.type = "text/javascript";
-      invokeScript.src = ADS_CONFIG.banner320.scriptSrc;
-      invokeScript.async = true;
-
-      node.appendChild(confScript);
-      node.appendChild(invokeScript);
-    } catch (err) {
-      console.warn("Adsterra 320x50 Banner load notice:", err);
-    }
-  }, [blocked]);
-
-  if (!ADS_CONFIG.enabled || !ADS_CONFIG.banner320.enabled || blocked) return null;
+  const iframeContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { background: transparent; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        </style>
+      </head>
+      <body>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '${ADS_CONFIG.banner320.key}',
+            'format' : 'iframe',
+            'height' : ${ADS_CONFIG.banner320.height},
+            'width' : ${ADS_CONFIG.banner320.width},
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="${ADS_CONFIG.banner320.scriptSrc}"></script>
+      </body>
+    </html>
+  `;
 
   return (
     <div className={`w-full max-w-[600px] mx-auto my-3 p-3 sm:p-4 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-md flex flex-col items-center justify-center transition-all ${className}`}>
@@ -58,10 +49,14 @@ export default function AdsterraBanner320({ className = "" }) {
 
       {/* Centered Adsterra Unit */}
       <div className="w-full flex justify-center items-center py-1 overflow-x-auto">
-        <div
-          ref={containerRef}
-          style={{ minHeight: "50px", minWidth: "320px", display: "flex", justifyContent: "center", alignItems: "center" }}
-          className="rounded-xl overflow-hidden"
+        <iframe
+          key={`banner320-${pathname}`}
+          title="Adsterra 320x50 Banner"
+          srcDoc={iframeContent}
+          width="320"
+          height="50"
+          style={{ border: "none", overflow: "hidden", display: "block" }}
+          scrolling="no"
         />
       </div>
     </div>
