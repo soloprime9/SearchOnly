@@ -123,10 +123,12 @@ async function extractMetadata(rawUrl) {
   let description = "";
   let image = "";
   let video = "";
+  let ogType = "";
   let siteName = "";
 
   // Check if the URL itself is a direct video file
-  if (/\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(validUrl)) {
+  const isDirectVideoFile = /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(validUrl);
+  if (isDirectVideoFile) {
     video = validUrl;
   }
 
@@ -142,8 +144,15 @@ async function extractMetadata(rawUrl) {
     title = decodeHtmlEntities(getMeta("title") || (titleMatch ? titleMatch[1].trim() : ""));
     description = decodeHtmlEntities(getMeta("description"));
     image = getMeta("image") || getMeta("image:src");
-    video = video || getMeta("video:secure_url") || getMeta("video:url") || getMeta("video") || getMeta("twitter:player:stream");
+    ogType = (getMeta("type") || "").toLowerCase();
     siteName = decodeHtmlEntities(getMeta("site_name"));
+
+    // SAFETY GUARD: If page is an article, blog, or website, NEVER treat an accidental sidebar ad video as the main media!
+    // Only capture video stream if the page itself is officially declared as a dedicated video post (og:type === 'video.*')
+    const isDedicatedVideoPage = /^video(\.|$)/i.test(ogType);
+    if (!video && isDedicatedVideoPage) {
+      video = getMeta("video:secure_url") || getMeta("video:url") || getMeta("video") || getMeta("twitter:player:stream");
+    }
   }
 
   // Derive siteName if empty
@@ -175,13 +184,16 @@ async function extractMetadata(rawUrl) {
   }
 
   const favicon = `https://www.google.com/s2/favicons?domain=${cleanHost}&sz=128`;
+  const isDedicatedVideo = isDirectVideoFile || /^video(\.|$)/i.test(ogType);
 
   return {
     url: validUrl,
     title: title.slice(0, 200),
     description: description.slice(0, 300),
     image: image || "",
-    video: video || "",
+    video: isDedicatedVideo ? (video || "") : "",
+    isDedicatedVideo,
+    ogType: ogType || "website",
     siteName,
     domain: cleanHost,
     favicon,

@@ -347,8 +347,11 @@ export default function LinkPreviewCard({
   // CASE 2: REGULAR EXTERNAL LINK (Articles, Blogs, News, Websites, Socials, Direct Videos)
   // ==========================================
   const faviconUrl = preview.favicon || `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-  const directVideoUrl = preview.video || (/\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(effectiveUrl) ? effectiveUrl : null);
-  const showVideo = Boolean(directVideoUrl);
+  // Precision filter: Only show inline video if the URL itself is a video file or the page is officially a video post.
+  // Standard articles, news, and blogs ALWAYS display their true hero cover photo, never an accidental sidebar ad video!
+  const isDirectVideoFile = /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(effectiveUrl);
+  const showVideo = isDirectVideoFile || Boolean(preview.video && preview.isDedicatedVideo);
+  const directVideoUrl = isDirectVideoFile ? effectiveUrl : (preview.video || null);
   const showCoverImage = Boolean(preview.image) && !imgLoadError;
 
   return (
