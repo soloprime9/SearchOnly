@@ -344,14 +344,66 @@ export default function LinkPreviewCard({
   }
 
   // ==========================================
-  // CASE 2: REGULAR EXTERNAL LINK (Articles, Blogs, News, Websites, Socials)
+  // CASE 2: REGULAR EXTERNAL LINK (Articles, Blogs, News, Websites, Socials, Direct Videos)
   // ==========================================
   const faviconUrl = preview.favicon || `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+  const directVideoUrl = preview.video || (/\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(effectiveUrl) ? effectiveUrl : null);
+  const showVideo = Boolean(directVideoUrl);
   const showCoverImage = Boolean(preview.image) && !imgLoadError;
 
   return (
     <div className="my-2.5 block rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-subtle)] hover:border-blue-500/40 transition-all duration-200 shadow-md hover:shadow-xl relative">
-      {showCoverImage ? (
+      {showVideo ? (
+        <div className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden group">
+          <video
+            src={directVideoUrl}
+            autoPlay={!inFeed || isInView}
+            muted={isMuted}
+            loop
+            playsInline
+            controls={false}
+            className="w-full h-full object-cover"
+          />
+
+          {/* Top Source Badge */}
+          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-md border border-white/10 pointer-events-none z-20">
+            {faviconUrl ? (
+              <img
+                src={faviconUrl}
+                alt=""
+                className="w-3.5 h-3.5 rounded-full object-contain shrink-0"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            ) : (
+              <Globe className="w-3 h-3 text-blue-400" />
+            )}
+            <span className="text-white truncate max-w-[150px]">{preview.siteName || domain}</span>
+          </div>
+
+          {/* External Link Visit Badge */}
+          <a
+            href={effectiveUrl || preview.url}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1 shadow-md border border-white/10 z-30 hover:bg-black/90 transition-colors"
+          >
+            <ExternalLink className="w-3 h-3 text-white" />
+            <span className="text-white">Visit</span>
+          </a>
+
+          {/* Sleek Native-Matching Mute / Unmute Button */}
+          <button
+            type="button"
+            onClick={handleToggleMute}
+            className="absolute bottom-3 right-3 z-30 bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full backdrop-blur-md transition-all active:scale-90 border border-white/10 shadow-lg cursor-pointer"
+            title={isMuted ? "Sound is muted" : "Sound is on"}
+          >
+            {isMuted ? <FaVolumeMute size={14} /> : <FaVolumeUp size={14} />}
+          </button>
+        </div>
+      ) : showCoverImage ? (
         <a
           href={effectiveUrl || preview.url}
           target="_blank"

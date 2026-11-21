@@ -122,7 +122,13 @@ async function extractMetadata(rawUrl) {
   let title = "";
   let description = "";
   let image = "";
+  let video = "";
   let siteName = "";
+
+  // Check if the URL itself is a direct video file
+  if (/\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(validUrl)) {
+    video = validUrl;
+  }
 
   if (html) {
     const getMeta = (prop) => {
@@ -136,6 +142,7 @@ async function extractMetadata(rawUrl) {
     title = decodeHtmlEntities(getMeta("title") || (titleMatch ? titleMatch[1].trim() : ""));
     description = decodeHtmlEntities(getMeta("description"));
     image = getMeta("image") || getMeta("image:src");
+    video = video || getMeta("video:secure_url") || getMeta("video:url") || getMeta("video") || getMeta("twitter:player:stream");
     siteName = decodeHtmlEntities(getMeta("site_name"));
   }
 
@@ -155,10 +162,15 @@ async function extractMetadata(rawUrl) {
     description = `View updates, articles, and content directly from ${cleanHost}.`;
   }
 
-  // Resolve relative image URLs
+  // Resolve relative image & video URLs
   if (image && !image.startsWith("http")) {
     try {
       image = new URL(image, validUrl).href;
+    } catch (_) {}
+  }
+  if (video && !video.startsWith("http")) {
+    try {
+      video = new URL(video, validUrl).href;
     } catch (_) {}
   }
 
@@ -169,6 +181,7 @@ async function extractMetadata(rawUrl) {
     title: title.slice(0, 200),
     description: description.slice(0, 300),
     image: image || "",
+    video: video || "",
     siteName,
     domain: cleanHost,
     favicon,
