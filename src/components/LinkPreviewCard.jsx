@@ -30,6 +30,7 @@ export default function LinkPreviewCard({
   const [isMuted, setIsMuted] = useState(isGlobalMuted !== null ? isGlobalMuted : true);
   const [isPlayingState, setIsPlayingState] = useState(true);
   const [showPlayPauseRipple, setShowPlayPauseRipple] = useState(false);
+  const [imgLoadError, setImgLoadError] = useState(false);
 
   const iframeRef = useRef(null);
   const containerRef = useRef(null);
@@ -343,13 +344,16 @@ export default function LinkPreviewCard({
   }
 
   // ==========================================
-  // CASE 2: REGULAR EXTERNAL LINK (Articles, Blogs, News, Websites)
+  // CASE 2: REGULAR EXTERNAL LINK (Articles, Blogs, News, Websites, Socials)
   // ==========================================
+  const faviconUrl = preview.favicon || `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+  const showCoverImage = Boolean(preview.image) && !imgLoadError;
+
   return (
     <div className="my-2.5 block rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-subtle)] hover:border-blue-500/40 transition-all duration-200 shadow-md hover:shadow-xl relative">
-      {preview.image && (
+      {showCoverImage ? (
         <a
-          href={preview.url}
+          href={effectiveUrl || preview.url}
           target="_blank"
           rel="noopener noreferrer nofollow"
           className="relative w-full aspect-video overflow-hidden bg-black flex items-center justify-center group block cursor-pointer"
@@ -359,14 +363,25 @@ export default function LinkPreviewCard({
             alt={preview.title || domain}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             loading="lazy"
-            onError={(e) => {
-              e.currentTarget.parentElement.style.display = "none";
+            onError={() => {
+              setImgLoadError(true);
             }}
           />
 
           {/* Top Source Badge */}
           <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-md border border-white/10 pointer-events-none">
-            <Globe className="w-3 h-3 text-blue-400" />
+            {faviconUrl ? (
+              <img
+                src={faviconUrl}
+                alt=""
+                className="w-3.5 h-3.5 rounded-full object-contain shrink-0"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            ) : (
+              <Globe className="w-3 h-3 text-blue-400" />
+            )}
             <span className="text-white truncate max-w-[150px]">{preview.siteName || domain}</span>
           </div>
 
@@ -376,11 +391,40 @@ export default function LinkPreviewCard({
             <span className="text-white">Visit</span>
           </div>
         </a>
+      ) : (
+        <a
+          href={effectiveUrl || preview.url}
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+          className="p-4 bg-gradient-to-r from-blue-600/10 via-emerald-600/10 to-transparent border-b border-[var(--border-subtle)] flex items-center justify-between group hover:bg-blue-500/10 transition-colors"
+        >
+          <div className="flex items-center gap-2.5 truncate">
+            {faviconUrl ? (
+              <img
+                src={faviconUrl}
+                alt=""
+                className="w-6 h-6 rounded-full object-contain shrink-0"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            ) : (
+              <Globe className="w-5 h-5 text-blue-500 shrink-0" />
+            )}
+            <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider truncate">
+              {preview.siteName || domain}
+            </span>
+          </div>
+          <div className="px-2.5 py-1 rounded-full bg-blue-600/20 text-blue-500 text-[11px] font-bold flex items-center gap-1 shrink-0">
+            <ExternalLink className="w-3 h-3" />
+            <span>Visit</span>
+          </div>
+        </a>
       )}
 
       {/* Post details area below media */}
       <Link
-        href={postId ? `/post/${postId}` : preview.url}
+        href={postId ? `/post/${postId}` : (effectiveUrl || preview.url)}
         className="block p-3.5 sm:p-4 no-underline text-inherit cursor-pointer hover:bg-[var(--bg-surface-hover)] transition-colors"
       >
         <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] font-medium mb-1.5 truncate">

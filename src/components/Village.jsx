@@ -1024,13 +1024,13 @@ const handleShare = (postData) => {
           </button>
         )}
       </div>
-    ) : (post.linkPreview || (typeof post.media === "string" && (post.media.includes("youtube.com") || post.media.includes("youtu.be"))) || (typeof post.thumbnail === "string" && (post.thumbnail.includes("youtube.com") || post.thumbnail.includes("ytimg.com")))) ? (
+    ) : (post.linkPreview || post.mediaType === "link" || (typeof post.media === "string" && (post.media.includes("youtube.com") || post.media.includes("youtu.be"))) || (typeof post.thumbnail === "string" && (post.thumbnail.includes("youtube.com") || post.thumbnail.includes("ytimg.com")))) ? (
       /* 🔗 Rich Embedded Link Card (YouTube, News, Article, Website) */
       <div className="px-3 sm:px-4 my-1">
         <LinkPreviewCard 
           preview={{
             ...(post.linkPreview || {}),
-            url: post.linkPreview?.url || (typeof post.media === "string" ? post.media : "") || "",
+            url: post.linkPreview?.url || (typeof post.media === "string" && /^https?:\/\//i.test(post.media) ? post.media : "") || (typeof post.title === "string" && (post.title.match(/https?:\/\/[^\s]+/i) || [])[0]) || "",
             image: post.linkPreview?.image || post.thumbnail || "",
             media: post.media || "",
             title: post.title || post.linkPreview?.title || ""

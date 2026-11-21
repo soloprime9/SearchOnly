@@ -7,6 +7,7 @@ import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import { isBlockedAdultOrSpam } from "@/utils/indexGate";
 import { toast } from "@/utils/toast";
 import { playPop, playChime } from "@/utils/soundEffects";
+import { fetchLinkPreview, sanitizeLinkUrl } from "@/utils/linkPreview";
 import {
   PenLine,
   BarChart2,
@@ -19,6 +20,7 @@ import {
   CheckCircle2,
   Clock,
   Layers,
+  Globe,
   Video,
 } from "lucide-react";
 
@@ -73,15 +75,14 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
     setPollOptions(updated);
   };
 
-  // Auto fetch link preview (Industry standard OpenGraph scraper)
+  // Auto fetch link preview (Industry standard OpenGraph scraper for YouTube, IMDb, News, X, Insta, FB, Blogs)
   const handleFetchLinkPreview = async (url) => {
-    if (!url || !url.startsWith("http")) return;
+    const clean = sanitizeLinkUrl(url);
+    if (!clean) return;
     setFetchingPreview(true);
     try {
-      const apiBase = getApiBase();
-      const res = await axios.get(`${apiBase}/post/preview/link?url=${encodeURIComponent(url)}`);
-      if (res.data?.success && res.data?.preview) {
-        const preview = res.data.preview;
+      const preview = await fetchLinkPreview(clean);
+      if (preview) {
         setLinkPreviewData(preview);
         // Automatically prefill post title with scraped article/video title if empty
         setTitle((prev) => (!prev.trim() && preview.title ? preview.title : prev));
@@ -424,33 +425,45 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                     }}
                     onPaste={(e) => {
                       const pasted = e.clipboardData?.getData("text") || "";
-                      if (pasted && (pasted.startsWith("http://") || pasted.startsWith("https://"))) {
-                        setLinkUrl(pasted.trim());
-                        handleFetchLinkPreview(pasted.trim());
+                      if (pasted) {
+                        const cleanPasted = sanitizeLinkUrl(pasted);
+                        setLinkUrl(cleanPasted || pasted.trim());
+                        handleFetchLinkPreview(cleanPasted || pasted.trim());
                       }
                     }}
                     className="flex-1 bg-[var(--bg-subtle)] border border-emerald-500/40 rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   />
                   {fetchingPreview && (
-                    <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin shrink-0" />
                   )}
                 </div>
 
                 {linkPreviewData && (
                   <div className="flex items-center gap-3 p-2.5 bg-[var(--bg-subtle)] rounded-lg border border-[var(--border-subtle)]">
-                    {linkPreviewData.image && (
+                    {linkPreviewData.image ? (
                       <img
                         src={linkPreviewData.image}
                         alt="Preview"
-                        className="w-12 h-12 rounded object-cover"
+                        className="w-12 h-12 rounded object-cover shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
                       />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                        {linkPreviewData.favicon ? (
+                          <img src={linkPreviewData.favicon} alt="" className="w-5 h-5 rounded-full" />
+                        ) : (
+                          <Globe className="w-5 h-5 text-emerald-400" />
+                        )}
+                      </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-[var(--text-primary)] truncate">
                         {linkPreviewData.title}
                       </p>
                       <p className="text-[10px] text-[var(--text-muted)] truncate">
-                        {linkPreviewData.description || linkPreviewData.domain}
+                        {linkPreviewData.description || linkPreviewData.siteName || linkPreviewData.domain}
                       </p>
                     </div>
                   </div>
