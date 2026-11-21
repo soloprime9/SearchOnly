@@ -6,16 +6,14 @@ export const dynamic = "force-dynamic";
 function sanitizeUrl(raw) {
   if (!raw || typeof raw !== "string") return "";
   let clean = raw.trim();
-  if (!/^https?:\/\//i.test(clean)) {
+  // If user accidentally glued two URLs together or selected a fragment, extract the last valid URL
+  const urls = clean.match(/https?:\/\/[^\s"'<>!]+/gi);
+  if (urls && urls.length > 0) {
+    clean = urls[urls.length - 1];
+  } else if (!/^https?:\/\//i.test(clean)) {
     clean = `https://${clean}`;
   }
-  const match = clean.match(/https?:\/\/[^\s"'<>]+/i);
-  if (match) clean = match[0];
-  const nextHttp = clean.slice(8).search(/https?:\/\//i);
-  if (nextHttp > -1) {
-    clean = clean.slice(0, nextHttp + 8);
-  }
-  clean = clean.replace(/[\\]+$/, "");
+  clean = clean.replace(/[\\]+$/, "").replace(/[),;.]+$/, "");
   return clean;
 }
 
@@ -146,6 +144,32 @@ async function extractMetadata(rawUrl) {
     image = getMeta("image") || getMeta("image:src");
     ogType = (getMeta("type") || "").toLowerCase();
     siteName = decodeHtmlEntities(getMeta("site_name"));
+
+    // 1. IMDb Special: If image is the generic yellow imdb_logo.png or page is news, extract true article hero photo!
+    if (cleanHost.includes("imdb.com") && (!image || image.includes("imdb_logo") || parsedUrl.pathname.includes("/news/"))) {
+      const imdbHeroMatch = html.match(/(https:\/\/m\.media-amazon\.com\/images\/M\/[^"'\s,]+_V1_[^"'\s,]+\.jpg)/i);
+      if (imdbHeroMatch && imdbHeroMatch[1]) {
+        image = imdbHeroMatch[1];
+      }
+    }
+
+    // 2. X / Twitter Special: Tweet text is embedded inside the <title> tag between quotes
+    if ((cleanHost.includes("x.com") || cleanHost.includes("twitter.com")) && titleMatch) {
+      const rawTitle = decodeHtmlEntities(titleMatch[1]);
+      const tweetMatch = rawTitle.match(/on X:\s*["“]([\s\S]+?)["”]\s*\/\s*X/i) ||
+                         rawTitle.match(/on Twitter:\s*["“]([\s\S]+?)["”]\s*\/\s*Twitter/i);
+      if (tweetMatch && tweetMatch[1]) {
+        description = tweetMatch[1].trim();
+      }
+    }
+
+    // 3. Facebook Special: Clean generic login titles
+    if (cleanHost.includes("facebook.com")) {
+      if (!title || title.toLowerCase() === "facebook" || title.toLowerCase().includes("log in or sign up")) {
+        title = "Facebook Post";
+        if (!description) description = "View this post, photos and updates on Facebook";
+      }
+    }
 
     // SAFETY GUARD: If page is an article, blog, or website, NEVER treat an accidental sidebar ad video as the main media!
     // Only capture video stream if the page itself is officially declared as a dedicated video post (og:type === 'video.*')

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
@@ -51,6 +51,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
   const [linkUrl, setLinkUrl] = useState("");
   const [linkPreviewData, setLinkPreviewData] = useState(null);
   const [fetchingPreview, setFetchingPreview] = useState(false);
+  const lastAutoFilledTitleRef = useRef("");
 
   // Add poll option
   const handleAddOption = () => {
@@ -84,8 +85,14 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
       const preview = await fetchLinkPreview(clean);
       if (preview) {
         setLinkPreviewData(preview);
-        // Automatically prefill post title with scraped article/video title if empty
-        setTitle((prev) => (!prev.trim() && preview.title ? preview.title : prev));
+        // Automatically prefill post title with scraped article/video title
+        setTitle((prev) => {
+          if (!prev.trim() || prev === lastAutoFilledTitleRef.current || mode === "link") {
+            lastAutoFilledTitleRef.current = preview.title || "";
+            return preview.title || "";
+          }
+          return prev;
+        });
       }
     } catch {
       // ignore
@@ -96,6 +103,7 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
 
   const handleReset = () => {
     setTitle("");
+    lastAutoFilledTitleRef.current = "";
     setPollQuestion("");
     setPollOptions(["", ""]);
     setPollDurationHours(24);
@@ -424,11 +432,13 @@ export default function QuickPostComposer({ onPostCreated, currentUserId }) {
                       handleFetchLinkPreview(e.target.value);
                     }}
                     onPaste={(e) => {
+                      e.preventDefault();
                       const pasted = e.clipboardData?.getData("text") || "";
                       if (pasted) {
                         const cleanPasted = sanitizeLinkUrl(pasted);
-                        setLinkUrl(cleanPasted || pasted.trim());
-                        handleFetchLinkPreview(cleanPasted || pasted.trim());
+                        const target = cleanPasted || pasted.trim();
+                        setLinkUrl(target);
+                        handleFetchLinkPreview(target);
                       }
                     }}
                     className="flex-1 bg-[var(--bg-subtle)] border border-emerald-500/40 rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-emerald-500/50"

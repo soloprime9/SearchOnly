@@ -4,16 +4,14 @@ import { getApiBase } from "./apiConfig";
 export function sanitizeLinkUrl(raw) {
   if (!raw || typeof raw !== "string") return "";
   let clean = raw.trim();
-  if (!/^https?:\/\//i.test(clean)) {
+  // If user pasted over an existing URL or got a double URL string, pick the last complete URL
+  const urls = clean.match(/https?:\/\/[^\s"'<>!]+/gi);
+  if (urls && urls.length > 0) {
+    clean = urls[urls.length - 1];
+  } else if (!/^https?:\/\//i.test(clean)) {
     clean = `https://${clean}`;
   }
-  const match = clean.match(/https?:\/\/[^\s"'<>]+/i);
-  if (match) clean = match[0];
-  const nextHttp = clean.slice(8).search(/https?:\/\//i);
-  if (nextHttp > -1) {
-    clean = clean.slice(0, nextHttp + 8);
-  }
-  clean = clean.replace(/[\\]+$/, "");
+  clean = clean.replace(/[\\]+$/, "").replace(/[),;.]+$/, "");
   return clean;
 }
 

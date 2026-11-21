@@ -208,6 +208,7 @@ export default function UploadPost() {
   const [fetchingLinkPreview, setFetchingLinkPreview] = useState(false);
   const [dismissedLinkUrl, setDismissedLinkUrl] = useState(null);
   const previewDebounceRef = useRef(null);
+  const lastAutoFilledTitleRef = useRef("");
 
   // Post Geolocation state
   const [location, setLocation] = useState("");
@@ -516,7 +517,13 @@ export default function UploadPost() {
       if (preview) {
         setLinkPreviewData(preview);
         setDismissedLinkUrl(null);
-        setTitle((prev) => (!prev.trim() && preview.title ? preview.title : prev));
+        setTitle((prev) => {
+          if (!prev.trim() || prev === lastAutoFilledTitleRef.current || activeMode === "link") {
+            lastAutoFilledTitleRef.current = preview.title || "";
+            return preview.title || "";
+          }
+          return prev;
+        });
       }
     } catch {
       // ignore preview failure; user can still publish the link
@@ -861,7 +868,7 @@ export default function UploadPost() {
                   ? tab.id === "link"
                     ? "bg-emerald-600 text-white shadow-sm"
                     : "bg-blue-600 text-white shadow-sm"
-                  : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]"
               }`}
             >
               {tab.label}
@@ -874,83 +881,104 @@ export default function UploadPost() {
           
           {/* LINK CARD SECTION: Dedicated URL Paste & Live Preview (supporting YouTube, IMDb, News, X, Insta, FB, Blogs) */}
           {activeMode === "link" && (
-            <div className="p-4 sm:p-5 rounded-3xl bg-emerald-950/20 border border-emerald-500/30 space-y-3">
+            <div className="p-4 sm:p-5 rounded-3xl bg-[var(--bg-surface-elevated)] border border-emerald-500/40 space-y-3 shadow-md">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                <label className="block text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                   YouTube or Website URL *
                 </label>
                 {linkPreviewData && (
-                  <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                     Preview Ready
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <input
-                  type="url"
-                  value={linkUrl}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setLinkUrl(val);
-                    if (previewDebounceRef.current) clearTimeout(previewDebounceRef.current);
-                    previewDebounceRef.current = setTimeout(() => {
-                      handleFetchDirectLinkPreview(val);
-                    }, 450);
-                  }}
-                  onPaste={(e) => {
-                    const pasted = e.clipboardData?.getData("text") || "";
-                    if (pasted) {
-                      const cleanPasted = sanitizeLinkUrl(pasted);
-                      setLinkUrl(cleanPasted || pasted.trim());
-                      handleFetchDirectLinkPreview(cleanPasted || pasted.trim());
-                    }
-                  }}
-                  placeholder="https://youtu.be/... or https://example.com/article"
-                  disabled={isBusy}
-                  className="flex-1 p-3.5 rounded-2xl bg-white/[0.05] border border-emerald-500/40 text-white placeholder-zinc-400 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/25 transition-all"
-                />
+                <div className="relative flex-1 flex items-center">
+                  <input
+                    type="url"
+                    value={linkUrl}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setLinkUrl(val);
+                      if (previewDebounceRef.current) clearTimeout(previewDebounceRef.current);
+                      previewDebounceRef.current = setTimeout(() => {
+                        handleFetchDirectLinkPreview(val);
+                      }, 450);
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const pasted = e.clipboardData?.getData("text") || "";
+                      if (pasted) {
+                        const cleanPasted = sanitizeLinkUrl(pasted);
+                        const target = cleanPasted || pasted.trim();
+                        setLinkUrl(target);
+                        handleFetchDirectLinkPreview(target);
+                      }
+                    }}
+                    placeholder="https://youtu.be/... or https://example.com/article"
+                    disabled={isBusy}
+                    className="w-full p-3.5 pr-9 rounded-2xl bg-[var(--bg-subtle)] border border-emerald-500/40 text-[var(--text-primary)] placeholder-[var(--text-muted)] text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 transition-all"
+                  />
+                  {linkUrl.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLinkUrl("");
+                        setLinkPreviewData(null);
+                        if (title === lastAutoFilledTitleRef.current) {
+                          setTitle("");
+                          lastAutoFilledTitleRef.current = "";
+                        }
+                      }}
+                      className="absolute right-3 text-[var(--text-muted)] hover:text-rose-500 p-1 cursor-pointer transition-colors"
+                      title="Clear URL"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
                 {fetchingLinkPreview ? (
-                  <div className="w-6 h-6 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin shrink-0 mr-1" />
+                  <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin shrink-0 mx-2" />
                 ) : linkUrl.trim() ? (
                   <button
                     type="button"
                     onClick={() => handleFetchDirectLinkPreview(linkUrl)}
-                    className="px-3.5 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-xl text-xs font-bold border border-emerald-500/40 transition-all shrink-0 cursor-pointer"
+                    className="px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md transition-all shrink-0 cursor-pointer active:scale-95"
                     title="Refresh Preview"
                   >
                     Fetch
                   </button>
                 ) : null}
               </div>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-[var(--text-secondary)]">
                 Paste any YouTube video, article, blog, IMDb, Instagram, X, or news link — thumbnail & rich preview card load automatically.
               </p>
 
               {/* LIVE PREVIEW LOADING SKELETON */}
               {fetchingLinkPreview && (
-                <div className="mt-3 p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center gap-3 animate-pulse text-xs text-emerald-300">
-                  <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin shrink-0" />
+                <div className="mt-3 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3 animate-pulse text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin shrink-0" />
                   <span>Fetching live preview card (title, image & domain)...</span>
                 </div>
               )}
 
               {/* LIVE PREVIEW CARD EMBEDDED DIRECTLY IN LINK SECTION */}
               {linkPreviewData && (
-                <div className="mt-3 rounded-2xl overflow-hidden border border-emerald-500/40 bg-zinc-900/90 shadow-xl group transition-all">
-                  <div className="flex items-center justify-between px-3.5 py-2.5 bg-emerald-950/60 border-b border-emerald-500/30 text-xs font-bold text-emerald-300">
+                <div className="mt-3 rounded-2xl overflow-hidden border border-emerald-500/30 bg-[var(--bg-surface-elevated)] shadow-lg group transition-all">
+                  <div className="flex items-center justify-between px-3.5 py-2.5 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)]">
                     <span className="flex items-center gap-2 truncate">
                       {linkPreviewData.favicon ? (
                         <img
                           src={linkPreviewData.favicon}
                           alt=""
-                          className="w-4 h-4 rounded shrink-0"
+                          className="w-4 h-4 rounded shrink-0 object-contain"
                           onError={(e) => {
                             e.currentTarget.style.display = "none";
                           }}
                         />
                       ) : (
-                        <Globe className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <Globe className="w-4 h-4 text-emerald-500 shrink-0" />
                       )}
                       <span className="truncate">{linkPreviewData.siteName || linkPreviewData.domain || "Web Link"}</span>
                     </span>
@@ -960,8 +988,12 @@ export default function UploadPost() {
                         playPop();
                         setDismissedLinkUrl(linkPreviewData.url);
                         setLinkPreviewData(null);
+                        if (title === lastAutoFilledTitleRef.current) {
+                          setTitle("");
+                          lastAutoFilledTitleRef.current = "";
+                        }
                       }}
-                      className="text-zinc-400 hover:text-rose-400 transition-colors p-1 cursor-pointer"
+                      className="text-[var(--text-muted)] hover:text-rose-500 transition-colors p-1 cursor-pointer"
                       title="Remove Link Preview"
                     >
                       <X className="w-4 h-4" />
@@ -969,39 +1001,39 @@ export default function UploadPost() {
                   </div>
 
                   {linkPreviewData.image ? (
-                    <div className="w-full aspect-video max-h-56 overflow-hidden bg-black relative">
+                    <div className="w-full max-h-64 overflow-hidden bg-black/95 flex items-center justify-center relative">
                       <img
                         src={linkPreviewData.image}
                         alt={linkPreviewData.title}
-                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                        className="w-full max-h-64 object-contain group-hover:scale-101 transition-transform duration-300"
                         onError={(e) => {
                           e.currentTarget.parentElement.style.display = "none";
                         }}
                       />
                     </div>
                   ) : (
-                    <div className="w-full py-6 px-4 bg-emerald-950/30 border-b border-emerald-500/20 flex items-center justify-center gap-3">
+                    <div className="w-full py-6 px-4 bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] flex items-center justify-center gap-3">
                       {linkPreviewData.favicon ? (
-                        <img src={linkPreviewData.favicon} alt="" className="w-8 h-8 rounded-full" />
+                        <img src={linkPreviewData.favicon} alt="" className="w-8 h-8 rounded-full object-contain" />
                       ) : (
-                        <Globe className="w-8 h-8 text-emerald-400" />
+                        <Globe className="w-8 h-8 text-emerald-500" />
                       )}
-                      <span className="text-sm font-bold text-emerald-300 tracking-wide uppercase">
+                      <span className="text-sm font-bold text-[var(--text-primary)] tracking-wide uppercase">
                         {linkPreviewData.siteName || linkPreviewData.domain}
                       </span>
                     </div>
                   )}
 
                   <div className="p-4 space-y-1.5">
-                    <h4 className="font-bold text-sm sm:text-base text-white line-clamp-2 leading-snug">
+                    <h4 className="font-bold text-sm sm:text-base text-[var(--text-primary)] line-clamp-2 leading-snug">
                       {linkPreviewData.title}
                     </h4>
                     {linkPreviewData.description && (
-                      <p className="text-xs sm:text-sm text-zinc-400 line-clamp-2 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-3 leading-relaxed">
                         {linkPreviewData.description}
                       </p>
                     )}
-                    <div className="pt-1.5 text-[11px] text-emerald-400 font-semibold flex items-center gap-1.5 truncate">
+                    <div className="pt-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 truncate">
                       <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{linkPreviewData.url}</span>
                     </div>
@@ -1238,7 +1270,7 @@ export default function UploadPost() {
             {/* Article Headline Input (Dev.to / Substack Style) */}
             {activeMode === "article" && (
               <div className="mb-4">
-                <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                   Article Headline / Title (H1) *
                 </label>
                 <input
@@ -1246,13 +1278,13 @@ export default function UploadPost() {
                   value={articleHeadline}
                   onChange={(e) => setArticleHeadline(e.target.value)}
                   placeholder="e.g. The Complete Guide to Building Modern Web Apps in 2026"
-                  className="w-full p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 text-white placeholder-zinc-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-base font-bold"
+                  className="w-full p-3.5 rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-base font-bold transition-all"
                 />
               </div>
             )}
 
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider">
+              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                 {activeMode === "article"
                   ? "Article Body / Story Content *"
                   : activeMode === "link"
@@ -1263,11 +1295,26 @@ export default function UploadPost() {
                   ? "Additional Context / Note (Optional)"
                   : file ? "Caption & Hashtags (Optional)" : "Discussion Thought / Caption *"}
               </label>
-              {activeMode === "article" && (
-                <span className="text-[11px] text-blue-400 font-bold bg-blue-950/40 px-2.5 py-0.5 rounded-full border border-blue-800/40">
-                  📖 {title.trim().split(/\s+/).filter(Boolean).length} words
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {activeMode === "link" && linkPreviewData?.title && title !== linkPreviewData.title && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTitle(linkPreviewData.title);
+                      lastAutoFilledTitleRef.current = linkPreviewData.title;
+                    }}
+                    className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 hover:bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30 transition-all flex items-center gap-1 cursor-pointer active:scale-95"
+                    title="Copy preview headline into caption"
+                  >
+                    <span>✨ Use Link Title</span>
+                  </button>
+                )}
+                {activeMode === "article" && (
+                  <span className="text-[11px] text-blue-400 font-bold bg-blue-950/40 px-2.5 py-0.5 rounded-full border border-blue-800/40">
+                    📖 {title.trim().split(/\s+/).filter(Boolean).length} words
+                  </span>
+                )}
+              </div>
             </div>
 
             <textarea
@@ -1286,7 +1333,7 @@ export default function UploadPost() {
               }
               rows={activeMode === "article" ? 8 : activeMode === "discussion" ? 5 : 3}
               disabled={isBusy}
-              className="w-full p-4 rounded-2xl bg-white/[0.04] border border-white/10 text-white placeholder-zinc-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none text-sm sm:text-base leading-relaxed"
+              className="w-full p-4 rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none text-sm sm:text-base leading-relaxed transition-all"
             />
             {detectedTags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
