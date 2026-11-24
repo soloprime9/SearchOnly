@@ -1,13 +1,11 @@
 import { STORE_PRODUCTS } from "@/data/storeProducts";
-import { shouldIndexPost, dedupeVideosByMedia, dedupePostsByTitle } from "@/utils/indexGate";
-import { isPlayableShortPost } from "@/utils/postMediaUtils";
 
 const SITE_URL = "https://www.fondpeace.com";
-const API_BASE = "https://backendk-z915.onrender.com";
 
-export const revalidate = 3600; // 1 hour cache revalidation
+// Cache sitemap on Vercel Global Edge Network for 24 hours (Zero Render dependency, instant 200 OK)
+export const revalidate = 86400;
 
-export default async function sitemap() {
+export default function sitemap() {
   // 1. Static Core Platform Pages & Real Live Store Product Pages
   const storeProductRoutes = (Array.isArray(STORE_PRODUCTS) ? STORE_PRODUCTS : [])
     .filter((p) => p?.slug || p?.id)
@@ -82,72 +80,5 @@ export default async function sitemap() {
     },
   ];
 
-  // 2. Fetch Live Dynamic Post URLs & Video URLs from Backend API
-  let dynamicRoutes = [];
-  try {
-    const fetchOptions = {
-      next: { revalidate: 3600 },
-      signal: AbortSignal.timeout(45000), // 45s tolerance for Render cold starts
-    };
-
-    const [allRes, videoRes] = await Promise.all([
-      fetch(`${API_BASE}/post/all-ids?v=3`, fetchOptions),
-      fetch(`${API_BASE}/post/video/getall?slim=1`, fetchOptions),
-    ]);
-
-    const allPosts = allRes.ok ? await allRes.json() : [];
-    const videoPosts = videoRes.ok ? await videoRes.json() : [];
-
-    const videoIdSet = new Set(
-      (Array.isArray(videoPosts) ? videoPosts : [])
-        .filter((v) => v?._id)
-        .map((v) => String(v._id))
-    );
-
-    // Map clean, deduplicated, index-gate-passing videos strictly to canonical single video watch page: /short/[id]
-    // Use createdAt for lastmod so views/likes don't falsely bump lastmod timestamps
-    const videoRoutes = dedupeVideosByMedia(
-      (Array.isArray(videoPosts) ? videoPosts : []).filter((v) => shouldIndexPost(v))
-    ).map((v) => ({
-      url: `${SITE_URL}/short/${v._id}`,
-      lastModified: new Date(v.createdAt || Date.now()),
-      changeFrequency: "weekly",
-      priority: 0.85,
-    }));
-
-    // Map clean, deduplicated, index-gate-passing YouTube embed posts strictly to canonical /short/[id]
-    const youtubeShortRoutes = dedupePostsByTitle(
-      (Array.isArray(allPosts) ? allPosts : []).filter((p) => {
-        if (!p?._id || videoIdSet.has(String(p._id))) return false;
-        if (!isPlayableShortPost(p)) return false;
-        return shouldIndexPost(p);
-      })
-    ).map((p) => ({
-      url: `${SITE_URL}/short/${p._id}`,
-      lastModified: new Date(p.createdAt || Date.now()),
-      changeFrequency: "weekly",
-      priority: 0.82,
-    }));
-
-    // Map clean, deduplicated, index-gate-passing non-videos strictly to post page: /post/[id]
-    const postRoutes = dedupePostsByTitle(
-      (Array.isArray(allPosts) ? allPosts : []).filter((p) => {
-        if (!p?._id || videoIdSet.has(String(p._id))) return false;
-        if (isPlayableShortPost(p)) return false;
-        if (typeof p.title === "string") return shouldIndexPost(p);
-        return true;
-      })
-    ).map((p) => ({
-      url: `${SITE_URL}/post/${p._id}`,
-      lastModified: new Date(p.createdAt || Date.now()),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    }));
-
-    dynamicRoutes = [...videoRoutes, ...youtubeShortRoutes, ...postRoutes];
-  } catch (err) {
-    console.error("Sitemap dynamic post fetch fallback:", err.message);
-  }
-
-  return [...staticRoutes, ...dynamicRoutes];
+  return staticRoutes;
 }

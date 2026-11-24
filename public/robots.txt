@@ -3,7 +3,5 @@ Allow: /
 Disallow: /api/
 Disallow: /admin
 
-# Sitemap Index and Specialized Sitemaps
+# Authoritative Vercel Global Edge Sitemap (Zero Cold-Start Delay)
 Sitemap: https://www.fondpeace.com/sitemap.xml
-Sitemap: https://www.fondpeace.com/video-sitemap.xml
-Sitemap: https://www.fondpeace.com/post-sitemap.xml

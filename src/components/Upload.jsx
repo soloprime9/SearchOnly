@@ -2,15 +2,15 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { 
-  UploadCloud, 
-  Film, 
-  Image as ImageIcon, 
-  Sparkles, 
-  CheckCircle2, 
-  AlertCircle, 
-  X, 
-  Layers, 
+import {
+  UploadCloud,
+  Film,
+  Image as ImageIcon,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  X,
+  Layers,
   Hash,
   ArrowRight,
   MessageSquare,
@@ -227,7 +227,7 @@ export default function UploadPost() {
       document.querySelectorAll('script[src*="afders"], script[src*="bicea"], script[src*="asiafilm"], script[src*="arwf"], script[id*="adsterra"]').forEach(s => s.remove());
       document.querySelectorAll('[id*="adsterra"], [class*="adsterra"], [id*="container-14acfe"], iframe[src*="bicea"], iframe[src*="afders"], iframe[src*="asiafilm"]').forEach(el => el.remove());
       document.querySelectorAll('aside[aria-label="Sponsored Floating Partner"]').forEach(el => el.remove());
-    } catch (_) {}
+    } catch (_) { }
   }, []);
   const [copiedRecentKey, setCopiedRecentKey] = useState(null);
 
@@ -293,7 +293,7 @@ export default function UploadPost() {
       .then((res) => {
         if (res.data) setVideoDailyStatus(res.data);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const detectCurrentLocation = () => {
@@ -828,7 +828,7 @@ export default function UploadPost() {
     <div className="w-full max-w-3xl mx-auto py-8 sm:py-12 px-3 sm:px-4">
       {/* Container Card */}
       <div className="relative p-6 sm:p-10 rounded-3xl bg-[var(--bg-surface)] backdrop-blur-2xl border border-[var(--border-subtle)] shadow-[0_16px_50px_rgba(0,0,0,0.4)] transition-colors duration-200">
-        
+
         {/* Ambient Top Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
 
@@ -863,13 +863,12 @@ export default function UploadPost() {
                 setActiveMode(tab.id);
                 setErrorMsg("");
               }}
-              className={`flex-1 min-w-[110px] py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                activeMode === tab.id
-                  ? tab.id === "link"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "bg-blue-600 text-white shadow-sm"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]"
-              }`}
+              className={`flex-1 min-w-[110px] py-2 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${activeMode === tab.id
+                ? tab.id === "link"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "bg-blue-600 text-white shadow-sm"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]"
+                }`}
             >
               {tab.label}
             </button>
@@ -878,7 +877,7 @@ export default function UploadPost() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-          
+
           {/* LINK CARD SECTION: Dedicated URL Paste & Live Preview (supporting YouTube, IMDb, News, X, Insta, FB, Blogs) */}
           {activeMode === "link" && (
             <div className="p-4 sm:p-5 rounded-3xl bg-[var(--bg-surface-elevated)] border border-emerald-500/40 space-y-3 shadow-md">
@@ -1053,11 +1052,10 @@ export default function UploadPost() {
                   </label>
                   {videoDailyStatus && (
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border transition-colors ${
-                        videoDailyStatus.allowed
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                          : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                      }`}
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border transition-colors ${videoDailyStatus.allowed
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                        }`}
                       title="Daily video upload limit is 2 videos per 24 hours"
                     >
                       <Film className="w-3 h-3" />
@@ -1093,11 +1091,10 @@ export default function UploadPost() {
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   onClick={() => fileRef.current?.click()}
-                  className={`relative border-2 border-dashed rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
-                    isDragging
-                      ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 scale-[0.99]"
-                      : "border-black/15 dark:border-white/15 hover:border-blue-500/50 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
-                  }`}
+                  className={`relative border-2 border-dashed rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${isDragging
+                    ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 scale-[0.99]"
+                    : "border-black/15 dark:border-white/15 hover:border-blue-500/50 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
+                    }`}
                 >
                   <input
                     ref={fileRef}
@@ -1127,7 +1124,7 @@ export default function UploadPost() {
                   >
                     <X className="w-4 h-4" />
                   </button>
-                  
+
                   <div className="relative aspect-video max-h-80 w-full flex items-center justify-center overflow-hidden">
                     {isVideo ? (
                       <video
@@ -1288,12 +1285,12 @@ export default function UploadPost() {
                 {activeMode === "article"
                   ? "Article Body / Story Content *"
                   : activeMode === "link"
-                  ? "Caption / Headline & Thoughts (Optional)"
-                  : activeMode === "discussion" 
-                  ? "Discussion Thought & Details *" 
-                  : activeMode === "poll"
-                  ? "Additional Context / Note (Optional)"
-                  : file ? "Caption & Hashtags (Optional)" : "Discussion Thought / Caption *"}
+                    ? "Caption / Headline & Thoughts (Optional)"
+                    : activeMode === "discussion"
+                      ? "Discussion Thought & Details *"
+                      : activeMode === "poll"
+                        ? "Additional Context / Note (Optional)"
+                        : file ? "Caption & Hashtags (Optional)" : "Discussion Thought / Caption *"}
               </label>
               <div className="flex items-center gap-2">
                 {activeMode === "link" && linkPreviewData?.title && title !== linkPreviewData.title && (
@@ -1324,12 +1321,12 @@ export default function UploadPost() {
                 activeMode === "article"
                   ? "Write your detailed article, technical guide, or thought here... Supports multi-paragraph stories with headings and links."
                   : activeMode === "link"
-                  ? "Write a short headline + 2-3 lines about this YouTube video or link (first line becomes headline)..."
-                  : activeMode === "discussion"
-                  ? "Share your insight, debate, or question with the community... Add #hashtags for visibility!"
-                  : activeMode === "poll"
-                  ? "Add any extra details or background context about this poll..."
-                  : "Write a caption for your video or photo (first line becomes headline, extra lines show below)..."
+                    ? "Write a short headline + 2-3 lines about this YouTube video or link (first line becomes headline)..."
+                    : activeMode === "discussion"
+                      ? "Share your insight, debate, or question with the community... Add #hashtags for visibility!"
+                      : activeMode === "poll"
+                        ? "Add any extra details or background context about this poll..."
+                        : "Write a caption for your video or photo (first line becomes headline, extra lines show below)..."
               }
               rows={activeMode === "article" ? 8 : activeMode === "discussion" ? 5 : 3}
               disabled={isBusy}
@@ -1537,12 +1534,12 @@ export default function UploadPost() {
                   {isVideo
                     ? "Publish Video Reel 🎬"
                     : isImage
-                    ? "Publish Photo 📸"
-                    : activeMode === "link"
-                    ? "Publish Link Card 🔗"
-                    : activeMode === "poll"
-                    ? "Publish Community Poll 📊"
-                    : "Publish Discussion 💬"}
+                      ? "Publish Photo 📸"
+                      : activeMode === "link"
+                        ? "Publish Link Card 🔗"
+                        : activeMode === "poll"
+                          ? "Publish Community Poll 📊"
+                          : "Publish Discussion 💬"}
                 </span>
                 <ArrowRight className="w-4 h-4" />
               </>
@@ -1613,11 +1610,10 @@ export default function UploadPost() {
                   <button
                     type="button"
                     onClick={() => handleCopyRecent(item, "both")}
-                    className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
-                      copiedRecentKey === `${item._id}_both`
-                        ? "bg-emerald-500 text-white"
-                        : "bg-blue-600 hover:bg-blue-700 text-white"
-                    }`}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${copiedRecentKey === `${item._id}_both`
+                      ? "bg-emerald-500 text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                      }`}
                   >
                     {copiedRecentKey === `${item._id}_both` ? (
                       <Check className="w-3.5 h-3.5" />

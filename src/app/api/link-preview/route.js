@@ -46,6 +46,82 @@ function slugToTitle(pathname, hostname) {
   return `${brand.charAt(0).toUpperCase() + brand.slice(1)} Story`;
 }
 
+// Universal RSS Feed Extractor: Fallback for Cloudflare-protected news & blogs (e.g. Tellyexpress, Bollywood Life, WordPress)
+async function findInRssFeed(validUrl, parsedUrl) {
+  try {
+    const baseUrl = `${parsedUrl.protocol}//${parsedUrl.hostname}`;
+    const slug = parsedUrl.pathname.replace(/^\/+|\/+$/g, "").split("/").pop().toLowerCase();
+    const cleanTarget = validUrl.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
+
+    const pages = [1, 2, 3, 4, 5];
+    const fetchPage = async (p) => {
+      try {
+        const u = p === 1 ? `${baseUrl}/feed/` : `${baseUrl}/feed/?paged=${p}`;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 4000);
+        const res = await fetch(u, {
+          signal: controller.signal,
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept": "application/rss+xml,application/xml,text/xml,*/*",
+          },
+        });
+        clearTimeout(timer);
+        if (res.ok) {
+          const text = await res.text();
+          if (text && text.includes("<item>")) return text;
+        }
+      } catch (_) {}
+      return "";
+    };
+
+    const results = await Promise.all(pages.map((p) => fetchPage(p)));
+
+    for (let pIdx = 0; pIdx < results.length; pIdx++) {
+      const xml = results[pIdx];
+      if (!xml) continue;
+
+      const items = xml.split("<item>");
+      for (let i = 1; i < items.length; i++) {
+        const it = items[i];
+        const linkMatch = it.match(/<link>(.*?)<\/link>/i);
+        if (!linkMatch) continue;
+
+        const itemLink = linkMatch[1].trim();
+        const cleanItem = itemLink.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
+        const itemSlug = cleanItem.split("/").pop().toLowerCase();
+
+        const isMatch =
+          cleanItem === cleanTarget ||
+          cleanTarget.includes(cleanItem) ||
+          cleanItem.includes(cleanTarget) ||
+          (slug && itemSlug && (slug.includes(itemSlug) || itemSlug.includes(slug)));
+
+        if (isMatch) {
+          const titleMatch = it.match(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/i);
+          const descMatch = it.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i);
+          const imgMatch =
+            it.match(/<media:content[^>]+url=["']([^"']+)["']/i) ||
+            it.match(/<enclosure[^>]+url=["']([^"']+)["']/i) ||
+            it.match(/<img[^>]+src=["']([^"']+)["']/i);
+
+          const rawTitle = titleMatch ? titleMatch[1].replace(/<!\[CDATA\[|\]\]>/g, "").trim() : "";
+          let rawDesc = descMatch ? descMatch[1].replace(/<[^>]+>/g, "").replace(/<!\[CDATA\[|\]\]>/g, "").trim() : "";
+          rawDesc = rawDesc.replace(/The post\s+[\s\S]*?appeared first on[\s\S]*$/i, "").trim();
+          const image = imgMatch ? imgMatch[1].trim() : "";
+
+          return {
+            title: decodeHtmlEntities(rawTitle),
+            description: decodeHtmlEntities(rawDesc),
+            image,
+          };
+        }
+      }
+    }
+  } catch (_) {}
+  return null;
+}
+
 async function extractMetadata(rawUrl) {
   const validUrl = sanitizeUrl(rawUrl);
   if (!validUrl) return null;
@@ -176,6 +252,25 @@ async function extractMetadata(rawUrl) {
     const isDedicatedVideoPage = /^video(\.|$)/i.test(ogType);
     if (!video && isDedicatedVideoPage) {
       video = getMeta("video:secure_url") || getMeta("video:url") || getMeta("video") || getMeta("twitter:player:stream");
+    }
+  }
+
+  // 4. RSS Feed Fallback: If image or description or title is missing (or site blocks bot scraping with Cloudflare like Tellyexpress)
+  if (!image || !html || /^(403 forbidden|just a moment|access denied|security check|attention required)/i.test(title)) {
+    const feedData = await findInRssFeed(validUrl, parsedUrl);
+    if (feedData) {
+      if (!image && feedData.image) image = feedData.image;
+      if (
+        (!title ||
+          /^(403 forbidden|just a moment|access denied|security check|attention required)/i.test(title) ||
+          title === slugToTitle(parsedUrl.pathname, cleanHost)) &&
+        feedData.title
+      ) {
+        title = feedData.title;
+      }
+      if ((!description || description.startsWith("View updates, articles")) && feedData.description) {
+        description = feedData.description;
+      }
     }
   }
 
