@@ -1,7 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /admin
 
-# Authoritative Vercel Global Edge Sitemap (Zero Cold-Start Delay)
 Sitemap: https://www.fondpeace.com/sitemap.xml
