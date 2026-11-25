@@ -34,16 +34,12 @@ import PersonalizeFeedModal from "./PersonalizeFeedModal";
 import StoriesBar from "./StoriesBar";
 import ShareModal from "./ShareModal";
 import FormattedCaption from "./FormattedCaption";
-import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
-import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
-import SponsoredCard from "@/components/ads/SponsoredCard";
-import AdsterraAdEngine from "@/components/ads/AdsterraAdEngine";
 import { UserPlus, Check, Users, Sparkles, Maximize2, Repeat2, Bookmark, BarChart2, Pin, LayoutList, LayoutGrid, Quote, Compass, ArrowUp, ArrowUpRight, ShieldCheck, X, Film, Image as ImageIcon, MessageSquare, MapPin, Smartphone, RotateCw, SlidersHorizontal } from "lucide-react";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { getApiBase, API_BASE } from "@/utils/apiConfig";
 import { isPlayableShortPost, getPostPath, getPostShareText } from "@/utils/postMediaUtils";
-import { truncateWords } from "@/utils/indexGate";
+import { truncateWords } from "@/utils/captionUtils";
 
 // Reading time helper
 function getReadingTime(text) {
@@ -1450,9 +1446,6 @@ const handleShare = (postData) => {
         />
       )}
 
-      {/* Top In-Feed Adsterra 320x50 Banner (1-switch controlled in src/data/adsConfig.js) */}
-      <AdsterraBanner320 className="max-w-[600px] mx-auto my-3" />
-
       {/* Posts List - Stream vs Grid View */}
       {!followingLoading && viewMode === "grid" ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-2 sm:px-0 mb-6">
@@ -1531,25 +1524,6 @@ const handleShare = (postData) => {
               {((idx === 3) || (idx === filteredPosts.length - 1 && filteredPosts.length < 4)) && (
                 <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-4">
                   <TrendingShortsRail />
-                </div>
-              )}
-
-              {/* High-CPM In-Feed Adsterra Ads (Alternating Native Recommendations and 320x50 Banners) */}
-              {(idx === 2 || idx === 11 || idx === 20) && (
-                <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-4">
-                  <AdsterraNativeBanner />
-                </div>
-              )}
-              {(idx === 6 || idx === 15) && (
-                <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-4">
-                  <AdsterraBanner320 />
-                </div>
-              )}
-
-              {/* Direct Sponsor Partner Card (High-Yield Smartlink Conversion) */}
-              {(idx === 4 || idx === 13) && (
-                <div className="max-w-[600px] mx-auto px-2 sm:px-0 my-3">
-                  <SponsoredCard />
                 </div>
               )}
 
@@ -1754,7 +1728,6 @@ const handleShare = (postData) => {
         onClose={() => setActiveSharePost(null)}
         post={activeSharePost}
       />
-      <AdsterraAdEngine />
     </div>
   );
 }

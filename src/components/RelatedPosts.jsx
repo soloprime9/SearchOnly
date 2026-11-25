@@ -18,7 +18,7 @@ import { ShieldCheck, Sparkles } from "lucide-react";
 import LinkPreviewCard from "@/components/LinkPreviewCard";
 import { getApiBase } from "@/utils/apiConfig";
 import { isPlayableShortPost, getPostShareText } from "@/utils/postMediaUtils";
-import { truncateWords } from "@/utils/indexGate";
+import { truncateWords } from "@/utils/captionUtils";
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 const PostSkeleton = () => (

@@ -1,5 +1,5 @@
 // public/sw.js - FondPeace Modern PWA Service Worker
-const CACHE_NAME = 'fondpeace-shell-v2';
+const CACHE_NAME = 'fondpeace-shell-v3';
 const CORE_STATIC_ASSETS = [
   '/site.webmanifest',
   '/favicon.ico',

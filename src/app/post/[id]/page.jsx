@@ -13,10 +13,6 @@ import PostTitle from "@/components/PostTitle";
 import RelatedPosts from "@/components/RelatedPosts";
 import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
-import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
-import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
-import SponsoredCard from "@/components/ads/SponsoredCard";
-import AdsterraAdEngine from "@/components/ads/AdsterraAdEngine";
 import { Coins, ArrowRight, ShieldCheck } from "lucide-react";
 
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
@@ -25,7 +21,7 @@ import { redirect, notFound, permanentRedirect } from "next/navigation";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
-import { shouldIndexPost, isBlockedAdultOrSpam, truncateWords, splitCaption } from "@/utils/indexGate";
+import { truncateWords, splitCaption } from "@/utils/captionUtils";
 const API_BASE = getApiBase();
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_AVATAR = "https://www.fondpeace.com/Fondpeace.jpg";
@@ -223,7 +219,6 @@ export async function generateMetadata({ params }) {
       ? `${metaDescription}${author ? ` — ${author}` : ""}`
       : `Explore community posts and social conversations by ${author || 'creators'} on FondPeace.`;
 
-    const indexable = shouldIndexPost(post);
     const ogTitle = displayHeadline.length <= 110 ? displayHeadline : truncateWords(displayHeadline, 110);
 
     return {
@@ -232,10 +227,10 @@ export async function generateMetadata({ params }) {
       keywords: extractKeywords(post),
       alternates: { canonical: pageUrl },
       robots: {
-        index: indexable,
+        index: true,
         follow: true,
         googleBot: {
-          index: indexable,
+          index: true,
           follow: true,
           "max-video-preview": -1,
           "max-image-preview": "large",
@@ -294,7 +289,7 @@ export default async function Page({ params }) {
     permanentRedirect(`/short/${id}`);
   }
 
-const related = (data?.related ?? []).filter((r) => !isBlockedAdultOrSpam(r));
+const related = Array.isArray(data?.related) ? data.related : [];
 
 
 
@@ -758,12 +753,6 @@ return (
           {/* Full Post Card - Exactly matching Homepage (Village.jsx) */}
           <SinglePostPage initialPost={post} />
 
-          {/* Adsterra Post Page Ads (1-switch controlled in src/data/adsConfig.js) */}
-          <AdsterraBanner320 />
-          <AdsterraNativeBanner />
-          <SponsoredCard className="my-2" />
-          <AdsterraAdEngine />
-
           {/* Related Community Discussions Feed */}
           <RelatedPosts
             currentPostId={post._id}
@@ -783,22 +772,22 @@ return (
             <div className="rounded-2xl p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg text-[var(--text-primary)] transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[var(--bg-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
-                  <Coins className="w-3 h-3 text-amber-400" />
+                  <Coins className="w-3 h-3 text-blue-400" />
                   Creator Program
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                  95% Payout
+                  Open Access
                 </span>
               </div>
-              <h3 className="font-bold text-sm mb-1 text-[var(--text-primary)]">Monetize Your Influence</h3>
+              <h3 className="font-bold text-sm mb-1 text-[var(--text-primary)]">Grow as a Creator</h3>
               <p className="text-xs text-[var(--text-secondary)] mb-3 leading-relaxed">
-                Get paid directly by fans through tips, subscriptions, and branded sponsorship.
+                Publish original posts and discussions, track audience insights, and explore creator partnerships on FondPeace.
               </p>
               <Link
                 href="/monetization"
                 className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition"
               >
-                <span>Learn More</span>
+                <span>Explore Creator Hub</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>

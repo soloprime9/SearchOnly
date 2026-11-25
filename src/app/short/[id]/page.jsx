@@ -8,14 +8,10 @@ import SinglePostPage from "@/components/SinglePostPage";
 import RelatedPosts from "@/components/RelatedPosts";
 import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
-import AdsterraBanner320 from "@/components/ads/AdsterraBanner320";
-import AdsterraNativeBanner from "@/components/ads/AdsterraNativeBanner";
-import SponsoredCard from "@/components/ads/SponsoredCard";
-import AdsterraAdEngine from "@/components/ads/AdsterraAdEngine";
 import { getApiBase } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
-import { shouldIndexPost, isBlockedAdultOrSpam, truncateWords, splitCaption } from "@/utils/indexGate";
+import { truncateWords, splitCaption } from "@/utils/captionUtils";
 
 const API_BASE = getApiBase().replace(/\/+$/, "");
 const API_SINGLE = `${API_BASE}/post/single/`;
@@ -166,8 +162,6 @@ export async function generateMetadata({ params }) {
       ? `${metaDescription}${authorHandle !== "FondPeace" ? ` — ${authorHandle}` : ""}`
       : `Video by ${authorHandle} on FondPeace.`;
 
-    const indexable = shouldIndexPost(post);
-
     const ytId = extractPostYouTubeId(post);
     const isDirectMp4 = Boolean(mediaUrl && !ytId);
     const ogVideoUrl = ytId ? `https://www.youtube.com/embed/${ytId}` : mediaUrl;
@@ -180,10 +174,10 @@ export async function generateMetadata({ params }) {
       keywords: extractKeywords(post),
       alternates: { canonical: pageUrl },
       robots: {
-        index: indexable,
+        index: true,
         follow: true,
         googleBot: {
-          index: indexable,
+          index: true,
           follow: true,
           "max-video-preview": -1,
           "max-image-preview": "large",
@@ -246,9 +240,7 @@ export default async function SingleShortWatchPage({ params }) {
   }
   const data = result?.data;
   const post = data?.post || null;
-  const related = (Array.isArray(data?.related) ? data.related : []).filter(
-    (r) => !isBlockedAdultOrSpam(r)
-  );
+  const related = Array.isArray(data?.related) ? data.related : [];
 
   if (!post) {
     return notFound();
@@ -315,7 +307,6 @@ export default async function SingleShortWatchPage({ params }) {
         uploadDate: new Date(post.createdAt || Date.now()).toISOString(),
         ...(realDurationISO ? { duration: realDurationISO } : {}),
         inLanguage: "en",
-        isFamilyFriendly: !isBlockedAdultOrSpam(post),
         isAccessibleForFree: true,
         author: {
           "@type": "Person",
@@ -397,12 +388,6 @@ export default async function SingleShortWatchPage({ params }) {
           {/* Dedicated Single Video Watch Card (Full SSR Video + Caption + Comments + Actions) */}
           <SinglePostPage initialPost={post} />
 
-          {/* Adsterra Watch Page Ads (1-switch controlled in src/data/adsConfig.js) */}
-          <AdsterraBanner320 />
-          <AdsterraNativeBanner />
-          <SponsoredCard className="my-2" />
-          <AdsterraAdEngine />
-
           {/* Related Videos & Community Feed */}
           <RelatedPosts
             currentPostId={post._id}
@@ -420,24 +405,24 @@ export default async function SingleShortWatchPage({ params }) {
             <div className="rounded-2xl p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg text-[var(--text-primary)] transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[var(--bg-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
-                  <Coins className="w-3 h-3 text-amber-400" />
+                  <Coins className="w-3 h-3 text-blue-400" />
                   Creator Program
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                  95% Payout
+                  Open Access
                 </span>
               </div>
               <h3 className="font-bold text-sm mb-1 text-[var(--text-primary)]">
-                Monetize Your Videos
+                Grow as a Creator
               </h3>
               <p className="text-xs text-[var(--text-secondary)] mb-3 leading-relaxed">
-                Keep 95% of direct community tips and earn 60% ad revenue from your short videos and posts.
+                Publish original short videos and posts, track audience insights, and explore creator partnerships on FondPeace.
               </p>
               <Link
                 href="/monetization"
                 className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition"
               >
-                <span>Learn More</span>
+                <span>Explore Creator Hub</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>

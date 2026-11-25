@@ -2,7 +2,7 @@
 
 import Linkify from "linkify-react";
 import { useState } from "react";
-import { truncateWords } from "@/utils/indexGate";
+import { truncateWords } from "@/utils/captionUtils";
 
 export default function PostTitle({ title }) {
 

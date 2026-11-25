@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
-import { isBlockedAdultOrSpam } from "@/utils/indexGate";
+import { isBlockedAdultOrSpam } from "@/utils/uploadModeration";
 import { toast } from "@/utils/toast";
 import { playPop, playChime } from "@/utils/soundEffects";
 import { fetchLinkPreview, sanitizeLinkUrl } from "@/utils/linkPreview";

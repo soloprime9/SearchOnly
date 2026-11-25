@@ -10,7 +10,7 @@ import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { toast } from "@/utils/toast";
 import { getPostShareUrl } from "@/utils/postMediaUtils";
-import { splitCaption } from "@/utils/indexGate";
+import { splitCaption } from "@/utils/captionUtils";
 import PollCard from "./PollCard";
 import LinkPreviewCard from "./LinkPreviewCard";
 import PostActionsMenu from "./PostActionsMenu";

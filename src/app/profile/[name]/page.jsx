@@ -4,7 +4,6 @@ import Profile from "@/components/Profile";
 import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
 import { getApiBase } from "@/utils/apiConfig";
-import { shouldIndexProfile } from "@/utils/indexGate";
 
 const SITE_ROOT = "https://www.fondpeace.com";
 const API_BASE = getApiBase();
@@ -141,17 +140,16 @@ export async function generateMetadata({ params }) {
     }
 
     const displayName = user.name || user.username;
-    const indexable = shouldIndexProfile(profileData);
 
     return {
       title: `${displayName} (@${user.username})`,
       description:
         user.bio || `View ${displayName}'s profile on FondPeace. Watch videos, posts, and updates.`,
       robots: {
-        index: indexable,
+        index: true,
         follow: true,
         googleBot: {
-          index: indexable,
+          index: true,
           follow: true,
           "max-image-preview": "large",
         },

@@ -30,7 +30,7 @@ import { playTap, playPop, playChime } from "@/utils/soundEffects";
 import { triggerConfetti } from "@/utils/confetti";
 import { toast } from "@/utils/toast";
 import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
-import { isBlockedAdultOrSpam } from "@/utils/indexGate";
+import { isBlockedAdultOrSpam } from "@/utils/uploadModeration";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
 import { fetchLinkPreview, sanitizeLinkUrl } from "@/utils/linkPreview";
 
@@ -220,15 +220,6 @@ export default function UploadPost() {
 
   // Session-only recently uploaded posts tray (purely in-memory, 0 DB writes, auto-expires after 5 min or on refresh)
   const [recentPublished, setRecentPublished] = useState([]);
-
-  // ⚡ Strict Ad-Free Protection for Creator Studio: Purge any residual third-party ad elements
-  useEffect(() => {
-    try {
-      document.querySelectorAll('script[src*="afders"], script[src*="bicea"], script[src*="asiafilm"], script[src*="arwf"], script[id*="adsterra"]').forEach(s => s.remove());
-      document.querySelectorAll('[id*="adsterra"], [class*="adsterra"], [id*="container-14acfe"], iframe[src*="bicea"], iframe[src*="afders"], iframe[src*="asiafilm"]').forEach(el => el.remove());
-      document.querySelectorAll('aside[aria-label="Sponsored Floating Partner"]').forEach(el => el.remove());
-    } catch (_) { }
-  }, []);
   const [copiedRecentKey, setCopiedRecentKey] = useState(null);
 
   useEffect(() => {

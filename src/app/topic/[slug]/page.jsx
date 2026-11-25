@@ -4,7 +4,6 @@ import LeftSidebar from "@/components/LeftSidebar";
 import Link from "next/link";
 import { Hash, Sparkles, ArrowLeft } from "lucide-react";
 import { getApiBase } from "@/utils/apiConfig";
-import { shouldIndexTopic, isBlockedAdultOrSpam } from "@/utils/indexGate";
 
 const API_BASE = getApiBase();
 
@@ -16,7 +15,7 @@ const getTopicPosts = cache(async (topic) => {
     );
     if (res.ok) {
       const data = await res.json();
-      return Array.isArray(data) ? data.filter((p) => !isBlockedAdultOrSpam(p)) : [];
+      return Array.isArray(data) ? data : [];
     }
   } catch (err) {
     console.error("Topic fetch failed:", err);
@@ -32,18 +31,16 @@ export async function generateMetadata({ params }) {
 
   const topic = topicRaw.charAt(0).toUpperCase() + topicRaw.slice(1);
   const url = `https://www.fondpeace.com/topic/${slug}`;
-  const posts = await getTopicPosts(topicRaw);
-  const indexable = shouldIndexTopic(topicRaw, posts);
 
   return {
     title: `${topic} – Discussions & Videos`,
     description: `Browse the latest community discussions, posts, and videos related to #${topic} on FondPeace.`,
     alternates: { canonical: url },
     robots: {
-      index: indexable,
+      index: true,
       follow: true,
       googleBot: {
-        index: indexable,
+        index: true,
         follow: true,
         "max-image-preview": "large",
         "max-video-preview": -1,
