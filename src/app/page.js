@@ -72,6 +72,7 @@ export default async function HomePage() {
   try {
     const res = await fetch(`${API_BASE}/post/mango/getall?page=1&limit=20`, {
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(10000),
     });
     const data = await res.json();
     if (Array.isArray(data)) {
@@ -170,10 +171,11 @@ export default async function HomePage() {
               <div className="flex flex-wrap gap-y-2 gap-x-3 leading-relaxed">
                 <Link href="/aboutus" className="hover:text-white transition">About Us</Link>
                 <Link href="/contactus" className="hover:text-white transition">Contact Us</Link>
-                <Link href="/blog" className="hover:text-white transition">Blog</Link>
+                <Link href="/shorts" className="hover:text-white transition">Shorts</Link>
                 <Link href="/privacypolicy" className="hover:text-white transition">Privacy Policy</Link>
                 <Link href="/termcondition" className="hover:text-white transition">Terms</Link>
                 <Link href="/disclaimer" className="hover:text-white transition">Disclaimer</Link>
+                <Link href="/DMCA" className="hover:text-white transition">DMCA</Link>
                 <Link href="/signup" className="hover:text-white transition">Signup</Link>
                 <Link href="/login" className="hover:text-white transition">Login</Link>
                 <Link href="https://x.com/FondPeaceTech" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Twitter</Link>

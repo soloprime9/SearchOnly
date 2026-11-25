@@ -80,7 +80,7 @@ export default function PrivacyPolicy() {
             If you have questions regarding this Privacy Policy or wish to exercise your privacy rights:
           </p>
           <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mt-1">
-            📧 contact@fondpeace.com (or jotarikhan@gmail.com)
+            📧 contact@fondpeace.com
           </p>
         </section>
       </div>

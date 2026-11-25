@@ -1,65 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Main Pages -->
+  <!-- Core Platform & Discovery -->
   <url>
     <loc>https://www.fondpeace.com/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://www.fondpeace.com/shorts</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.fondpeace.com/monetization</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Official Brand & Legal Pages -->
+  <url>
     <loc>https://www.fondpeace.com/aboutus</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.fondpeace.com/contactus</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.fondpeace.com/privacypolicy</loc>
-  </url>
-  <url>
-    <loc>https://www.fondpeace.com/disclaimer</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.fondpeace.com/termcondition</loc>
-  </url>
-
-  <!-- Tools -->
-  <url>
-    <loc>https://www.fondpeace.com/Reducer</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.fondpeace.com/youtubethumbnailtester</loc>
-  </url>
-
-  <!-- Blog Posts -->
-  <url>
-    <loc>https://www.fondpeace.com/blog/perplexityai</loc>
+    <loc>https://www.fondpeace.com/disclaimer</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.fondpeace.com/blog/google</loc>
+    <loc>https://www.fondpeace.com/DMCA</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
-  <url>
-    <loc>https://www.fondpeace.com/blog/Apple</loc>
-  </url>
-  <url>
-    <loc>https://www.fondpeace.com/blog/Anupama%205%20April%202025%20written%20update</loc>
-  </url>
-  <url>
-    <loc>https://www.fondpeace.com/blog/Anupama%207%20April%202025%20Written%20Update</loc>
-  </url>
-  <url>
-    <loc>https://www.fondpeace.com/blog/YRKKH%207%20April%202025%20Written%20Update</loc>
-  </url>
-  <url>
-    <loc>https://www.fondpeace.com/blog/Yeh%20Rishta%20Kya%20kehlata%20hai%206%20April%202025%20Written%20Update</loc>
-  </url>
-  <url>
-    <loc>https://www.fondpeace.com/blog/Anupamaa%20Written%20Update%2014%20April%202025</loc>
-  </url>
-  <url>
-    <loc>https://www.fondpeace.com/blog/Anupamaa%20Written%20Update%2015%20April%202025</loc>
-  </url>
-   <url>
-    <loc>https://www.fondpeace.com/blog/Ghum%20Hai%20Kisikey%20Pyaar%20Meiin%20Written%20Update%2014%20April%202025</loc>
-  </url>
-  
 
 </urlset>

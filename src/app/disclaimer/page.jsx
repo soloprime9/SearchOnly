@@ -53,7 +53,7 @@ export default function Disclaimer() {
             For questions regarding this disclaimer:
           </p>
           <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mt-1">
-            📧 contact@fondpeace.com (or jotarikhan@gmail.com)
+            📧 contact@fondpeace.com
           </p>
         </section>
       </div>

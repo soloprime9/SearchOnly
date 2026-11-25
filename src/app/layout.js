@@ -170,10 +170,10 @@ export default function RootLayout({ children }) {
                     "height": 630,
                   },
                   "sameAs": [
-                    "https://twitter.com/fondpeace",
-                    "https://www.youtube.com/@fondpeace",
-                    "https://www.linkedin.com/company/fondpeace",
-                    "https://www.instagram.com/fondpeace",
+                    "https://x.com/FondPeaceTech",
+                    "https://www.instagram.com/fondpeacetecho/",
+                    "https://www.threads.com/@fondpeacetecho",
+                    "https://www.youtube.com/@FondPeaceUpdate",
                   ],
                 },
                 {

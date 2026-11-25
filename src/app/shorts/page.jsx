@@ -29,6 +29,7 @@ export default async function ShortsPage() {
   try {
     const res = await fetch(`${API_BASE}/post/shorts/feed?page=1&limit=6&sort=trending`, {
       cache: "no-store",
+      signal: AbortSignal.timeout(8000),
     });
     if (res.ok) {
       const data = await res.json();
