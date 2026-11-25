@@ -122,28 +122,28 @@ export default async function HomePage() {
             {/* Suggested Creators Widget (Live from Database) */}
             <SuggestedCreatorsWidget variant="card" />
 
-            {/* Creator Monetization Spotlight Card */}
+            {/* Creator Program Spotlight Card */}
             <div className="rounded-2xl p-5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg text-[var(--text-primary)]">
               <div className="flex items-center justify-between mb-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                  <Coins className="w-3 h-3 text-amber-500" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                  <Coins className="w-3 h-3 text-blue-500" />
                   Creator Program
                 </span>
                 <span className="text-[10px] font-mono text-emerald-500 font-bold">
-                  95% Payout
+                  Open Access
                 </span>
               </div>
               <h3 className="text-sm font-black text-[var(--text-primary)] tracking-tight mb-1">
-                Monetize Your Content
+                Grow as a Creator
               </h3>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4">
-                Keep 95% of direct community tips and earn 60% ad revenue from viral posts and short video reels.
+                Publish original posts and short videos, track audience insights, and explore transparent creator partnerships on FondPeace.
               </p>
               <Link
                 href="/monetization"
                 className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs transition active:scale-95 shadow-md shadow-blue-500/20"
               >
-                <span>Join Monetization</span>
+                <span>Explore Creator Hub</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>

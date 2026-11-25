@@ -65,13 +65,13 @@ export default function ModernHomeDiscoveryHero({ onSelectCategory }) {
     },
     {
       id: "monetization",
-      title: "Creator Monetization",
-      tag: "Earn & Grow",
-      desc: "Get tipped with a 95% revenue split and share 60% ad revenue.",
+      title: "Creator Program",
+      tag: "Grow & Collaborate",
+      desc: "Track audience analytics and explore transparent creator partnerships.",
       icon: Coins,
       href: "/monetization",
       actionText: "Creator Hub",
-      badge: "95% Split",
+      badge: "Creators",
     },
   ];
 
@@ -184,41 +184,41 @@ export default function ModernHomeDiscoveryHero({ onSelectCategory }) {
             {/* Visual Platform Metrics Ribbon (Lightly Contrasting Glass Cards) */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
               <div className="p-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-xl bg-white text-black flex items-center justify-center font-black text-xs shrink-0 shadow-sm">
-                  50K+
+                <div className="w-7 h-7 rounded-xl bg-white text-black flex items-center justify-center font-black text-[10px] shrink-0 shadow-sm">
+                  OPEN
                 </div>
                 <div className="text-[11px] leading-tight truncate">
-                  <span className="font-bold text-white block truncate">Thinkers</span>
+                  <span className="font-bold text-white block truncate">Discussions</span>
                   <span className="text-zinc-400 text-[10px] truncate">Open community</span>
                 </div>
               </div>
 
               <div className="p-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-xl bg-white text-black flex items-center justify-center font-black text-xs shrink-0 shadow-sm">
-                  120K+
+                <div className="w-7 h-7 rounded-xl bg-white text-black flex items-center justify-center font-black text-[10px] shrink-0 shadow-sm">
+                  9:16
                 </div>
                 <div className="text-[11px] leading-tight truncate">
-                  <span className="font-bold text-white block truncate">Reels Watched</span>
-                  <span className="text-zinc-400 text-[10px] truncate">9:16 Shorts views</span>
+                  <span className="font-bold text-white block truncate">Short Reels</span>
+                  <span className="text-zinc-400 text-[10px] truncate">Vertical video feed</span>
                 </div>
               </div>
 
               <div className="p-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-xl bg-white text-black flex items-center justify-center font-black text-xs shrink-0 shadow-sm">
-                  95%
+                <div className="w-7 h-7 rounded-xl bg-white text-black flex items-center justify-center font-black text-[10px] shrink-0 shadow-sm">
+                  SAFE
                 </div>
                 <div className="text-[11px] leading-tight truncate">
-                  <span className="font-bold text-white block truncate">Tip Payout</span>
+                  <span className="font-bold text-white block truncate">Attribution</span>
                   <span className="text-zinc-400 text-[10px] truncate">Direct to creators</span>
                 </div>
               </div>
 
               <div className="p-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-xl bg-white text-black flex items-center justify-center font-black text-xs shrink-0 shadow-sm">
-                  0s
+                <div className="w-7 h-7 rounded-xl bg-white text-black flex items-center justify-center font-black text-[10px] shrink-0 shadow-sm">
+                  SSR
                 </div>
                 <div className="text-[11px] leading-tight truncate">
-                  <span className="font-bold text-white block truncate">Zero Lag</span>
+                  <span className="font-bold text-white block truncate">Fast Load</span>
                   <span className="text-zinc-400 text-[10px] truncate">Instant playback</span>
                 </div>
               </div>

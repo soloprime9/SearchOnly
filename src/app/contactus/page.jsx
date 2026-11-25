@@ -60,12 +60,21 @@ export default function ContactUs() {
     setIsSubmitting(true);
     playTap();
 
+    const mailSubject = encodeURIComponent(`[FondPeace ${formData.subject}] Inquiry from ${formData.name.trim()}`);
+    const mailBody = encodeURIComponent(
+      `Name: ${formData.name.trim()}\nEmail: ${formData.email.trim()}\nTopic: ${formData.subject}\n\nMessage:\n${formData.message.trim()}`
+    );
+
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitted(true);
       playChime();
       triggerConfetti();
-      toast.success("Message sent! We will respond shortly.");
+      toast.success("Opening your email client to send directly to contact@fondpeace.com.");
+
+      if (typeof window !== "undefined") {
+        window.location.href = `mailto:contact@fondpeace.com?subject=${mailSubject}&body=${mailBody}`;
+      }
 
       setFormData({
         name: "",
@@ -73,7 +82,7 @@ export default function ContactUs() {
         subject: "General Support",
         message: "",
       });
-    }, 800);
+    }, 300);
   };
 
   return (
@@ -274,10 +283,27 @@ export default function ContactUs() {
               <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center mb-3">
                 <ShieldCheck className="w-4 h-4" />
               </div>
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white">Community First</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Your report helps keep FondPeace safe, transparent, and authentic for everyone.
+              <h4 className="font-bold text-sm text-gray-900 dark:text-white">Policies &amp; Legal Help</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                For copyright takedowns, data privacy requests, or creator terms, review our dedicated resources:
               </p>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
+                <Link href="/DMCA" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  DMCA Policy
+                </Link>
+                <span className="text-gray-400">•</span>
+                <Link href="/privacypolicy" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  Privacy Policy
+                </Link>
+                <span className="text-gray-400">•</span>
+                <Link href="/termcondition" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  Terms
+                </Link>
+                <span className="text-gray-400">•</span>
+                <Link href="/aboutus" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  About Us
+                </Link>
+              </div>
             </div>
 
           </div>

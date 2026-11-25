@@ -136,14 +136,14 @@ export default function AboutUs() {
 
           <div className="p-5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06]">
             <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1.5">
-              Fair Creator Monetization
+              Creator Tools &amp; Partnerships
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-              Creators retain ownership of their work and can join the{" "}
+              Creators retain ownership of their work and can explore the{" "}
               <Link href="/monetization" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
                 FondPeace Creator Program
               </Link>{" "}
-              to earn 95% from direct fan tips and 60% ad revenue share.
+              for audience analytics, organic discovery, and transparent brand collaborations.
             </p>
           </div>
 
