@@ -56,22 +56,53 @@ function renderFormattedCaption(text, onHashtagClick) {
 }
 
 
-export default function Village({ initialPosts = [] }) {
+const FEED_LIMIT = 20;
+
+function mergeUniquePosts(existingPosts = [], incomingPosts = []) {
+  const seen = new Set();
+  const merged = [];
+  for (const post of [...existingPosts, ...incomingPosts]) {
+    if (!post) continue;
+    const key = post._id ? String(post._id) : null;
+    if (key) {
+      if (seen.has(key)) continue;
+      seen.add(key);
+    }
+    merged.push(post);
+  }
+  return merged;
+}
+
+export default function Village({
+  initialPosts = [],
+  initialPage = 1,
+  initialHasMore = true,
+  initialType = "all",
+}) {
   const cachedFeed = useMemo(() => getFeedCache(), []);
+  const shouldUseCache = useMemo(() => {
+    if (!cachedFeed?.posts?.length) return false;
+    if (initialPage !== 1 || initialType !== "all") return false;
+    const serverTopId = Array.isArray(initialPosts) && initialPosts[0]?._id ? String(initialPosts[0]._id) : null;
+    const cachedTopId = cachedFeed.posts[0]?._id ? String(cachedFeed.posts[0]._id) : null;
+    if (serverTopId && cachedTopId && serverTopId !== cachedTopId) return false;
+    return true;
+  }, [cachedFeed, initialPage, initialType, initialPosts]);
 
   const [posts, setPosts] = useState(() => {
-    if (cachedFeed?.posts?.length) return cachedFeed.posts;
+    if (shouldUseCache) return cachedFeed.posts;
     return Array.isArray(initialPosts) ? initialPosts : [];
   });
-  const [activeTab, setActiveTab] = useState(() => cachedFeed?.activeTab || "foryou"); // "foryou" | "following"
-  const [categoryFilter, setCategoryFilter] = useState(() => cachedFeed?.categoryFilter || "All");
-  const [mediaTypeFilter, setMediaTypeFilter] = useState(() => cachedFeed?.mediaTypeFilter || "all"); // "all" | "video" | "image" | "discussion"
+  const [activeTab, setActiveTab] = useState(() => (shouldUseCache ? (cachedFeed.activeTab || "foryou") : "foryou")); // "foryou" | "following"
+  const [categoryFilter, setCategoryFilter] = useState(() => (shouldUseCache ? (cachedFeed.categoryFilter || "All") : "All"));
+  const [mediaTypeFilter, setMediaTypeFilter] = useState(() => (shouldUseCache ? (cachedFeed.mediaTypeFilter || initialType || "all") : (initialType || "all"))); // "all" | "video" | "image" | "discussion"
   const [viewMode, setViewMode] = useState("stream"); // "stream" | "grid"
   const [isZenMode, setIsZenMode] = useState(false);
   const [followingMap, setFollowingMap] = useState({});
   const [followingLoading, setFollowingLoading] = useState(false);
-  const [page, setPage] = useState(() => cachedFeed?.page || 1);
-  const [hasMore, setHasMore] = useState(() => cachedFeed?.hasMore ?? true);
+  const [page, setPage] = useState(() => (shouldUseCache ? (cachedFeed.page || 1) : initialPage));
+  const [hasMore, setHasMore] = useState(() => (shouldUseCache ? (cachedFeed.hasMore ?? true) : initialHasMore));
+  const loadedInitialPageRef = useRef(shouldUseCache ? (cachedFeed.page || 1) : initialPage);
   const observerRef = useRef(null);
 
   const [commentTextMap, setCommentTextMap] = useState({});
@@ -126,16 +157,20 @@ export default function Village({ initialPosts = [] }) {
     } catch (_) {}
   }, []);
 
-  // Synchronize initialPosts ONLY on fresh landing when no feed cache exists
+  // Synchronize initialPosts when fresh SSR data arrives or URL page/type changes
   useEffect(() => {
-    if (!cachedFeed && Array.isArray(initialPosts) && initialPosts.length > 0) {
+    if (!shouldUseCache && Array.isArray(initialPosts)) {
       setPosts(initialPosts);
+      setPage(initialPage);
+      setHasMore(initialHasMore);
+      setMediaTypeFilter(initialType || "all");
+      loadedInitialPageRef.current = initialPage;
     }
-  }, [initialPosts, cachedFeed]);
+  }, [initialPosts, initialPage, initialHasMore, initialType, shouldUseCache]);
 
   // Instant Back-Navigation Cache: Restore exact scroll position on browser back
   useEffect(() => {
-    if (cachedFeed && cachedFeed.scrollY > 40) {
+    if (shouldUseCache && cachedFeed && cachedFeed.scrollY > 40) {
       if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
         window.history.scrollRestoration = "manual";
       }
@@ -148,7 +183,7 @@ export default function Village({ initialPosts = [] }) {
         }, 50);
       });
     }
-  }, [cachedFeed]);
+  }, [cachedFeed, shouldUseCache]);
 
   // Continuously record scroll position into in-memory engine
   useEffect(() => {
@@ -331,8 +366,9 @@ export default function Village({ initialPosts = [] }) {
       }
 
       setFollowingLoading(true);
+      loadedInitialPageRef.current = 0;
       try {
-        const res = await axios.get(`${API_BASE}/post/feed/following?page=1&limit=12`, {
+        const res = await axios.get(`${API_BASE}/post/feed/following?page=1&limit=${FEED_LIMIT}`, {
           headers: { "x-auth-token": token },
         });
         const followingPosts = Array.isArray(res.data?.posts) ? res.data.posts : [];
@@ -345,33 +381,51 @@ export default function Village({ initialPosts = [] }) {
       }
     } else {
       // For you discovery stream
+      loadedInitialPageRef.current = 0;
       try {
-        const postsData = await fetchFeedData(1, mediaTypeFilter, categoryFilter);
+        const { posts: postsData, hasMore: nextHasMore } = await fetchFeedData(1, mediaTypeFilter, categoryFilter);
         setPosts(postsData);
+        setHasMore(nextHasMore);
       } catch (_) {}
     }
   };
 
   const fetchFeedData = useCallback(
     async (targetPage = 1, targetType = mediaTypeFilter, targetCat = categoryFilter) => {
-      try {
-        const typeParam = targetType === "all" ? "" : `&type=${targetType}`;
-        let catParam = "";
-        if (targetCat === "My Topics" && preferredTopics.length > 0) {
-          catParam = `&topics=${encodeURIComponent(preferredTopics.join(","))}`;
-        } else if (targetCat === "Near Me") {
-          catParam = `&location=India`;
-        } else if (targetCat !== "All" && targetCat !== "Shorts") {
-          catParam = `&category=${encodeURIComponent(targetCat)}`;
-        }
+      const typeParam = targetType === "all" ? "" : `&type=${encodeURIComponent(targetType)}`;
+      let catParam = "";
+      if (targetCat === "My Topics" && preferredTopics.length > 0) {
+        catParam = `&topics=${encodeURIComponent(preferredTopics.join(","))}`;
+      } else if (targetCat === "Near Me") {
+        catParam = `&location=India`;
+      } else if (targetCat !== "All" && targetCat !== "Shorts") {
+        catParam = `&category=${encodeURIComponent(targetCat)}`;
+      }
 
-        const res = await axios.get(
-          `${API_BASE}/post/mango/getall?page=${targetPage}&limit=12${typeParam}${catParam}`
-        );
-        const data = Array.isArray(res.data) ? res.data : [];
-        return data;
-      } catch {
-        return [];
+      const queryStr = `page=${targetPage}&limit=${FEED_LIMIT}${typeParam}${catParam}`;
+
+      try {
+        const res = await axios.get(`${API_BASE}/fondpeace/feed?${queryStr}`);
+        if (Array.isArray(res.data)) {
+          return { posts: res.data, hasMore: res.data.length >= FEED_LIMIT };
+        }
+        const items = Array.isArray(res.data?.posts) ? res.data.posts : [];
+        return {
+          posts: items,
+          hasMore: res.data?.hasMore ?? items.length >= FEED_LIMIT,
+        };
+      } catch (err) {
+        // Fallback only if /fondpeace/feed is not yet deployed on backend
+        if (err?.response?.status && err.response.status !== 404) {
+          return { posts: [], hasMore: false };
+        }
+        try {
+          const fallbackRes = await axios.get(`${API_BASE}/post/mango/getall?${queryStr}`);
+          const items = Array.isArray(fallbackRes.data) ? fallbackRes.data : [];
+          return { posts: items, hasMore: items.length >= FEED_LIMIT };
+        } catch {
+          return { posts: [], hasMore: false };
+        }
       }
     },
     [API_BASE, mediaTypeFilter, categoryFilter, preferredTopics]
@@ -380,13 +434,14 @@ export default function Village({ initialPosts = [] }) {
   // If initialPosts was empty (e.g. cold backend during SSR), auto-fetch discovery feed on client
   useEffect(() => {
     if (posts.length === 0 && activeTab === "foryou") {
-      fetchFeedData(1, mediaTypeFilter, categoryFilter).then((data) => {
+      fetchFeedData(initialPage || 1, mediaTypeFilter, categoryFilter).then(({ posts: data, hasMore: nextHasMore }) => {
         if (data && data.length > 0) {
           setPosts(data);
+          setHasMore(nextHasMore);
         }
       });
     }
-  }, [fetchFeedData, activeTab, mediaTypeFilter, categoryFilter, posts.length]);
+  }, [fetchFeedData, activeTab, mediaTypeFilter, categoryFilter, posts.length, initialPage]);
 
   const handleMediaTypeChange = async (type) => {
     if (type === mediaTypeFilter) return;
@@ -395,10 +450,12 @@ export default function Village({ initialPosts = [] }) {
     setPage(1);
     setHasMore(true);
     setFilterLoading(true);
+    loadedInitialPageRef.current = 0;
 
     try {
-      const data = await fetchFeedData(1, type, categoryFilter);
+      const { posts: data, hasMore: nextHasMore } = await fetchFeedData(1, type, categoryFilter);
       setPosts(data);
+      setHasMore(nextHasMore);
     } catch (err) {
       console.error("Filter feed error:", err);
     } finally {
@@ -410,11 +467,14 @@ export default function Village({ initialPosts = [] }) {
     playTap();
     setIsRefreshing(true);
     setPage(1);
+    setHasMore(true);
+    loadedInitialPageRef.current = 0;
     clearFeedCache();
     try {
-      const data = await fetchFeedData(1, mediaTypeFilter, categoryFilter);
+      const { posts: data, hasMore: nextHasMore } = await fetchFeedData(1, mediaTypeFilter, categoryFilter);
       if (data.length > 0) {
         setPosts(data);
+        setHasMore(nextHasMore);
         playChime();
         toast.success("Feed refreshed with fresh stories! 🌟", { duration: 1500 });
       }
@@ -434,10 +494,12 @@ export default function Village({ initialPosts = [] }) {
     setCategoryFilter(cat);
     setPage(1);
     setHasMore(true);
+    loadedInitialPageRef.current = 0;
 
     try {
-      const data = await fetchFeedData(1, mediaTypeFilter, cat);
+      const { posts: data, hasMore: nextHasMore } = await fetchFeedData(1, mediaTypeFilter, cat);
       setPosts(data);
+      setHasMore(nextHasMore);
     } catch (_) {}
   };
 
@@ -474,14 +536,14 @@ export default function Village({ initialPosts = [] }) {
   };
 
   useEffect(() => {
-    if (page === 1) return;
+    if (page <= loadedInitialPageRef.current) return;
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
     if (activeTab === "following") {
       if (!token) return;
       axios
-        .get(`${API_BASE}/post/feed/following?page=${page}&limit=12`, {
+        .get(`${API_BASE}/post/feed/following?page=${page}&limit=${FEED_LIMIT}`, {
           headers: { "x-auth-token": token },
         })
         .then((res) => {
@@ -489,17 +551,19 @@ export default function Village({ initialPosts = [] }) {
           if (!Array.isArray(data) || data.length === 0) {
             setHasMore(false);
           } else {
-            setPosts((prev) => [...prev, ...data]);
+            setPosts((prev) => mergeUniquePosts(prev, data));
+            if (res.data?.hasMore === false) setHasMore(false);
           }
         })
         .catch(() => {});
     } else {
       fetchFeedData(page, mediaTypeFilter, categoryFilter)
-        .then((data) => {
+        .then(({ posts: data, hasMore: nextHasMore }) => {
           if (!Array.isArray(data) || data.length === 0) {
             setHasMore(false);
           } else {
-            setPosts((prev) => [...prev, ...data]);
+            setPosts((prev) => mergeUniquePosts(prev, data));
+            setHasMore(nextHasMore);
           }
         })
         .catch(() => {});
@@ -1037,7 +1101,7 @@ const handleShare = (postData) => {
           onToggleMute={toggleGlobalMute}
         />
       </div>
-    ) : post.poll ? (
+    ) : (post.poll?.question || post.poll?.options?.length > 0) ? (
       /* 📊 Interactive Poll */
       <div className="px-3 sm:px-4 my-1">
         <PollCard
@@ -1195,7 +1259,7 @@ const handleShare = (postData) => {
 
       {/* Stats and Caption */}
       <div className="space-y-2">
-        {(post.media || (post.linkPreview && cleanCaption) || (post.poll && cleanCaption)) && (
+        {(post.media || (post.linkPreview && cleanCaption) || ((post.poll?.question || post.poll?.options?.length > 0) && cleanCaption)) && (
           <div className="text-sm text-[var(--text-primary)] leading-relaxed">
             <span className="font-bold mr-2 hover:underline cursor-pointer text-[var(--text-primary)]">
               {post.userId?.username}
@@ -1360,6 +1424,19 @@ const handleShare = (postData) => {
           <button
             onClick={() => {
               if (activeTab !== "foryou") handleTabChange("foryou");
+              handleMediaTypeChange("image");
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              mediaTypeFilter === "image"
+                ? "bg-white text-black font-extrabold shadow-sm"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            🖼️ Photos
+          </button>
+          <button
+            onClick={() => {
+              if (activeTab !== "foryou") handleTabChange("foryou");
               handleMediaTypeChange("discussion");
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
@@ -1420,7 +1497,8 @@ const handleShare = (postData) => {
         <div className="px-3 sm:px-0">
           <QuickPostComposer
             onPostCreated={(newPost) => {
-              if (newPost) setPosts(prev => [newPost, ...prev]);
+              clearFeedCache();
+              if (newPost) setPosts((prev) => mergeUniquePosts([newPost], prev));
             }}
             currentUserId={userId}
           />

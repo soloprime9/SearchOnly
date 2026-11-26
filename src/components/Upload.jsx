@@ -33,6 +33,7 @@ import { getApiBase, getAuthHeaders } from "@/utils/apiConfig";
 import { isBlockedAdultOrSpam } from "@/utils/uploadModeration";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
 import { fetchLinkPreview, sanitizeLinkUrl } from "@/utils/linkPreview";
+import { clearFeedCache } from "@/utils/feedCache";
 
 // ─── Extract thumbnail + metadata from video in browser (Optimized for Free R2 Storage) ────
 function extractVideoMeta(videoFile) {
@@ -762,6 +763,7 @@ export default function UploadPost() {
 
       setStage("done");
       setProgress(0);
+      clearFeedCache();
       playChime();
       triggerConfetti();
       toast.success("Post published successfully! 🎉");

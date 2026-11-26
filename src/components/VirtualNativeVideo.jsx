@@ -5,9 +5,8 @@ import React, { useState, useEffect, useRef } from "react";
 /**
  * 🎬 VirtualNativeVideo
  * Virtualized video wrapper for feed streams.
- * Only mounts heavy hardware-decoded <video> elements when within 700px of the viewport.
- * When scrolled far away, it safely unmounts the video element, releasing GPU decoders
- * and preventing mobile browser crashes while keeping memory usage ultra-low.
+ * Renders real <video> tags during SSR and initial hydration so Googlebot can index every
+ * video on the homepage feed, then virtualizes off-screen decoders after mount for smooth mobile scrolling.
  */
 export default function VirtualNativeVideo({
   src,
@@ -18,9 +17,11 @@ export default function VirtualNativeVideo({
   alt = "video",
 }) {
   const containerRef = useRef(null);
-  const [isNearViewport, setIsNearViewport] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+  const [isNearViewport, setIsNearViewport] = useState(true);
 
   useEffect(() => {
+    setHasMounted(true);
     if (!containerRef.current) return;
 
     const observer = new IntersectionObserver(
@@ -34,17 +35,20 @@ export default function VirtualNativeVideo({
     return () => observer.disconnect();
   }, []);
 
+  const shouldRenderVideo = !hasMounted || isNearViewport;
+
   return (
     <div ref={containerRef} className="relative w-full h-auto min-h-[220px] flex items-center justify-center bg-black">
-      {isNearViewport ? (
+      {shouldRenderVideo ? (
         <video
           ref={onRef}
           src={src}
-          autoPlay
+          poster={thumbnail || undefined}
+          autoPlay={hasMounted}
           loop
           playsInline
           muted={isMuted}
-          preload="metadata"
+          preload={hasMounted ? "metadata" : "none"}
           className={className}
         />
       ) : (
