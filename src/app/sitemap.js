@@ -1,24 +1,13 @@
-import { STORE_PRODUCTS } from "@/data/storeProducts";
-
 const SITE_URL = "https://www.fondpeace.com";
 const CORE_UPDATED_AT = new Date("2026-11-27T00:00:00.000Z");
 
 export const revalidate = 3600;
 
 /**
- * Core-only sitemap: contains only FondPeace's primary landing, store, creator, and policy pages.
- * Individual /post/[id] pages are discovered naturally via the homepage feed, topic hubs, and related post links.
+ * Core-only sitemap: contains FondPeace's 9 primary landing, store hub, creator, and policy pages.
+ * Store product pages (/store/[id]), posts (/post/[id]), topics, and profiles are discovered via internal links.
  */
 export default function sitemap() {
-  const storeProductRoutes = (Array.isArray(STORE_PRODUCTS) ? STORE_PRODUCTS : [])
-    .filter((p) => p?.slug || p?.id)
-    .map((p) => ({
-      url: `${SITE_URL}/store/${p.slug || p.id}`,
-      lastModified: CORE_UPDATED_AT,
-      changeFrequency: "weekly",
-      priority: 0.85,
-    }));
-
   return [
     {
       url: `${SITE_URL}/`,
@@ -32,7 +21,6 @@ export default function sitemap() {
       changeFrequency: "daily",
       priority: 0.9,
     },
-    ...storeProductRoutes,
     {
       url: `${SITE_URL}/monetization`,
       lastModified: CORE_UPDATED_AT,
@@ -77,4 +65,3 @@ export default function sitemap() {
     },
   ];
 }
-''
