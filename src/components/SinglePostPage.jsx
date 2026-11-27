@@ -10,7 +10,7 @@ import { playPop, playTap, playChime } from "@/utils/soundEffects";
 import { triggerHeartBurst } from "@/utils/confetti";
 import { toast } from "@/utils/toast";
 import { getPostShareUrl } from "@/utils/postMediaUtils";
-import { splitCaption } from "@/utils/captionUtils";
+import { splitCaption, buildReadableFallbackHeadline, formatUtcDateLabel } from "@/utils/captionUtils";
 import PollCard from "./PollCard";
 import LinkPreviewCard from "./LinkPreviewCard";
 import PostActionsMenu from "./PostActionsMenu";
@@ -411,11 +411,23 @@ export default function SinglePostInteractions({ initialPost }) {
 
   const title = post.title || "";
   const cleanCaption = post.linkPreview ? getCleanCaptionText(title, post.linkPreview) : title;
+  const fallbackPostTitle = buildReadableFallbackHeadline(post, "Community Post");
   const { headline: splitHeadline, body: splitBody } = splitCaption(
     cleanCaption || title,
     post.description || "",
-    post.linkPreview?.title || "FondPeace Post"
+    fallbackPostTitle
   );
+  const createdIso = post.createdAt && Number.isFinite(Date.parse(post.createdAt))
+    ? new Date(post.createdAt).toISOString()
+    : "";
+  const createdLabel = formatUtcDateLabel(post.createdAt);
+  const resolvedVideoPoster =
+    post.thumbnail &&
+    typeof post.thumbnail === "string" &&
+    !post.thumbnail.includes("Fondpeace.jpg") &&
+    !post.thumbnail.includes("default.jpg")
+      ? post.thumbnail
+      : undefined;
   const rawAuthorPic = post.userId?.profilePicture || post.userId?.profilePic || post.userId?.avatar;
   const hasAuthorPic = rawAuthorPic && rawAuthorPic !== "/Fondpeace.jpg" && rawAuthorPic.trim() !== "";
   const authorInitial = (post.userId?.username?.[0] || post.userId?.name?.[0] || "U").toUpperCase();
@@ -483,7 +495,9 @@ export default function SinglePostInteractions({ initialPost }) {
               )}
             </div>
             <div className="flex items-center gap-1 text-[11px] text-zinc-400 mt-0.5 font-medium">
-              <span>{post.createdAt ? new Date(post.createdAt).toLocaleDateString() : ""}</span>
+              {createdIso ? (
+                <time dateTime={createdIso}>{createdLabel}</time>
+              ) : null}
               {post.location && (
                 <>
                   <span className="text-zinc-600">•</span>
@@ -516,7 +530,7 @@ export default function SinglePostInteractions({ initialPost }) {
               <video
                 ref={singleVideoRef}
                 src={post.media}
-                poster={post.thumbnail || undefined}
+                poster={resolvedVideoPoster}
                 controls
                 autoPlay
                 playsInline
@@ -535,7 +549,9 @@ export default function SinglePostInteractions({ initialPost }) {
                   }
                 }}
                 className="w-full max-h-[560px] object-contain block mx-auto shadow-2xl"
-              />
+              >
+                <source src={post.media} type={post.mediaType || "video/mp4"} />
+              </video>
               <button
                 onClick={toggleGlobalMute}
                 aria-label={isGlobalMuted ? "Unmute video" : "Mute video"}
@@ -750,9 +766,14 @@ export default function SinglePostInteractions({ initialPost }) {
                   <p className="font-bold text-xs text-[var(--text-primary)]">
                     @{cmt.userId?.username || "user"}
                   </p>
-                  <span className="text-[10px] text-[var(--text-secondary)]">
-                    {cmt.createdAt ? new Date(cmt.createdAt).toLocaleDateString() : ""}
-                  </span>
+                  {cmt.createdAt ? (
+                    <time
+                      dateTime={Number.isFinite(Date.parse(cmt.createdAt)) ? new Date(cmt.createdAt).toISOString() : undefined}
+                      className="text-[10px] text-[var(--text-secondary)]"
+                    >
+                      {formatUtcDateLabel(cmt.createdAt)}
+                    </time>
+                  ) : null}
                 </div>
                 <div className="text-sm text-[var(--text-primary)] mt-1 leading-relaxed">
                   {renderFormattedCaption(cmt.CommentText)}

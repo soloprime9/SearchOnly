@@ -60,6 +60,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/feed",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/feed/:page",
+        destination: "/",
+        permanent: true,
+      },
+      {
         source: "/video-sitemap.xml",
         destination: "/sitemap.xml",
         permanent: true,

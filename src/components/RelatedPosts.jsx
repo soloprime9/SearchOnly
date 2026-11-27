@@ -18,7 +18,7 @@ import { ShieldCheck, Sparkles } from "lucide-react";
 import LinkPreviewCard from "@/components/LinkPreviewCard";
 import { getApiBase } from "@/utils/apiConfig";
 import { isPlayableShortPost, getPostShareText } from "@/utils/postMediaUtils";
-import { truncateWords } from "@/utils/captionUtils";
+import { truncateWords, formatUtcDateLabel } from "@/utils/captionUtils";
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 const PostSkeleton = () => (
@@ -345,11 +345,15 @@ export default function RelatedPosts({
                   href={`/post/${post._id}`}
                   className="text-[10.5px] text-[var(--text-secondary)] hover:text-blue-500 transition-colors font-medium"
                 >
-                  {new Date(post.createdAt).toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
+                  <time
+                    dateTime={
+                      post.createdAt && Number.isFinite(Date.parse(post.createdAt))
+                        ? new Date(post.createdAt).toISOString()
+                        : undefined
+                    }
+                  >
+                    {formatUtcDateLabel(post.createdAt)}
+                  </time>
                 </Link>
               </div>
             </div>
