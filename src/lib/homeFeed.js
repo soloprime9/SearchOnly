@@ -1,4 +1,4 @@
-import { getApiBase } from "@/utils/apiConfig";
+import { fetchApiRead } from "@/utils/apiConfig";
 
 export const PAGE_LIMIT = 20;
 export const VALID_TYPES = new Set(["all", "video", "image", "discussion", "poll", "link"]);
@@ -16,19 +16,18 @@ export function buildFeedHref(page = 1, type = "all") {
 }
 
 export async function fetchHomeFeed({ page = 1, limit = PAGE_LIMIT, type = "all" } = {}) {
-  const API_BASE = getApiBase();
   const safePage = Math.max(1, parseInt(page, 10) || 1);
   const safeType = normalizeFeedType(type);
   const typeParam = safeType !== "all" ? `&type=${encodeURIComponent(safeType)}` : "";
-  const primaryUrl = `${API_BASE}/fondpeace/feed?page=${safePage}&limit=${limit}${typeParam}`;
+  const primaryPath = `/fondpeace/feed?page=${safePage}&limit=${limit}${typeParam}`;
 
   try {
-    const res = await fetch(primaryUrl, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(10000),
+    const res = await fetchApiRead(primaryPath, {
+      fetchOptions: { cache: "no-store" },
+      timeoutMs: 12000,
     });
 
-    if (res.ok) {
+    if (res?.ok) {
       const data = await res.json();
       if (Array.isArray(data)) {
         return {
@@ -36,6 +35,7 @@ export async function fetchHomeFeed({ page = 1, limit = PAGE_LIMIT, type = "all"
           hasMore: data.length >= limit,
           totalPages: safePage + (data.length >= limit ? 1 : 0),
           totalPosts: data.length,
+          fetchOk: true,
         };
       }
       if (Array.isArray(data?.posts)) {
@@ -44,19 +44,20 @@ export async function fetchHomeFeed({ page = 1, limit = PAGE_LIMIT, type = "all"
           hasMore: Boolean(data.hasMore),
           totalPages: Number(data.totalPages) || 1,
           totalPosts: Number(data.totalPosts) || data.posts.length,
+          fetchOk: true,
         };
       }
     }
   } catch (_) {}
 
-  // Fallback only if /fondpeace/feed is not yet deployed on backend
+  // Fallback only if /fondpeace/feed is unavailable on origin
   try {
-    const fallbackUrl = `${API_BASE}/post/mango/getall?page=${safePage}&limit=${limit}${typeParam}`;
-    const res = await fetch(fallbackUrl, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(10000),
+    const fallbackPath = `/post/mango/getall?page=${safePage}&limit=${limit}${typeParam}`;
+    const res = await fetchApiRead(fallbackPath, {
+      fetchOptions: { cache: "no-store" },
+      timeoutMs: 12000,
     });
-    if (res.ok) {
+    if (res?.ok) {
       const data = await res.json();
       if (Array.isArray(data)) {
         return {
@@ -64,23 +65,23 @@ export async function fetchHomeFeed({ page = 1, limit = PAGE_LIMIT, type = "all"
           hasMore: data.length >= limit,
           totalPages: safePage + (data.length >= limit ? 1 : 0),
           totalPosts: data.length,
+          fetchOk: true,
         };
       }
     }
   } catch (_) {}
 
-  return { posts: [], hasMore: false, totalPages: 1, totalPosts: 0 };
+  return { posts: [], hasMore: false, totalPages: 1, totalPosts: 0, fetchOk: false };
 }
 
 export function buildHomeMetadata({ page = 1, type = "all", pathname = "/" } = {}) {
   const safePage = Math.max(1, parseInt(page, 10) || 1);
   const safeType = normalizeFeedType(type);
-  const canonicalUrl =
-    pathname === "/" && safePage === 1 && safeType === "all"
+  const cleanPath =
+    pathname === "/" || safePage === 1
       ? "https://www.fondpeace.com"
-      : pathname.startsWith("/feed/") && safeType === "all"
-      ? `https://www.fondpeace.com${pathname}`
-      : null;
+      : `https://www.fondpeace.com${pathname}`;
+  const isFiltered = safeType !== "all" || (pathname === "/" && safePage > 1);
 
   const title =
     safePage > 1
@@ -102,15 +103,15 @@ export function buildHomeMetadata({ page = 1, type = "all", pathname = "/" } = {
       "Discussions",
     ],
     authors: [{ name: "Aman Kumar" }],
-    robots: "index, follow",
-    ...(canonicalUrl ? { alternates: { canonical: canonicalUrl } } : {}),
+    robots: isFiltered ? { index: false, follow: true } : { index: true, follow: true },
+    alternates: { canonical: cleanPath },
     openGraph: {
       type: "website",
       siteName: "FondPeace",
       title: safePage > 1 ? title : "FondPeace - Community & Creators",
       description:
         "Join FondPeace to discover meaningful discussions, trending short reels, and participate in respectful community conversations.",
-      url: canonicalUrl || "https://www.fondpeace.com",
+      url: cleanPath,
       images: [
         {
           url: "https://www.fondpeace.com/FondPeace-1200x630.jpg",

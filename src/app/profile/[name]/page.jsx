@@ -1,12 +1,12 @@
 // app/profile/[name]/page.jsx
 import { cache } from "react";
+import { notFound } from "next/navigation";
 import Profile from "@/components/Profile";
 import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
-import { getApiBase } from "@/utils/apiConfig";
+import { fetchApiRead } from "@/utils/apiConfig";
 
 const SITE_ROOT = "https://www.fondpeace.com";
-const API_BASE = getApiBase();
 
 export const revalidate = 600;
 
@@ -45,16 +45,19 @@ function slimProfilePosts(rawPosts, limit = 24) {
  * Deduplicated multi-tier profile resolver (shared between generateMetadata & Page)
  */
 const resolveUserProfile = cache(async (username) => {
-  if (!username) return null;
+  if (!username) return { notFound: true, user: null };
   const cleanName = decodeURIComponent(username).trim();
+  let authoritativeNotFound = false;
 
   // Tier 1: Public endpoint
   try {
-    const res = await fetch(
-      `${API_BASE}/user/profile-public/${encodeURIComponent(cleanName)}`,
-      { next: { revalidate: 600 }, signal: AbortSignal.timeout(30000) }
+    const res = await fetchApiRead(
+      `/user/profile-public/${encodeURIComponent(cleanName)}`,
+      { fetchOptions: { next: { revalidate: 600 } }, timeoutMs: 18000 }
     );
-    if (res.ok) {
+    if (res?.status === 404 || res?.status === 400) {
+      authoritativeNotFound = true;
+    } else if (res?.ok) {
       const data = await res.json();
       if (data?.Profile?.user) {
         const rawPosts = Array.isArray(data.Profile.posts) ? data.Profile.posts : [];
@@ -68,17 +71,18 @@ const resolveUserProfile = cache(async (username) => {
           discussionPosts: [],
         };
       }
+      authoritativeNotFound = true;
     }
   } catch (_) {}
 
   // Tier 2: Mango Directory + Posts fallback
   try {
     const [usersRes, postsRes] = await Promise.all([
-      fetch(`${API_BASE}/user/mango/getall`, { next: { revalidate: 600 }, signal: AbortSignal.timeout(30000) }),
-      fetch(`${API_BASE}/post/mango/getall`, { next: { revalidate: 600 }, signal: AbortSignal.timeout(30000) }).catch(() => ({ ok: false }))
+      fetchApiRead(`/user/mango/getall`, { fetchOptions: { next: { revalidate: 600 } }, timeoutMs: 18000 }),
+      fetchApiRead(`/post/mango/getall`, { fetchOptions: { next: { revalidate: 600 } }, timeoutMs: 18000 }).catch(() => null)
     ]);
 
-    if (usersRes.ok) {
+    if (usersRes?.ok) {
       const users = await usersRes.json();
       const targetUser = Array.isArray(users)
         ? users.find((u) => {
@@ -115,10 +119,11 @@ const resolveUserProfile = cache(async (username) => {
           discussionPosts: [],
         };
       }
+      authoritativeNotFound = true;
     }
   } catch (_) {}
 
-  return null;
+  return authoritativeNotFound ? { notFound: true, user: null } : null;
 });
 
 // ---------- METADATA (SEO HEAD) ----------
@@ -187,7 +192,10 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const resolvedParams = await params;
   const username = resolvedParams?.name;
-  const profileData = username ? await resolveUserProfile(username) : null;
+  const profileData = username ? await resolveUserProfile(username) : { notFound: true, user: null };
+  if (profileData?.notFound) {
+    notFound();
+  }
   const user = profileData?.user;
 
   return (

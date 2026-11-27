@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { STORE_PRODUCTS } from "@/data/storeProducts";
 
 const SITE_ROOT = "https://www.fondpeace.com";
@@ -60,6 +61,10 @@ export default async function StoreProductLayout({ children, params }) {
   const resolvedParams = await params;
   const slug = resolvedParams?.id || "";
   const product = STORE_PRODUCTS.find((p) => p.id === slug || p.slug === slug);
+
+  if (!product) {
+    notFound();
+  }
 
   const productSchema = product
     ? {

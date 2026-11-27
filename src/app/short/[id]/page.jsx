@@ -8,13 +8,11 @@ import SinglePostPage from "@/components/SinglePostPage";
 import RelatedPosts from "@/components/RelatedPosts";
 import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
-import { getApiBase } from "@/utils/apiConfig";
+import { fetchApiRead } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
 import { truncateWords, splitCaption } from "@/utils/captionUtils";
 
-const API_BASE = getApiBase().replace(/\/+$/, "");
-const API_SINGLE = `${API_BASE}/post/single/`;
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/Fondpeace.jpg`;
 
@@ -22,11 +20,12 @@ export const revalidate = 3600; // Edge-cache single video watch pages for 1 hou
 
 const getShortWatchData = cache(async (id) => {
   try {
-    const res = await fetch(`${API_SINGLE}${id}`, {
-      next: { revalidate: 3600 },
-      signal: AbortSignal.timeout(35000),
+    const res = await fetchApiRead(`/post/single/${encodeURIComponent(id)}`, {
+      fetchOptions: { next: { revalidate: 3600 } },
+      timeoutMs: 20000,
     });
-    if (res.status === 404) return { notFound: true, data: null };
+    if (!res) return { transientError: true, data: null };
+    if (res.status === 400 || res.status === 404) return { notFound: true, data: null };
     if (!res.ok) return { transientError: true, status: res.status, data: null };
     return { notFound: false, transientError: false, data: await res.json() };
   } catch (err) {

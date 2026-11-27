@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
+import { fetchApiRead } from "@/utils/apiConfig";
 
-const API_SINGLE = "https://backendk-z915.onrender.com/post/single/";
 const SITE_ROOT = "https://www.fondpeace.com";
 
 export const dynamic = "force-dynamic";
@@ -43,8 +43,11 @@ export default async function EmbedPage({ params }) {
   const id = resolvedParams?.id;
   if (!id) return notFound();
 
-  const res = await fetch(`${API_SINGLE}${id}`, { cache: "no-store" });
-  if (!res.ok) return notFound();
+  const res = await fetchApiRead(`/post/single/${encodeURIComponent(id)}`, {
+    fetchOptions: { cache: "no-store" },
+    timeoutMs: 12000,
+  });
+  if (!res || !res.ok) return notFound();
 
   const { post } = await res.json();
   if (!post) return notFound();

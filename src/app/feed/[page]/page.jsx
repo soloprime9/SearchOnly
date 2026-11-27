@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import HomeFeedShell from "@/components/HomeFeedShell";
 import {
@@ -9,6 +10,14 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const getFeedPageData = cache(async (pageNum, currentType) => {
+  return fetchHomeFeed({
+    page: pageNum,
+    limit: PAGE_LIMIT,
+    type: currentType,
+  });
+});
+
 export async function generateMetadata({ params, searchParams }) {
   const resolvedParams = await params;
   const resolvedSearch = await searchParams;
@@ -17,6 +26,10 @@ export async function generateMetadata({ params, searchParams }) {
     return { title: "Page Not Found", robots: { index: false, follow: true } };
   }
   const currentType = normalizeFeedType(resolvedSearch?.type);
+  const { posts, totalPages, fetchOk } = await getFeedPageData(pageNum, currentType);
+  if (fetchOk && (posts.length === 0 || pageNum > totalPages)) {
+    return { title: "Page Not Found", robots: { index: false, follow: true } };
+  }
   return buildHomeMetadata({
     page: pageNum,
     type: currentType,
@@ -38,11 +51,11 @@ export default async function PaginatedFeedPage({ params, searchParams }) {
     redirect(currentType !== "all" ? `/?type=${encodeURIComponent(currentType)}` : "/");
   }
 
-  const { posts, hasMore, totalPages } = await fetchHomeFeed({
-    page: pageNum,
-    limit: PAGE_LIMIT,
-    type: currentType,
-  });
+  const { posts, hasMore, totalPages, fetchOk } = await getFeedPageData(pageNum, currentType);
+
+  if (fetchOk && (posts.length === 0 || pageNum > totalPages)) {
+    notFound();
+  }
 
   return (
     <HomeFeedShell

@@ -5,7 +5,6 @@ import WhatsAppClientUI from "@/components/WhatsAppClientUI";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
-import AuthGuard from "@/components/AuthGuard";
 import CommandPalette from "@/components/CommandPalette";
 import TopLoader from "@/components/TopLoader";
 import CursorSpotlight from "@/components/CursorSpotlight";

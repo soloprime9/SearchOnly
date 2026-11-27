@@ -1,5 +1,14 @@
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: __dirname,
+  turbopack: {
+    root: __dirname,
+  },
   poweredByHeader: false,
   compress: true,
   reactStrictMode: true,
@@ -21,6 +30,30 @@ const nextConfig = {
       { protocol: "https", hostname: "**.cdninstagram.com" },
       { protocol: "https", hostname: "**.fbcdn.net" },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/video-sitemap.xml",
+        destination: "/sitemap.xml",
+        permanent: true,
+      },
+      {
+        source: "/post-sitemap.xml",
+        destination: "/sitemap.xml",
+        permanent: true,
+      },
+      {
+        source: "/blog-sitemap.xml",
+        destination: "/sitemap.xml",
+        permanent: true,
+      },
+      {
+        source: "/shortsvideo-sitemap.xml",
+        destination: "/sitemap.xml",
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     return [

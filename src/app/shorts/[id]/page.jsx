@@ -3,7 +3,7 @@ import { cache } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import ReelsFeedWrapper from "@/components/ReelsFeedWrapper";
-import { getApiBase } from "@/utils/apiConfig";
+import { fetchApiRead } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
 import { truncateWords } from "@/utils/captionUtils";
@@ -17,8 +17,6 @@ function getYouTubeVideoId(url) {
 }
 
 // Server-side Constants
-const API_BASE = getApiBase().replace(/\/+$/, "");
-const API_SINGLE = `${API_BASE}/post/single/`;
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_THUMB = `${SITE_ROOT}/Fondpeace.jpg`;
 
@@ -27,15 +25,17 @@ export const revalidate = 300; // Edge-cache watch pages for 5 minutes (cuts TTF
 // Deduplicated per-request fetch shared between generateMetadata() and ShortsDetailPage()
 const getShortPostData = cache(async (id) => {
   try {
-    const res = await fetch(`${API_SINGLE}${id}`, {
-      next: { revalidate: 300 },
-      signal: AbortSignal.timeout(15000),
+    const res = await fetchApiRead(`/post/single/${encodeURIComponent(id)}`, {
+      fetchOptions: { next: { revalidate: 300 } },
+      timeoutMs: 15000,
     });
-    if (!res.ok) return null;
-    return await res.json();
+    if (!res) return { notFound: false, transientError: true, data: null };
+    if (res.status === 400 || res.status === 404) return { notFound: true, transientError: false, data: null };
+    if (!res.ok) return { notFound: false, transientError: true, data: null };
+    return { notFound: false, transientError: false, data: await res.json() };
   } catch (err) {
     console.error("Failed to fetch single short post:", err);
-    return null;
+    return { notFound: false, transientError: true, data: null };
   }
 });
 
@@ -119,9 +119,9 @@ export async function generateMetadata({ params }) {
   if (!id) return { title: "Shorts & Reels" };
 
   try {
-    const data = await getShortPostData(id);
-    const post = data?.post;
-    if (!post) return { title: "Video Not Found" };
+    const result = await getShortPostData(id);
+    const post = result?.data?.post;
+    if (!post) return { title: "Video Not Found", robots: { index: false, follow: true } };
 
     const mediaUrl = toAbsolute(post.media || post.mediaUrl, "video");
     const thumb = resolvePostThumbnail(post);
@@ -203,9 +203,13 @@ export default async function ShortsDetailPage({ params }) {
   if (!id) return notFound();
 
   try {
-    const data = await getShortPostData(id);
-    const post = data?.post || null;
-    const related = data?.related || [];
+    const result = await getShortPostData(id);
+    const post = result?.data?.post || null;
+    const related = result?.data?.related || [];
+
+    if (!post && result?.notFound) {
+      return notFound();
+    }
 
     if (post) {
       const mediaUrl = toAbsolute(post.media || post.mediaUrl) || null;
@@ -373,7 +377,7 @@ export default async function ShortsDetailPage({ params }) {
       </main>
     );
   } catch (e) {
-    if (e?.digest?.startsWith("NEXT_REDIRECT")) {
+    if (e?.digest?.startsWith("NEXT_")) {
       throw e;
     }
     console.error("ShortsDetailPage component error:", e);

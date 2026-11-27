@@ -18,11 +18,10 @@ import { Coins, ArrowRight, ShieldCheck } from "lucide-react";
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
 import { redirect, notFound, permanentRedirect } from "next/navigation";
-import { getApiBase } from "@/utils/apiConfig";
+import { fetchApiRead } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { isPlayableShortPost } from "@/utils/postMediaUtils";
 import { truncateWords, splitCaption } from "@/utils/captionUtils";
-const API_BASE = getApiBase();
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_AVATAR = "https://www.fondpeace.com/Fondpeace.jpg";
 const DEFAULT_THUMB = "https://www.fondpeace.com/Fondpeace.jpg";
@@ -162,11 +161,12 @@ export const revalidate = 3600; // Edge-cache post pages for 1 hour (fast & cold
 
 const getPostDetailData = cache(async (id) => {
   try {
-    const res = await fetch(`${API_BASE}/post/image/${id}`, {
-      next: { revalidate: 3600 },
-      signal: AbortSignal.timeout(35000),
+    const res = await fetchApiRead(`/post/image/${encodeURIComponent(id)}`, {
+      fetchOptions: { next: { revalidate: 3600 } },
+      timeoutMs: 20000,
     });
-    if (res.status === 404) return { notFound: true, data: null };
+    if (!res) return { transientError: true, data: null };
+    if (res.status === 400 || res.status === 404) return { notFound: true, data: null };
     if (!res.ok) return { transientError: true, status: res.status, data: null };
     return { notFound: false, transientError: false, data: await res.json() };
   } catch {

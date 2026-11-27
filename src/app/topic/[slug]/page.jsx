@@ -1,26 +1,28 @@
 import { cache } from "react";
+import { notFound } from "next/navigation";
 import TopicPage from "@/components/TopicPage";
 import LeftSidebar from "@/components/LeftSidebar";
 import Link from "next/link";
 import { Hash, Sparkles, ArrowLeft } from "lucide-react";
-import { getApiBase } from "@/utils/apiConfig";
-
-const API_BASE = getApiBase();
+import { fetchApiRead } from "@/utils/apiConfig";
 
 const getTopicPosts = cache(async (topic) => {
   try {
-    const res = await fetch(
-      `${API_BASE}/post/single/search?q=${encodeURIComponent(topic)}`,
-      { next: { revalidate: 300 }, signal: AbortSignal.timeout(15000) }
+    const res = await fetchApiRead(
+      `/post/single/search?q=${encodeURIComponent(topic)}`,
+      { fetchOptions: { next: { revalidate: 300 } }, timeoutMs: 15000 }
     );
-    if (res.ok) {
+    if (res?.status === 404 || res?.status === 400) {
+      return { posts: [], ok: true };
+    }
+    if (res?.ok) {
       const data = await res.json();
-      return Array.isArray(data) ? data : [];
+      return { posts: Array.isArray(data) ? data : [], ok: true };
     }
   } catch (err) {
     console.error("Topic fetch failed:", err);
   }
-  return [];
+  return { posts: [], ok: false };
 });
 
 /* ---------------- SEO METADATA ---------------- */
@@ -28,6 +30,14 @@ export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams?.slug || "";
   const topicRaw = decodeURIComponent(slug).replace(/-/g, " ");
+  const { posts, ok } = await getTopicPosts(topicRaw);
+
+  if (!slug || (ok && posts.length === 0)) {
+    return {
+      title: "Topic Not Found",
+      robots: { index: false, follow: true },
+    };
+  }
 
   const topic = topicRaw.charAt(0).toUpperCase() + topicRaw.slice(1);
   const url = `https://www.fondpeace.com/topic/${slug}`;
@@ -67,7 +77,11 @@ export default async function TopicPost({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams?.slug || "";
   const topic = decodeURIComponent(slug).replace(/-/g, " ");
-  const posts = await getTopicPosts(topic);
+  const { posts, ok } = await getTopicPosts(topic);
+
+  if (!slug || (ok && posts.length === 0)) {
+    notFound();
+  }
 
   /* ---------- STRUCTURED DATA ---------- */
   const schema = {
