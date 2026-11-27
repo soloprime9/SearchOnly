@@ -14,10 +14,11 @@ import {
   FaVolumeMute,
   FaVolumeUp,
 } from "react-icons/fa";
-import { ShieldCheck, Sparkles } from "lucide-react";
+import { ShieldCheck, Sparkles, Play } from "lucide-react";
 import LinkPreviewCard from "@/components/LinkPreviewCard";
 import { getApiBase } from "@/utils/apiConfig";
 import { isPlayableShortPost, getPostShareText } from "@/utils/postMediaUtils";
+import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
 import { truncateWords, formatUtcDateLabel } from "@/utils/captionUtils";
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
@@ -371,45 +372,22 @@ export default function RelatedPosts({
             <div className="relative w-full max-h-[520px] bg-black rounded-xl overflow-hidden flex items-center justify-center my-1 group">
               <Link
                 href={`/post/${post._id}`}
-                className="w-full h-auto flex items-center justify-center bg-black cursor-pointer group/media"
+                className="relative w-full h-auto flex items-center justify-center bg-black cursor-pointer group/media"
               >
-                {isVid ? (
-                  <video
-                    ref={(r) => (videoRefs.current[post._id] = r)}
-                    src={post.media}
-                    loop
-                    playsInline
-                    muted={mutedMap[post._id] !== false}
-                    preload="metadata"
-                    className="w-full max-h-[520px] object-contain block mx-auto"
-                  />
-                ) : (
-                  <img
-                    src={post.media}
-                    alt={title}
-                    className="w-full max-h-[520px] object-contain block mx-auto"
-                    loading="lazy"
-                  />
+                <img
+                  src={isVid ? resolvePostThumbnail(post) : post.media}
+                  alt={title || (isVid ? "Watch video on FondPeace" : "FondPeace post")}
+                  className="w-full max-h-[520px] object-contain block mx-auto"
+                  loading="lazy"
+                />
+                {isVid && (
+                  <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span className="w-12 h-12 rounded-full bg-black/70 backdrop-blur-md border border-white/25 text-white flex items-center justify-center shadow-xl group-hover/media:scale-110 transition-transform">
+                      <Play className="w-5 h-5 fill-white ml-0.5" />
+                    </span>
+                  </span>
                 )}
               </Link>
-
-              {isVid && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleMute(post._id);
-                  }}
-                  className="absolute bottom-3 right-3 z-20 w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md text-white rounded-full hover:bg-black/80 active:scale-90 transition-all border border-white/10 cursor-pointer"
-                  title="Toggle Mute"
-                >
-                  {mutedMap[post._id] !== false ? (
-                    <FaVolumeMute size={11} />
-                  ) : (
-                    <FaVolumeUp size={11} />
-                  )}
-                </button>
-              )}
             </div>
           ) : (post.linkPreview || isYouTube || (typeof post.thumbnail === "string" && (post.thumbnail.includes("youtube.com") || post.thumbnail.includes("ytimg.com")))) ? (
             <div className="px-3 sm:px-4 my-1">

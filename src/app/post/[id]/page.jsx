@@ -230,7 +230,14 @@ export async function generateMetadata({ params }) {
     const post = result?.data?.post;
 
     if (result?.notFound || (!result?.transientError && !post)) {
-      return { title: "Post Not Found", robots: { index: false, follow: true } };
+      return {
+        title: "Post Not Found",
+        robots: {
+          index: false,
+          follow: true,
+          googleBot: { index: false, follow: true },
+        },
+      };
     }
     if (!post) return { title: "Community Post" };
 
@@ -417,7 +424,16 @@ export default async function Page({ params }) {
   };
 
   const webPageId = `${pageUrl}#webpage`;
-  const primaryMediaId = isVideo ? `${pageUrl}#video` : isImage ? `${pageUrl}#image` : `${pageUrl}#main`;
+  const hasRealMediaNode = isVideo || (isImage && Boolean(mediaUrl));
+  const hasRealPoll = Array.isArray(post?.poll?.options) && post.poll.options.length > 0;
+  const includeDiscussionNode =
+    !hasRealMediaNode ||
+    isArticle ||
+    seo.comments > 0 ||
+    hasRealPoll ||
+    Boolean(post.linkPreview?.url && !ytId && !hasRealMediaNode);
+  const primaryMediaId = isVideo ? `${pageUrl}#video` : isImage && mediaUrl ? `${pageUrl}#image` : `${pageUrl}#main`;
+  const relatedLinksList = related.map((r) => `${SITE_ROOT}/post/${r._id}`);
 
   const videoThumbList = ytId
     ? Array.from(
@@ -451,6 +467,7 @@ export default async function Page({ params }) {
         "breadcrumb": { "@id": `${pageUrl}#breadcrumb` },
         "primaryImageOfPage": { "@type": "ImageObject", "url": resolvedThumb },
         "mainEntity": { "@id": primaryMediaId },
+        ...(relatedLinksList.length > 0 ? { "relatedLink": relatedLinksList } : {}),
         "datePublished": publishedIso,
         "dateModified": modifiedIso,
       },
@@ -554,86 +571,90 @@ export default async function Page({ params }) {
               },
             ]
           : []),
-      {
-        "@type": primarySchemaType,
-        "@id": `${pageUrl}#main`,
-        "url": pageUrl,
-        "headline": truncateWords(seo.headline, 110),
-        "description": seo.schemaDescription,
-        "articleBody": seo.fullClean || seo.headline,
-        "name": truncateWords(seo.headline, 110),
-        "keywords": keywordsStr,
-        "isAccessibleForFree": true,
-        "mainEntityOfPage": { "@type": "WebPage", "@id": webPageId },
-        "datePublished": publishedIso,
-        "dateModified": modifiedIso,
-        "author": authorSchema,
-        "publisher": publisherSchema,
-        ...(isArticle
-          ? {
-              "wordCount": post.title ? post.title.split(/\s+/).length : 0,
-              "inLanguage": "en",
-            }
-          : {}),
-        ...(isVideo
-          ? { "video": { "@id": `${pageUrl}#video` } }
-          : isImage && mediaUrl
-            ? { "image": { "@id": `${pageUrl}#image` } }
-            : {}),
-        ...(!isImage || !mediaUrl
-          ? {
-              "image": {
-                "@type": "ImageObject",
-                "url": resolvedThumb,
-              },
-            }
-          : {}),
-        ...(post.linkPreview?.url
-          ? {
-              "sharedContent": {
-                "@type": "WebPage",
-                "@id": post.linkPreview.url,
-                "url": post.linkPreview.url,
-                "name": post.linkPreview.title || post.linkPreview.url,
-                "description": post.linkPreview.description || "",
-                ...(post.linkPreview.image ? { "image": post.linkPreview.image } : {}),
-              },
-            }
-          : {}),
-        "interactionStatistic": [
-          {
-            "@type": "InteractionCounter",
-            "interactionType": "https://schema.org/LikeAction",
-            "userInteractionCount": seo.likes,
-          },
-          {
-            "@type": "InteractionCounter",
-            "interactionType": isVideo ? "https://schema.org/WatchAction" : "https://schema.org/ReadAction",
-            "userInteractionCount": seo.views,
-          },
-          {
-            "@type": "InteractionCounter",
-            "interactionType": "https://schema.org/CommentAction",
-            "userInteractionCount": seo.comments,
-          },
-        ],
-        "commentCount": seo.comments,
-        "comment": (Array.isArray(post.comments) ? post.comments : []).map((c) => {
-          const cAuthor = c.userId?.username || "User";
-          return {
-            "@type": "Comment",
-            "@id": `${pageUrl}#comment-${c._id}`,
-            "text": c.CommentText || "",
-            "dateCreated": safeIsoDate(c.createdAt),
-            "author": {
-              "@type": "Person",
-              "name": cAuthor,
-              "url": `${SITE_ROOT}/profile/${encodeURIComponent(cAuthor)}`,
+      ...(includeDiscussionNode
+        ? [
+            {
+              "@type": primarySchemaType,
+              "@id": `${pageUrl}#main`,
+              "url": pageUrl,
+              "headline": truncateWords(seo.headline, 110),
+              "description": seo.schemaDescription,
+              "articleBody": seo.fullClean || seo.headline,
+              "name": truncateWords(seo.headline, 110),
+              "keywords": keywordsStr,
+              "isAccessibleForFree": true,
+              "mainEntityOfPage": { "@type": "WebPage", "@id": webPageId },
+              "datePublished": publishedIso,
+              "dateModified": modifiedIso,
+              "author": authorSchema,
+              "publisher": publisherSchema,
+              ...(isArticle
+                ? {
+                    "wordCount": post.title ? post.title.split(/\s+/).length : 0,
+                    "inLanguage": "en",
+                  }
+                : {}),
+              ...(isVideo
+                ? { "video": { "@id": `${pageUrl}#video` } }
+                : isImage && mediaUrl
+                  ? { "image": { "@id": `${pageUrl}#image` } }
+                  : {}),
+              ...(!isImage || !mediaUrl
+                ? {
+                    "image": {
+                      "@type": "ImageObject",
+                      "url": resolvedThumb,
+                    },
+                  }
+                : {}),
+              ...(post.linkPreview?.url
+                ? {
+                    "sharedContent": {
+                      "@type": "WebPage",
+                      "@id": post.linkPreview.url,
+                      "url": post.linkPreview.url,
+                      "name": post.linkPreview.title || post.linkPreview.url,
+                      "description": post.linkPreview.description || "",
+                      ...(post.linkPreview.image ? { "image": post.linkPreview.image } : {}),
+                    },
+                  }
+                : {}),
+              "interactionStatistic": [
+                {
+                  "@type": "InteractionCounter",
+                  "interactionType": "https://schema.org/LikeAction",
+                  "userInteractionCount": seo.likes,
+                },
+                {
+                  "@type": "InteractionCounter",
+                  "interactionType": isVideo ? "https://schema.org/WatchAction" : "https://schema.org/ReadAction",
+                  "userInteractionCount": seo.views,
+                },
+                {
+                  "@type": "InteractionCounter",
+                  "interactionType": "https://schema.org/CommentAction",
+                  "userInteractionCount": seo.comments,
+                },
+              ],
+              "commentCount": seo.comments,
+              "comment": (Array.isArray(post.comments) ? post.comments : []).map((c) => {
+                const cAuthor = c.userId?.username || "User";
+                return {
+                  "@type": "Comment",
+                  "@id": `${pageUrl}#comment-${c._id}`,
+                  "text": c.CommentText || "",
+                  "dateCreated": safeIsoDate(c.createdAt),
+                  "author": {
+                    "@type": "Person",
+                    "name": cAuthor,
+                    "url": `${SITE_ROOT}/profile/${encodeURIComponent(cAuthor)}`,
+                  },
+                };
+              }),
+              "relatedLink": relatedLinksList,
             },
-          };
-        }),
-        "relatedLink": related.map((r) => `${SITE_ROOT}/post/${r._id}`),
-      },
+          ]
+        : []),
     ],
   };
 
