@@ -308,6 +308,47 @@ export default function ContactUs() {
 
           </div>
         </div>
+
+        {/* Helpful Support Directory & Guidelines (Improves User Clarity & Page Depth) */}
+        <section className="relative z-10 mt-10 pt-8 border-t border-black/[0.06] dark:border-white/[0.08] grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <h2 className="text-base font-bold text-gray-900 dark:text-white">
+              How FondPeace Support Works
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+              Whether you are an independent writer, short-form filmmaker, or community reader, our team reviews every inquiry sent to{" "}
+              <a href="mailto:contact@fondpeace.com" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                contact@fondpeace.com
+              </a>
+              . Include your account username, relevant post or short URL, and screenshots for bug reports so we can resolve your request quickly.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-base font-bold text-gray-900 dark:text-white">
+              Creator Partnerships, Copyright &amp; Privacy Requests
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+              Brands and creators interested in community campaigns or sponsorships can explore our{" "}
+              <Link href="/monetization" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                Creator Program
+              </Link>{" "}
+              and{" "}
+              <Link href="/aboutus" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                About FondPeace
+              </Link>{" "}
+              overview. For copyright takedown notices under DMCA or account data deletion requests, please specify the exact URLs and follow our{" "}
+              <Link href="/DMCA" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                DMCA Policy
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacypolicy" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                Privacy Policy
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
       </div>
         </main>
       </div>

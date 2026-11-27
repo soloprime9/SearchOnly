@@ -248,9 +248,8 @@ export default async function ShortsDetailPage({ params }) {
         nonHashtagText ||
         (extractedHashtags.length ? extractedHashtags.slice(0, 4).join(" ") : "FondPeace Short Video");
       const safeAuthor = authorName || "FondPeace";
-      const cleanSchemaDescription = `${cleanDisplayTitle} — short vertical video by @${safeAuthor} on FondPeace Shorts.${
-        extractedHashtags.length ? ` Topics: ${extractedHashtags.join(", ")}.` : ""
-      } Watch, react, and join the community conversation.`;
+      const cleanSchemaDescription = `${cleanDisplayTitle} — short vertical video by @${safeAuthor} on FondPeace Shorts.${extractedHashtags.length ? ` Topics: ${extractedHashtags.join(", ")}.` : ""
+        } Watch, react, and join the community conversation.`;
 
       const relatedShorts = (Array.isArray(related) ? related : [])
         .filter((r) => r?._id && String(r._id) !== String(post._id || id) && isPlayableShortPost(r))

@@ -1261,9 +1261,12 @@ const handleShare = (postData) => {
       <div className="space-y-2">
         {(post.media || (post.linkPreview && cleanCaption) || ((post.poll?.question || post.poll?.options?.length > 0) && cleanCaption)) && (
           <div className="text-sm text-[var(--text-primary)] leading-relaxed">
-            <span className="font-bold mr-2 hover:underline cursor-pointer text-[var(--text-primary)]">
+            <Link
+              href={`/profile/${encodeURIComponent((post.userId?.username || "creator").trim())}`}
+              className="font-bold mr-2 hover:underline text-[var(--text-primary)]"
+            >
               {post.userId?.username}
-            </span>
+            </Link>
             <span className="whitespace-pre-wrap text-[var(--text-primary)]">
               {renderFormattedCaption(titleText, (tag) => {
                 playTap();
@@ -1281,6 +1284,22 @@ const handleShare = (postData) => {
           </div>
         )}
 
+        {/* Descriptive internal link for crawlers & direct navigation */}
+        <Link
+          href={isVideo ? `/short/${post._id}` : `/post/${post._id}`}
+          onClick={() => saveFeedCache({ posts, page, activeTab, categoryFilter, mediaTypeFilter, scrollY: window.scrollY, hasMore })}
+          className="block truncate text-xs font-medium text-[var(--text-secondary)] hover:text-blue-500 transition-colors pt-0.5"
+        >
+          {truncateWords(
+            (cleanCaption || post.linkPreview?.title || post.title || "")
+              .replace(/#[\w\u0590-\u05ff\u0900-\u097f]+/g, "")
+              .replace(/https?:\/\/\S+/gi, "")
+              .replace(/\s+/g, " ")
+              .trim() || (isVideo ? "Watch Short Video" : "View Community Post"),
+            72
+          )} →
+        </Link>
+
         {/* Smart 1-Click TL;DR Key Takeaways on Long Posts */}
         <PostQuickSummary text={post.title} />
 
@@ -1290,21 +1309,27 @@ const handleShare = (postData) => {
         {/* Clickable Topic Hashtag Pills (Aggregated from caption + post.tags) */}
         {allPostTags.length > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap pt-1">
-            {allPostTags.map((t, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  playTap();
-                  setSelectedHashtag(t);
-                }}
-                className="inline-flex items-center gap-0.5 text-[11px] font-bold text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/40 hover:bg-cyan-100 dark:hover:bg-cyan-900/60 border border-cyan-200 dark:border-cyan-500/30 px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-xs"
-              >
-                <span className="opacity-70">#</span>
-                <span>{t.replace(/^#+/, "")}</span>
-              </button>
-            ))}
+            {allPostTags.map((t, idx) => {
+              const cleanTag = t.replace(/^#+/, "");
+              return (
+                <Link
+                  key={idx}
+                  href={`/topic/${encodeURIComponent(cleanTag.toLowerCase())}`}
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      playTap();
+                      setSelectedHashtag(t);
+                    }
+                  }}
+                  className="inline-flex items-center gap-0.5 text-[11px] font-bold text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/40 hover:bg-cyan-100 dark:hover:bg-cyan-900/60 border border-cyan-200 dark:border-cyan-500/30 px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-xs"
+                >
+                  <span className="opacity-70">#</span>
+                  <span>{cleanTag}</span>
+                </Link>
+              );
+            })}
           </div>
         )}
 

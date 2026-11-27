@@ -23,7 +23,7 @@ export async function fetchHomeFeed({ page = 1, limit = PAGE_LIMIT, type = "all"
 
   try {
     const res = await fetchApiRead(primaryPath, {
-      fetchOptions: { cache: "no-store" },
+      fetchOptions: { next: { revalidate: 30 } },
       timeoutMs: 12000,
     });
 
@@ -54,7 +54,7 @@ export async function fetchHomeFeed({ page = 1, limit = PAGE_LIMIT, type = "all"
   try {
     const fallbackPath = `/post/mango/getall?page=${safePage}&limit=${limit}${typeParam}`;
     const res = await fetchApiRead(fallbackPath, {
-      fetchOptions: { cache: "no-store" },
+      fetchOptions: { next: { revalidate: 30 } },
       timeoutMs: 12000,
     });
     if (res?.ok) {
