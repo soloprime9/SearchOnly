@@ -1,4 +1,4 @@
-// Unified SSR Single Post & Media Watch Page (Videos, YouTube, Photos, Links, Polls, Discussions)
+// Unified SSR Single Post Page for Photos & Videos (Matched 1:1 to falconspido SEO/Metadata/Schema, using FondPeace UI)
 import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,162 +9,221 @@ import RelatedPosts from "@/components/RelatedPosts";
 import LeftSidebar from "@/components/LeftSidebar";
 import SuggestedCreatorsWidget from "@/components/SuggestedCreatorsWidget";
 import { fetchApiRead } from "@/utils/apiConfig";
-import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
-import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
-import {
-  truncateWords,
-  splitCaption,
-  buildReadableFallbackHeadline,
-} from "@/utils/captionUtils";
+import { truncateWords } from "@/utils/captionUtils";
 
 const SITE_ROOT = "https://www.fondpeace.com";
-const SITE_ORG_ID = `${SITE_ROOT}/#organization`;
-const SITE_WEBSITE_ID = `${SITE_ROOT}/#website`;
-const SITE_LOGO_URL = `${SITE_ROOT}/FondPeace-1200x630.jpg`;
-const DEFAULT_AVATAR = `${SITE_ROOT}/Fondpeace.jpg`;
+const DEFAULT_COVER = `${SITE_ROOT}/FondPeace-1200x630.jpg`;
+const SITE_LOGO = `${SITE_ROOT}/Fondpeace.jpg`;
 
-export const revalidate = 3600; // Edge-cache single post pages for 1 hour (resilient SSR & fast TTFB)
+export const revalidate = 3600;
 
-/* ---------------------- HELPERS ---------------------- */
-function toAbsolute(url) {
-  if (!url || typeof url !== "string") return null;
-  const s = url.trim();
-  if (!s) return null;
-  if (s.startsWith("http://") || s.startsWith("https://")) return s;
-  if (s.startsWith("//")) return `https:${s}`;
+/* ---------------------- FALCONSPIDO-MATCHED NORMALIZER & SEO BUILDERS ---------------------- */
+function safeMediaUrl(raw) {
+  if (!raw || typeof raw !== "string") return "";
+  const s = raw.trim();
+  if (/^https?:\/\//i.test(s)) return s;
   if (s.startsWith("/")) return `${SITE_ROOT}${s}`;
-  return `${SITE_ROOT}/${s}`;
+  return "";
 }
 
-function secToISO(sec) {
-  const s = Math.round(Number(sec));
-  if (!Number.isFinite(s) || s <= 0) return undefined;
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const secLeft = s % 60;
-  let iso = "PT";
-  if (h > 0) iso += `${h}H`;
-  if (m > 0) iso += `${m}M`;
-  if (secLeft > 0 || (h === 0 && m === 0)) iso += `${secLeft}S`;
-  return iso;
-}
-
-function likesCount(post) {
-  if (Array.isArray(post?.likes)) return post.likes.length;
-  if (typeof post?.likes === "number") return post.likes;
-  return 0;
-}
-
-function commentsCount(post) {
-  if (Array.isArray(post?.comments)) return post.comments.length;
-  if (typeof post?.commentCount === "number") return post.commentCount;
-  return 0;
-}
-
-function viewsCount(post) {
-  if (typeof post?.views === "number") return post.views;
-  return 0;
-}
-
-function safeIsoDate(value) {
-  const ts = Date.parse(value);
-  return Number.isFinite(ts) ? new Date(ts).toISOString() : new Date().toISOString();
-}
-
-function extractPostTags(post) {
-  const inlineTags = String(post?.title || "").match(/#[\w\u0590-\u05ff\u0900-\u097f]+/g) || [];
-  const raw = [
-    ...(Array.isArray(post?.tags) ? post.tags : []),
-    ...(Array.isArray(post?.hashtags) ? post.hashtags : []),
-    ...inlineTags,
-  ]
-    .map((t) => String(t || "").replace(/^#+/, "").trim())
-    .filter(Boolean);
-  return Array.from(new Set(raw)).slice(0, 12);
-}
-
-function buildKeywords(post, headline) {
-  const tags = extractPostTags(post);
-  if (tags.length > 0) {
-    return Array.from(new Set([...tags, post?.category, "FondPeace"].filter(Boolean))).join(", ");
+function parseTimestampMs(post) {
+  const ts = Date.parse(post?.createdAt);
+  if (Number.isFinite(ts)) return ts;
+  const id = String(post?._id || "");
+  if (/^[a-f0-9]{24}$/i.test(id)) {
+    return parseInt(id.slice(0, 8), 16) * 1000;
   }
-  const titleWords = String(headline || post?.title || "FondPeace")
-    .split(/\s+/)
-    .filter((w) => w.length > 2)
-    .slice(0, 8);
-  return Array.from(new Set([...titleWords, post?.category, "FondPeace"].filter(Boolean))).join(", ");
+  return Date.now();
 }
 
-function buildMediaInfo(post) {
-  const isVideo = isPlayableShortPost(post);
-  const ytId = isVideo ? extractPostYouTubeId(post) : null;
-  const mediaUrl = toAbsolute(post?.media || post?.mediaUrl);
-  const isNativeVideo = isVideo && !ytId && Boolean(mediaUrl);
-  const isImage =
-    !isVideo &&
-    Boolean(mediaUrl) &&
-    (/^image\//i.test(post?.mediaType || "") ||
-      /\.(jpe?g|png|webp|gif|avif|heic|heif|bmp|svg|jfif)(\?|#|$)/i.test(mediaUrl));
+/**
+ * Strictly normalizes Photo & Direct Video posts (identical to falconspido's normalizeServerPost).
+ * Returns null for YouTube embeds, text-only posts, polls, or links without direct image/video media.
+ */
+function normalizeMediaPost(post) {
+  if (!post || !post._id) return null;
 
-  const resolvedThumb = resolvePostThumbnail(post);
-  const width = Number(post?.width) > 0 ? Number(post.width) : ytId ? 1280 : isNativeVideo ? 720 : 1200;
-  const height = Number(post?.height) > 0 ? Number(post.height) : ytId ? 720 : isNativeVideo ? 1280 : 630;
+  const mediaUrl = safeMediaUrl(
+    post.media || post.mediaUrl || (post.medias && post.medias.url) || ""
+  );
+  if (!mediaUrl || /(youtube\.com|youtu\.be)/i.test(mediaUrl)) return null;
+
+  const mt = String(post.mediaType || "").toLowerCase();
+  const isVideo = mt.startsWith("video") || /\.(mp4|mov|webm|mkv|m4v)(\?|#|$)/i.test(mediaUrl);
+  const isPhoto =
+    !isVideo &&
+    (mt.startsWith("image") || /\.(jpe?g|png|webp|gif|avif|bmp|svg|jfif)(\?|#|$)/i.test(mediaUrl));
+
+  if (!isVideo && !isPhoto) return null;
+
+  const tags = Array.isArray(post.tags)
+    ? post.tags.map((t) => String(t || "").replace(/^#+/, "").trim()).filter(Boolean)
+    : Array.isArray(post.hashtags)
+      ? post.hashtags.map((h) => String(h || "").replace(/^#+/, "").trim()).filter(Boolean)
+      : [];
+
+  const createdMs = parseTimestampMs(post);
+  const createdAt = post.createdAt || new Date(createdMs).toISOString();
+  const updatedAt = post.updatedAt || createdAt;
 
   return {
-    isVideo,
-    ytId,
+    id: String(post._id),
+    kind: isVideo ? "video" : "image",
     mediaUrl,
-    isNativeVideo,
-    isImage,
-    resolvedThumb,
-    width,
-    height,
+    thumbUrl: safeMediaUrl(post.thumbnail || (isPhoto ? mediaUrl : "")),
+    title:
+      String(post.title || "").trim() ||
+      `Latest ${isVideo ? "Video" : "Photo"} on fondpeace.com`,
+    description: String(post.description || "").trim(),
+    tags,
+    location: String(post.location || "").trim(),
+    duration: Number(post.duration || 0),
+    width: Number(post.width || 1280),
+    height: Number(post.height || 720),
+    views: Number(post.views || 0),
+    likesCount: Array.isArray(post.likes) ? post.likes.length : Number(post.likes || 0),
+    commentsCount: Array.isArray(post.comments)
+      ? post.comments.length
+      : Number(post.commentCount || 0),
+    comments: Array.isArray(post.comments) ? post.comments : [],
+    createdAt,
+    updatedAt,
+    user: {
+      username: String((post.userId && (post.userId.username || post.userId.name)) || "fondpeace"),
+      avatar: safeMediaUrl(
+        post.userId && (post.userId.profilePicture || post.userId.profilePic || post.userId.avatar)
+      ),
+      verified: Boolean(post.userId && (post.userId.isVerified || post.userId.isEmailVerified)),
+    },
+    raw: post,
   };
 }
 
-function buildPostSeoContent(post, mediaInfo) {
-  const { isVideo, isImage } = mediaInfo;
-  const fallbackLabel = isVideo ? "Creator Video" : isImage ? "Creator Photo" : "Community Discussion";
-  const readableFallback = buildReadableFallbackHeadline(post, fallbackLabel);
-  const rawCaption = String(post?.title || "").trim();
-  const explicitDesc = String(post?.description || "").trim();
+function formatIsoDur(sec) {
+  const s = Math.max(0, Math.round(sec || 0));
+  if (!s) return undefined;
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = s % 60;
+  return `PT${h ? `${h}H` : ""}${m ? `${m}M` : ""}${r || (!h && !m) ? `${r}S` : ""}`;
+}
 
-  const { headline, body, fullClean } = splitCaption(rawCaption, explicitDesc, readableFallback);
-  const cleanHeadline = (headline || readableFallback).trim();
-  const authorUsername = String(post?.userId?.username || "FondPeace").trim();
-  const authorHandle = authorUsername && authorUsername !== "FondPeace" ? `@${authorUsername}` : "FondPeace";
+function buildSinglePostSeoDescription(p) {
+  const verb = p.kind === "video" ? "watch" : "view";
+  const snippet = p.description ? `${p.description.slice(0, 110)} — ` : "";
+  return `🔥 ${p.views} Views, ${p.likesCount} Likes, ${p.commentsCount} Comments — ${snippet}${verb} "${p.title}" uploaded by ${p.user.username} on fondpeace.com.`;
+}
 
-  const likes = likesCount(post);
-  const comments = commentsCount(post);
-  const views = viewsCount(post);
-  const pluralize = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
-  const statsParts = [];
-  if (views > 0) statsParts.push(pluralize(views, "view"));
-  if (likes > 0) statsParts.push(pluralize(likes, "like"));
-  if (comments > 0) statsParts.push(pluralize(comments, "comment"));
-  const statsSuffix = statsParts.length > 0 ? ` (${statsParts.join(", ")})` : "";
+function extractKeywords(p) {
+  if (p.tags && p.tags.length) return p.tags.join(", ");
+  return p.title.split(/\s+/).filter(Boolean).slice(0, 10).join(", ");
+}
 
-  const actionVerb = isVideo ? "Watch video" : isImage ? "View photo" : "Read discussion";
-  const attribution = `${actionVerb} by ${authorHandle} on FondPeace${statsSuffix}.`;
-  const narrative = (fullClean || cleanHeadline).replace(/\s+/g, " ").trim();
+function buildSinglePostSsrJsonLd(p) {
+  const pageUrl = `${SITE_ROOT}/post/${encodeURIComponent(p.id)}`;
+  const desc = buildSinglePostSeoDescription(p);
+  const kw = extractKeywords(p);
+  const thumb = p.thumbUrl || (p.kind === "image" ? p.mediaUrl : DEFAULT_COVER) || DEFAULT_COVER;
+  const interactionStatistic = [
+    {
+      "@type": "InteractionCounter",
+      interactionType: { "@type": "LikeAction" },
+      userInteractionCount: p.likesCount,
+    },
+    {
+      "@type": "InteractionCounter",
+      interactionType: { "@type": "CommentAction" },
+      userInteractionCount: p.commentsCount,
+    },
+    {
+      "@type": "InteractionCounter",
+      interactionType: { "@type": "WatchAction" },
+      userInteractionCount: p.views,
+    },
+  ];
+  const publisher = {
+    "@type": "Organization",
+    name: "fondpeace.com",
+    url: SITE_ROOT,
+    logo: { "@type": "ImageObject", url: SITE_LOGO, width: 600, height: 600 },
+  };
 
-  // Keep headline + author/action visible within ~195 chars even for long articles
-  const shortSummary =
-    narrative.length > 135
-      ? `${truncateWords(cleanHeadline, 105)} — ${attribution}`
-      : `${narrative} — ${attribution}`;
+  let mediaObj;
+  if (p.kind === "video") {
+    mediaObj = {
+      "@type": "VideoObject",
+      "@id": `${pageUrl}#video`,
+      url: pageUrl,
+      name: p.title,
+      headline: p.title,
+      description: desc,
+      thumbnailUrl: thumb,
+      contentUrl: p.mediaUrl,
+      embedUrl: pageUrl,
+      uploadDate: new Date(p.createdAt).toISOString(),
+      datePublished: new Date(p.createdAt).toISOString(),
+      dateModified: new Date(p.updatedAt).toISOString(),
+      width: p.width || 1280,
+      height: p.height || 720,
+      encodingFormat: "video/mp4",
+      publisher,
+      author: { "@type": "Person", name: p.user.username },
+      creator: { "@type": "Person", name: p.user.username },
+      interactionStatistic,
+      keywords: kw,
+      isFamilyFriendly: true,
+      potentialAction: { "@type": "WatchAction", target: pageUrl },
+      mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+    };
+    const dur = formatIsoDur(p.duration);
+    if (dur) mediaObj.duration = dur;
+  } else {
+    mediaObj = {
+      "@type": "ImageObject",
+      "@id": `${pageUrl}#image`,
+      url: pageUrl,
+      name: p.title,
+      headline: p.title,
+      description: desc,
+      contentUrl: p.mediaUrl,
+      thumbnailUrl: thumb,
+      datePublished: new Date(p.createdAt).toISOString(),
+      dateModified: new Date(p.updatedAt).toISOString(),
+      publisher,
+      author: { "@type": "Person", name: p.user.username },
+      interactionStatistic,
+      keywords: kw,
+      isFamilyFriendly: true,
+      potentialAction: { "@type": "ViewAction", target: pageUrl },
+      mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+    };
+  }
 
   return {
-    headline: cleanHeadline,
-    body,
-    fullClean: narrative,
-    metaDescription: truncateWords(shortSummary, 195),
-    schemaDescription: truncateWords(`${narrative} — ${attribution}`, 480),
-    authorUsername,
-    authorHandle,
-    likes,
-    comments,
-    views,
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_ROOT}/#website`,
+        name: "fondpeace.com",
+        url: SITE_ROOT,
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${pageUrl}#breadcrumb`,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_ROOT}/` },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: p.user.username,
+            item: `${SITE_ROOT}/profile/${encodeURIComponent(p.user.username)}`,
+          },
+          { "@type": "ListItem", position: 3, name: p.title, item: pageUrl },
+        ],
+      },
+      mediaObj,
+    ],
   };
 }
 
@@ -190,7 +249,6 @@ const getPostDetailData = cache(async (id) => {
     primaryResult = null;
   }
 
-  // Fallback to legacy /post/image/[id] endpoint if /post/single didn't return a payload
   try {
     const res = await fetchApiRead(`/post/image/${encodeURIComponent(id)}`, {
       fetchOptions: { next: { revalidate: 3600 } },
@@ -218,12 +276,16 @@ const getPostDetailData = cache(async (id) => {
   }
 });
 
-/* ------------------------- generateMetadata ------------------------- */
+/* ------------------------- generateMetadata (Matched to falconspido) ------------------------- */
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const id = resolvedParams?.id;
-  if (!id) return { title: "Community Post" };
-  const pageUrl = `${SITE_ROOT}/post/${encodeURIComponent(id)}`;
+  if (!id) {
+    return {
+      title: { absolute: "Post — Photo & Video | fondpeace.com" },
+      robots: { index: false, follow: true, googleBot: { index: false, follow: true } },
+    };
+  }
 
   try {
     const result = await getPostDetailData(id);
@@ -231,140 +293,102 @@ export async function generateMetadata({ params }) {
 
     if (result?.notFound || (!result?.transientError && !post)) {
       return {
-        title: "Post Not Found",
-        robots: {
-          index: false,
-          follow: true,
-          googleBot: { index: false, follow: true },
-        },
+        title: { absolute: "404 Post Not Found | fondpeace.com" },
+        robots: { index: false, follow: true, googleBot: { index: false, follow: true } },
       };
     }
-    if (!post) return { title: "Community Post" };
+    if (!post) {
+      return { title: { absolute: "Post — Photo & Video | fondpeace.com" } };
+    }
 
-    const mediaInfo = buildMediaInfo(post);
-    const { isVideo, ytId, mediaUrl, isNativeVideo, resolvedThumb, width, height } = mediaInfo;
-    const seo = buildPostSeoContent(post, mediaInfo);
+    const norm = normalizeMediaPost(post);
+    if (!norm) {
+      // Strictly Photo & Video posts are indexed on /post/[id] (non-media posts stay noindex)
+      return {
+        title: { absolute: "Post — Photo & Video | fondpeace.com" },
+        description: "Watch and explore creator photos and videos on fondpeace.com.",
+        robots: { index: false, follow: true, googleBot: { index: false, follow: true } },
+      };
+    }
 
-    const titleShort = truncateWords(seo.headline, 80);
-    const titleTag =
-      seo.authorHandle !== "FondPeace" && titleShort.length + seo.authorHandle.length + 4 <= 98
-        ? `${titleShort} by ${seo.authorHandle}`
-        : titleShort;
-    const ogTitle = truncateWords(seo.headline, 110);
-    const tags = extractPostTags(post);
-    const publishedTime = safeIsoDate(post.createdAt);
-    const modifiedTime = safeIsoDate(post.updatedAt || post.createdAt);
-    const encodedAuthor = encodeURIComponent(seo.authorUsername);
-    const authorProfileUrl = `${SITE_ROOT}/profile/${encodedAuthor}`;
+    const pageUrl = `${SITE_ROOT}/post/${encodeURIComponent(norm.id)}`;
+    const titleTag = `${norm.title} - fondpeace.com`;
+    const desc = buildSinglePostSeoDescription(norm);
+    const kw = extractKeywords(norm);
+    let absThumb = norm.thumbUrl || DEFAULT_COVER;
+    if (norm.kind === "image" && /^https?:\/\//i.test(norm.mediaUrl)) {
+      absThumb = norm.mediaUrl;
+    }
 
     return {
-      title: titleTag,
-      description: seo.metaDescription,
-      keywords: buildKeywords(post, seo.headline),
+      title: { absolute: titleTag },
+      description: desc,
+      keywords: kw,
       alternates: { canonical: pageUrl },
       robots: {
         index: true,
         follow: true,
+        "max-image-preview": "large",
+        "max-video-preview": -1,
+        "max-snippet": -1,
         googleBot: {
           index: true,
           follow: true,
-          "max-video-preview": -1,
           "max-image-preview": "large",
+          "max-video-preview": -1,
           "max-snippet": -1,
         },
       },
       openGraph: {
-        title: ogTitle,
-        description: seo.metaDescription,
+        type: norm.kind === "video" ? "video.other" : "article",
+        siteName: "fondpeace.com",
         url: pageUrl,
-        siteName: "FondPeace",
-        locale: "en_US",
-        type: isVideo ? "video.other" : "article",
-        ...(!isVideo
-          ? {
-              publishedTime,
-              modifiedTime,
-              authors: [authorProfileUrl],
-              ...(tags.length > 0 ? { tags } : {}),
-            }
-          : {}),
+        title: titleTag,
+        description: desc,
         images: [
           {
-            url: resolvedThumb,
-            secureUrl: resolvedThumb,
-            width,
-            height,
-            alt: ogTitle,
+            url: absThumb,
+            alt: norm.title,
           },
         ],
-        ...(isNativeVideo
+        ...(norm.kind === "video"
           ? {
               videos: [
                 {
-                  url: mediaUrl,
-                  secureUrl: mediaUrl,
+                  url: norm.mediaUrl,
                   type: "video/mp4",
-                  width,
-                  height,
+                  width: norm.width || 1280,
+                  height: norm.height || 720,
                 },
               ],
             }
-          : ytId
-            ? {
-                videos: [
-                  {
-                    url: `https://www.youtube.com/embed/${ytId}`,
-                    secureUrl: `https://www.youtube.com/embed/${ytId}`,
-                    type: "text/html",
-                    width: 1280,
-                    height: 720,
-                  },
-                ],
-              }
-            : {}),
+          : {}),
       },
-      twitter: isNativeVideo
-        ? {
-            card: "player",
-            site: "@FondPeaceTech",
-            title: titleTag,
-            description: seo.metaDescription,
-            images: [resolvedThumb],
-            players: [
-              {
-                playerUrl: pageUrl,
-                streamUrl: mediaUrl,
-                width,
-                height,
-              },
-            ],
-          }
-        : ytId
+      twitter:
+        norm.kind === "video"
           ? {
               card: "player",
-              site: "@FondPeaceTech",
               title: titleTag,
-              description: seo.metaDescription,
-              images: [resolvedThumb],
+              description: desc,
+              images: [absThumb],
               players: [
                 {
-                  playerUrl: `https://www.youtube-nocookie.com/embed/${ytId}`,
-                  streamUrl: `https://www.youtube.com/watch?v=${ytId}`,
-                  width: 1280,
-                  height: 720,
+                  playerUrl: norm.mediaUrl,
+                  streamUrl: norm.mediaUrl,
+                  width: norm.width || 1280,
+                  height: norm.height || 720,
                 },
               ],
             }
           : {
               card: "summary_large_image",
-              site: "@FondPeaceTech",
               title: titleTag,
-              description: seo.metaDescription,
-              images: [resolvedThumb],
+              description: desc,
+              images: [absThumb],
             },
     };
   } catch {
-    return { title: "Community Post" };
+    return { title: { absolute: "Post — Photo & Video | fondpeace.com" } };
   }
 }
 
@@ -376,294 +400,31 @@ export default async function Page({ params }) {
 
   const result = await getPostDetailData(id);
   if (result?.transientError) {
-    // Prevent temporary upstream timeouts from becoming cached Soft 404s for Googlebot
     throw new Error("Temporary upstream backend cold-start timeout; retry shortly.");
   }
   const data = result?.data;
   const post = data?.post;
   if (!post) return notFound();
 
-  const related = Array.isArray(data?.related) ? data.related : [];
-  const mediaInfo = buildMediaInfo(post);
-  const { isVideo, ytId, mediaUrl, isNativeVideo, isImage, resolvedThumb, width, height } = mediaInfo;
-  const seo = buildPostSeoContent(post, mediaInfo);
+  const norm = normalizeMediaPost(post);
+  const rawRelated = Array.isArray(data?.related) ? data.related : [];
+  const mediaRelated = rawRelated
+    .filter((r) => normalizeMediaPost(r) && String(r._id) !== String(post._id))
+    .slice(0, 8);
 
-  const pageUrl = `${SITE_ROOT}/post/${encodeURIComponent(post._id || id)}`;
-  const encodedAuthor = encodeURIComponent(seo.authorUsername);
-  const authorProfileUrl = `${SITE_ROOT}/profile/${encodedAuthor}`;
-  const authorAvatar =
-    toAbsolute(post.userId?.profilePicture || post.userId?.profilePic || post.userId?.avatar) || DEFAULT_AVATAR;
-
-  const publishedIso = safeIsoDate(post.createdAt);
-  const modifiedIso = safeIsoDate(post.updatedAt || post.createdAt);
-  const videoDurationIso = secToISO(post.duration);
-  const keywordsStr = buildKeywords(post, seo.headline);
-  const isArticle =
-    post.postType === "article" || (typeof post?.title === "string" && post.title.split(/\s+/).length > 250);
-  const primarySchemaType = isArticle ? "BlogPosting" : "DiscussionForumPosting";
-
-  const publisherSchema = {
-    "@type": "Organization",
-    "@id": SITE_ORG_ID,
-    "name": "FondPeace",
-    "url": SITE_ROOT,
-    "logo": {
-      "@type": "ImageObject",
-      "url": SITE_LOGO_URL,
-      "width": 1200,
-      "height": 630,
-    },
-  };
-
-  const authorSchema = {
-    "@type": "Person",
-    "@id": `${authorProfileUrl}#person`,
-    "name": seo.authorUsername,
-    "url": authorProfileUrl,
-    "image": authorAvatar,
-  };
-
-  const webPageId = `${pageUrl}#webpage`;
-  const hasRealMediaNode = isVideo || (isImage && Boolean(mediaUrl));
-  const hasRealPoll = Array.isArray(post?.poll?.options) && post.poll.options.length > 0;
-  const includeDiscussionNode =
-    !hasRealMediaNode ||
-    isArticle ||
-    seo.comments > 0 ||
-    hasRealPoll ||
-    Boolean(post.linkPreview?.url && !ytId && !hasRealMediaNode);
-  const primaryMediaId = isVideo ? `${pageUrl}#video` : isImage && mediaUrl ? `${pageUrl}#image` : `${pageUrl}#main`;
-  const relatedLinksList = related.map((r) => `${SITE_ROOT}/post/${r._id}`);
-
-  const videoThumbList = ytId
-    ? Array.from(
-        new Set([
-          resolvedThumb,
-          `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`,
-          `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`,
-        ])
-      )
-    : [resolvedThumb];
-
-  const jsonLdData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "BreadcrumbList",
-        "@id": `${pageUrl}#breadcrumb`,
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "FondPeace", "item": SITE_ROOT },
-          { "@type": "ListItem", "position": 2, "name": seo.authorUsername, "item": authorProfileUrl },
-          { "@type": "ListItem", "position": 3, "name": truncateWords(seo.headline, 95), "item": pageUrl },
-        ],
-      },
-      {
-        "@type": "WebPage",
-        "@id": webPageId,
-        "url": pageUrl,
-        "name": truncateWords(seo.headline, 110),
-        "description": seo.metaDescription,
-        "isPartOf": { "@id": SITE_WEBSITE_ID },
-        "breadcrumb": { "@id": `${pageUrl}#breadcrumb` },
-        "primaryImageOfPage": { "@type": "ImageObject", "url": resolvedThumb },
-        "mainEntity": { "@id": primaryMediaId },
-        ...(relatedLinksList.length > 0 ? { "relatedLink": relatedLinksList } : {}),
-        "datePublished": publishedIso,
-        "dateModified": modifiedIso,
-      },
-      ...(isVideo
-        ? [
-            {
-              "@type": "VideoObject",
-              "@id": `${pageUrl}#video`,
-              "url": pageUrl,
-              "name": truncateWords(seo.headline, 110),
-              "headline": truncateWords(seo.headline, 110),
-              "description": seo.schemaDescription,
-              "keywords": keywordsStr,
-              "thumbnailUrl": videoThumbList,
-              "thumbnail": { "@type": "ImageObject", "url": resolvedThumb },
-              "uploadDate": publishedIso,
-              "datePublished": publishedIso,
-              "dateModified": modifiedIso,
-              "width": width,
-              "height": height,
-              ...(videoDurationIso ? { "duration": videoDurationIso } : {}),
-              ...(isNativeVideo
-                ? {
-                    "contentUrl": mediaUrl,
-                    "embedUrl": pageUrl,
-                    "encodingFormat": "video/mp4",
-                  }
-                : {}),
-              ...(ytId
-                ? {
-                    "embedUrl": `https://www.youtube-nocookie.com/embed/${ytId}`,
-                  }
-                : {}),
-              "isAccessibleForFree": true,
-              "isFamilyFriendly": true,
-              "inLanguage": "en",
-              "mainEntityOfPage": { "@type": "WebPage", "@id": webPageId },
-              "author": authorSchema,
-              "creator": authorSchema,
-              "publisher": publisherSchema,
-              "potentialAction": {
-                "@type": "WatchAction",
-                "target": pageUrl,
-              },
-              "interactionStatistic": [
-                {
-                  "@type": "InteractionCounter",
-                  "interactionType": "https://schema.org/WatchAction",
-                  "userInteractionCount": seo.views,
-                },
-                {
-                  "@type": "InteractionCounter",
-                  "interactionType": "https://schema.org/LikeAction",
-                  "userInteractionCount": seo.likes,
-                },
-                {
-                  "@type": "InteractionCounter",
-                  "interactionType": "https://schema.org/CommentAction",
-                  "userInteractionCount": seo.comments,
-                },
-              ],
-            },
-          ]
-        : isImage && mediaUrl
-          ? [
-              {
-                "@type": "ImageObject",
-                "@id": `${pageUrl}#image`,
-                "url": pageUrl,
-                "contentUrl": mediaUrl,
-                "thumbnailUrl": resolvedThumb,
-                "name": truncateWords(seo.headline, 110),
-                "headline": truncateWords(seo.headline, 110),
-                "caption": seo.fullClean || seo.headline,
-                "description": seo.schemaDescription,
-                "keywords": keywordsStr,
-                "datePublished": publishedIso,
-                "dateModified": modifiedIso,
-                "isAccessibleForFree": true,
-                "isFamilyFriendly": true,
-                "mainEntityOfPage": { "@type": "WebPage", "@id": webPageId },
-                "author": authorSchema,
-                "creator": authorSchema,
-                "publisher": publisherSchema,
-                "potentialAction": {
-                  "@type": "ViewAction",
-                  "target": pageUrl,
-                },
-                "interactionStatistic": [
-                  {
-                    "@type": "InteractionCounter",
-                    "interactionType": "https://schema.org/LikeAction",
-                    "userInteractionCount": seo.likes,
-                  },
-                  {
-                    "@type": "InteractionCounter",
-                    "interactionType": "https://schema.org/CommentAction",
-                    "userInteractionCount": seo.comments,
-                  },
-                ],
-              },
-            ]
-          : []),
-      ...(includeDiscussionNode
-        ? [
-            {
-              "@type": primarySchemaType,
-              "@id": `${pageUrl}#main`,
-              "url": pageUrl,
-              "headline": truncateWords(seo.headline, 110),
-              "description": seo.schemaDescription,
-              "articleBody": seo.fullClean || seo.headline,
-              "name": truncateWords(seo.headline, 110),
-              "keywords": keywordsStr,
-              "isAccessibleForFree": true,
-              "mainEntityOfPage": { "@type": "WebPage", "@id": webPageId },
-              "datePublished": publishedIso,
-              "dateModified": modifiedIso,
-              "author": authorSchema,
-              "publisher": publisherSchema,
-              ...(isArticle
-                ? {
-                    "wordCount": post.title ? post.title.split(/\s+/).length : 0,
-                    "inLanguage": "en",
-                  }
-                : {}),
-              ...(isVideo
-                ? { "video": { "@id": `${pageUrl}#video` } }
-                : isImage && mediaUrl
-                  ? { "image": { "@id": `${pageUrl}#image` } }
-                  : {}),
-              ...(!isImage || !mediaUrl
-                ? {
-                    "image": {
-                      "@type": "ImageObject",
-                      "url": resolvedThumb,
-                    },
-                  }
-                : {}),
-              ...(post.linkPreview?.url
-                ? {
-                    "sharedContent": {
-                      "@type": "WebPage",
-                      "@id": post.linkPreview.url,
-                      "url": post.linkPreview.url,
-                      "name": post.linkPreview.title || post.linkPreview.url,
-                      "description": post.linkPreview.description || "",
-                      ...(post.linkPreview.image ? { "image": post.linkPreview.image } : {}),
-                    },
-                  }
-                : {}),
-              "interactionStatistic": [
-                {
-                  "@type": "InteractionCounter",
-                  "interactionType": "https://schema.org/LikeAction",
-                  "userInteractionCount": seo.likes,
-                },
-                {
-                  "@type": "InteractionCounter",
-                  "interactionType": isVideo ? "https://schema.org/WatchAction" : "https://schema.org/ReadAction",
-                  "userInteractionCount": seo.views,
-                },
-                {
-                  "@type": "InteractionCounter",
-                  "interactionType": "https://schema.org/CommentAction",
-                  "userInteractionCount": seo.comments,
-                },
-              ],
-              "commentCount": seo.comments,
-              "comment": (Array.isArray(post.comments) ? post.comments : []).map((c) => {
-                const cAuthor = c.userId?.username || "User";
-                return {
-                  "@type": "Comment",
-                  "@id": `${pageUrl}#comment-${c._id}`,
-                  "text": c.CommentText || "",
-                  "dateCreated": safeIsoDate(c.createdAt),
-                  "author": {
-                    "@type": "Person",
-                    "name": cAuthor,
-                    "url": `${SITE_ROOT}/profile/${encodeURIComponent(cAuthor)}`,
-                  },
-                };
-              }),
-              "relatedLink": relatedLinksList,
-            },
-          ]
-        : []),
-    ],
-  };
+  const jsonLdData = norm ? buildSinglePostSsrJsonLd(norm) : null;
+  const authorName = norm ? norm.user.username : String(post.userId?.username || "fondpeace");
+  const encodedAuthor = encodeURIComponent(authorName);
+  const badgeLabel = norm ? (norm.kind === "video" ? "Video" : "Photo") : "Post";
 
   return (
     <main className="min-h-screen w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-blue-600 selection:text-white transition-colors duration-200 overflow-x-hidden">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
-      />
+      {jsonLdData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
+        />
+      )}
 
       <div
         className="
@@ -685,7 +446,7 @@ export default async function Page({ params }) {
 
         {/* Center Main Post & Watch Column */}
         <section className="w-full min-w-0 space-y-4">
-          {/* Top Navigation & Semantic Breadcrumb Trail */}
+          {/* Top Navigation & Breadcrumb */}
           <div className="flex flex-wrap items-center justify-between gap-2 py-2 px-1">
             <div className="flex items-center gap-3 min-w-0">
               <Link
@@ -698,34 +459,37 @@ export default async function Page({ params }) {
               </Link>
               <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 text-xs text-[var(--text-secondary)] min-w-0 truncate">
                 <span aria-hidden="true">/</span>
-                <Link href={`/profile/${encodedAuthor}`} className="hover:text-[var(--text-primary)] hover:underline truncate max-w-[140px]">
-                  {seo.authorHandle}
+                <Link
+                  href={`/profile/${encodedAuthor}`}
+                  className="hover:text-[var(--text-primary)] hover:underline truncate max-w-[140px]"
+                >
+                  {authorName}
                 </Link>
                 <span aria-hidden="true">/</span>
                 <span className="text-[var(--text-primary)] font-medium truncate max-w-[260px]">
-                  {truncateWords(seo.headline, 60)}
+                  {truncateWords(norm ? norm.title : post.title || "Post", 60)}
                 </span>
               </nav>
             </div>
 
             <span className="text-xs font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--text-secondary)] border border-[var(--border-subtle)] shrink-0">
-              {isVideo ? "Video Watch Page" : isImage ? "Photo Post" : "Community Post"}
+              {badgeLabel}
             </span>
           </div>
 
-          {/* Full Post Card */}
+          {/* Full FondPeace Post Card */}
           <SinglePostPage initialPost={post} />
 
-          {/* Related Community Feed */}
+          {/* Related Photo & Video Posts */}
           <RelatedPosts
             currentPostId={post._id}
             category={post.category}
             tags={post.tags}
-            initialRelated={related}
+            initialRelated={mediaRelated}
           />
         </section>
 
-        {/* Right Sidebar (Matching Homepage) */}
+        {/* Right Sidebar */}
         <aside className="hidden lg:block shrink-0">
           <div className="sticky top-4 space-y-4">
             <SuggestedCreatorsWidget variant="card" />
