@@ -53,7 +53,7 @@ export default function GuestSoftPushPrompt({ triggerCount = 0 }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "push_prompt_dismissed",
-          path: typeof window !== "undefined" ? window.location.pathname : "/shorts",
+          path: typeof window !== "undefined" ? window.location.pathname : "/",
           metadata: { reason: "cut_button_clicked", triggerCount }
         })
       }).catch(() => {});
@@ -76,7 +76,7 @@ export default function GuestSoftPushPrompt({ triggerCount = 0 }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               action: "push_prompt_granted",
-              path: typeof window !== "undefined" ? window.location.pathname : "/shorts",
+              path: typeof window !== "undefined" ? window.location.pathname : "/",
               metadata: { source: "soft_pill", triggerCount }
             })
           }).catch(() => {});

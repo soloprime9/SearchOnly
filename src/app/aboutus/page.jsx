@@ -110,12 +110,12 @@ export default function AboutUs() {
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.06]">
             <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1.5">
-              Short-Form Reels &amp; Watch Pages
+              Creator Videos &amp; Watch Pages
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
               Stream vertical videos and creator clips seamlessly on{" "}
-              <Link href="/shorts" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-                FondPeace Shorts
+              <Link href="/" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+                FondPeace Watch &amp; Feed
               </Link>
               , with dedicated shareable watch pages, smooth adaptive streaming, and crisp captions.
             </p>

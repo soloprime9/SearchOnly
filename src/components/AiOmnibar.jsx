@@ -80,15 +80,11 @@ export default function AiOmnibar() {
     playTap();
     setShowDropdown(false);
 
-    if (activeChip === "shorts") {
-      router.push(`/shorts?q=${encodeURIComponent(trimmed)}`);
-    } else {
-      const slug = trimmed
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "");
-      router.push(`/topic/${slug}`);
-    }
+    const slug = trimmed
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+    router.push(`/topic/${slug}`);
   };
 
   const handleChipClick = (chipId, href) => {
@@ -185,15 +181,15 @@ export default function AiOmnibar() {
 
             <button
               type="button"
-              onClick={() => handleChipClick("shorts", "/shorts")}
+              onClick={() => handleChipClick("store", "/store")}
               className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeChip === "shorts"
+                activeChip === "store"
                   ? "bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm"
                   : "bg-white/[0.04] text-gray-400 hover:text-white hover:bg-white/[0.08]"
               }`}
             >
               <Film className="w-3 h-3 text-rose-400" />
-              <span>Shorts</span>
+              <span>AI Store</span>
             </button>
 
             <button

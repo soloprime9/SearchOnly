@@ -109,7 +109,7 @@ const ReelsFeed = () => {
 
             const id = video.dataset.id;
             if (id) {
-              window.history.replaceState(null, '', `/shorts/${id}`);
+              window.history.replaceState(null, '', `/post/${id}`);
             }
           } else {
             if (video && typeof video.pause === 'function') {
@@ -133,7 +133,7 @@ const ReelsFeed = () => {
   }, [videos, singlevid]);
 
  const handleShare = (item) => {
-    const shareText = `${item.title}\n\n${window.location.origin}/short/${item._id}`;
+    const shareText = `${item.title}\n\n${window.location.origin}/post/${item._id}`;
   
     navigator.clipboard.writeText(shareText).then(() => {
       toast.success('Video link copied!', {

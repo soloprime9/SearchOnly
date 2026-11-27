@@ -28,12 +28,8 @@ export default function ShareModal({
   const fallbackOrigin =
     typeof window !== "undefined" ? window.location.origin : "https://www.fondpeace.com";
 
-  // Build canonical share URL: if video -> /short/{id}, else -> /post/{id}
-  const shareUrl =
-    customUrl ||
-    (isVideoOrShort
-      ? `${fallbackOrigin}/short/${postId}`
-      : `${fallbackOrigin}/post/${postId}`);
+  // Build unified canonical share URL (/post/{id})
+  const shareUrl = customUrl || `${fallbackOrigin}/post/${postId}`;
 
   const titleText = customTitle || post.title || "Check out this post on FondPeace";
   const authorName = post.userId?.username || post.userId?.name || "Creator";
@@ -42,7 +38,7 @@ export default function ShareModal({
   const whatsappText = `🔥 *${titleText}*\n\nWatch/Read on FondPeace by @${authorName}:\n${shareUrl}`;
 
   // Twitter/X Preformatted message
-  const twitterText = `Check out this trending ${isVideoOrShort ? "short" : "discussion"} on @FondPeace:`;
+  const twitterText = `Check out this trending ${isVideoOrShort ? "video" : "discussion"} on @FondPeace:`;
 
   // 1-Click Copy Handler
   const handleCopy = async () => {

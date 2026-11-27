@@ -236,7 +236,7 @@ export default function UploadPost() {
     const id = createdPost?._id || createdPost?.id;
     if (!id) return;
     const isVid = isPlayableShortPost(createdPost);
-    const route = isVid ? "shorts" : "post";
+    const route = "post";
     const origin =
       typeof window !== "undefined" && window.location.origin
         ? window.location.origin
@@ -1584,7 +1584,7 @@ export default function UploadPost() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
-                        {item.isVideo ? "/shorts/" : "/post/"}
+                        /post/
                       </span>
                       <span className="text-[10px] text-zinc-400 font-semibold truncate">
                         {item.category}

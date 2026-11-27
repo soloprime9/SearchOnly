@@ -61,14 +61,14 @@ export function isPlayableShortPost(post) {
 }
 
 /**
- * Returns canonical route path for a post: 'short' if playable video, else 'post'.
+ * Returns unified canonical route path for all post types ('post').
  */
-export function getPostPath(post) {
-  return isPlayableShortPost(post) ? "short" : "post";
+export function getPostPath() {
+  return "post";
 }
 
 /**
- * Generates canonical share URL for a post based on its type.
+ * Generates canonical share URL for a post (/post/[id]).
  */
 export function getPostShareUrl(post, origin) {
   const base =
@@ -83,7 +83,7 @@ export function getPostShareUrl(post, origin) {
 /**
  * Generates formatted copy/share text containing post title and link separated by newline:
  * Title of post
- * https://www.fondpeace.com/shorts/...
+ * https://www.fondpeace.com/post/...
  */
 export function getPostShareText(post, origin) {
   const url = getPostShareUrl(post, origin);

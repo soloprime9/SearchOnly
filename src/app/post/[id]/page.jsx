@@ -17,10 +17,10 @@ import { Coins, ArrowRight, ShieldCheck } from "lucide-react";
 
 import { FaHeart, FaCommentDots, FaEye,FaArrowLeft  } from "react-icons/fa";
 import Link from "next/link";
-import { redirect, notFound, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { fetchApiRead } from "@/utils/apiConfig";
 import { resolvePostThumbnail } from "@/utils/resolvePostThumbnail";
-import { isPlayableShortPost } from "@/utils/postMediaUtils";
+import { isPlayableShortPost, extractPostYouTubeId } from "@/utils/postMediaUtils";
 import { truncateWords, splitCaption } from "@/utils/captionUtils";
 const SITE_ROOT = "https://www.fondpeace.com";
 const DEFAULT_AVATAR = "https://www.fondpeace.com/Fondpeace.jpg";
@@ -153,8 +153,8 @@ function buildDescription(post) {
 function extractKeywords(post) {
   if (Array.isArray(post.tags) && post.tags.length) return post.tags.join(", ");
   if (Array.isArray(post.hashtags) && post.hashtags.length)
-    return post.hashtags.map(h => h.replace("#", "")).join(", ");
-  return post.title.split(" ").slice(0, 10).join(", ");
+    return post.hashtags.map((h) => h.replace("#", "")).join(", ");
+  return String(post?.title || "FondPeace").split(/\s+/).slice(0, 10).join(", ");
 }
 
 export const revalidate = 3600; // Edge-cache post pages for 1 hour (fast & cold-start proof)
@@ -192,24 +192,18 @@ export async function generateMetadata({ params }) {
 
     const resolvedThumb = resolvePostThumbnail(post);
     const isVideo = isPlayableShortPost(post);
-
-    if (isVideo) {
-      return {
-        title: `${truncateWords(post.title || "Video", 85)}`,
-        description: post.title || "Watch on FondPeace",
-        alternates: { canonical: `${SITE_ROOT}/short/${id}` },
-        robots: { index: false, follow: true },
-      };
-    }
+    const ytId = isVideo ? extractPostYouTubeId(post) : null;
+    const mediaUrl = toAbsolute(post.media || post.mediaUrl);
+    const isNativeVideo = isVideo && !ytId && Boolean(mediaUrl);
 
     const rawTitle = (post.title || "").trim();
     const { headline, metaDescription } = splitCaption(
       rawTitle,
       post.description || "",
-      "Community Post"
+      isVideo ? "Watch Video" : "Community Post"
     );
     const author = post.userId?.username ? `@${post.userId.username}` : "";
-    const displayHeadline = (headline || rawTitle || "Community Post").trim();
+    const displayHeadline = (headline || rawTitle || (isVideo ? "Watch Video" : "Community Post")).trim();
     const titleText = displayHeadline.length <= 85 ? displayHeadline : truncateWords(displayHeadline, 85);
     const titleTag = author && (titleText.length + author.length + 4 <= 100)
       ? `${titleText} by ${author}`
@@ -217,7 +211,9 @@ export async function generateMetadata({ params }) {
 
     const description = metaDescription
       ? `${metaDescription}${author ? ` — ${author}` : ""}`
-      : `Explore community posts and social conversations by ${author || 'creators'} on FondPeace.`;
+      : isVideo
+        ? `Watch this video by ${author || "creators"} on FondPeace.`
+        : `Explore community posts and social conversations by ${author || "creators"} on FondPeace.`;
 
     const ogTitle = displayHeadline.length <= 110 ? displayHeadline : truncateWords(displayHeadline, 110);
 
@@ -242,22 +238,78 @@ export async function generateMetadata({ params }) {
         title: ogTitle,
         description: description,
         url: pageUrl,
-        type: "article",
+        type: isVideo ? "video.other" : "article",
         siteName: "FondPeace",
         images: [
           {
             url: resolvedThumb,
             secureUrl: resolvedThumb,
+            ...(isVideo ? { width: ytId ? 1280 : 720, height: ytId ? 720 : 1280 } : {}),
             alt: headline || titleTag,
           },
         ],
+        ...(isNativeVideo
+          ? {
+              videos: [
+                {
+                  url: mediaUrl,
+                  secureUrl: mediaUrl,
+                  type: "video/mp4",
+                  width: 720,
+                  height: 1280,
+                },
+              ],
+            }
+          : ytId
+            ? {
+                videos: [
+                  {
+                    url: `https://www.youtube.com/embed/${ytId}`,
+                    secureUrl: `https://www.youtube.com/embed/${ytId}`,
+                    type: "text/html",
+                    width: 1280,
+                    height: 720,
+                  },
+                ],
+              }
+            : {}),
       },
-      twitter: {
-        card: "summary_large_image", 
-        title: titleTag,
-        description: description,
-        images: [resolvedThumb],
-      },
+      twitter: isNativeVideo
+        ? {
+            card: "player",
+            title: titleTag,
+            description: description,
+            images: [resolvedThumb],
+            players: [
+              {
+                playerUrl: pageUrl,
+                streamUrl: mediaUrl,
+                width: 720,
+                height: 1280,
+              },
+            ],
+          }
+        : ytId
+          ? {
+              card: "player",
+              title: titleTag,
+              description: description,
+              images: [resolvedThumb],
+              players: [
+                {
+                  playerUrl: `https://www.youtube-nocookie.com/embed/${ytId}`,
+                  streamUrl: `https://www.youtube.com/watch?v=${ytId}`,
+                  width: 1280,
+                  height: 720,
+                },
+              ],
+            }
+          : {
+              card: "summary_large_image",
+              title: titleTag,
+              description: description,
+              images: [resolvedThumb],
+            },
     };
   } catch {
     return { title: "Post | FondPeace" };
@@ -283,19 +335,17 @@ export default async function Page({ params }) {
   }
 
   const isVideo = isPlayableShortPost(post);
+  const ytId = isVideo ? extractPostYouTubeId(post) : null;
 
-  // If this post is a video (native or YouTube), redirect 308 permanently to canonical /short/[id]
-  if (isVideo) {
-    permanentRedirect(`/short/${id}`);
-  }
-
-const related = Array.isArray(data?.related) ? data.related : [];
+  const related = Array.isArray(data?.related) ? data.related : [];
 
 
 
   const pageUrl = `${SITE_ROOT}/post/${post._id}`;
   const resolvedThumb = resolvePostThumbnail(post);
   const mediaUrl = toAbsolute(post.media || post.mediaUrl || post.thumbnail);
+  const isNativeVideo = isVideo && !ytId && Boolean(mediaUrl);
+  const videoDurationIso = secToISO(post.duration);
   const authorName = post.userId?.username || "FondPeace";
   const thumbnail = resolvedThumb || DEFAULT_THUMB;
   const videoPoster = (post.thumbnail && !post.thumbnail.includes("Fondpeace.jpg") && !post.thumbnail.includes("default.jpg")) ? toAbsolute(post.thumbnail) : undefined;
@@ -414,12 +464,63 @@ const related = Array.isArray(data?.related) ? data.related : [];
           }
         })),
 
-        // Related canonical links (direct to /short/ or /post/)
-        "relatedLink": (related || []).map((r) => {
-          const isVid = r.mediaType?.startsWith("video") || /\.(mp4|mov|webm|mkv)$/i.test(r.media || r.mediaUrl || "");
-          return isVid ? `${SITE_ROOT}/short/${r._id}` : `${SITE_ROOT}/post/${r._id}`;
-        })
-      }
+        // Linked VideoObject reference when this post includes a playable video
+        ...(isVideo ? { "video": { "@id": `${pageUrl}#video` } } : {}),
+
+        // Related canonical links (unified to /post/[id])
+        "relatedLink": (related || []).map((r) => `${SITE_ROOT}/post/${r._id}`)
+      },
+
+      // 3️⃣ VideoObject (Emitted on unified /post/[id] watch pages for native & YouTube videos)
+      ...(isVideo
+        ? [
+            {
+              "@type": "VideoObject",
+              "@id": `${pageUrl}#video`,
+              "url": pageUrl,
+              "name": truncateWords(postHeadline, 110),
+              "description": postMetaDesc || truncateWords(postFullClean || postTitle || "Watch video on FondPeace", 250),
+              "thumbnailUrl": [thumbnail],
+              "uploadDate": new Date(post.createdAt || Date.now()).toISOString(),
+              "datePublished": new Date(post.createdAt || Date.now()).toISOString(),
+              "dateModified": new Date(post.updatedAt || post.createdAt || Date.now()).toISOString(),
+              ...(videoDurationIso ? { "duration": videoDurationIso } : {}),
+              ...(isNativeVideo
+                ? {
+                    "contentUrl": mediaUrl,
+                    "encodingFormat": "video/mp4",
+                  }
+                : {}),
+              ...(ytId
+                ? {
+                    "embedUrl": `https://www.youtube-nocookie.com/embed/${ytId}`,
+                  }
+                : {}),
+              "isFamilyFriendly": true,
+              "mainEntityOfPage": { "@type": "WebPage", "@id": pageUrl },
+              "author": {
+                "@type": "Person",
+                "@id": `${SITE_ROOT}/profile/${encodedAuthor}#person`,
+              },
+              "publisher": {
+                "@type": "Organization",
+                "@id": `${SITE_ROOT}#organization`,
+              },
+              "interactionStatistic": [
+                {
+                  "@type": "InteractionCounter",
+                  "interactionType": "https://schema.org/WatchAction",
+                  "userInteractionCount": viewsCount(post),
+                },
+                {
+                  "@type": "InteractionCounter",
+                  "interactionType": "https://schema.org/LikeAction",
+                  "userInteractionCount": likesCount(post),
+                },
+              ],
+            },
+          ]
+        : [])
     ]
   };
 
@@ -746,7 +847,7 @@ return (
               <span>Back to Discovery</span>
             </Link>
             <span className="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
-              Community Post
+              {isVideo ? "Video Watch Page" : "Community Post"}
             </span>
           </div>
 

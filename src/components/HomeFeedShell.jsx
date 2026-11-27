@@ -159,7 +159,7 @@ export default function HomeFeedShell({
               <div className="flex flex-wrap gap-y-2 gap-x-3 leading-relaxed">
                 <Link href="/aboutus" className="hover:text-white transition">About Us</Link>
                 <Link href="/contactus" className="hover:text-white transition">Contact Us</Link>
-                <Link href="/shorts" className="hover:text-white transition">Shorts</Link>
+                <Link href="/search" className="hover:text-white transition">Explore</Link>
                 <Link href="/privacypolicy" className="hover:text-white transition">Privacy Policy</Link>
                 <Link href="/termcondition" className="hover:text-white transition">Terms</Link>
                 <Link href="/disclaimer" className="hover:text-white transition">Disclaimer</Link>

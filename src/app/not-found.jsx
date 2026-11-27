@@ -73,14 +73,14 @@ export default function NotFound() {
           </Link>
 
           <Link
-            href="/shorts"
+            href="/store"
             onClick={() => playTap()}
             className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white/70 dark:bg-zinc-950/50 backdrop-blur-xl border border-black/[0.06] dark:border-white/[0.08] shadow-sm hover:shadow-md hover:border-pink-500/40 hover:-translate-y-0.5 transition-all group"
           >
             <div className="w-10 h-10 rounded-xl bg-pink-50 dark:bg-pink-950/50 text-pink-600 dark:text-pink-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
               <Film className="w-5 h-5" />
             </div>
-            <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Shorts</span>
+            <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Store</span>
           </Link>
 
           <Link

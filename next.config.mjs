@@ -33,6 +33,32 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Consolidate all legacy /short and /shorts paths onto /post/:id or / (routes kept in repo, hidden live)
+      {
+        source: "/shorts",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/short",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/short/:id",
+        destination: "/post/:id",
+        permanent: true,
+      },
+      {
+        source: "/shorts/:id",
+        destination: "/post/:id",
+        permanent: true,
+      },
+      {
+        source: "/embed/short/:id",
+        destination: "/post/:id",
+        permanent: true,
+      },
       {
         source: "/video-sitemap.xml",
         destination: "/sitemap.xml",

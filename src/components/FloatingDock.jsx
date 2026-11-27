@@ -63,20 +63,6 @@ export default function FloatingDock() {
           <Home className="w-4 h-4" />
         </Link>
 
-        {/* Shorts */}
-        <Link
-          href="/shorts"
-          onClick={() => playTap()}
-          className={`p-2.5 rounded-full transition-all flex items-center justify-center ${
-            pathname === "/shorts"
-              ? "bg-pink-600 text-white shadow-md shadow-pink-500/30 scale-105"
-              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
-          }`}
-          title="Shorts & Reels"
-        >
-          <Film className="w-4 h-4" />
-        </Link>
-
         {/* Create Post (Hero Plus with Pulse) */}
         <Link
           href="/create"

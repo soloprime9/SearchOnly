@@ -144,7 +144,6 @@ export default function LeftSidebar({ sticky = false }) {
   const menu = [
     { icon: FaHome,        label: "Home",     href: "/" },
     { icon: FaSearch,      label: "Explore",  href: "/search" },
-    { icon: FaVideo,       label: "Shorts",   href: "/shorts" },
     { icon: FaShoppingBag, label: "Store",    href: "/store" },
     { icon: FaCommentDots, label: "Messages", href: "/messages", badge: unreadChatCount },
     { icon: FaUpload,      label: "Upload",   href: "/upload" },
@@ -159,7 +158,6 @@ export default function LeftSidebar({ sticky = false }) {
 
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
-    if (href === "/shorts") return pathname?.startsWith("/short");
     return pathname?.startsWith(href);
   };
 
@@ -434,23 +432,23 @@ export default function LeftSidebar({ sticky = false }) {
             <span className="text-[9.5px]">Home</span>
           </Link>
 
-          {/* 2. Shorts */}
+          {/* 2. Explore */}
           <Link
-            href="/shorts"
+            href="/search"
             onClick={() => {
               playTap();
               stopAllMediaPlayback();
             }}
             className={`flex flex-col items-center justify-center gap-1 min-w-[56px] py-1 rounded-xl transition-all duration-150 active:scale-90 ${
-              pathname?.startsWith("/short") ? "text-white font-extrabold" : "text-zinc-400"
+              pathname?.startsWith("/search") ? "text-white font-extrabold" : "text-zinc-400"
             }`}
           >
             <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl transition-all duration-200 ${
-              pathname?.startsWith("/short") ? "bg-white text-black scale-110 shadow-md shadow-white/20" : ""
+              pathname?.startsWith("/search") ? "bg-white text-black scale-110 shadow-md shadow-white/20" : ""
             }`}>
-              <FaVideo className={`text-[18px] transition-colors ${pathname?.startsWith("/short") ? "text-black" : "text-zinc-400"}`} />
+              <FaSearch className={`text-[18px] transition-colors ${pathname?.startsWith("/search") ? "text-black" : "text-zinc-400"}`} />
             </div>
-            <span className="text-[9.5px]">Shorts</span>
+            <span className="text-[9.5px]">Explore</span>
           </Link>
 
           {/* 3. FONDPEACE STORE (PROMINENT GLOWING BEACON) */}

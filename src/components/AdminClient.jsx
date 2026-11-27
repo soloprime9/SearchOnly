@@ -55,7 +55,7 @@ export default function AdminClient({ initialPosts }) {
   const [pushLoading, setPushLoading] = useState(false);
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastBody, setBroadcastBody] = useState("");
-  const [broadcastUrl, setBroadcastUrl] = useState("/shorts");
+  const [broadcastUrl, setBroadcastUrl] = useState("/");
   const [broadcastTarget, setBroadcastTarget] = useState("all");
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
   const [broadcastResult, setBroadcastResult] = useState(null);
@@ -170,7 +170,7 @@ export default function AdminClient({ initialPosts }) {
   const handleShare = async (post) => {
     if (!post?._id) return;
     const isVid = isPlayableShortPost(post);
-    const route = isVid ? "shorts" : "post";
+    const route = "post";
     const origin =
       typeof window !== "undefined" && window.location.origin
         ? window.location.origin
@@ -334,7 +334,7 @@ export default function AdminClient({ initialPosts }) {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleShare(post)}
-                        title="Copy Title + URL (/shorts/ for videos)"
+                        title="Copy Title + URL (/post/)"
                         className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
                           copiedIp === `post_${post._id}`
                             ? "bg-emerald-500 text-white"
@@ -865,7 +865,7 @@ export default function AdminClient({ initialPosts }) {
                   </label>
                   <input
                     type="text"
-                    placeholder="/shorts or /topic/viral"
+                    placeholder="/ or /topic/viral"
                     value={broadcastUrl}
                     onChange={(e) => setBroadcastUrl(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-500"

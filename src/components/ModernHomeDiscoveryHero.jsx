@@ -39,14 +39,14 @@ export default function ModernHomeDiscoveryHero({ onSelectCategory }) {
       },
     },
     {
-      id: "shorts",
-      title: "Viral Shorts & Reels",
-      tag: "9:16 Video Player",
-      desc: "Full-screen vertical videos, instant audio, and creator highlights.",
+      id: "store",
+      title: "AI & Creator Store",
+      tag: "Playbooks & Tools",
+      desc: "Browse production AI developer toolkits, automation studios, and creator packs.",
       icon: Film,
-      href: "/shorts",
-      actionText: "Watch Shorts",
-      badge: "Live",
+      href: "/store",
+      actionText: "Open Store",
+      badge: "Tools",
     },
     {
       id: "polls",
@@ -242,12 +242,12 @@ export default function ModernHomeDiscoveryHero({ onSelectCategory }) {
                 </Link>
 
                 <Link
-                  href="/shorts"
+                  href="/store"
                   onClick={() => playTap()}
                   className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white font-bold text-xs border border-white/15 transition active:scale-95"
                 >
                   <Film size={14} />
-                  <span>Watch Shorts</span>
+                  <span>Creator Store</span>
                 </Link>
               </div>
             </div>

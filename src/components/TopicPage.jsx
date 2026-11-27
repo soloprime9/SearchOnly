@@ -180,7 +180,7 @@ export default function TopicPage({ topic }) {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {filteredPosts.map((p) => {
           const isVideo = isPlayableShortPost(p);
-          const postLink = isVideo ? `/short/${p._id}` : `/post/${p._id}`;
+          const postLink = `/post/${p._id}`;
           const thumb = p.thumbnail || p.media || p.linkPreview?.image || "/Fondpeace.jpg";
           const author = p.userId;
 

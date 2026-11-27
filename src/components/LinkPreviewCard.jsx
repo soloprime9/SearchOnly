@@ -194,14 +194,14 @@ export default function LinkPreviewCard({
     }
   };
 
-  // Handle clicking on media: on feed navigates to short (if YouTube/video) or post, on single post toggles play/pause
+  // Handle clicking on media: on feed navigates to /post/[id], on single post toggles play/pause
   const handleMediaClick = (e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     if (inFeed && postId) {
-      router.push(isYouTubeVideo ? `/short/${postId}` : `/post/${postId}`);
+      router.push(`/post/${postId}`);
     } else {
       const nextPlay = !isPlayingState;
       setIsPlayingState(nextPlay);
@@ -237,7 +237,7 @@ export default function LinkPreviewCard({
         >
           {/* Only mount live YouTube iframe on the main watch page (!inFeed).
               Inside RelatedPosts / feeds (inFeed=true), render crisp thumbnail only so the page stays fast
-              and Google sees strictly ONE main video on each /short/[id] watch page. */}
+              and Google sees strictly ONE main video on each /post/[id] watch page. */}
           {!inFeed && (
             <iframe
               ref={iframeRef}
@@ -322,9 +322,9 @@ export default function LinkPreviewCard({
           </button>
         </div>
 
-        {/* Post Details (Navigates to /shorts/[id] if video/YouTube, else /post/[id]) */}
+        {/* Post Details (Navigates to unified /post/[id]) */}
         <Link
-          href={postId ? (isYouTubeVideo ? `/short/${postId}` : `/post/${postId}`) : "#"}
+          href={postId ? `/post/${postId}` : "#"}
           className="block p-3.5 sm:p-4 no-underline text-inherit cursor-pointer hover:bg-[var(--bg-surface-hover)] transition-colors"
         >
           {preview.title && (

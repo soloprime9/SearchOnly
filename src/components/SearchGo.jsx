@@ -278,7 +278,7 @@ function SearchGoContent() {
                   }`}
                 >
                   <Film size={14} />
-                  <span>Shorts & Videos ({videoPosts.length})</span>
+                  <span>Videos ({videoPosts.length})</span>
                 </button>
               )}
 
@@ -333,7 +333,7 @@ function SearchGoContent() {
                       {trending.slice(0, 6).map((post) => {
                         const thumb = post.thumbnail || post.media || post.linkPreview?.image || "/Fondpeace.jpg";
                         const isVideo = isPlayableShortPost(post);
-                        const postLink = isVideo ? `/short/${post._id}` : `/post/${post._id}`;
+                        const postLink = `/post/${post._id}`;
 
                         return (
                           <Link
@@ -430,7 +430,7 @@ function SearchGoContent() {
                   : resultsPosts
                 ).map((post) => {
                   const isVideo = isPlayableShortPost(post);
-                  const postLink = isVideo ? `/short/${post._id}` : `/post/${post._id}`;
+                  const postLink = `/post/${post._id}`;
                   const thumb = post.thumbnail || post.media || post.linkPreview?.image || "/Fondpeace.jpg";
 
                   return (
@@ -520,10 +520,10 @@ function SearchGoContent() {
                 </div>
               </div>
               <Link
-                href="/shorts"
+                href="/"
                 className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
               >
-                <span>Watch Shorts</span>
+                <span>Browse Feed</span>
                 <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
@@ -532,7 +532,7 @@ function SearchGoContent() {
               {trending.map((post) => {
                 const thumb = post.thumbnail || post.media || post.linkPreview?.image || "/Fondpeace.jpg";
                 const isVideo = isPlayableShortPost(post);
-                const postLink = isVideo ? `/short/${post._id}` : `/post/${post._id}`;
+                const postLink = `/post/${post._id}`;
 
                 return (
                   <Link

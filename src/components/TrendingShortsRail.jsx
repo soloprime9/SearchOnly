@@ -40,14 +40,14 @@ export default function TrendingShortsRail() {
         if (Array.isArray(videoList) && videoList.length > 0) {
           const mapped = videoList.map((v) => ({
             id: v._id,
-            title: v.title || "Trending Short",
+            title: v.title || "Trending Video",
             creator: v.userId?.username || "creator",
             views: formatCount(v.views || 0),
             duration: formatDuration(v.duration || 45),
             tag: v.category || "Video",
             image: v.thumbnail || "/Fondpeace.jpg",
             media: v.media,
-            href: `/short/${v._id}`,
+            href: `/post/${v._id}`,
           }));
           setShorts(mapped);
           if (mapped[0]?.id) {
@@ -85,7 +85,7 @@ export default function TrendingShortsRail() {
           </div>
           <div>
             <h2 className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
-              <span>Trending Shorts</span>
+              <span>Trending Videos</span>
               <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-red-600 text-white shadow-xs">
                 Hot
               </span>
@@ -111,11 +111,11 @@ export default function TrendingShortsRail() {
             <ChevronRight size={14} />
           </button>
           <Link
-            href={firstShortId ? `/shorts/${firstShortId}` : "/shorts"}
+            href={firstShortId ? `/post/${firstShortId}` : "/search"}
             onClick={() => playTap()}
             className="text-xs font-bold text-zinc-400 hover:text-white transition ml-1 hover:underline"
           >
-            Watch All →
+            Watch Now →
           </Link>
         </div>
       </div>

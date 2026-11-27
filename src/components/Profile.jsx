@@ -1034,7 +1034,7 @@ const Profile = ({ username: propUsername, initialProfile = null }) => {
             {filteredPosts.map((post) => {
               const { isDirectVideo, isVideo, ytVideoId, displayImage, cleanTitle, siteName } = resolvePostVisuals(post);
               const isTargetShort = Boolean(isDirectVideo || isVideo || ytVideoId || post.mediaType === "video");
-              const targetHref = isTargetShort ? `/short/${post._id}` : `/post/${post._id}`;
+              const targetHref = `/post/${post._id}`;
 
               return (
                 <Link
